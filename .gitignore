@@ -477,3 +477,6 @@ Desktop.ini
 # IntelliJ debug attach files
 .attach_pid*
 .idea
+
+# This is going to be an init-time symlink forever
+/anime-subs
