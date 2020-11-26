@@ -8,6 +8,7 @@ autopep8 = "*"
 
 [packages]
 ass = "*"
+ass-tag-parser = "*"
 
 [requires]
 python_version = "3.8"
