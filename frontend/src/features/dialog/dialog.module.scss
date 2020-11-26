@@ -1,0 +1,14 @@
+@import 'common';
+
+.container {
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+
+    .metadata {
+        margin-bottom: 0.25em;
+    }
+}
+
+.active {
+    color: $highlight-color;
+}

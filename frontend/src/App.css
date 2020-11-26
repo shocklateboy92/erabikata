@@ -1,0 +1,28 @@
+.App button {
+    background: none;
+    border: none;
+
+    color: inherit;
+}
+
+a {
+    text-decoration: none;
+}
+
+.button-group :not(:first-child) {
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+}
+
+.button-group :not(:last-child) {
+    border-bottom-right-radius: 0;
+    border-top-right-radius: 0;
+}
+
+a {
+    color: unset;
+}
+
+ruby {
+    font-size: 1.5em;
+}

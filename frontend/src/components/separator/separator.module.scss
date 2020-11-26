@@ -1,0 +1,26 @@
+@import 'common';
+
+$highlight-color-light: rgb(160, 160, 160);
+
+.separator {
+    height: 1px;
+    width: 100%;
+
+    @include gradient(90deg, $highlight-color-light);
+    margin-top: 1vh;
+    margin-bottom: 1vh;
+
+    &.navBar {
+        height: unset;
+        align-self: stretch;
+        width: 1px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+
+        @include gradient(0, $highlight-color-light);
+
+        @media (max-width: 480px) {
+            display: none;
+        }
+    }
+}

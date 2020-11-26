@@ -1,0 +1,46 @@
+.container {
+    display: flex;
+    > * {
+        margin-left: 0.5em;
+    }
+
+    img {
+        margin-left: -20px;
+        margin-right: -20px;
+    }
+
+    button {
+        font: inherit;
+    }
+}
+
+.item {
+    display: flex;
+
+    align-items: center;
+    // margin-right: 0.5em;
+
+    svg {
+        margin-right: 0.2em;
+    }
+
+    .text {
+        @media (max-width: 40em) {
+            display: none;
+        }
+    }
+}
+
+.title {
+    flex-grow: 1;
+    flex-shrink: 1;
+
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+:global(.active) .item {
+    font-weight: bold;
+}

@@ -1,0 +1,11 @@
+@mixin gradient($rotation, $color: rgba(255, 255, 255, 1)) {
+    background: linear-gradient(
+        $rotation,
+        rgba(0, 0, 0, 1) 0%,
+        $color 25%,
+        $color 75%,
+        rgba(0, 0, 0, 1) 100%
+    );
+}
+
+$highlight-color: #61dafb;

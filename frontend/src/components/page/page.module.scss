@@ -1,0 +1,64 @@
+@import 'common';
+
+.container {
+    display: grid;
+    height: calc(100vh - 4.5em);
+
+    gap: 1vmax;
+    margin-left: 1vmax;
+    margin-right: 1vmax;
+
+    > * {
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+    }
+
+    div:empty + .separator {
+        background: none;
+    }
+
+    @media (orientation: landscape) {
+        grid: none / auto 1px min-content;
+        .primary {
+            grid-column-start: 1;
+        }
+        .separator {
+            grid-column-start: 2;
+            @include gradient(0);
+        }
+        .secondary {
+            grid-column-start: 3;
+            > * {
+                width: 48vw;
+            }
+        }
+        > * {
+            grid-row-start: 1;
+        }
+    }
+
+    @media (orientation: portrait) {
+        grid: auto 1px auto / none;
+        .primary {
+            grid-row-start: 1;
+        }
+        .separator {
+            grid-row-start: 2;
+            @include gradient(90deg);
+        }
+        .secondary {
+            grid-row-start: 3;
+        }
+        > * {
+            grid-column-start: 1;
+        }
+    }
+}
+
+.closing {
+    opacity: 50%;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}

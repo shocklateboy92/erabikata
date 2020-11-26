@@ -1,0 +1,25 @@
+.tags {
+    margin-top: 0.5em;
+    font-size: 0.8em;
+}
+
+.definition {
+    margin-top: 1em;
+    font-size: 1.1em;
+
+    &:first-child {
+        margin-top: 0;
+    }
+
+    .commonTag {
+        font-size: 0.8em;
+    }
+}
+
+.title {
+    font-size: 1.5em;
+
+    ruby + ruby {
+        margin-left: 1vw;
+    }
+}

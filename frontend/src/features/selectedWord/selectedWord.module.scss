@@ -1,0 +1,20 @@
+.summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 2vw;
+
+    .title {
+        font-size: 4em;
+    }
+    .content {
+        flex-grow: 1;
+
+        display: flex;
+        align-items: center;
+
+        .text {
+            flex-grow: 1;
+        }
+    }
+}
