@@ -17,7 +17,7 @@ INCLUDE_STYLES = ['K1Norma',
                   'K2Overl', 'K3Thoug', 'K4Notes', 'K5Narra', 'Default - Top', 'Default - Italic', 'flashback', 'top', 'main', 'italics', 'Anohana-alt']
 INCLUDE_STYLE_PATTERNS = ['Default', 'Dialogue', 'Alternate']
 EXCLUDE_STYLES = ['Default2', 'Alternate2']
-SUBS_ROOT = argv[1] if len(argv) > 1 else '../anime-subs/english'
+SUBS_ROOT = argv[1] if len(argv) > 1 else '../../anime-subs/english'
 ALL_TAGS_REGEX = re.compile(r'{[^}]*}')
 DRAW_MODE_REGEX = re.compile(r'{[^}]*\\p\d[^}]*}')
 
@@ -35,14 +35,16 @@ def do_parse(file_path: str):
             include_styles = []
             styles_file = file.with_name("include_styles.txt")
             if (styles_file.exists()):
-                include_styles = [s.trim()
+                include_styles = [s.strip()
                                   for s in styles_file.read_text().splitlines()]
 
             for event in sorted(doc.events, key=lambda x: x.start):
                 if event.TYPE != 'Dialogue':
                     continue
 
-                if include_styles and event.style in include_styles or (event.style not in EXCLUDE_STYLES and event.style in INCLUDE_STYLES or any(style.lower() in event.style.lower() for style in INCLUDE_STYLE_PATTERNS)):
+                extract_style = event.style in include_styles if include_styles else (event.style not in EXCLUDE_STYLES and event.style in INCLUDE_STYLES or any(
+                    style.lower() in event.style.lower() for style in INCLUDE_STYLE_PATTERNS))
+                if extract_style:
                     text = ''
                     try:
                         parsed = parse_ass(event.text)
@@ -60,8 +62,8 @@ def do_parse(file_path: str):
 
             with open(file.with_suffix('.json'), 'w') as out:
                 json.dump(results, out, indent=2)
-        except:
-            print(f'failed to parse {f}')
+        except Exception as e:
+            print(f'failed to parse {f}: {e}')
 
 
 with Pool(12) as pool:
