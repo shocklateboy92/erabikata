@@ -45,20 +45,20 @@ def do_parse(file_path: str):
                 extract_style = event.style in include_styles if include_styles else (event.style not in EXCLUDE_STYLES and event.style in INCLUDE_STYLES or any(
                     style.lower() in event.style.lower() for style in INCLUDE_STYLE_PATTERNS))
                 if extract_style:
-                    text = ''
+                    text = []
                     try:
                         parsed = parse_ass(event.text)
-                        text = '\n'.join([a.text for a in parsed if isinstance(
-                            a, ass_tag_parser.AssText)])
+                        text = [a.text for a in parsed if isinstance(
+                            a, ass_tag_parser.AssText)]
                     except ParseError:
                         if not DRAW_MODE_REGEX.search(event.text):
-                            text = ALL_TAGS_REGEX.sub('', event.text)
+                            text = ALL_TAGS_REGEX.sub('', event.text).splitlines()
 
                     results.append(
                         {'text': text, 'time': event.start.total_seconds(), 'style': event.style})
                 else:
                     results.append(
-                        {'time': event.start.total_seconds(), 'style': event.style, 'size': len(event.text)})
+                        {'text': [], 'time': event.start.total_seconds(), 'style': event.style, 'size': len(event.text)})
 
             with open(file.with_suffix('.json'), 'w') as out:
                 json.dump(results, out, indent=2)

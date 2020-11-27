@@ -1,9 +1,7 @@
 public class AnalyzedDialog extends Dialog {
-    protected final Word[] analyzed;
+    protected final Word[][] analyzed;
 
-    public AnalyzedDialog(Dialog parent, Word[] analyzed) {
-        this.startTime = parent.startTime;
-        this.tokenized = parent.tokenized;
+    public AnalyzedDialog(Dialog parent, Word[][] analyzed) {
         this.analyzed = analyzed;
     }
 

@@ -1,8 +1,7 @@
 public class Dialog {
-    protected double startTime;
-    protected String[] tokenized;
+    protected String[] text;
 
-    public String getText() {
-        return String.join("", this.tokenized);
+    public String[] getText() {
+        return this.text;
     }
 }

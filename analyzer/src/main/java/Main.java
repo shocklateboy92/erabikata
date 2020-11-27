@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Main {
-    static final Pattern SEARCH_PATTERN = Pattern.compile("/subs/[^/]*\\.json$");
+    static final Pattern SEARCH_PATTERN = Pattern.compile("/input/[^/]*\\.json$");
     private static final Tokenizer tokenizer = new Tokenizer();
 
     public static void main(String[] args) throws IOException {
@@ -29,14 +29,13 @@ public class Main {
                 List<Dialog> lines = gson.fromJson(new FileReader(file.toFile()), new TypeToken<ArrayList<Dialog>>() {
                 }.getType());
                 var analyzed = analyzeLines(lines).toArray(AnalyzedDialog[]::new);
-                Arrays.stream(analyzed).forEach(ad -> ad.tokenized = Arrays.stream(ad.analyzed).map(d -> d.original).toArray(String[]::new));
 
                 var parent = file.getParent();
-                if (!parent.getFileName().toString().equals("subs")) {
+                if (!parent.getFileName().toString().equals("input")) {
                     throw new Exception("Encountered invalid directory: " + parent.getFileName());
                 }
 
-                var outDir = parent.resolve("analyzed_subs").toFile();
+                var outDir = parent.getParent().resolve("kuromoji").toFile();
                 if (!outDir.exists()) {
                     outDir.mkdir();
                 }
@@ -53,25 +52,27 @@ public class Main {
         });
     }
 
-    public static Stream<AnalyzedDialog> analyzeLines(List<Dialog> lines) {
-        return lines.stream().map(line -> {
-            var tokens = tokenizer.tokenize(line.getText());
-            return new AnalyzedDialog(line, tokens.stream().map(token -> {
-                var word = new AnalyzedDialog.Word();
-                word.base = token.getBaseForm();
-                word.conjugationType = token.getConjugationType();
-                word.original = token.getSurface();
-                word.partOfSpeech = new String[]{
-                        token.getPartOfSpeechLevel1(),
-                        token.getPartOfSpeechLevel2(),
-                        token.getPartOfSpeechLevel3(),
-                        token.getPartOfSpeechLevel4()
-                };
-                word.reading = token.getReading();
-                word.pronunciation = token.getPronunciation();
+    public static Stream<AnalyzedDialog> analyzeLines(List<Dialog> dialog) {
+        return dialog.stream().map(ds -> {
+           return new AnalyzedDialog(ds, Arrays.stream(ds.getText()).map(line -> {
+                var tokens = tokenizer.tokenize(line);
+                return  tokens.stream().map(token -> {
+                        var word = new AnalyzedDialog.Word();
+                        word.base = token.getBaseForm();
+                        word.conjugationType = token.getConjugationType();
+                        word.original = token.getSurface();
+                        word.partOfSpeech = new String[]{
+                                token.getPartOfSpeechLevel1(),
+                                token.getPartOfSpeechLevel2(),
+                                token.getPartOfSpeechLevel3(),
+                                token.getPartOfSpeechLevel4()
+                        };
+                        word.reading = token.getReading();
+                        word.pronunciation = token.getPronunciation();
 
-                return word;
-            }).toArray(AnalyzedDialog.Word[]::new));
+                        return word;
+                    }).toArray(AnalyzedDialog.Word[]::new);
+                }).toArray(AnalyzedDialog.Word[][]::new));
         });
     }
 }
