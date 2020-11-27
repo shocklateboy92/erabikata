@@ -10,6 +10,7 @@ pylint = "*"
 [packages]
 ass = "*"
 ass-tag-parser = "*"
+plexapi = "*"
 
 [requires]
 python_version = "3.8"
