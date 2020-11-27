@@ -1,5 +1,6 @@
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.*;
 import java.nio.file.Files;
@@ -17,7 +18,7 @@ public class Main {
 
   public static void main(String[] args) throws IOException {
     System.out.println("Starting...");
-    Gson gson = new Gson();
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     Stream<Path> files =
         Files.walk(Paths.get("."))
