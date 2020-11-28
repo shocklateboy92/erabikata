@@ -28,8 +28,14 @@ namespace Erabikata.Backend.Managers
 
         public IReadOnlyList<Episode> AllEpisodes { get; private set; } = new Episode[] { };
 
-        public Dictionary<int, AnalyzedSentenceV2[]> AllEpisodeV2s { get; private set; } =
-            new Dictionary<int, AnalyzedSentenceV2[]>();
+        public Dictionary<int, AnalyzedSentenceV2[]> KuoromojiAnalyzedSentenceV2s
+        {
+            get;
+            private set;
+        } = new Dictionary<int, AnalyzedSentenceV2[]>();
+
+        public Dictionary<int, InputSentence[]> InputSentences { get; set; } =
+            new Dictionary<int, InputSentence[]>();
 
         public async Task Initialize()
         {
@@ -47,23 +53,23 @@ namespace Erabikata.Backend.Managers
                 .ToArray();
 
             _logger.LogInformation(
-                $"Found {files.Count()} files in {directories.Length} directories"
+                $"Found {files.Length} files in {directories.Length} directories"
             );
-            //
-            // var parseTasks = files.Select(
-            //         async file => new Episode
-            //         {
-            //             Title = file, Dialog = Sentence.FromJson(await File.ReadAllTextAsync(file))
-            //         }
-            //     )
-            //     .ToArray();
-            //
-            // // Make all the file reads async to hopefully parallelize them
-            // await Task.WhenAll(parseTasks);
-            //
-            // AllEpisodes = parseTasks.Select(t => t.Result)
-            //     .Where(t => t.Dialog.Any(w => w.Analyzed.Any()))
-            //     .ToImmutableArray();
+
+            var parseTasks = files.Select(
+                    async file => new Episode
+                    {
+                        Title = file, Dialog = Sentence.FromJson(await File.ReadAllTextAsync(file))
+                    }
+                )
+                .ToArray();
+
+            // Make all the file reads async to hopefully parallelize them
+            await Task.WhenAll(parseTasks);
+
+            AllEpisodes = parseTasks.Select(t => t.Result)
+                .Where(t => t.Dialog.Any(w => w.Analyzed.Any()))
+                .ToImmutableArray();
 
             var newFiles = Directory.EnumerateFiles(
                     _settings.Input.RootDirectory,
@@ -89,6 +95,14 @@ namespace Erabikata.Backend.Managers
                                                 $"../kuromoji/{index + 1:00}.json"
                                             )
                                         )
+                                    ),
+                                    JsonConvert.DeserializeObject<InputSentence[]>(
+                                        await File.ReadAllTextAsync(
+                                            Path.Combine(
+                                                metadataFile,
+                                                $"../input/{index + 1:00}.json"
+                                            )
+                                        )
                                     ))
                             )
                             .ToList();
@@ -99,8 +113,12 @@ namespace Erabikata.Backend.Managers
                 .ToList();
 
             await Task.WhenAll(readTasks);
-            AllEpisodeV2s = readTasks.SelectMany(task => task.Result)
-                .ToDictionary(tuples => tuples.Item1, tuple => tuple.Item2);
+            var results = readTasks.SelectMany(task => task.Result).ToList();
+            KuoromojiAnalyzedSentenceV2s = results.ToDictionary(
+                tuples => tuples.Item1,
+                tuple => tuple.Item2
+            );
+            InputSentences = results.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item3);
         }
     }
 }
