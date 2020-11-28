@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
+using Erabikata.Models.Input.V2;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace Erabikata.Backend.Managers
 {
@@ -25,6 +27,9 @@ namespace Erabikata.Backend.Managers
         }
 
         public IReadOnlyList<Episode> AllEpisodes { get; private set; } = new Episode[] { };
+
+        public Dictionary<int, AnalyzedSentenceV2[]> AllEpisodeV2s { get; private set; } =
+            new Dictionary<int, AnalyzedSentenceV2[]>();
 
         public async Task Initialize()
         {
@@ -44,21 +49,58 @@ namespace Erabikata.Backend.Managers
             _logger.LogInformation(
                 $"Found {files.Count()} files in {directories.Length} directories"
             );
+            //
+            // var parseTasks = files.Select(
+            //         async file => new Episode
+            //         {
+            //             Title = file, Dialog = Sentence.FromJson(await File.ReadAllTextAsync(file))
+            //         }
+            //     )
+            //     .ToArray();
+            //
+            // // Make all the file reads async to hopefully parallelize them
+            // await Task.WhenAll(parseTasks);
+            //
+            // AllEpisodes = parseTasks.Select(t => t.Result)
+            //     .Where(t => t.Dialog.Any(w => w.Analyzed.Any()))
+            //     .ToImmutableArray();
 
-            var parseTasks = files.Select(
-                    async file => new Episode
+            var newFiles = Directory.EnumerateFiles(
+                    _settings.Input.RootDirectory,
+                    "show-metadata.json",
+                    SearchOption.AllDirectories
+                )
+                .ToList();
+            _logger.LogInformation($"Found {newFiles.Count} shows in new format.");
+            var readTasks = newFiles.Select(
+                    async metadataFile =>
                     {
-                        Title = file, Dialog = Sentence.FromJson(await File.ReadAllTextAsync(file))
+                        var metaData = JsonConvert.DeserializeObject<ShowInfo>(
+                            await File.ReadAllTextAsync(metadataFile)
+                        );
+
+                        var episodeTasks = metaData.Episodes.First()
+                            .Select(
+                                async (info, index) => (int.Parse(info.Key.Split('/').Last()),
+                                    JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
+                                        await File.ReadAllTextAsync(
+                                            Path.Combine(
+                                                metadataFile,
+                                                $"../kuromoji/{index + 1:00}.json"
+                                            )
+                                        )
+                                    ))
+                            )
+                            .ToList();
+                        await Task.WhenAll(episodeTasks);
+                        return episodeTasks.Select(task => task.Result);
                     }
                 )
-                .ToArray();
+                .ToList();
 
-            // Make all the file reads async to hopefully parallelize them
-            await Task.WhenAll(parseTasks);
-
-            AllEpisodes = parseTasks.Select(t => t.Result)
-                .Where(t => t.Dialog.Any(w => w.Analyzed.Any()))
-                .ToImmutableArray();
+            await Task.WhenAll(readTasks);
+            AllEpisodeV2s = readTasks.SelectMany(task => task.Result)
+                .ToDictionary(tuples => tuples.Item1, tuple => tuple.Item2);
         }
     }
 }
