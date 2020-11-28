@@ -28,14 +28,20 @@ namespace Erabikata.Backend.Managers
 
         public IReadOnlyList<Episode> AllEpisodes { get; private set; } = new Episode[] { };
 
-        public Dictionary<int, AnalyzedSentenceV2[]> KuoromojiAnalyzedSentenceV2s
+        public IReadOnlyDictionary<int, AnalyzedSentenceV2[]> KuoromojiAnalyzedSentenceV2s
         {
             get;
             private set;
         } = new Dictionary<int, AnalyzedSentenceV2[]>();
 
-        public Dictionary<int, InputSentence[]> InputSentences { get; set; } =
+        public IReadOnlyDictionary<int, InputSentence[]> InputSentences { get; private set; } =
             new Dictionary<int, InputSentence[]>();
+
+        public IReadOnlyDictionary<int, FilteredInputSentence[]> FilteredInputSentences
+        {
+            get;
+            private set;
+        } = new Dictionary<int, FilteredInputSentence[]>();
 
         public async Task Initialize()
         {
@@ -119,6 +125,15 @@ namespace Erabikata.Backend.Managers
                 tuple => tuple.Item2
             );
             InputSentences = results.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item3);
+            FilteredInputSentences = InputSentences.ToDictionary(
+                pair => pair.Key,
+                pair => pair.Value.Select(
+                        (sentence, index) => new FilteredInputSentence(sentence, index)
+                    )
+                    .Where(sentence => sentence.Text.Any())
+                    .OrderBy(sentence => sentence.Time)
+                    .ToArray()
+            );
         }
     }
 }

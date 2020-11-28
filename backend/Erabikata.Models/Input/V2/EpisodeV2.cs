@@ -25,6 +25,21 @@ namespace Erabikata.Models.Input.V2
         public long? Size { get; set; }
     }
 
+    public class FilteredInputSentence : InputSentence
+    {
+        public FilteredInputSentence(InputSentence sentence, long index) : base(
+            sentence.Text,
+            sentence.Time,
+            sentence.Style,
+            sentence.Size
+        )
+        {
+            Index = index;
+        }
+
+        public long Index { get; }
+    }
+
     public class AnalyzedSentenceV2
     {
         public AnalyzedSentenceV2(Analyzed[][] analyzed)

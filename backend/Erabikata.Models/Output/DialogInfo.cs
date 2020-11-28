@@ -1,5 +1,6 @@
 using System.Linq;
 using Erabikata.Models.Input;
+using Erabikata.Models.Input.V2;
 using Newtonsoft.Json;
 
 namespace Erabikata.Models.Output
@@ -19,13 +20,24 @@ namespace Erabikata.Models.Output
             Words = tokenized;
         }
 
+        public DialogInfo(InputSentence sentence, AnalyzedSentenceV2 analyzedSentenceV2)
+        {
+            StartTime = sentence.Time;
+            Words = analyzedSentenceV2.Analyzed.SelectMany(
+                    a => a.Select(
+                        f => new WordRef(f.Original, f.Base == "*" ? f.Original : f.Base, f.Reading)
+                    )
+                )
+                .ToArray();
+        }
+
         public DialogInfo(Sentence sentence)
         {
             this.StartTime = sentence.StartTime;
             this.Words = sentence.Analyzed.Select(
                     word => new WordRef(
                         displayText: word.Original,
-                        baseForm: word.Base,
+                        baseForm: word.Base == "*" ? word.Original : word.Base,
                         reading: word.Reading
                     )
                 )

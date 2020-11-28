@@ -40,6 +40,32 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] double time = 0.0,
             [FromQuery] int count = 3)
         {
+            if (int.TryParse(episode, out var episodeId) &&
+                _database.InputSentences.ContainsKey(episodeId))
+            {
+                var startIndex = Math.Max(
+                    0,
+                    Array.FindIndex(
+                        _database.FilteredInputSentences[episodeId],
+                        sentence => sentence.Time >= time
+                    ) - count
+                );
+
+                return new NowPlayingInfo(
+                    episodeId.ToString(),
+                    time,
+                    _database.FilteredInputSentences[episodeId]
+                        .Skip(startIndex)
+                        .Take(count * 2)
+                        .Select(
+                            sentence => new DialogInfo(
+                                sentence,
+                                _database.KuoromojiAnalyzedSentenceV2s[episodeId][sentence.Index]
+                            )
+                        )
+                );
+            }
+
             var ep = _database.AllEpisodes.SingleOrDefault(ep => ep.Title == episode);
             if (ep == null)
             {
@@ -81,9 +107,7 @@ namespace Erabikata.Backend.Controllers
                 ?.SelectMany(
                     session => session.Media.SelectMany(m => m.Part.Select(p => p.File))
                         .Where(f => !string.IsNullOrWhiteSpace(f))
-                        .Select(
-                            f => f.Replace("/mnt/data", _videoInputSettings.RootDirectory)
-                        )
+                        .Select(f => f.Replace("/mnt/data", _videoInputSettings.RootDirectory))
                         .Select(
                             file =>
                             {
