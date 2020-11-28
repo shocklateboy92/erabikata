@@ -29,7 +29,7 @@ namespace Erabikata.Backend.Managers
 
         public (string word, int count)[] BuildWordCountsSorted(
             bool respectPartOfSpeechFilter,
-            IReadOnlyCollection<PartOfSpeech>? includePartsOfSpeech = null,
+            IReadOnlyCollection<string>? includePartsOfSpeech = null,
             IReadOnlyCollection<string>? ignoredWords = null)
         {
             var bracketCount = 0;

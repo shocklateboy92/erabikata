@@ -31,7 +31,7 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] bool excludeKnownWords = true,
             [FromQuery] int max = 100,
             [FromQuery] int skip = 0,
-            [FromQuery] HashSet<PartOfSpeech>? onlyPartsOfSpeech = null)
+            [FromQuery] HashSet<string>? onlyPartsOfSpeech = null)
         {
             IReadOnlyCollection<string>? knownWords = null;
             if (excludeKnownWords)

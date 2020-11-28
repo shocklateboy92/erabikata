@@ -6,6 +6,6 @@ namespace Erabikata.Models.Configuration
     {
         public SubtitleProcessingInputSettings Input { get; set; }
 
-        public PartOfSpeech[] IgnoredPartsOfSpeech { get; set; }
+        public string[] IgnoredPartsOfSpeech { get; set; }
     }
 }

@@ -8,9 +8,9 @@ namespace Erabikata.Models.Input
 
         [JsonProperty("base")] public string Base { get; set; }
 
-        [JsonProperty("partOfSpeech")] public PartOfSpeech[] PartOfSpeech { get; set; }
+        [JsonProperty("partOfSpeech")] public string[] PartOfSpeech { get; set; }
 
-        [JsonProperty("conjugationType")] public ConjugationType ConjugationType { get; set; }
+        [JsonProperty("conjugationType")] public string ConjugationType { get; set; }
 
         [JsonProperty("reading")] public string Reading { get; set; }
 

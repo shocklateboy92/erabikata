@@ -35,7 +35,7 @@ namespace Erabikata.Backend.Controllers
         [Route("{text}")]
         public async Task<ActionResult<WordInfo>> Index(
             [FromRoute] string text,
-            [FromQuery] HashSet<PartOfSpeech> onlyPartsOfSpeech,
+            [FromQuery] HashSet<string> onlyPartsOfSpeech,
             string? includeEpisode,
             double? includeTime,
             [FromQuery] PagingInfo pagingInfo)
@@ -129,7 +129,7 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("{word}/[action]")]
-        public IEnumerable<PartOfSpeech> PartsOfSpeech([FromRoute] string word)
+        public IEnumerable<string> PartsOfSpeech([FromRoute] string word)
         {
             return _database.AllEpisodes.SelectMany(
                     ep => ep.Dialog.SelectMany(

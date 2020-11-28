@@ -12,6 +12,6 @@ namespace Erabikata.Models.Output
         public string VideoFile { get; set; }
         public string PatternGlob { get; set; }
         public string SubsLink { get; set; }
-        public string? EngSubs { get; set; }
+        public string EngSubs { get; set; }
     }
 }

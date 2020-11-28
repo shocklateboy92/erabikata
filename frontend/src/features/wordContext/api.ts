@@ -1,11 +1,11 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { PartOfSpeech, WordInfo, WordClient } from 'backend.generated';
+import { WordInfo, WordClient } from 'backend.generated';
 import { useLocation } from 'react-router-dom';
 
 interface IWordContextArgs {
     baseForm?: string;
-    onlyPartsOfSpeech?: PartOfSpeech[];
+    onlyPartsOfSpeech?: string[];
     includeEpisode?: string | null;
     includeTime?: number | null;
 

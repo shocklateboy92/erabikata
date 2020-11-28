@@ -12,8 +12,6 @@ namespace Erabikata.Models.Input
             DateParseHandling = DateParseHandling.None,
             Converters =
             {
-                ConjugationTypeConverter.Singleton,
-                PartOfSpeechConverter.Singleton,
                 new IsoDateTimeConverter {DateTimeStyles = DateTimeStyles.AssumeUniversal}
             }
         };
