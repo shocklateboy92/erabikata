@@ -51,11 +51,6 @@ namespace Erabikata.Backend
 
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
-            services.AddVersionedApiExplorer(
-                options =>
-                {
-                    options.SubstituteApiVersionInUrl = true;
-                });
             services.AddOpenApiDocument();
         }
 
