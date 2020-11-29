@@ -5,7 +5,7 @@ import { selectPlayerList, selectSelectedPlayer } from './selectors';
 import { useAppSelector } from 'app/hooks';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePlayerList, useHass } from './api';
-import { playerSelected } from './slice';
+import { playerSelection } from './actions';
 
 export const HassCheck: FC = () => {
     const [dispatch, hass] = [useDispatch(), useHass()];
@@ -19,7 +19,7 @@ export const HassCheck: FC = () => {
         <FullWidthText>
             <h2>Use Player</h2>
             <form className={styles.playerList}>
-                {players.map((player) => (
+                {Object.values(players).map((player) => (
                     <div key={player.id}>
                         <input
                             name="playerList"
@@ -28,7 +28,7 @@ export const HassCheck: FC = () => {
                             checked={player.id === selectedId}
                             onChange={(e) =>
                                 e.target.checked &&
-                                dispatch(playerSelected(player.id))
+                                dispatch(playerSelection(player.id))
                             }
                         />
                         <label htmlFor={createId(player.id)}>

@@ -1,6 +1,6 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { WordInfo, WordClient } from 'backend.generated';
+import { WordClient, WordInfo } from 'backend.generated';
 import { useLocation } from 'react-router-dom';
 
 interface IWordContextArgs {

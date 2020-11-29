@@ -1,50 +1,68 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
+import {
+    AnyAction,
+    compose,
+    createAsyncThunk,
+    ThunkDispatch
+} from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import * as hass from 'home-assistant-js-websocket';
-import React from 'react';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
+import {
+    hassEntityUpdate,
+    hassSocketDisconnection,
+    hassSocketReady
+} from './actions';
 import { selectSelectedPlayer } from './selectors';
 
 const STORAGE_KEY = 'hass_state';
-const getAuth = () =>
-    hass.getAuth({
-        hassUrl: 'https://home-assistant.apps.lasath.org',
-        saveTokens: (data) =>
-            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data)),
-        loadTokens: async () => {
-            const data = window.localStorage.getItem(STORAGE_KEY);
-            if (data) {
-                return JSON.parse(data);
+
+const createConnection = async (
+    dispatch: ThunkDispatch<unknown, unknown, AnyAction>
+) => {
+    const connection = await hass.createConnection({
+        auth: await hass.getAuth({
+            hassUrl: 'https://home-assistant.apps.lasath.org',
+            saveTokens: (data) =>
+                window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data)),
+            loadTokens: async () => {
+                const data = window.localStorage.getItem(STORAGE_KEY);
+                if (data) {
+                    return JSON.parse(data);
+                }
             }
-        }
+        })
     });
+
+    connection.addEventListener('ready', compose(dispatch, hassSocketReady));
+    connection.addEventListener(
+        'disconnected',
+        compose(dispatch, hassSocketDisconnection)
+    );
+    connection.addEventListener(
+        'reconnect-error',
+        compose(dispatch, hassSocketDisconnection)
+    );
+
+    hass.subscribeEntities(connection, compose(dispatch, hassEntityUpdate));
+
+    return connection;
+};
 
 export const updatePlayerList = createAsyncThunk(
     'updatePlayers',
-    async (context: IHassContext) => {
+    async (context: IHassContext, { dispatch }) => {
         if (!context.connection) {
-            context.connection = await hass.createConnection({
-                auth: await getAuth()
-            });
+            context.connection = await createConnection(dispatch);
         }
 
         const states = await hass.getStates(context.connection);
-        return states
-            .filter(
-                (e) =>
-                    e.entity_id.startsWith('media_player.plex_') &&
-                    e.state !== 'unavailable'
-            )
-            .map((e) => ({
-                name: e.attributes.friendly_name,
-                id: e.entity_id
-            }));
+        return Object.fromEntries(states.map((e) => [e.entity_id, e]));
     }
 );
 
 export const play = createAsyncThunk(
-    'play',
-    async (context: IHassContext, { getState }) => {
+    'pause',
+    async (context: IHassContext, { getState, dispatch }) => {
         const state = getState() as RootState;
         const entity_id = selectSelectedPlayer(state);
         if (!entity_id) {
@@ -52,9 +70,7 @@ export const play = createAsyncThunk(
         }
 
         if (!context.connection) {
-            context.connection = await hass.createConnection({
-                auth: await getAuth()
-            });
+            context.connection = await createConnection(dispatch);
         }
 
         await hass.callService(context.connection, DOMAIN, 'media_pause', {
@@ -68,12 +84,10 @@ export const playFrom = createAsyncThunk(
     'playFrom',
     async (
         args: { context: IHassContext; timeStamp: number },
-        { getState }
+        { getState, dispatch }
     ) => {
         if (!args.context.connection) {
-            args.context.connection = await hass.createConnection({
-                auth: await getAuth()
-            });
+            args.context.connection = await createConnection(dispatch);
         }
 
         const state = getState();
