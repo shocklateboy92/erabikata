@@ -1,6 +1,6 @@
-import { useAppSelector } from 'app/hooks';
+import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
-import { play, useHass } from 'features/hass';
+import { isCurrentPlayerActive, pause, useHass } from 'features/hass';
 import { fetchNowPlayingSessions } from 'features/nowPlaying';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
@@ -10,20 +10,22 @@ import styles from './spinnerTop.module.scss';
 export const SpinnerTop: FC = () => {
     const dispatch = useDispatch();
     const hass = useHass();
-    const shouldSpin = useAppSelector(
+    const shouldSpin = useTypedSelector(
         (state) =>
             state.spinnerTop.activeRequests +
                 Object.keys(state.spinnerTop.requests).length >
             0
     );
+    const isActive = useTypedSelector(isCurrentPlayerActive);
 
     return (
         <div
             className={classNames({
-                [styles.spinning]: shouldSpin
+                [styles.spinning]: shouldSpin,
+                [styles.inactive]: !isActive
             })}
             onClick={() => {
-                dispatch(play(hass));
+                dispatch(pause(hass));
                 dispatch(fetchNowPlayingSessions());
             }}
         >

@@ -37,6 +37,11 @@ const entityUpdateReducer = (
     { payload }: PayloadAction<HassEntities>
 ) => ({
     ...state,
+    selectedPlayer:
+        state.selectedPlayer! in payload &&
+        payload[state.selectedPlayer!].state !== UNAVAILABLE_STATE
+            ? state.selectedPlayer
+            : null,
     players: Object.fromEntries([
         [null, { id: null, name: 'None' }],
         ...Object.values(payload)

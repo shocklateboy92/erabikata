@@ -49,7 +49,7 @@ const createConnection = async (
 };
 
 export const updatePlayerList = createAsyncThunk(
-    'updatePlayers',
+    'hass/updatePlayers',
     async (context: IHassContext, { dispatch }) => {
         if (!context.connection) {
             context.connection = await createConnection(dispatch);
@@ -60,8 +60,8 @@ export const updatePlayerList = createAsyncThunk(
     }
 );
 
-export const play = createAsyncThunk(
-    'pause',
+export const pause = createAsyncThunk(
+    'hass/pause',
     async (context: IHassContext, { getState, dispatch }) => {
         const state = getState() as RootState;
         const entity_id = selectSelectedPlayer(state);
@@ -81,7 +81,7 @@ export const play = createAsyncThunk(
 
 const DOMAIN = 'media_player';
 export const playFrom = createAsyncThunk(
-    'playFrom',
+    'hass/playFrom',
     async (
         args: { context: IHassContext; timeStamp: number },
         { getState, dispatch }

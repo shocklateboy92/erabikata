@@ -17,3 +17,7 @@
     height: 4em;
     pointer-events: none;
 }
+
+.inactive {
+    filter: grayscale(100%);
+}
