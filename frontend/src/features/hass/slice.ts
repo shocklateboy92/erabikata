@@ -15,6 +15,8 @@ interface IHassState {
             name?: string;
             mediaId?: number;
             state?: string;
+            position?: number;
+            position_last_updated_at?: string;
         };
     };
     selectedPlayer: PlayerId;
@@ -35,7 +37,7 @@ const UNAVAILABLE_STATE = 'unavailable';
 const entityUpdateReducer = (
     state: IHassState,
     { payload }: PayloadAction<HassEntities>
-) => ({
+): IHassState => ({
     ...state,
     selectedPlayer:
         state.selectedPlayer! in payload &&
@@ -56,7 +58,10 @@ const entityUpdateReducer = (
                     name: e.attributes.friendly_name,
                     id: e.entity_id,
                     state: e.state,
-                    mediaId: e.attributes[MEDIA_ID_KEY]
+                    mediaId: e.attributes[MEDIA_ID_KEY],
+                    position: e.attributes['media_position'],
+                    position_last_updated_at:
+                        e.attributes['media_position_updated_at']
                 }
             ])
     ])
