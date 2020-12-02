@@ -1,7 +1,6 @@
 import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
 import { isCurrentPlayerActive, pause, useHass } from 'features/hass';
-import { nowPlayingPositionUpdateRequest } from 'features/nowPlaying';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import logo from './logo.svg';
@@ -26,7 +25,6 @@ export const SpinnerTop: FC = () => {
             })}
             onClick={() => {
                 dispatch(pause(hass));
-                dispatch(nowPlayingPositionUpdateRequest());
             }}
         >
             <img src={logo} className={styles.logo} alt="logo" />

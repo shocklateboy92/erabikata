@@ -1,7 +1,7 @@
 import { mdiPlayNetwork } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useAppSelector } from 'app/hooks';
-import { selectIsPlayingInSelectedPlayer } from 'features/nowPlaying';
+import { selectIsPlayingInSelectedPlayer } from 'features/hass';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { playFrom, useHass } from './api';

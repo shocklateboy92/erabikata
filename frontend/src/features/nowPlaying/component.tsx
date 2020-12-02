@@ -4,22 +4,12 @@ import { Page } from 'components/page';
 import { DialogList } from 'features/dialog/dialogList';
 import { selectIsPlayerSelected, selectSelectedPlayer } from 'features/hass';
 import { SelectedWord } from 'features/selectedWord';
-import React, { FC, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { FC } from 'react';
 import { Link } from 'react-router-dom';
-import {
-    nowPlayingPositionUpdateRequest,
-    selectNowPlayingMediaTimeStamp
-} from './slice';
 
 export const NowPlaying: FC = () => {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(nowPlayingPositionUpdateRequest());
-    }, [dispatch]);
     const isPlayerSelected = useTypedSelector(selectIsPlayerSelected);
     const session = useTypedSelector(selectSelectedPlayer);
-    const time = useTypedSelector(selectNowPlayingMediaTimeStamp);
 
     if (!session) {
         if (isPlayerSelected) {
@@ -59,7 +49,7 @@ export const NowPlaying: FC = () => {
             <DialogList
                 count={3}
                 episode={session.media.id.toString()}
-                time={time!}
+                time={session.media.position}
             />
         </Page>
     );
