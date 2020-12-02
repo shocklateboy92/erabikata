@@ -1,4 +1,4 @@
-FROM registry.apps.lasath.org/erabikata-data
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1
 WORKDIR /app
 EXPOSE 5000
 
