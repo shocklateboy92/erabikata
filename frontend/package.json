@@ -42,7 +42,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "postinstall": "nswag run /runtime:NetCore31 /variables:host=https://erabikata.apps.lasath.org",
+    "postinstall": "nswag run /runtime:NetCore31 /variables:host=https://erabikata2.apps.lasath.org",
     "dev": "nswag run /runtime:NetCore31 /variables:host=http://localhost:5000"
   },
   "eslintConfig": {
