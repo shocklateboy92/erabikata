@@ -1,7 +1,7 @@
 import { FullWidthText } from 'components/fullWidth';
 import React, { FC, useEffect } from 'react';
 import styles from './hass.module.scss';
-import { selectPlayerList, selectSelectedPlayer } from './selectors';
+import { selectPlayerList, selectSelectedPlayerId } from './selectors';
 import { useAppSelector } from 'app/hooks';
 import { useDispatch, useSelector } from 'react-redux';
 import { updatePlayerList, useHass } from './api';
@@ -13,7 +13,7 @@ export const HassCheck: FC = () => {
         dispatch(updatePlayerList(hass));
     }, [dispatch, hass]);
     const players = useAppSelector(selectPlayerList);
-    const selectedId = useSelector(selectSelectedPlayer);
+    const selectedId = useSelector(selectSelectedPlayerId);
 
     return (
         <FullWidthText>

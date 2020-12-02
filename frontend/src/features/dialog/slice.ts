@@ -1,7 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { DialogInfo, SubsClient } from 'backend.generated';
-import { nowPlayingFetchSucceded } from 'features/nowPlaying/slice';
 import { wordContextFetchSucceeded } from 'features/wordContext';
 
 interface IDialogState {
@@ -57,15 +56,6 @@ const dialogSlice = createSlice({
         builder
             .addCase(fetchDialogById.fulfilled, (state, { payload }) =>
                 dialogListReducer(state, payload.episodeId, payload.dialog)
-            )
-            .addCase(nowPlayingFetchSucceded, (state, { payload: [session] }) =>
-                session
-                    ? dialogListReducer(
-                          state,
-                          session.episodeId,
-                          session.dialog
-                      )
-                    : state
             )
             .addCase(
                 wordContextFetchSucceeded,

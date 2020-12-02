@@ -12,7 +12,7 @@ import {
     hassSocketDisconnection,
     hassSocketReady
 } from './actions';
-import { selectSelectedPlayer } from './selectors';
+import { selectSelectedPlayerId } from './selectors';
 
 const STORAGE_KEY = 'hass_state';
 
@@ -64,7 +64,7 @@ export const pause = createAsyncThunk(
     'hass/pause',
     async (context: IHassContext, { getState, dispatch }) => {
         const state = getState() as RootState;
-        const entity_id = selectSelectedPlayer(state);
+        const entity_id = selectSelectedPlayerId(state);
         if (!entity_id) {
             return;
         }
@@ -94,7 +94,7 @@ export const playFrom = createAsyncThunk(
         // TODO: try making this automagic by wrapping `createAsyncThunk`
         //       with a function that passes through everything, but sets
         //       the 3rd type argument to `RootState`.
-        const entity_id = selectSelectedPlayer(state as RootState);
+        const entity_id = selectSelectedPlayerId(state as RootState);
 
         await hass.callService(args.context.connection, DOMAIN, 'media_seek', {
             entity_id,

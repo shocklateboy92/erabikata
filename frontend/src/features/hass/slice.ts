@@ -8,16 +8,21 @@ import {
 } from './actions';
 import { updatePlayerList } from './api';
 
+export interface IPlayerInfo {
+    id: PlayerId;
+    name: string;
+    media?: {
+        id: number;
+        title: string;
+        position: number;
+        position_last_updated_at: string;
+    };
+    state: string;
+}
+
 interface IHassState {
     players: {
-        [key: string]: {
-            id: PlayerId;
-            name?: string;
-            mediaId?: number;
-            state?: string;
-            position?: number;
-            position_last_updated_at?: string;
-        };
+        [key: string]: IPlayerInfo;
     };
     selectedPlayer: PlayerId;
     socketReady: boolean;
@@ -45,23 +50,26 @@ const entityUpdateReducer = (
             ? state.selectedPlayer
             : null,
     players: Object.fromEntries([
-        [null, { id: null, name: 'None' }],
+        [null, { id: null, name: 'None', state: 'idle' }],
         ...Object.values(payload)
             .filter(
                 (e) =>
                     e.entity_id.startsWith(PLEX_ID_PREFIX) &&
                     e.state !== UNAVAILABLE_STATE
             )
-            .map((e) => [
+            .map((e): [string, IPlayerInfo] => [
                 e.entity_id,
                 {
-                    name: e.attributes.friendly_name,
+                    name: e.attributes.friendly_name!,
                     id: e.entity_id,
                     state: e.state,
-                    mediaId: e.attributes[MEDIA_ID_KEY],
-                    position: e.attributes['media_position'],
-                    position_last_updated_at:
-                        e.attributes['media_position_updated_at']
+                    media: e.attributes[MEDIA_ID_KEY] && {
+                        id: e.attributes[MEDIA_ID_KEY],
+                        title: e.attributes['media_title'],
+                        position: e.attributes['media_position'],
+                        position_last_updated_at:
+                            e.attributes['media_position_updated_at']
+                    }
                 }
             ])
     ])

@@ -1,55 +1,28 @@
-import { getToken } from 'api/plexToken';
-import { useAppSelector } from 'app/hooks';
+import { useTypedSelector } from 'app/hooks';
 import { FullWidthText } from 'components/fullWidth';
 import { Page } from 'components/page';
-import { selectNearbyDialog } from 'features/dialog/slice';
+import { DialogList } from 'features/dialog/dialogList';
+import { selectIsPlayerSelected, selectSelectedPlayer } from 'features/hass';
 import { SelectedWord } from 'features/selectedWord';
 import React, { FC, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Redirect } from 'react-router-dom';
-import { Dialog } from '../dialog/Dialog';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
-    fetchNowPlayingSessions,
-    selectNowPlayingSessions,
-    selectNowPlayingSessionsPending
+    nowPlayingPositionUpdateRequest,
+    selectNowPlayingMediaTimeStamp
 } from './slice';
-
-const Session: FC<{ episodeId: string; currentTime: number }> = ({
-    episodeId,
-    currentTime
-}) => {
-    const dialog = useAppSelector(
-        selectNearbyDialog.bind(null, episodeId, currentTime, 3)
-    );
-    if (!dialog) {
-        return null;
-    }
-
-    return (
-        <>
-            {dialog.map((dialog) => (
-                <Dialog key={dialog} time={dialog} episode={episodeId} />
-            ))}
-        </>
-    );
-};
 
 export const NowPlaying: FC = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(fetchNowPlayingSessions());
+        dispatch(nowPlayingPositionUpdateRequest());
     }, [dispatch]);
-
-    const pending = useSelector(selectNowPlayingSessionsPending, shallowEqual);
-    const [session] = useSelector(selectNowPlayingSessions, shallowEqual);
-
-    const token = getToken();
-    if (!token) {
-        return <Redirect to="/login" />;
-    }
+    const isPlayerSelected = useTypedSelector(selectIsPlayerSelected);
+    const session = useTypedSelector(selectSelectedPlayer);
+    const time = useTypedSelector(selectNowPlayingMediaTimeStamp);
 
     if (!session) {
-        if (pending) {
+        if (isPlayerSelected) {
             return (
                 <Page>
                     <FullWidthText>
@@ -63,6 +36,16 @@ export const NowPlaying: FC = () => {
 
         return (
             <Page>
+                <FullWidthText>
+                    <Link to="/settings">プレイヤーをセレクトしてね！</Link>
+                </FullWidthText>
+            </Page>
+        );
+    }
+
+    if (!session.media) {
+        return (
+            <Page>
                 <FullWidthText>今、何も再生されていません。</FullWidthText>
             </Page>
         );
@@ -71,9 +54,13 @@ export const NowPlaying: FC = () => {
     return (
         <Page
             secondaryChildren={() => <SelectedWord />}
-            title={session.episodeTitle}
+            title={session.media.title}
         >
-            <Session episodeId={session.episodeId} currentTime={session.time} />
+            <DialogList
+                count={3}
+                episode={session.media.id.toString()}
+                time={time!}
+            />
         </Page>
     );
 };
