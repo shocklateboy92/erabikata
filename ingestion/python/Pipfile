@@ -11,6 +11,7 @@ pylint = "*"
 ass = "*"
 ass-tag-parser = "*"
 plexapi = "*"
+ffmpeg-python = "*"
 
 [requires]
 python_version = "3.8"
