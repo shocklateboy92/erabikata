@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
+using Erabikata.Models.Input.V2;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -31,28 +32,22 @@ namespace Erabikata.Backend.Controllers
             _subtitleDatabaseManager = subtitleDatabaseManager;
         }
 
-        public async Task<EngSubsResponse> Index(
-            string episodeId,
-            double timeStamp,
-            int count = 3,
-            bool allStyles = true)
+        public EngSubsResponse Index(int episodeId, double timeStamp, int count = 3)
         {
-            var episodeInfo = _episodeInfoManager.GetEpisodeInfo(
-                _subtitleDatabaseManager.AllEpisodes.First(ep => ep.Title == episodeId)
-            );
+            var sentences =
+                _subtitleDatabaseManager.EnglishSentences.GetValueOrDefault(episodeId) ??
+                new InputSentence[] { };
 
-            var sentences = JsonConvert
-                .DeserializeObject<IEnumerable<EnglishSentence>>(
-                    await System.IO.File.ReadAllTextAsync(episodeInfo.EngSubs)
-                )
-                .Where(sentence => allStyles || !string.IsNullOrWhiteSpace(sentence.Text))
-                .ToList();
-
-            var index = sentences.FindIndex(sentence => sentence.Time > timeStamp);
+            var index = Array.FindIndex(sentences, sentence => sentence.Time > timeStamp);
 
             return new EngSubsResponse
             {
-                Dialog = sentences.Skip(Math.Max(0, index - count)).Take(count * 2)
+                Dialog = sentences.Skip(Math.Max(0, index - count))
+                    .Take(count * 2)
+                    .Select(
+                        sentence =>
+                            new EnglishSentence {Text = sentence.Text, Time = sentence.Time}
+                    )
             };
         }
     }

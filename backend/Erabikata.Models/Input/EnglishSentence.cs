@@ -8,8 +8,6 @@ namespace Erabikata.Models.Output
         public double Time { get; set; }
 
         [JsonProperty(Required = Required.Default)]
-        public string Text { get; set; }
-
-        public string Style { get; set; }
+        public string[] Text { get; set; }
     }
 }

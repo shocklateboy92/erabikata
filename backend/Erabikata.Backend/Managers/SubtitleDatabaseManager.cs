@@ -43,6 +43,9 @@ namespace Erabikata.Backend.Managers
             private set;
         } = new Dictionary<int, FilteredInputSentence[]>();
 
+        public IReadOnlyDictionary<int, InputSentence[]> EnglishSentences { get; private set; } =
+            new Dictionary<int, InputSentence[]>();
+
         public async Task Initialize()
         {
             _logger.LogInformation(
@@ -96,18 +99,17 @@ namespace Erabikata.Backend.Managers
                                 async (info, index) => (int.Parse(info.Key.Split('/').Last()),
                                     JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
                                         await File.ReadAllTextAsync(
-                                            Path.Combine(
-                                                metadataFile,
-                                                $"../kuromoji/{index + 1:00}.json"
-                                            )
+                                            GetDataPath("kuromoji", metadataFile, index)
                                         )
                                     ),
                                     JsonConvert.DeserializeObject<InputSentence[]>(
                                         await File.ReadAllTextAsync(
-                                            Path.Combine(
-                                                metadataFile,
-                                                $"../input/{index + 1:00}.json"
-                                            )
+                                            GetDataPath("input", metadataFile, index)
+                                        )
+                                    ),
+                                    JsonConvert.DeserializeObject<InputSentence[]>(
+                                        await File.ReadAllTextAsync(
+                                            GetDataPath("english", metadataFile, index)
                                         )
                                     ))
                             )
@@ -127,13 +129,23 @@ namespace Erabikata.Backend.Managers
             InputSentences = results.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item3);
             FilteredInputSentences = InputSentences.ToDictionary(
                 pair => pair.Key,
-                pair => pair.Value.Select(
-                        (sentence, index) => new FilteredInputSentence(sentence, index)
-                    )
+                pair => pair.Value
+                    .Select((sentence, index) => new FilteredInputSentence(sentence, index))
                     .Where(sentence => sentence.Text.Any())
                     .OrderBy(sentence => sentence.Time)
                     .ToArray()
             );
+            EnglishSentences = results.ToDictionary(
+                tuple => tuple.Item1,
+                tuple => tuple.Item4.Where(sentence => sentence.Text.Any())
+                    .OrderBy(sentence => sentence.Time)
+                    .ToArray()
+            );
+        }
+
+        private static string GetDataPath(string dataType, string metadataFile, int index)
+        {
+            return Path.Combine(metadataFile, $"../{dataType}/{index + 1:00}.json");
         }
     }
 }
