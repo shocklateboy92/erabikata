@@ -1,6 +1,7 @@
 #!/bin/env python3
 
 import glob
+from re import split
 from sys import argv
 import ass
 from ass_tag_parser import parse_ass
@@ -32,7 +33,7 @@ EXCLUDE_STYLES = ["Default2", "Alternate2"]
 SUBS_ROOT = argv[1] if len(argv) > 1 else "../../anime-subs/english"
 ALL_TAGS_REGEX = re.compile(r"{[^}]*}")
 DRAW_MODE_REGEX = re.compile(r"{[^}]*\\p\d[^}]*}")
-NEWLINE_REGEX = re.compile("\\n", flags=re.IGNORECASE)
+NEWLINE_REGEX = re.compile(r"\\n", flags=re.IGNORECASE)
 
 files = glob.glob(f"{SUBS_ROOT}/**/*.ass", recursive=True)
 print(f"Processing {len(files)} files")
@@ -80,6 +81,12 @@ def do_parse(file_path: str):
                     except ParseError:
                         if not DRAW_MODE_REGEX.search(event.text):
                             text = ALL_TAGS_REGEX.sub("", event.text).splitlines()
+
+                    # Split the inline line-breaks
+                    text = [NEWLINE_REGEX.split(lines) for lines in text]
+                    # Now flatten the list. Python's weird list-comprehensions would
+                    # make this wayyyyy to confusing to do in one go.
+                    text = [item for sublist in text for item in sublist]
 
                     results.append(
                         {
