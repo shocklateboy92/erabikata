@@ -3,6 +3,7 @@ import { Page } from 'components/page';
 import React, { FC } from 'react';
 import preval from 'preval.macro';
 import { HassCheck } from 'features/hass';
+import { BackendInfo } from 'features/backendSelection';
 
 export const InfoPage: FC = () => {
     return (
@@ -12,6 +13,11 @@ export const InfoPage: FC = () => {
                 Build Version
                 <br />
                 {preval`module.exports = new Date().toLocaleString();`}
+                <p>
+                    Backend Url
+                    <br />
+                    <BackendInfo />
+                </p>
             </FullWidthText>
             <HassCheck />
         </Page>

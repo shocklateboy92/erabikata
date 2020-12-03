@@ -1,4 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
+import { backendReducer } from 'features/backendSelection';
 import { dialogReducer } from 'features/dialog/slice';
 import { engDialogReducer } from 'features/engDialog/slice';
 import { furiganaReducer } from 'features/furigana/slice';
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
     furigana: furiganaReducer,
     wordRanks: wordRanksReducer,
     engDialog: engDialogReducer,
+    backend: backendReducer,
     hass: hassReducer
 });
 

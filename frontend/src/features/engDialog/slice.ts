@@ -1,11 +1,17 @@
 import {
+    AsyncThunk,
     createAsyncThunk,
     createEntityAdapter,
     createSlice,
     EntityState
 } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { EnglishSentence, EngSubsClient } from 'backend.generated';
+import {
+    EnglishSentence,
+    EngSubsClient,
+    EngSubsResponse
+} from 'backend.generated';
+import { selectBaseUrl } from 'features/backendSelection';
 import { selectNearbyValues } from 'features/dialog/slice';
 
 interface IEnglishEpisode {
@@ -19,11 +25,13 @@ const timeAdapter = createEntityAdapter<EnglishSentence>({
 });
 const episodeAdapter = createEntityAdapter<IEnglishEpisode>();
 
-export const fetchEnglishDialog = createAsyncThunk(
-    'englishDialog',
-    ([episodeId, time]: [episodeId: string, time: number]) =>
-        // We fetch unconditionally because there may be missing gaps in dialog
-        new EngSubsClient().index(parseInt(episodeId), time)
+export const fetchEnglishDialog: AsyncThunk<
+    EngSubsResponse,
+    [episodeId: string, time: number],
+    { state: RootState }
+> = createAsyncThunk('englishDialog', ([episodeId, time], { getState }) =>
+    // We fetch unconditionally because there may be missing gaps in dialog
+    new EngSubsClient(selectBaseUrl(getState)).index(parseInt(episodeId), time)
 );
 
 const slice = createSlice({
