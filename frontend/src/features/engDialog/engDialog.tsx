@@ -1,8 +1,6 @@
 import { useAppSelector } from 'app/hooks';
 import { InlineError } from 'components/inlineError';
-import React from 'react';
-import { FC } from 'react';
-import reactStringReplace from 'react-string-replace';
+import React, { FC } from 'react';
 import { IEngDialogProps } from './engDialogList';
 import { selectEnglishDialogContent } from './slice';
 
@@ -21,8 +19,11 @@ export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
 
     return (
         <p>
-            {reactStringReplace(content.text, /(\\n)/gi, () => (
-                <br />
+            {content.text?.map((text, index) => (
+                <>
+                    {text}
+                    {index > 0 && <br />}
+                </>
             ))}
         </p>
     );

@@ -21,9 +21,9 @@ const episodeAdapter = createEntityAdapter<IEnglishEpisode>();
 
 export const fetchEnglishDialog = createAsyncThunk(
     'englishDialog',
-    (args: [episodeId: string, time: number]) =>
+    ([episodeId, time]: [episodeId: string, time: number]) =>
         // We fetch unconditionally because there may be missing gaps in dialog
-        new EngSubsClient().index(...args)
+        new EngSubsClient().index(parseInt(episodeId), time)
 );
 
 const slice = createSlice({
