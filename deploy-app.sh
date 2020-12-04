@@ -15,6 +15,7 @@ rm -rf $frontend_build_dir
 dotnet publish --configuration=Release $backend_dir/*.csproj
 
 yarn --cwd frontend install
+[[ "$@" =~ 'full' ]] && yarn --cwd frontend dev
 yarn --cwd frontend build
 cp -rvf $frontend_build_dir $www_dir
 
