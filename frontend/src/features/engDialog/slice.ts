@@ -29,9 +29,9 @@ export const fetchEnglishDialog: AsyncThunk<
     EngSubsResponse,
     [episodeId: string, time: number],
     { state: RootState }
-> = createAsyncThunk('englishDialog', ([episodeId, time], { getState }) =>
+> = createAsyncThunk('englishDialog', (args, { getState }) =>
     // We fetch unconditionally because there may be missing gaps in dialog
-    new EngSubsClient(selectBaseUrl(getState)).index(parseInt(episodeId), time)
+    new EngSubsClient(selectBaseUrl(getState)).index(...args)
 );
 
 const slice = createSlice({

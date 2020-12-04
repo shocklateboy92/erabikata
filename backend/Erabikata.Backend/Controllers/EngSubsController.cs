@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
+using Erabikata.Models.Input;
 using Erabikata.Models.Input.V2;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +22,11 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class EngSubsController : ControllerBase
     {
-        private EpisodeInfoManager _episodeInfoManager;
-        private SubtitleDatabaseManager _subtitleDatabaseManager;
+        private readonly EpisodeInfoManager _episodeInfoManager;
+        private readonly SubtitleDatabaseManager _subtitleDatabaseManager;
+
+        private readonly Dictionary<string, InputSentence[]> _cache =
+            new Dictionary<string, InputSentence[]>();
 
         public EngSubsController(
             EpisodeInfoManager episodeInfoManager,
@@ -32,14 +36,23 @@ namespace Erabikata.Backend.Controllers
             _subtitleDatabaseManager = subtitleDatabaseManager;
         }
 
-        public EngSubsResponse Index(int episodeId, double timeStamp, int count = 3)
+        public async Task<ActionResult<EngSubsResponse>> Index(
+            string episodeId,
+            double timeStamp,
+            int count = 3)
         {
             var sentences =
-                _subtitleDatabaseManager.EnglishSentences.GetValueOrDefault(episodeId) ??
-                new InputSentence[] { };
+                int.TryParse(episodeId, out var newEpId) &&
+                _subtitleDatabaseManager.EnglishSentences.ContainsKey(newEpId)
+                    ? _subtitleDatabaseManager.EnglishSentences[newEpId]
+                    : await ReadLegacyEngSubs(episodeId);
+
+            if (sentences == null)
+            {
+                return NotFound();
+            }
 
             var index = Array.FindIndex(sentences, sentence => sentence.Time > timeStamp);
-
             return new EngSubsResponse
             {
                 Dialog = sentences.Skip(Math.Max(0, index - count))
@@ -49,6 +62,28 @@ namespace Erabikata.Backend.Controllers
                             new EnglishSentence {Text = sentence.Text, Time = sentence.Time}
                     )
             };
+        }
+
+        private async Task<LegacyEnglishSentence[]?> ReadLegacyEngSubs(string episodeId)
+        {
+            var episode = _subtitleDatabaseManager.AllEpisodes.FirstOrDefault(
+                ep => ep.Title == episodeId
+            );
+            if (episode != null)
+            {
+                var episodeInfo = _episodeInfoManager.GetEpisodeInfo(episode);
+                if (!string.IsNullOrEmpty(episodeInfo.EngSubs))
+                {
+                    return JsonConvert
+                        .DeserializeObject<IEnumerable<LegacyEnglishSentence>>(
+                            await System.IO.File.ReadAllTextAsync(episodeInfo.EngSubs)
+                        )
+                        .Where(sentence => sentence.Text.FirstOrDefault()?.Any() ?? false)
+                        .ToArray();
+                }
+            }
+
+            return null;
         }
     }
 }
