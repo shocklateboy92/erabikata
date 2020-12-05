@@ -1,6 +1,6 @@
 import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
-import { isCurrentPlayerActive, pause, useHass } from 'features/hass';
+import { selectIsCurrentPlayerActive, pause, useHass } from 'features/hass';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import logo from './logo.svg';
@@ -15,7 +15,7 @@ export const SpinnerTop: FC = () => {
                 Object.keys(state.spinnerTop.requests).length >
             0
     );
-    const isActive = useTypedSelector(isCurrentPlayerActive);
+    const isActive = useTypedSelector(selectIsCurrentPlayerActive);
 
     return (
         <div
