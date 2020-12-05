@@ -4,6 +4,7 @@ import React, { FC } from 'react';
 import preval from 'preval.macro';
 import { HassCheck } from 'features/hass';
 import { BackendInfo } from 'features/backendSelection';
+import { WakeLockOption } from 'features/wakeLock';
 
 export const InfoPage: FC = () => {
     return (
@@ -20,6 +21,10 @@ export const InfoPage: FC = () => {
                 </p>
             </FullWidthText>
             <HassCheck />
+            <FullWidthText>
+                <h2>Playback Options</h2>
+                <WakeLockOption />
+            </FullWidthText>
         </Page>
     );
 };
