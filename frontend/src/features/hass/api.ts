@@ -1,6 +1,5 @@
 import {
     AnyAction,
-    AsyncThunk,
     compose,
     createAsyncThunk,
     ThunkDispatch
@@ -13,7 +12,7 @@ import {
     hassSocketDisconnection,
     hassSocketReady
 } from './actions';
-import { selectSelectedPlayer, selectSelectedPlayerId } from './selectors';
+import { selectSelectedPlayerId } from './selectors';
 
 const STORAGE_KEY = 'hass_state';
 
@@ -81,31 +80,31 @@ export const pause = createAsyncThunk(
 );
 
 const DOMAIN = 'media_player';
-export const playFrom: AsyncThunk<
-    void,
-    { context: IHassContext; timeStamp: number },
-    { state: RootState }
-> = createAsyncThunk('hass/playFrom', async (args, { getState, dispatch }) => {
-    if (!args.context.connection) {
-        args.context.connection = await createConnection(dispatch);
-    }
+export const playFrom = createAsyncThunk(
+    'hass/playFrom',
+    async (
+        args: { context: IHassContext; timeStamp: number },
+        { getState, dispatch }
+    ) => {
+        if (!args.context.connection) {
+            args.context.connection = await createConnection(dispatch);
+        }
 
-    const player = selectSelectedPlayer(getState());
-    if (!player?.media) {
-        return;
-    }
-    const entity_id = player.id;
+        const state = getState();
+        // TODO: try making this automagic by wrapping `createAsyncThunk`
+        //       with a function that passes through everything, but sets
+        //       the 3rd type argument to `RootState`.
+        const entity_id = selectSelectedPlayerId(state as RootState);
 
-    if (player.media.position !== args.timeStamp) {
         await hass.callService(args.context.connection, DOMAIN, 'media_seek', {
             entity_id,
             seek_position: args.timeStamp
         });
+        await hass.callService(args.context.connection, DOMAIN, 'media_play', {
+            entity_id
+        });
     }
-    await hass.callService(args.context.connection, DOMAIN, 'media_play', {
-        entity_id
-    });
-});
+);
 
 interface IHassContext {
     connection?: hass.Connection;
