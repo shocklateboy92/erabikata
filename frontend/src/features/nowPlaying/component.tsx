@@ -4,6 +4,7 @@ import { Page } from 'components/page';
 import { DialogList } from 'features/dialog/dialogList';
 import { selectIsPlayerSelected, selectSelectedPlayer } from 'features/hass';
 import { SelectedWord } from 'features/selectedWord';
+import { WakeLock } from 'features/wakeLock';
 import React, { FC } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -51,6 +52,7 @@ export const NowPlaying: FC = () => {
                 episode={session.media.id.toString()}
                 time={session.media.position}
             />
+            <WakeLock />
         </Page>
     );
 };
