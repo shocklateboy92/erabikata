@@ -25,20 +25,20 @@ namespace srt_parser
                                 .Select(
                                     item => new
                                     {
-                                        startTime = TimeSpan.FromMilliseconds(item.StartTime).TotalSeconds,
-                                        endTime = TimeSpan.FromMilliseconds(item.StartTime).TotalSeconds,
-                                        tokenized = new[] {string.Join("\n", item.Lines)}
+                                        text = item.Lines,
+                                        time = TimeSpan.FromMilliseconds(item.StartTime)
+                                            .TotalSeconds,
+                                        size = item.Lines.Aggregate(
+                                            0,
+                                            (size, line) => size + line.Length
+                                        ),
+                                        style = "Srt"
                                     }
                                 );
 
-                            var outDir = Path.GetDirectoryName(file) + Path.DirectorySeparatorChar +
-                                         "subs";
-                            Directory.CreateDirectory(outDir);
-
-                            var outPath = outDir + Path.DirectorySeparatorChar +
-                                          Path.ChangeExtension(Path.GetFileName(file), ".json");
+                            var outPath = Path.ChangeExtension(file, ".json");
                             using var writer = new StreamWriter(outPath);
-                            new JsonSerializer().Serialize(
+                            new JsonSerializer {Formatting = Formatting.Indented}.Serialize(
                                 writer,
                                 lines.ToArray()
                             );
