@@ -1,8 +1,11 @@
+using System;
 using System.IO;
+using System.Threading.Tasks;
 using Erabikata.Backend.Managers;
 using Erabikata.Models.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Xabe.FFmpeg;
 using IOFile = System.IO.File;
 
 namespace Erabikata.Backend.Controllers
@@ -23,13 +26,20 @@ namespace Erabikata.Backend.Controllers
         }
 
         [Route("{episodeId}/{time}")]
-        public ActionResult Index(int episodeId, double time)
+        public async Task<ActionResult> Index(int episodeId, double time)
         {
             if (_subtitleDatabaseManager.EpisodeFilePaths.ContainsKey(episodeId))
             {
                 if (!IOFile.Exists(CachePathOf(episodeId, time)))
                 {
-                    return Ok($"Creating {CachePathOf(episodeId, time)}");
+                    var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(
+                        _subtitleDatabaseManager.EpisodeFilePaths[episodeId]
+                            .Replace("/mnt/data", _settings.RootDirectory),
+                        CachePathOf(episodeId, time),
+                        TimeSpan.FromSeconds(time)
+                    );
+
+                    await conversion.Start();
                 }
 
                 return PhysicalFile(CachePathOf(episodeId, time), "image/png");
