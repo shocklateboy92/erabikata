@@ -32,6 +32,8 @@ namespace Erabikata.Backend.Controllers
             {
                 if (!IOFile.Exists(CachePathOf(episodeId, time)))
                 {
+                    Directory.CreateDirectory(_settings.ImageCacheDir);
+
                     var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(
                         _subtitleDatabaseManager.EpisodeFilePaths[episodeId]
                             .Replace("/mnt/data", _settings.RootDirectory),
