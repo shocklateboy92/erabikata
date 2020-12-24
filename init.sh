@@ -1,5 +1,5 @@
 #!/bin/bash
 
-ln -s "$IKNOW_DIR/anime-subs" ./anime-subs
+export PATH="$(pwd)/ingestion:${PATH}";
 
-export PATH="$(pwd):${PATH}";
+ln -sf "$IKNOW_DIR/anime-subs" ./anime-subs
