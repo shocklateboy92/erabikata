@@ -6,6 +6,7 @@ import { Separator } from 'components/separator';
 import { DialogList } from 'features/dialog/dialogList';
 import { EngDialogList } from 'features/engDialog/engDialogList';
 import { HassPlayButton } from 'features/hass';
+import { ImageContext } from 'features/imageContext/component';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { Link } from 'react-router-dom';
@@ -116,6 +117,11 @@ export const SelectedWord: FC<{}> = () => {
                         />
                     }
                 </Drawer>
+                <Separator />
+                <ImageContext
+                    episodeId={wordInfo.episode}
+                    time={wordInfo.sentence.startTime}
+                />
                 <Separator />
                 <Drawer summary="English Context">
                     <EngDialogList
