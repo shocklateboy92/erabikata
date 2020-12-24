@@ -46,6 +46,9 @@ namespace Erabikata.Backend.Managers
         public IReadOnlyDictionary<int, InputSentence[]> EnglishSentences { get; private set; } =
             new Dictionary<int, InputSentence[]>();
 
+        public IReadOnlyDictionary<int, string> EpisodeFilePaths { get; private set; } =
+            new Dictionary<int, string>();
+
         public async Task Initialize()
         {
             _logger.LogInformation(
@@ -111,7 +114,7 @@ namespace Erabikata.Backend.Managers
                                         await File.ReadAllTextAsync(
                                             GetDataPath("english", metadataFile, index)
                                         )
-                                    ))
+                                    ), info.File)
                             )
                             .ToList();
                         await Task.WhenAll(episodeTasks);
@@ -141,6 +144,7 @@ namespace Erabikata.Backend.Managers
                     .OrderBy(sentence => sentence.Time)
                     .ToArray()
             );
+            EpisodeFilePaths = results.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item5);
         }
 
         private static string GetDataPath(string dataType, string metadataFile, int index)
