@@ -2,10 +2,6 @@
 
 set -xe
 
-pushd ..
-./init.sh
-popd
-
 pushd ./srt-parser
 dotnet build
 popd
