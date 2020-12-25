@@ -1,7 +1,5 @@
-import { compose } from '@reduxjs/toolkit';
 import { useTypedSelector } from 'app/hooks';
-import React from 'react';
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { enabledToggle } from './slice';
 
