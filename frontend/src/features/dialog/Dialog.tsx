@@ -1,4 +1,4 @@
-import { useAppSelector } from 'app/hooks';
+import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
 import { InlineError } from 'components/inlineError';
 import { Ruby } from 'components/ruby';
@@ -18,11 +18,10 @@ export const Dialog: FC<{
     readOnly?: boolean;
 }> = ({ time, episode, title, readOnly, children }) => {
     const dispatch = useDispatch();
-    const furiganaEnabled = useAppSelector(selectIsFuriganaEnabled);
-    const dialog = useAppSelector(
+    const furiganaEnabled = useTypedSelector(selectIsFuriganaEnabled);
+    const dialog = useTypedSelector(
         selectDialogContent.bind(null, episode, time)
     );
-    const selectedWord = useAppSelector(selectSelectedWord);
 
     if (!dialog) {
         return (
@@ -39,15 +38,11 @@ export const Dialog: FC<{
             </div>
             <div>
                 {dialog.words.map((word, index) => (
-                    <Ruby
+                    <SelectableRuby
                         key={index}
-                        className={classNames({
-                            [styles.active]:
-                                selectedWord?.episode === episode &&
-                                selectedWord.sentenceTimestamp ===
-                                    dialog.startTime &&
-                                selectedWord.wordBaseForm === word.baseForm
-                        })}
+                        episode={episode}
+                        time={dialog.startTime}
+                        word={word.baseForm}
                         onClick={() => {
                             if (readOnly) {
                                 return;
@@ -68,10 +63,32 @@ export const Dialog: FC<{
                         hideReading={!furiganaEnabled}
                     >
                         {word.displayText}
-                    </Ruby>
+                    </SelectableRuby>
                 ))}
                 {children}
             </div>
         </div>
+    );
+};
+
+const SelectableRuby: FC<
+    { episode: string; time: number; word: string } & React.ComponentProps<
+        typeof Ruby
+    >
+> = ({ episode, time, word, ...restProps }) => {
+    const isActive = useTypedSelector((state) => {
+        const selectedWord = selectSelectedWord(state);
+        return (
+            selectedWord?.episode === episode &&
+            selectedWord.sentenceTimestamp === time &&
+            selectedWord.wordBaseForm === word
+        );
+    });
+
+    return (
+        <Ruby
+            className={classNames({ [styles.active]: isActive })}
+            {...restProps}
+        />
     );
 };
