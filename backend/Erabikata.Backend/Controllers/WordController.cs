@@ -33,7 +33,7 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("{text}")]
-        public async Task<ActionResult<WordInfo>> Index(
+        public async Task<WordInfo> Index(
             [FromRoute] string text,
             [FromQuery] HashSet<string> onlyPartsOfSpeech,
             string? includeEpisode,
@@ -43,14 +43,12 @@ namespace Erabikata.Backend.Controllers
             var rank = _wordCounts.WordRanksMap.GetValueOrDefault(text, -1);
             if (rank < 0)
             {
-                return NotFound(
-                    new WordInfo
-                    {
-                        Text = text,
-                        TotalOccurrences = 0,
-                        Occurrences = new WordInfo.Occurence[] { }
-                    }
-                );
+                return new WordInfo
+                {
+                    Text = text,
+                    TotalOccurrences = 0,
+                    Occurrences = new WordInfo.Occurence[] { }
+                };
             }
 
             var occurrences = _database.AllEpisodes.SelectMany(
@@ -58,8 +56,7 @@ namespace Erabikata.Backend.Controllers
                 {
                     var episodeInfo = _episodeInfoManager.GetEpisodeInfo(episode);
                     return episode.Dialog.SelectMany(
-                        sentence => sentence.Analyzed
-                            .Where(
+                        sentence => sentence.Analyzed.Where(
                                 word => word.Base == text && (onlyPartsOfSpeech.Count == 0 ||
                                                               word.PartOfSpeech.Any(
                                                                   onlyPartsOfSpeech.Contains
