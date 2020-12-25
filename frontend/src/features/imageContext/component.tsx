@@ -6,7 +6,7 @@ import { InlineButton } from 'components/button';
 import { Drawer } from 'components/drawer';
 import { Spinner, SpinnerContainer } from 'components/spinner';
 import { selectBaseUrl } from 'features/backendSelection';
-import React, { FC, useEffect, useLayoutEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import styles from './imageContext.module.scss';
 
 export const ImageContext: FC<{ episodeId: string; time: number }> = ({
@@ -15,22 +15,20 @@ export const ImageContext: FC<{ episodeId: string; time: number }> = ({
 }) => {
     const baseUrl = useTypedSelector(selectBaseUrl);
     const [includeSubs, setIncludeSubs] = useState(false);
-    const [isLoading, setLoading] = useState(true);
     const [showSpinner, setShowSpinner] = useState(false);
 
-    // This is a 2 step update to show the spinner
-    // First, set Loading to true when the image src changes
-    // 100ms after that, set showSpinner to true
-    // Set Loading to false once load() fires on the img
-    // This requires like 4 re-renders per image load.
-    // TODO: Find a better way of doing this
-    useLayoutEffect(() => {
-        setShowSpinner(false);
-        setLoading(true);
-    }, [episodeId, time, includeSubs]);
+    const srcUrl = `${baseUrl}/api/image/${episodeId}/${time}?includeSubs=${includeSubs}`;
+
+    // Create a ref to store our timer in
+    const timer = useRef(0);
     useEffect(() => {
-        window.setTimeout(() => setShowSpinner(isLoading), 100);
-    }, [isLoading]);
+        // Whenever the srcUrl changes, we're loading a new image
+        // If it takes more than 100ms, start showing the spinner
+        timer.current = window.setTimeout(() => setShowSpinner(true), 100);
+
+        // In case we unmount before the timer triggers
+        return () => clearTimeout(timer.current);
+    }, [srcUrl, timer]);
 
     return (
         <Drawer
@@ -48,15 +46,21 @@ export const ImageContext: FC<{ episodeId: string; time: number }> = ({
             <SpinnerContainer>
                 <img
                     className={classNames(styles.image, {
-                        [styles.loading]: isLoading && showSpinner
+                        [styles.loading]: showSpinner
                     })}
-                    onLoad={() => setLoading(false)}
+                    onLoad={() => {
+                        // Cancel the timer when the image loads. That way, if
+                        // it's already in the browser cache and loades before
+                        // 100ms elapses, we never show the spinner.
+                        clearTimeout(timer.current);
+                        setShowSpinner(false);
+                    }}
                     width="1920"
                     height="1080"
-                    src={`${baseUrl}/api/image/${episodeId}/${time}?includeSubs=${includeSubs}`}
+                    src={srcUrl}
                     alt="Screenshot of video at selected dialog time"
                 />
-                {isLoading && showSpinner && <Spinner />}
+                {showSpinner && <Spinner />}
             </SpinnerContainer>
         </Drawer>
     );
