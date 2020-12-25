@@ -26,31 +26,41 @@ namespace Erabikata.Backend.Controllers
         }
 
         [Route("{episodeId}/{time}")]
-        public async Task<ActionResult> Index(int episodeId, double time)
+        public async Task<ActionResult> Index(int episodeId, double time, bool includeSubs = true)
         {
             if (_subtitleDatabaseManager.EpisodeFilePaths.ContainsKey(episodeId))
             {
-                if (!IOFile.Exists(CachePathOf(episodeId, time)))
+                var input = _subtitleDatabaseManager.EpisodeFilePaths[episodeId]
+                    .Replace("/mnt/data", _settings.RootDirectory);
+                var cachePath =
+                    $"{_settings.ImageCacheDir}/{includeSubs}-{episodeId}-{time:00000.00}.png";
+
+                if (!IOFile.Exists(cachePath))
                 {
                     Directory.CreateDirectory(_settings.ImageCacheDir);
 
                     var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(
-                        _subtitleDatabaseManager.EpisodeFilePaths[episodeId]
-                            .Replace("/mnt/data", _settings.RootDirectory),
-                        CachePathOf(episodeId, time),
+                        input,
+                        cachePath,
                         TimeSpan.FromSeconds(time)
                     );
+
+                    if (includeSubs)
+                    {
+                        conversion
+                            // https://stackoverflow.com/a/59576487
+                            .AddParameter("-copyts")
+                            // https://superuser.com/a/1309658
+                            .AddParameter($"-vf subtitles=\"'{input}'\"");
+                    }
 
                     await conversion.Start();
                 }
 
-                return PhysicalFile(CachePathOf(episodeId, time), "image/png");
+                return PhysicalFile(cachePath, "image/png");
             }
 
             return new NotFoundResult();
         }
-
-        private string CachePathOf(int episodeId, double time) =>
-            $"{_settings.ImageCacheDir}/ss-{episodeId}-{time:00000.00}.png";
     }
 }
