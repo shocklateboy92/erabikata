@@ -12,21 +12,26 @@ namespace Erabikata.Models.Output
         public double StartTime { get; }
 
         [JsonProperty(Required = Required.Always)]
-        public WordRef[] Words { get; }
+        public WordRef[][] Words { get; }
 
         public DialogInfo(double startTime, WordRef[] tokenized)
         {
             StartTime = startTime;
-            Words = tokenized;
+            Words = new[] {tokenized};
         }
 
         public DialogInfo(InputSentence sentence, AnalyzedSentenceV2 analyzedSentenceV2)
         {
             StartTime = sentence.Time;
-            Words = analyzedSentenceV2.Analyzed.SelectMany(
+            Words = analyzedSentenceV2.Analyzed.Select(
                     a => a.Select(
-                        f => new WordRef(f.Original, f.Base == "*" ? f.Original : f.Base, f.Reading)
-                    )
+                            f => new WordRef(
+                                f.Original,
+                                f.Base == "*" ? f.Original : f.Base,
+                                f.Reading
+                            )
+                        )
+                        .ToArray()
                 )
                 .ToArray();
         }
@@ -34,14 +39,17 @@ namespace Erabikata.Models.Output
         public DialogInfo(Sentence sentence)
         {
             this.StartTime = sentence.StartTime;
-            this.Words = sentence.Analyzed.Select(
-                    word => new WordRef(
-                        displayText: word.Original,
-                        baseForm: word.Base == "*" ? word.Original : word.Base,
-                        reading: word.Reading
+            this.Words = new[]
+            {
+                sentence.Analyzed.Select(
+                        word => new WordRef(
+                            displayText: word.Original,
+                            baseForm: word.Base == "*" ? word.Original : word.Base,
+                            reading: word.Reading
+                        )
                     )
-                )
-                .ToArray();
+                    .ToArray()
+            };
         }
 
         public class WordRef

@@ -37,33 +37,39 @@ export const Dialog: FC<{
                 {moment.utc(dialog.startTime * 1000).format('H:mm:ss')} {title}
             </div>
             <div>
-                {dialog.words.map((word, index) => (
-                    <SelectableRuby
-                        key={index}
-                        episode={episode}
-                        time={dialog.startTime}
-                        word={word.baseForm}
-                        onClick={() => {
-                            if (readOnly) {
-                                return;
-                            }
+                {dialog.words.map((line) => (
+                    <div>
+                        {line.map((word, index) => (
+                            <SelectableRuby
+                                key={index}
+                                episode={episode}
+                                time={dialog.startTime}
+                                word={word.baseForm}
+                                onClick={() => {
+                                    if (readOnly) {
+                                        return;
+                                    }
 
-                            dispatch(
-                                newWordSelected({
-                                    word: word.baseForm,
-                                    timestamp: dialog.startTime,
-                                    episode
-                                })
-                            );
-                            dispatch(
-                                fetchWordIfNeeded({ baseForm: word.baseForm })
-                            );
-                        }}
-                        reading={word.reading}
-                        hideReading={!furiganaEnabled}
-                    >
-                        {word.displayText}
-                    </SelectableRuby>
+                                    dispatch(
+                                        newWordSelected({
+                                            word: word.baseForm,
+                                            timestamp: dialog.startTime,
+                                            episode
+                                        })
+                                    );
+                                    dispatch(
+                                        fetchWordIfNeeded({
+                                            baseForm: word.baseForm
+                                        })
+                                    );
+                                }}
+                                reading={word.reading}
+                                hideReading={!furiganaEnabled}
+                            >
+                                {word.displayText}
+                            </SelectableRuby>
+                        ))}
+                    </div>
                 ))}
                 {children}
             </div>

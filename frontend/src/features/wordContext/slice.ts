@@ -42,7 +42,7 @@ const slice = createSlice({
 
 const transformWord = (word: WordInfo) => ({
     ...word,
-    occurrences: word.occurrences.map(({ text, subsLink, ...rest }) => rest)
+    occurrences: word.occurrences.map(({ text, ...rest }) => rest)
 });
 
 export const selectWordInfo = (

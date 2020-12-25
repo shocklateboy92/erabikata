@@ -35,9 +35,6 @@ namespace Erabikata.Models.Output
             [JsonProperty] public string VlcCommand { get; set; }
 
             [JsonProperty(Required = Required.Always)]
-            public string SubsLink { get; set; }
-
-            [JsonProperty(Required = Required.Always)]
             public string EpisodeId { get; set; }
         }
     }

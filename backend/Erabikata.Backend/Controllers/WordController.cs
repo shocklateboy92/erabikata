@@ -71,20 +71,9 @@ namespace Erabikata.Backend.Controllers
                                     EpisodeId = episode.Title,
                                     Time = sentence.StartTime,
                                     Text = new DialogInfo(sentence),
-                                    VlcCommand =
-                                        episodeInfo.VideoFile != null
-                                            ? $"vlc '{episodeInfo.VideoFile}' --start-time={sentence.StartTime - 10}"
-                                            : null,
-                                    SubsLink = Url.Action(
-                                        "Index",
-                                        "Subs",
-                                        new
-                                        {
-                                            time = sentence.StartTime,
-                                            episode = episode.Title
-                                        },
-                                        HttpContext.Request.Scheme
-                                    )
+                                    VlcCommand = episodeInfo.VideoFile != null
+                                        ? $"vlc '{episodeInfo.VideoFile}' --start-time={sentence.StartTime - 10}"
+                                        : null,
                                 }
                             )
                     );
@@ -106,9 +95,11 @@ namespace Erabikata.Backend.Controllers
                         }
 
                         return occurence.Text.Words.Sum(
-                            word => knownWords.Contains(word.BaseForm)
-                                ? ranksMap.GetValueOrDefault(word.BaseForm, 0)
-                                : 0
+                            line => line.Sum(
+                                word => knownWords.Contains(word.BaseForm)
+                                    ? ranksMap.GetValueOrDefault(word.BaseForm, 0)
+                                    : 0
+                            )
                         );
                     }
                 );
