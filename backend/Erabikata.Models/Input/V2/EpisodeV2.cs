@@ -19,6 +19,12 @@ namespace Erabikata.Models.Input.V2
 
         public IReadOnlyList<FilteredInputSentence> FilteredInputSentences { get; set; } =
             new List<FilteredInputSentence>();
+
+        public int Id { get; set; }
+
+        public ShowInfo Parent { get; set; } = null!; // TODO: replace with init property
+
+        public int Number { get; set; }
     }
 
     public class InputSentence

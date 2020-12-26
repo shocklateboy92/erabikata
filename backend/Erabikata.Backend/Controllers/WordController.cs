@@ -96,8 +96,9 @@ namespace Erabikata.Backend.Controllers
                         .Select(
                             sentence => new WordInfo.Occurence
                             {
-                                EpisodeId = episode.Id,
-                                EpisodeName = episode.Name,
+                                EpisodeId = episode.Id.ToString(),
+                                EpisodeName =
+                                    $"{episode.Parent.Title} Episode {episode.Number}",
                                 Text = new DialogInfo(
                                     sentence,
                                     episode.KuromojiAnalyzedSentences[sentence.Index]

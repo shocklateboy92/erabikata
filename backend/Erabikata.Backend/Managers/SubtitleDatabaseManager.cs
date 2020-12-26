@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
@@ -30,6 +31,9 @@ namespace Erabikata.Backend.Managers
 
         public IReadOnlyDictionary<int, EpisodeV2> AllEpisodesV2 { get; private set; } =
             new Dictionary<int, EpisodeV2>();
+
+        public IReadOnlyCollection<ShowInfo> AllShows { get; private set; } =
+            new ConcurrentBag<ShowInfo>();
 
         public async Task Initialize()
         {
@@ -65,6 +69,8 @@ namespace Erabikata.Backend.Managers
                 .Where(t => t.Dialog.Any(w => w.Analyzed.Any()))
                 .ToImmutableArray();
 
+            var allShows = new ConcurrentBag<ShowInfo>();
+
             var newFiles = Directory.EnumerateFiles(
                     _settings.Input.RootDirectory,
                     "show-metadata.json",
@@ -78,6 +84,7 @@ namespace Erabikata.Backend.Managers
                         var metaData = JsonConvert.DeserializeObject<ShowInfo>(
                             await File.ReadAllTextAsync(metadataFile)
                         );
+                        allShows.Add(metaData);
 
                         var episodeTasks = metaData.Episodes.First()
                             .Select(
@@ -89,36 +96,38 @@ namespace Erabikata.Backend.Managers
                                                 GetDataPath("input", metadataFile, index)
                                             )
                                         );
-                                    return (int.Parse(info.Key.Split('/').Last()),
-                                        new EpisodeV2
-                                        {
-                                            KuromojiAnalyzedSentences =
-                                                JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
-                                                    await File.ReadAllTextAsync(
-                                                        GetDataPath("kuromoji", metadataFile, index)
-                                                    )
-                                                ),
-                                            InputSentences = inputSentences,
-                                            FilteredInputSentences =
-                                                inputSentences
-                                                    .Select(
-                                                        (sentence, i) =>
-                                                            new FilteredInputSentence(sentence, i)
-                                                    )
-                                                    .Where(sentence => sentence.Text.Any())
-                                                    .OrderBy(sentence => sentence.Time)
-                                                    .ToArray(),
-                                            EnglishSentences = JsonConvert
-                                                .DeserializeObject<InputSentence[]>(
-                                                    await File.ReadAllTextAsync(
-                                                        GetDataPath("english", metadataFile, index)
-                                                    )
+                                    return new EpisodeV2
+                                    {
+                                        Id = int.Parse(info.Key.Split('/').Last()),
+                                        Parent = metaData,
+                                        Number = index + 1,
+                                        KuromojiAnalyzedSentences =
+                                            JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
+                                                await File.ReadAllTextAsync(
+                                                    GetDataPath("kuromoji", metadataFile, index)
+                                                )
+                                            ),
+                                        InputSentences = inputSentences,
+                                        FilteredInputSentences =
+                                            inputSentences
+                                                .Select(
+                                                    (sentence, i) =>
+                                                        new FilteredInputSentence(sentence, i)
                                                 )
                                                 .Where(sentence => sentence.Text.Any())
                                                 .OrderBy(sentence => sentence.Time)
                                                 .ToArray(),
-                                            FilePath = info.File
-                                        });
+                                        EnglishSentences = JsonConvert
+                                            .DeserializeObject<InputSentence[]>(
+                                                await File.ReadAllTextAsync(
+                                                    GetDataPath("english", metadataFile, index)
+                                                )
+                                            )
+                                            .Where(sentence => sentence.Text.Any())
+                                            .OrderBy(sentence => sentence.Time)
+                                            .ToArray(),
+                                        FilePath = info.File
+                                    };
                                 }
                             )
                             .ToList();
@@ -130,7 +139,8 @@ namespace Erabikata.Backend.Managers
 
             await Task.WhenAll(readTasks);
             AllEpisodesV2 = readTasks.SelectMany(task => task.Result)
-                .ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2);
+                .ToDictionary(tuple => tuple.Id);
+            AllShows = allShows;
         }
 
         private static string GetDataPath(string dataType, string metadataFile, int index)
