@@ -37,8 +37,8 @@ export const Dialog: FC<{
                 {moment.utc(dialog.startTime * 1000).format('H:mm:ss')} {title}
             </div>
             <div>
-                {dialog.words.map((line) => (
-                    <div>
+                {dialog.words.map((line, lineIndex) => (
+                    <div key={lineIndex}>
                         {line.map((word, index) => (
                             <SelectableRuby
                                 key={index}
