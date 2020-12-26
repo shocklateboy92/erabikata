@@ -43,8 +43,8 @@ namespace Erabikata.Backend.Controllers
         {
             var sentences =
                 int.TryParse(episodeId, out var newEpId) &&
-                _subtitleDatabaseManager.EnglishSentences.ContainsKey(newEpId)
-                    ? _subtitleDatabaseManager.EnglishSentences[newEpId]
+                _subtitleDatabaseManager.AllEpisodesV2.ContainsKey(newEpId)
+                    ? _subtitleDatabaseManager.AllEpisodesV2[newEpId].EnglishSentences.ToArray()
                     : await ReadLegacyEngSubs(episodeId);
 
             if (sentences == null)

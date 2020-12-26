@@ -4,6 +4,22 @@ using Newtonsoft.Json;
 namespace Erabikata.Models.Input.V2
 {
 #nullable enable
+    public class EpisodeV2
+    {
+        public IReadOnlyList<AnalyzedSentenceV2> KuromojiAnalyzedSentences { get; set; } =
+            new List<AnalyzedSentenceV2>();
+
+        public IReadOnlyList<InputSentence> InputSentences { get; set; } =
+            new List<InputSentence>();
+
+        public IReadOnlyList<InputSentence> EnglishSentences { get; set; } =
+            new List<InputSentence>();
+
+        public string FilePath { get; set; } = string.Empty;
+
+        public IReadOnlyList<FilteredInputSentence> FilteredInputSentences { get; set; } =
+            new List<FilteredInputSentence>();
+    }
 
     public class InputSentence
     {
@@ -27,7 +43,7 @@ namespace Erabikata.Models.Input.V2
 
     public class FilteredInputSentence : InputSentence
     {
-        public FilteredInputSentence(InputSentence sentence, long index) : base(
+        public FilteredInputSentence(InputSentence sentence, int index) : base(
             sentence.Text,
             sentence.Time,
             sentence.Style,
@@ -37,7 +53,7 @@ namespace Erabikata.Models.Input.V2
             Index = index;
         }
 
-        public long Index { get; }
+        public int Index { get; }
     }
 
     public class AnalyzedSentenceV2

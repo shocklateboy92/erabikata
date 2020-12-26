@@ -41,12 +41,12 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] int count = 3)
         {
             if (int.TryParse(episode, out var episodeId) &&
-                _database.InputSentences.ContainsKey(episodeId))
+                _database.AllEpisodesV2.ContainsKey(episodeId))
             {
                 var startIndex = Math.Max(
                     0,
                     Array.FindIndex(
-                        _database.FilteredInputSentences[episodeId],
+                        _database.AllEpisodesV2[episodeId].FilteredInputSentences.ToArray(),
                         sentence => sentence.Time >= time
                     ) - count
                 );
@@ -54,13 +54,13 @@ namespace Erabikata.Backend.Controllers
                 return new NowPlayingInfo(
                     episodeId.ToString(),
                     time,
-                    _database.FilteredInputSentences[episodeId]
+                    _database.AllEpisodesV2[episodeId].FilteredInputSentences
                         .Skip(startIndex)
                         .Take(count * 2)
                         .Select(
                             sentence => new DialogInfo(
                                 sentence,
-                                _database.KuoromojiAnalyzedSentenceV2s[episodeId][sentence.Index]
+                                _database.AllEpisodesV2[episodeId].KuromojiAnalyzedSentences[sentence.Index]
                             )
                         )
                 );

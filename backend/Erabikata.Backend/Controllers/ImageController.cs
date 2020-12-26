@@ -28,9 +28,9 @@ namespace Erabikata.Backend.Controllers
         [Route("{episodeId}/{time}")]
         public async Task<ActionResult> Index(int episodeId, double time, bool includeSubs = true)
         {
-            if (_subtitleDatabaseManager.EpisodeFilePaths.ContainsKey(episodeId))
+            if (_subtitleDatabaseManager.AllEpisodesV2.ContainsKey(episodeId))
             {
-                var input = _subtitleDatabaseManager.EpisodeFilePaths[episodeId]
+                var input = _subtitleDatabaseManager.AllEpisodesV2[episodeId].FilePath
                     .Replace("/mnt/data", _settings.RootDirectory);
                 var cachePath =
                     $"{_settings.ImageCacheDir}/{includeSubs}-{episodeId}-{time:00000.00}.png";

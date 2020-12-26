@@ -28,26 +28,8 @@ namespace Erabikata.Backend.Managers
 
         public IReadOnlyList<Episode> AllEpisodes { get; private set; } = new Episode[] { };
 
-        public IReadOnlyDictionary<int, AnalyzedSentenceV2[]> KuoromojiAnalyzedSentenceV2s
-        {
-            get;
-            private set;
-        } = new Dictionary<int, AnalyzedSentenceV2[]>();
-
-        public IReadOnlyDictionary<int, InputSentence[]> InputSentences { get; private set; } =
-            new Dictionary<int, InputSentence[]>();
-
-        public IReadOnlyDictionary<int, FilteredInputSentence[]> FilteredInputSentences
-        {
-            get;
-            private set;
-        } = new Dictionary<int, FilteredInputSentence[]>();
-
-        public IReadOnlyDictionary<int, InputSentence[]> EnglishSentences { get; private set; } =
-            new Dictionary<int, InputSentence[]>();
-
-        public IReadOnlyDictionary<int, string> EpisodeFilePaths { get; private set; } =
-            new Dictionary<int, string>();
+        public IReadOnlyDictionary<int, EpisodeV2> AllEpisodesV2 { get; private set; } =
+            new Dictionary<int, EpisodeV2>();
 
         public async Task Initialize()
         {
@@ -99,22 +81,45 @@ namespace Erabikata.Backend.Managers
 
                         var episodeTasks = metaData.Episodes.First()
                             .Select(
-                                async (info, index) => (int.Parse(info.Key.Split('/').Last()),
-                                    JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
-                                        await File.ReadAllTextAsync(
-                                            GetDataPath("kuromoji", metadataFile, index)
-                                        )
-                                    ),
-                                    JsonConvert.DeserializeObject<InputSentence[]>(
-                                        await File.ReadAllTextAsync(
-                                            GetDataPath("input", metadataFile, index)
-                                        )
-                                    ),
-                                    JsonConvert.DeserializeObject<InputSentence[]>(
-                                        await File.ReadAllTextAsync(
-                                            GetDataPath("english", metadataFile, index)
-                                        )
-                                    ), info.File)
+                                async (info, index) =>
+                                {
+                                    var inputSentences =
+                                        JsonConvert.DeserializeObject<InputSentence[]>(
+                                            await File.ReadAllTextAsync(
+                                                GetDataPath("input", metadataFile, index)
+                                            )
+                                        );
+                                    return (int.Parse(info.Key.Split('/').Last()),
+                                        new EpisodeV2
+                                        {
+                                            KuromojiAnalyzedSentences =
+                                                JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
+                                                    await File.ReadAllTextAsync(
+                                                        GetDataPath("kuromoji", metadataFile, index)
+                                                    )
+                                                ),
+                                            InputSentences = inputSentences,
+                                            FilteredInputSentences =
+                                                inputSentences
+                                                    .Select(
+                                                        (sentence, i) =>
+                                                            new FilteredInputSentence(sentence, i)
+                                                    )
+                                                    .Where(sentence => sentence.Text.Any())
+                                                    .OrderBy(sentence => sentence.Time)
+                                                    .ToArray(),
+                                            EnglishSentences = JsonConvert
+                                                .DeserializeObject<InputSentence[]>(
+                                                    await File.ReadAllTextAsync(
+                                                        GetDataPath("english", metadataFile, index)
+                                                    )
+                                                )
+                                                .Where(sentence => sentence.Text.Any())
+                                                .OrderBy(sentence => sentence.Time)
+                                                .ToArray(),
+                                            FilePath = info.File
+                                        });
+                                }
                             )
                             .ToList();
                         await Task.WhenAll(episodeTasks);
@@ -124,27 +129,8 @@ namespace Erabikata.Backend.Managers
                 .ToList();
 
             await Task.WhenAll(readTasks);
-            var results = readTasks.SelectMany(task => task.Result).ToList();
-            KuoromojiAnalyzedSentenceV2s = results.ToDictionary(
-                tuples => tuples.Item1,
-                tuple => tuple.Item2
-            );
-            InputSentences = results.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item3);
-            FilteredInputSentences = InputSentences.ToDictionary(
-                pair => pair.Key,
-                pair => pair.Value
-                    .Select((sentence, index) => new FilteredInputSentence(sentence, index))
-                    .Where(sentence => sentence.Text.Any())
-                    .OrderBy(sentence => sentence.Time)
-                    .ToArray()
-            );
-            EnglishSentences = results.ToDictionary(
-                tuple => tuple.Item1,
-                tuple => tuple.Item4.Where(sentence => sentence.Text.Any())
-                    .OrderBy(sentence => sentence.Time)
-                    .ToArray()
-            );
-            EpisodeFilePaths = results.ToDictionary(tuple => tuple.Item1, tuple => tuple.Item5);
+            AllEpisodesV2 = readTasks.SelectMany(task => task.Result)
+                .ToDictionary(tuple => tuple.Item1, tuple => tuple.Item2);
         }
 
         private static string GetDataPath(string dataType, string metadataFile, int index)
