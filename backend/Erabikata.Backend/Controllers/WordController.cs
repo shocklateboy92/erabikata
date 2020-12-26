@@ -51,33 +51,62 @@ namespace Erabikata.Backend.Controllers
                 };
             }
 
+            bool IsTargetWord(Analyzed word) =>
+                word.Base == text && (onlyPartsOfSpeech.Count == 0 ||
+                                      word.PartOfSpeech.Any(onlyPartsOfSpeech.Contains));
+
             var occurrences = _database.AllEpisodes.SelectMany(
                 episode =>
                 {
                     var episodeInfo = _episodeInfoManager.GetEpisodeInfo(episode);
                     return episode.Dialog.SelectMany(
-                        sentence => sentence.Analyzed.Where(
-                                word => word.Base == text && (onlyPartsOfSpeech.Count == 0 ||
-                                                              word.PartOfSpeech.Any(
-                                                                  onlyPartsOfSpeech.Contains
-                                                              ))
-                            )
-                            // Easiest ways to avoid duplicates in sentence
-                            .Take(1)
-                            .Select(
-                                word => new WordInfo.Occurence
-                                {
-                                    EpisodeName = episodeInfo.Title,
-                                    EpisodeId = episode.Title,
-                                    Time = sentence.StartTime,
-                                    Text = new DialogInfo(sentence),
-                                    VlcCommand = episodeInfo.VideoFile != null
-                                        ? $"vlc '{episodeInfo.VideoFile}' --start-time={sentence.StartTime - 10}"
-                                        : null,
-                                }
-                            )
+                        sentence =>
+                        {
+                            return sentence.Analyzed.Where(IsTargetWord)
+                                // Easiest ways to avoid duplicates in sentence
+                                .Take(1)
+                                .Select(
+                                    word => new WordInfo.Occurence
+                                    {
+                                        EpisodeName = episodeInfo.Title,
+                                        EpisodeId = episode.Title,
+                                        Time = sentence.StartTime,
+                                        Text = new DialogInfo(sentence),
+                                        VlcCommand = episodeInfo.VideoFile != null
+                                            ? CreateVlcCommand(
+                                                episodeInfo.VideoFile,
+                                                sentence.StartTime
+                                            )
+                                            : null,
+                                    }
+                                );
+                        }
                     );
                 }
+            );
+
+            occurrences = occurrences.Concat(
+                _database.AllEpisodesV2.Values.SelectMany(
+                    episode => episode.FilteredInputSentences
+                        .Where(
+                            sentence =>
+                                episode.KuromojiAnalyzedSentences[sentence.Index]
+                                    .Analyzed.Any(line => line.Any(IsTargetWord))
+                        )
+                        .Select(
+                            sentence => new WordInfo.Occurence
+                            {
+                                EpisodeId = episode.Id,
+                                EpisodeName = episode.Name,
+                                Text = new DialogInfo(
+                                    sentence,
+                                    episode.KuromojiAnalyzedSentences[sentence.Index]
+                                ),
+                                Time = sentence.Time,
+                                VlcCommand = CreateVlcCommand(episode.FilePath, sentence.Time)
+                            }
+                        )
+                )
             );
 
             if (includeEpisode != null && includeTime != null)
@@ -114,6 +143,9 @@ namespace Erabikata.Backend.Controllers
                 PagingInfo = pagingInfo
             };
         }
+
+        private static string CreateVlcCommand(string path, double time) =>
+            $"vlc '{path}' --start-time={time - 10}";
 
         [HttpGet]
         [Route("{word}/[action]")]
