@@ -17,5 +17,5 @@ export const selectIsCurrentPlayerActive = (state: RootState) =>
 
 export const selectIsPlayingInSelectedPlayer = (
     state: RootState,
-    episodeId: string
+    episodeId?: string
 ) => selectSelectedPlayer(state)?.media?.id.toString() === episodeId;

@@ -7,14 +7,17 @@ import { useDispatch } from 'react-redux';
 import { playFrom, useHass } from './api';
 
 export const HassPlayButton: FC<{
-    episodeId: string;
-    dialogId: number;
+    episodeId?: string;
+    dialogId?: number;
     iconSize?: number;
 }> = (props) => {
     const [dispatch, context] = [useDispatch(), useHass()];
-    const shouldShow = useAppSelector((state) =>
-        selectIsPlayingInSelectedPlayer(state, props.episodeId)
-    );
+    const shouldShow =
+        useAppSelector((state) =>
+            selectIsPlayingInSelectedPlayer(state, props.episodeId)
+        ) &&
+        props.episodeId &&
+        props.dialogId;
 
     if (!shouldShow) {
         return null;
@@ -26,7 +29,7 @@ export const HassPlayButton: FC<{
                 dispatch(
                     playFrom({
                         context,
-                        timeStamp: Math.floor(props.dialogId - 1)
+                        timeStamp: Math.floor(props.dialogId! - 1)
                     })
                 )
             }

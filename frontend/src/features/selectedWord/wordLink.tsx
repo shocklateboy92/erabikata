@@ -6,8 +6,8 @@ import { Link } from 'react-router-dom';
 
 interface IWordLinkParams {
     word: string;
-    includeEpisode: string;
-    includeTime: number;
+    includeEpisode?: string;
+    includeTime?: number;
     iconSize: IconProps['size'];
 }
 
@@ -17,10 +17,13 @@ export const WordLink: FC<IWordLinkParams> = ({
     includeTime,
     iconSize
 }) => {
-    const search = new URLSearchParams({
-        includeEpisode,
-        includeTime: includeTime.toString()
-    }).toString();
+    const search =
+        includeEpisode && includeTime
+            ? new URLSearchParams({
+                  includeEpisode,
+                  includeTime: includeTime.toString()
+              }).toString()
+            : undefined;
 
     return (
         <Link

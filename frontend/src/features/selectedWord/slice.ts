@@ -1,9 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import {
-    IWordInfoState,
-    wordContextFetchSucceeded
-} from 'features/wordContext';
+import { IWordInfoState } from 'features/wordContext';
 
 interface ISelectedWordState {
     wordBaseForm: string;
@@ -35,44 +32,18 @@ const slice = createSlice({
                       episode
                   },
         selectionClearRequested: (state) => null
-    },
-    extraReducers: (builder) =>
-        builder.addCase(
-            wordContextFetchSucceeded,
-            (
-                state,
-                {
-                    payload: {
-                        occurrences: [occurence],
-                        text
-                    }
-                }
-            ) => {
-                if (occurence) {
-                    // If this is a full fetch, we probably just navigated to a word page
-                    // Make sure that word is selected, so we can easily see the definiton.
-                    return {
-                        episode: occurence.episodeId,
-                        sentenceTimestamp: occurence.time,
-                        wordBaseForm: text
-                    };
-                }
-                return state;
-            }
-        )
+    }
 });
 
 export const selectedWordReducer = slice.reducer;
 
 export const selectSelectedWord = (state: RootState) => state.selectedWord;
+export const selectSelectedWordContext = (state: RootState) =>
+    (state.selectedWord?.wordBaseForm &&
+        state.wordContexts.byId[state.selectedWord.wordBaseForm]) ||
+    null;
 export const selectSelectedWordInfo = createSelector(
-    [
-        selectSelectedWord,
-        (state: RootState) =>
-            (state.selectedWord?.wordBaseForm &&
-                state.wordContexts.byId[state.selectedWord.wordBaseForm]) ||
-            null
-    ],
+    [selectSelectedWord, selectSelectedWordContext],
     (state: ISelectedWordState | null, context: IWordInfoState) =>
         state?.episode &&
         state.sentenceTimestamp && {
