@@ -32,7 +32,6 @@ namespace Erabikata.Backend
             services.AddSingleton<EpisodeInfoManager>();
 
             services.AddHttpClient<KnownWordsProvider>();
-            services.AddHttpClient<PlexInfoProvider>();
 
             services.AddCors(
                 options => options.AddDefaultPolicy(
