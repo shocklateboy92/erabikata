@@ -36,7 +36,9 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
             {dialog.map((d) => (
                 <Dialog key={d} episode={episode} time={d} />
             ))}
-            <InlineButton onClick={() => setTimeOverride(dialog[-1])}>
+            <InlineButton
+                onClick={() => setTimeOverride(dialog[dialog.length - 1])}
+            >
                 Show More
             </InlineButton>
         </>
