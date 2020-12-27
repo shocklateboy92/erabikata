@@ -10,10 +10,7 @@ export const SpinnerTop: FC = () => {
     const dispatch = useDispatch();
     const hass = useHass();
     const shouldSpin = useTypedSelector(
-        (state) =>
-            state.spinnerTop.activeRequests +
-                Object.keys(state.spinnerTop.requests).length >
-            0
+        (state) => Object.keys(state.spinnerTop.requests).length > 0
     );
     const isActive = useTypedSelector(selectIsCurrentPlayerActive);
 
