@@ -11,6 +11,9 @@ interface IDialogState {
     content: {
         [key: string]: undefined | { [key: number]: DialogInfo | undefined };
     };
+    titles: {
+        [key: string]: string | undefined;
+    };
 }
 
 export interface IDialogId {
@@ -30,37 +33,41 @@ export const fetchDialogById: AsyncThunk<
         new SubsClient(selectBaseUrl(getState)).index(episode, time, count ?? 3)
 );
 
-const dialogListReducer = (
-    state: IDialogState,
-    episodeId: string,
-    dialog: DialogInfo[]
-) => ({
-    content: {
-        ...state.content,
-        [episodeId]: {
-            ...state.content[episodeId],
-            ...Object.fromEntries(dialog.map((d) => [d.startTime, d]))
-        }
-    },
-    order: {
-        ...state.order,
-        [episodeId]: [
-            ...new Set([
-                ...(state.order[episodeId] || []),
-                ...dialog.map((d) => d.startTime)
-            ])
-        ].sort((a, b) => a - b)
-    }
-});
+const initialState: IDialogState = {
+    content: {},
+    order: {},
+    titles: {}
+};
 
 const dialogSlice = createSlice({
     name: 'dialog',
-    initialState: { content: {}, order: {} } as IDialogState,
+    initialState,
     reducers: {},
     extraReducers: (builder) =>
         builder
-            .addCase(fetchDialogById.fulfilled, (state, { payload }) =>
-                dialogListReducer(state, payload.episodeId, payload.dialog)
+            .addCase(
+                fetchDialogById.fulfilled,
+                (state, { payload: { episodeId, dialog, episodeTitle } }) => ({
+                    content: {
+                        ...state.content,
+                        [episodeId]: {
+                            ...state.content[episodeId],
+                            ...Object.fromEntries(
+                                dialog.map((d) => [d.startTime, d])
+                            )
+                        }
+                    },
+                    order: {
+                        ...state.order,
+                        [episodeId]: [
+                            ...new Set([
+                                ...(state.order[episodeId] || []),
+                                ...dialog.map((d) => d.startTime)
+                            ])
+                        ].sort((a, b) => a - b)
+                    },
+                    titles: { [episodeId]: episodeTitle }
+                })
             )
             .addCase(
                 wordContextFetchSucceeded,
@@ -84,6 +91,11 @@ export const selectDialogContent = (
     time: number,
     state: RootState
 ) => state.dialog.content[episodeId]?.[time];
+
+export const selectEpisodeTitle = (
+    state: RootState,
+    episodeId: string | null
+) => state.dialog.titles[episodeId!];
 
 export const selectNearbyDialog = (
     episodeId: string,

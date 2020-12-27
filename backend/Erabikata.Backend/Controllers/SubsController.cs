@@ -15,8 +15,7 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly SubtitleDatabaseManager _database;
 
-        public SubsController(
-            SubtitleDatabaseManager database)
+        public SubsController(SubtitleDatabaseManager database)
         {
             _database = database;
         }
@@ -30,10 +29,11 @@ namespace Erabikata.Backend.Controllers
             if (int.TryParse(episode, out var episodeId) &&
                 _database.AllEpisodesV2.ContainsKey(episodeId))
             {
+                var episodeV2 = _database.AllEpisodesV2[episodeId];
                 var startIndex = Math.Max(
                     0,
                     Array.FindIndex(
-                        _database.AllEpisodesV2[episodeId].FilteredInputSentences.ToArray(),
+                        episodeV2.FilteredInputSentences.ToArray(),
                         sentence => sentence.Time >= time
                     ) - count
                 );
@@ -41,19 +41,18 @@ namespace Erabikata.Backend.Controllers
                 return new NowPlayingInfo(
                     episodeId.ToString(),
                     time,
-                    _database.AllEpisodesV2[episodeId].FilteredInputSentences
-                        .Skip(startIndex)
+                    episodeV2.FilteredInputSentences.Skip(startIndex)
                         .Take(count * 2)
                         .Select(
                             sentence => new DialogInfo(
                                 sentence,
-                                _database.AllEpisodesV2[episodeId].KuromojiAnalyzedSentences[sentence.Index]
+                                episodeV2.KuromojiAnalyzedSentences[sentence.Index]
                             )
                         )
-                );
+                ) {EpisodeTitle = $"{episodeV2.Parent.Title} Episode {episodeV2.Number}"};
             }
 
-            var ep = _database.AllEpisodes.SingleOrDefault(ep => ep.Title == episode);
+            var ep = _database.AllEpisodes.FirstOrDefault(e => e.Title == episode);
             if (ep == null)
             {
                 return NotFound();
