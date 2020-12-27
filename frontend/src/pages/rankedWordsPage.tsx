@@ -5,7 +5,7 @@ import React, { FC } from 'react';
 
 export const RankedWordsPage: FC = () => {
     return (
-        <Page secondaryChildren={() => <WordSummary />}>
+        <Page title="Ranked Words" secondaryChildren={() => <WordSummary />}>
             <RankedWords />
         </Page>
     );

@@ -4,6 +4,7 @@ import { selectionClearRequested } from 'features/selectedWord';
 import React, { FC, ReactNode, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './page.module.scss';
+import Helmet from 'react-helmet';
 
 export interface IPageProps {
     secondaryChildren?: () => ReactNode;
@@ -21,6 +22,11 @@ export const Page: FC<IPageProps> = (props) => {
     return (
         <div className="App">
             <AppHeader>{props.title}</AppHeader>
+            <Helmet>
+                <title>
+                    {props.title ? `${props.title} - Erabikata` : 'Erabikata'}
+                </title>
+            </Helmet>
             <div className={styles.container}>
                 <div
                     className={classNames(styles.secondary, {
