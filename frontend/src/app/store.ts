@@ -1,4 +1,5 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
+import { useDispatch } from 'react-redux';
 
 import rootReducer, { RootState } from './rootReducer';
 
@@ -18,5 +19,7 @@ const store = configureStore({
 
 export type AppDispatch = typeof store.dispatch;
 export type AppThunk = ThunkAction<void, RootState, unknown, Action<string>>;
+
+export const useAppDispatch: () => AppDispatch = useDispatch;
 
 export default store;

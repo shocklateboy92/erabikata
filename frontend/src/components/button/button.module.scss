@@ -1,6 +1,12 @@
 button.inline {
     background: none;
     border: none;
+    padding: 0;
+
+    &.complex {
+        display: flex;
+        align-items: center;
+    }
 }
 
 .contents {

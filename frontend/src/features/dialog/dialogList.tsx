@@ -1,9 +1,9 @@
-import { mdiAngleRight, mdiArrowRight } from '@mdi/js';
+import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useAppSelector } from 'app/hooks';
 import { useAppDispatch } from 'app/store';
+import classNames from 'classnames';
 import { InlineButton } from 'components/button';
-import { Spinner } from 'components/spinner';
 import { Dialog } from 'features/dialog/Dialog';
 import {
     fetchDialogById,
@@ -11,6 +11,7 @@ import {
     selectNearbyDialog
 } from 'features/dialog/slice';
 import React, { FC, useEffect, useState } from 'react';
+import styles from './dialog.module.scss';
 
 export interface IDialogListProps extends IDialogId {
     count: number;
@@ -18,7 +19,6 @@ export interface IDialogListProps extends IDialogId {
 
 export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
     const [timeOverride, setTimeOverride] = useState(time);
-    const [isLoading, setIsLoading] = useState(false);
 
     const dispatch = useAppDispatch();
     useEffect(() => {
@@ -37,18 +37,27 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
                 episode={episode}
                 setTimeOverride={setTimeOverride}
                 time={dialog[0]}
-                iconPath={mdiArrowRight}
-            />
+            >
+                <Icon path={mdiChevronLeft} size="1.5em" />
+                Load Previous
+            </BeginScrollButton>
             {dialog.map((d) => (
                 <Dialog key={d} episode={episode} time={d} />
             ))}
-            <InlineButton>Show More</InlineButton>
+            <BeginScrollButton
+                time={dialog[dialog.length - 1]}
+                setTimeOverride={setTimeOverride}
+                episode={episode}
+                count={count}
+            >
+                Load Next
+                <Icon path={mdiChevronRight} size="1.5em" />
+            </BeginScrollButton>
         </>
     );
 };
 
 interface IScrollButtonProps {
-    iconPath: string;
     time: number;
     episode: string;
     setTimeOverride: (time: number) => void;
@@ -56,25 +65,28 @@ interface IScrollButtonProps {
 }
 const BeginScrollButton: FC<IScrollButtonProps> = ({
     episode,
-    iconPath,
     setTimeOverride,
     count,
-    time
+    time,
+    children
 }) => {
     const dispatch = useAppDispatch();
     const [isLoading, setIsLoading] = useState(false);
 
-    const scrollTo = async () => {
-        setIsLoading(true);
-        await dispatch(fetchDialogById({ episode, time, count }));
-        setIsLoading(false);
-        setTimeOverride(time);
-    };
-
     return (
-        <InlineButton onClick={scrollTo}>
-            {isLoading ? <Spinner /> : <Icon path={iconPath} size="1em" />}
-            Show More
+        <InlineButton
+            className={classNames(styles.scrollButton, {
+                [styles.busy]: isLoading
+            })}
+            complex
+            onClick={async () => {
+                setIsLoading(true);
+                await dispatch(fetchDialogById({ episode, time, count }));
+                setIsLoading(false);
+                setTimeOverride(time);
+            }}
+        >
+            {children}
         </InlineButton>
     );
 };
