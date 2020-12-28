@@ -79,6 +79,7 @@ const BeginScrollButton: FC<IScrollButtonProps> = ({
                 [styles.busy]: isLoading
             })}
             complex
+            small
             onClick={async () => {
                 setIsLoading(true);
                 await dispatch(fetchDialogById({ episode, time, count }));

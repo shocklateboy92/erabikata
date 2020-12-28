@@ -1,12 +1,21 @@
+import { mdiRefresh } from '@mdi/js';
+import { ActionButton } from 'components/button/actionButton';
 import { FullWidthText } from 'components/fullWidth';
 import { Page } from 'components/page';
-import React, { FC } from 'react';
-import preval from 'preval.macro';
-import { HassCheck } from 'features/hass';
 import { BackendInfo } from 'features/backendSelection';
+import { HassCheck } from 'features/hass';
 import { WakeLockOption } from 'features/wakeLock';
+import preval from 'preval.macro';
+import React, { FC, useEffect, useState } from 'react';
 
 export const InfoPage: FC = () => {
+    const [canUpdate, setCanUpdate] = useState(false);
+    useEffect(() => {
+        navigator.serviceWorker.ready.then((worker) =>
+            setCanUpdate(!!worker.waiting)
+        );
+    }, []);
+
     return (
         <Page>
             <FullWidthText>
@@ -19,6 +28,19 @@ export const InfoPage: FC = () => {
                     <br />
                     <BackendInfo />
                 </p>
+                {canUpdate && (
+                    <ActionButton
+                        icon={mdiRefresh}
+                        onClick={async () => {
+                            const worker = await navigator.serviceWorker.ready;
+                            worker.waiting?.postMessage({
+                                type: 'SKIP_WAITING'
+                            });
+                        }}
+                    >
+                        Update App
+                    </ActionButton>
+                )}
             </FullWidthText>
             <HassCheck />
             <FullWidthText>

@@ -6,13 +6,17 @@ export interface IButtonProps {
     onClick?: React.ComponentProps<'button'>['onClick'];
     className?: string;
     complex?: boolean;
+    small?: boolean;
 }
 export const InlineButton: FC<IButtonProps> = (props) => {
     return (
         <button
             className={classNames(
                 styles.inline,
-                { [styles.complex]: props.complex },
+                {
+                    [styles.complex]: props.complex,
+                    [styles.small]: props.small
+                },
                 props.className
             )}
             onClickCapture={props.onClick}
