@@ -1,6 +1,6 @@
 import { useAppSelector } from 'app/hooks';
 import { InlineError } from 'components/inlineError';
-import React, { FC } from 'react';
+import React, { FC, Fragment } from 'react';
 import { IEngDialogProps } from './engDialogList';
 import { selectEnglishDialogContent } from './slice';
 
@@ -20,10 +20,10 @@ export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
     return (
         <p>
             {content.text?.map((text, index) => (
-                <>
+                <Fragment key={index}>
                     {text}
                     {index > 0 && <br />}
-                </>
+                </Fragment>
             ))}
         </p>
     );
