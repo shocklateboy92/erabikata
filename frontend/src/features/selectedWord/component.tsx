@@ -42,6 +42,7 @@ export const SelectedWord: FC<{}> = () => {
         dialogUrl = new URL('/dialog', document.baseURI);
         dialogUrl.searchParams.set('episode', parentEpisodeId);
         dialogUrl.searchParams.set('time', parentDialogId.toString());
+        dialogUrl.searchParams.set('word', selectedWord.wordBaseForm);
     }
 
     return (
