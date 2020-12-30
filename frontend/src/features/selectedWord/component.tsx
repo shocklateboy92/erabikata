@@ -26,7 +26,7 @@ declare global {
 export const SelectedWord: FC<{}> = () => {
     const selectedWord = useTypedSelector(selectSelectedWord);
     const wordContext = useTypedSelector(selectSelectedWordContext);
-    if (!selectedWord) {
+    if (!selectedWord?.wordBaseForm) {
         return null;
     }
 

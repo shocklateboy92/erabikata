@@ -3,13 +3,25 @@ import { RootState } from 'app/rootReducer';
 import { IWordInfoState } from 'features/wordContext';
 
 interface ISelectedWordState {
-    wordBaseForm: string;
+    wordBaseForm?: string;
     sentenceTimestamp?: number;
     episode?: string;
 }
 
+const getParam = (search: URLSearchParams, param: string): string | undefined =>
+    search.get(param) ?? undefined;
+
+const getInitialState = (): ISelectedWordState => {
+    const search = new URLSearchParams(window.location.search);
+    return {
+        wordBaseForm: getParam(search, 'word'),
+        sentenceTimestamp: parseInt(search.get('time') ?? ''),
+        episode: getParam(search, 'episode')
+    };
+};
+
 const slice = createSlice({
-    initialState: null as ISelectedWordState | null,
+    initialState: getInitialState(),
     name: 'selectedWord',
     reducers: {
         newWordSelected: (
@@ -25,13 +37,13 @@ const slice = createSlice({
             state?.wordBaseForm === word &&
             state.sentenceTimestamp === timestamp
                 ? // close the panel if the same word is tapped
-                  null
+                  {}
                 : {
                       wordBaseForm: word,
                       sentenceTimestamp: timestamp,
                       episode
                   },
-        selectionClearRequested: (state) => null
+        selectionClearRequested: (state) => {}
     }
 });
 
