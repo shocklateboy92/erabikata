@@ -66,7 +66,10 @@ export const Dialog: FC<{
                                 reading={word.reading}
                                 hideReading={!furiganaEnabled}
                             >
-                                {word.displayText}
+                                {
+                                    // It seems the analyzers replace japanese spaces with normal spaces
+                                    word.displayText.replaceAll(' ', '　')
+                                }
                             </SelectableRuby>
                         ))}
                     </div>
