@@ -42,16 +42,19 @@ namespace Erabikata.Backend.Managers
             IReadOnlyCollection<string>? ignoredWords = null)
         {
             var counts = new Dictionary<string, int>();
-            foreach (var episode in _database.AllEpisodes)
-            foreach (var sentence in episode.Dialog)
+            if (analyzer == Analyzer.Kuromoji)
             {
-                CountSentence(
-                    respectPartOfSpeechFilter,
-                    includePartsOfSpeech,
-                    ignoredWords,
-                    counts,
-                    sentence.Analyzed
-                );
+                foreach (var episode in _database.AllEpisodes)
+                foreach (var sentence in episode.Dialog)
+                {
+                    CountSentence(
+                        respectPartOfSpeechFilter,
+                        includePartsOfSpeech,
+                        ignoredWords,
+                        counts,
+                        sentence.Analyzed
+                    );
+                }
             }
 
             foreach (var episode in _database.AllEpisodesV2.Values)

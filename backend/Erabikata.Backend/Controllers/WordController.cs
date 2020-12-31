@@ -56,60 +56,62 @@ namespace Erabikata.Backend.Controllers
                 word.Base == text && (onlyPartsOfSpeech.Count == 0 ||
                                       word.PartOfSpeech.Any(onlyPartsOfSpeech.Contains));
 
-            var occurrences = _database.AllEpisodes.SelectMany(
-                episode =>
-                {
-                    var episodeInfo = _episodeInfoManager.GetEpisodeInfo(episode);
-                    return episode.Dialog.SelectMany(
-                        sentence =>
+
+            var occurrences = _database.AllEpisodesV2.Values.SelectMany(
+                episode => episode.FilteredInputSentences
+                    .Where(
+                        sentence => episode.AnalyzedSentences[analyzer][sentence.Index]
+                            .Analyzed.Any(line => line.Any(IsTargetWord))
+                    )
+                    .Select(
+                        sentence => new WordInfo.Occurence
                         {
-                            return sentence.Analyzed.Where(IsTargetWord)
-                                // Easiest ways to avoid duplicates in sentence
-                                .Take(1)
-                                .Select(
-                                    word => new WordInfo.Occurence
-                                    {
-                                        EpisodeName = episodeInfo.Title,
-                                        EpisodeId = episode.Title,
-                                        Time = sentence.StartTime,
-                                        Text = new DialogInfo(sentence),
-                                        VlcCommand = episodeInfo.VideoFile != null
-                                            ? CreateVlcCommand(
-                                                episodeInfo.VideoFile,
-                                                sentence.StartTime
-                                            )
-                                            : null,
-                                    }
-                                );
+                            EpisodeId = episode.Id.ToString(),
+                            EpisodeName = $"{episode.Parent.Title} Episode {episode.Number}",
+                            Text = new DialogInfo(
+                                sentence,
+                                episode.AnalyzedSentences[analyzer][sentence.Index]
+                            ),
+                            Time = sentence.Time,
+                            VlcCommand = CreateVlcCommand(episode.FilePath, sentence.Time)
                         }
-                    );
-                }
+                    )
             );
 
-            occurrences = occurrences.Concat(
-                _database.AllEpisodesV2.Values.SelectMany(
-                    episode => episode.FilteredInputSentences
-                        .Where(
-                            sentence =>
-                                episode.AnalyzedSentences[analyzer][sentence.Index]
-                                    .Analyzed.Any(line => line.Any(IsTargetWord))
-                        )
-                        .Select(
-                            sentence => new WordInfo.Occurence
-                            {
-                                EpisodeId = episode.Id.ToString(),
-                                EpisodeName =
-                                    $"{episode.Parent.Title} Episode {episode.Number}",
-                                Text = new DialogInfo(
-                                    sentence,
-                                    episode.AnalyzedSentences[analyzer][sentence.Index]
-                                ),
-                                Time = sentence.Time,
-                                VlcCommand = CreateVlcCommand(episode.FilePath, sentence.Time)
-                            }
-                        )
-                )
-            );
+            if (analyzer == Analyzer.Kuromoji)
+            {
+                occurrences = occurrences.Concat(
+                    _database.AllEpisodes.SelectMany(
+                        episode =>
+                        {
+                            var episodeInfo = _episodeInfoManager.GetEpisodeInfo(episode);
+                            return episode.Dialog.SelectMany(
+                                sentence =>
+                                {
+                                    return sentence.Analyzed.Where(IsTargetWord)
+                                        // Easiest ways to avoid duplicates in sentence
+                                        .Take(1)
+                                        .Select(
+                                            word => new WordInfo.Occurence
+                                            {
+                                                EpisodeName = episodeInfo.Title,
+                                                EpisodeId = episode.Title,
+                                                Time = sentence.StartTime,
+                                                Text = new DialogInfo(sentence),
+                                                VlcCommand = episodeInfo.VideoFile != null
+                                                    ? CreateVlcCommand(
+                                                        episodeInfo.VideoFile,
+                                                        sentence.StartTime
+                                                    )
+                                                    : null,
+                                            }
+                                        );
+                                }
+                            );
+                        }
+                    )
+                );
+            }
 
             if (includeEpisode != null && includeTime != null)
             {
