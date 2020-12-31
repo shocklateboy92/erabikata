@@ -3,11 +3,11 @@ import { ActionButton } from 'components/button/actionButton';
 import { FullWidthText } from 'components/fullWidth';
 import { Page } from 'components/page';
 import { BackendInfo } from 'features/backendSelection';
+import { AnalyzerSelector } from 'features/backendSelection/analyzerSelector';
 import { HassCheck } from 'features/hass';
 import { WakeLockOption } from 'features/wakeLock';
 import preval from 'preval.macro';
 import React, { FC, useEffect, useState } from 'react';
-
 export const InfoPage: FC = () => {
     const [canUpdate, setCanUpdate] = useState(false);
     useEffect(() => {
@@ -28,6 +28,7 @@ export const InfoPage: FC = () => {
                     <br />
                     <BackendInfo />
                 </p>
+                <AnalyzerSelector />
                 {canUpdate && (
                     <ActionButton
                         icon={mdiRefresh}
