@@ -2,6 +2,8 @@ import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.worksap.nlp.sudachi.DictionaryFactory;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -9,14 +11,19 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import static com.worksap.nlp.sudachi.Tokenizer.*;
 
 public class Main {
   static final Pattern SEARCH_PATTERN = Pattern.compile("/input/[^/]*\\.json$");
   private static final Tokenizer tokenizer = new Tokenizer();
 
   public static void main(String[] args) throws IOException {
+    Sudachi.initialize();
     System.out.println("Starting...");
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -27,31 +34,38 @@ public class Main {
     files.forEach(
         file -> {
           try {
-            List<Dialog> lines =
-                gson.fromJson(
-                    new FileReader(file.toFile()), new TypeToken<ArrayList<Dialog>>() {}.getType());
-            var analyzed = analyzeLines(lines).toArray(AnalyzedDialog[]::new);
-
-            var parent = file.getParent();
-            if (!parent.getFileName().toString().equals("input")) {
-              throw new Exception("Encountered invalid directory: " + parent.getFileName());
-            }
-
-            var outDir = parent.getParent().resolve("kuromoji").toFile();
-            if (!outDir.exists()) {
-              outDir.mkdir();
-            }
-
-            var outFileName = outDir.getAbsolutePath() + File.separator + file.getFileName();
-
-            try (Writer writer = new FileWriter(outFileName)) {
-              gson.toJson(analyzed, writer);
-            }
+            analyzeFile(gson, file, Main::analyzeLines, "kuromoji");
+            analyzeFile(gson, file, dialog -> Sudachi.analyzeLines(dialog, SplitMode.A), "sudachi_a");
+            analyzeFile(gson, file, dialog -> Sudachi.analyzeLines(dialog, SplitMode.B), "sudachi_b");
+            analyzeFile(gson, file, dialog -> Sudachi.analyzeLines(dialog, SplitMode.C), "sudachi_c");
           } catch (Exception e) {
             System.err.println("Error while processing " + file);
             e.printStackTrace();
           }
         });
+  }
+
+  private static void analyzeFile(Gson gson, Path file, Function<List<Dialog>, Stream<AnalyzedDialog>> anaylzeFunc, String name) throws Exception {
+    List<Dialog> lines =
+        gson.fromJson(
+            new FileReader(file.toFile()), new TypeToken<ArrayList<Dialog>>() {}.getType());
+
+    var parent = file.getParent();
+    if (!parent.getFileName().toString().equals("input")) {
+      throw new Exception("Encountered invalid directory: " + parent.getFileName());
+    }
+
+    var analyzed = anaylzeFunc.apply(lines).toArray(AnalyzedDialog[]::new);
+    var outDir = parent.getParent().resolve(name).toFile();
+    if (!outDir.exists()) {
+      outDir.mkdir();
+    }
+
+    var outFileName = outDir.getAbsolutePath() + File.separator + file.getFileName();
+
+    try (Writer writer = new FileWriter(outFileName)) {
+      gson.toJson(analyzed, writer);
+    }
   }
 
   public static Stream<AnalyzedDialog> analyzeLines(List<Dialog> dialog) {
