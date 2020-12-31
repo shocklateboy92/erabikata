@@ -1,4 +1,8 @@
-import { mdiTelevisionPlay, mdiInformationOutline } from '@mdi/js';
+import {
+    mdiTelevisionPlay,
+    mdiInformationOutline,
+    mdiSortAscending
+} from '@mdi/js';
 import { Separator } from 'components/separator';
 import { FuriganaOption } from 'features/furigana/option';
 import { SpinnerTop } from 'features/spinnerTop/component';
@@ -13,6 +17,10 @@ export const AppHeader: FC = ({ children }) => (
         <SpinnerTop />
         <Separator navBar />
         <div className={styles.title}>{children}</div>
+        <Separator navBar />
+        <NavLink to="/rankedWords">
+            <HeaderItem icon={mdiSortAscending}>Ranked Words</HeaderItem>
+        </NavLink>
         <Separator navBar />
         <NavLink to="/nowPlaying">
             <HeaderItem icon={mdiTelevisionPlay}>Now Playing</HeaderItem>
