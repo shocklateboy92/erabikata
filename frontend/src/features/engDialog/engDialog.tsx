@@ -21,8 +21,8 @@ export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
         <p>
             {content.text?.map((text, index) => (
                 <Fragment key={index}>
-                    {text}
                     {index > 0 && <br />}
+                    {text}
                 </Fragment>
             ))}
         </p>
