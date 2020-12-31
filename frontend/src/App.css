@@ -34,3 +34,9 @@ img {
 input + label {
     margin-left: 0.5em;
 }
+
+@media (max-width: 40em) {
+    .hideOnMobile {
+        display: none;
+    }
+}

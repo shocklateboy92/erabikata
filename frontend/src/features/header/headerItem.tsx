@@ -9,6 +9,6 @@ interface IHeaderItem {
 export const HeaderItem: FC<IHeaderItem> = ({ icon, children }) => (
     <span className={styles.item}>
         <Icon path={icon} size="2em" />
-        <span className={styles.text}>{children}</span>
+        <span className="hideOnMobile">{children}</span>
     </span>
 );

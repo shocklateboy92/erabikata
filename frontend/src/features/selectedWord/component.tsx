@@ -1,6 +1,7 @@
-import { mdiShare, mdiShareVariant, mdiVlc } from '@mdi/js';
+import { mdiClose, mdiShare, mdiShareVariant, mdiVlc } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
+import { InlineButton } from 'components/button';
 import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
 import { DialogList } from 'features/dialog/dialogList';
@@ -9,9 +10,14 @@ import { HassPlayButton } from 'features/hass';
 import { ImageContext } from 'features/imageContext/component';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styles from './selectedWord.module.scss';
-import { selectSelectedWord, selectSelectedWordContext } from './slice';
+import {
+    selectionClearRequested,
+    selectSelectedWord,
+    selectSelectedWordContext
+} from './slice';
 import { WordLink } from './wordLink';
 
 const ICON_SIZE = 1;
@@ -24,6 +30,7 @@ declare global {
 }
 
 export const SelectedWord: FC<{}> = () => {
+    const dispatch = useDispatch();
     const selectedWord = useTypedSelector(selectSelectedWord);
     const wordContext = useTypedSelector(selectSelectedWordContext);
     if (!selectedWord?.wordBaseForm) {
@@ -56,7 +63,7 @@ export const SelectedWord: FC<{}> = () => {
                         Occurrences: {wordContext?.totalOccurrences ?? '????'}
                     </div>
                     <div className={styles.actions}>
-                        <button
+                        <InlineButton
                             onClick={async () => {
                                 const text = `[${selectedWord.wordBaseForm}](${dialogUrl}) #Japanese`;
 
@@ -67,7 +74,7 @@ export const SelectedWord: FC<{}> = () => {
                             }}
                         >
                             <Icon path={mdiShareVariant} size={ICON_SIZE} />
-                        </button>
+                        </InlineButton>
                         <WordLink
                             word={selectedWord.wordBaseForm}
                             includeEpisode={parentEpisodeId}
@@ -83,6 +90,14 @@ export const SelectedWord: FC<{}> = () => {
                                 <Icon path={mdiVlc} size={ICON_SIZE} />
                             </button>
                         )}
+                        <InlineButton
+                            hideOnMobile
+                            onClick={() => {
+                                dispatch(selectionClearRequested());
+                            }}
+                        >
+                            <Icon path={mdiClose} size={ICON_SIZE} />
+                        </InlineButton>
                         <HassPlayButton
                             dialogId={parentDialogId}
                             episodeId={parentEpisodeId}
