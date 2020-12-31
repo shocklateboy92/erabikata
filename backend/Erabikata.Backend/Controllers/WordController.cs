@@ -159,15 +159,28 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("{word}/[action]")]
-        public IEnumerable<string> PartsOfSpeech([FromRoute] string word)
+        public IEnumerable<string> PartsOfSpeech([FromRoute] string word, Analyzer analyzer)
         {
-            return _database.AllEpisodes.SelectMany(
+            var words = _database.AllEpisodesV2.Values.SelectMany(
+                v2 => v2.AnalyzedSentences[analyzer]
+                    .SelectMany(
+                        sentenceV2 => sentenceV2.Analyzed.SelectMany(
+                            line => line.Where(analyzedWord => analyzedWord.Base == word)
+                                .SelectMany(analyzed => analyzed.PartOfSpeech)
+                        )
+                    )
+            );
+            if (analyzer == Analyzer.Kuromoji)
+            {
+                words = _database.AllEpisodes.SelectMany(
                     ep => ep.Dialog.SelectMany(
                         line => line.Analyzed.Where(w => w.Base == word)
                             .SelectMany(w => w.PartOfSpeech)
                     )
-                )
-                .Distinct();
+                );
+            }
+
+            return words.Distinct();
         }
     }
 }
