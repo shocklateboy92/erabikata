@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Erabikata.Models.Input;
 using Erabikata.Models.Input.V2;
@@ -20,7 +22,10 @@ namespace Erabikata.Models.Output
             Words = new[] {tokenized};
         }
 
-        public DialogInfo(InputSentence sentence, AnalyzedSentenceV2 analyzedSentenceV2)
+        public DialogInfo(
+            InputSentence sentence,
+            AnalyzedSentenceV2 analyzedSentenceV2,
+            ICollection<string> ignoredPartsOfSpeech)
         {
             StartTime = sentence.Time;
             Words = analyzedSentenceV2.Analyzed.Select(
@@ -28,7 +33,9 @@ namespace Erabikata.Models.Output
                             f => new WordRef(
                                 f.Original,
                                 f.Base == "*" ? f.Original : f.Base,
-                                f.Reading
+                                f.PartOfSpeech.Any(ignoredPartsOfSpeech.Contains)
+                                    ? string.Empty
+                                    : f.Reading
                             )
                         )
                         .ToArray()

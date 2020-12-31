@@ -4,9 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
+using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -18,17 +20,20 @@ namespace Erabikata.Backend.Controllers
         private readonly EpisodeInfoManager _episodeInfoManager;
         private readonly WordCountsManager _wordCounts;
         private readonly KnownWordsProvider _knownWordsProvider;
+        private readonly SubtitleProcessingSettings _processingSettings;
 
         public WordController(
             SubtitleDatabaseManager database,
             WordCountsManager wordCounts,
             EpisodeInfoManager episodeInfoManager,
-            KnownWordsProvider knownWordsProvider)
+            KnownWordsProvider knownWordsProvider,
+            IOptions<SubtitleProcessingSettings> processingSettings)
         {
             _database = database;
             _wordCounts = wordCounts;
             _episodeInfoManager = episodeInfoManager;
             _knownWordsProvider = knownWordsProvider;
+            _processingSettings = processingSettings.Value;
         }
 
         [HttpGet]
@@ -70,7 +75,8 @@ namespace Erabikata.Backend.Controllers
                             EpisodeName = $"{episode.Parent.Title} Episode {episode.Number}",
                             Text = new DialogInfo(
                                 sentence,
-                                episode.AnalyzedSentences[analyzer][sentence.Index]
+                                episode.AnalyzedSentences[analyzer][sentence.Index],
+                                _processingSettings.IgnoredPartsOfSpeech
                             ),
                             Time = sentence.Time,
                             VlcCommand = CreateVlcCommand(episode.FilePath, sentence.Time)

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
+using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -15,10 +17,14 @@ namespace Erabikata.Backend.Controllers
     public class SubsController : ControllerBase
     {
         private readonly SubtitleDatabaseManager _database;
+        private readonly SubtitleProcessingSettings _processingSettings;
 
-        public SubsController(SubtitleDatabaseManager database)
+        public SubsController(
+            SubtitleDatabaseManager database,
+            IOptions<SubtitleProcessingSettings> processingSettings)
         {
             _database = database;
+            _processingSettings = processingSettings.Value;
         }
 
         [HttpGet]
@@ -48,7 +54,8 @@ namespace Erabikata.Backend.Controllers
                         .Select(
                             sentence => new DialogInfo(
                                 sentence,
-                                episodeV2.AnalyzedSentences[analyzer][sentence.Index]
+                                episodeV2.AnalyzedSentences[analyzer][sentence.Index],
+                                _processingSettings.IgnoredPartsOfSpeech
                             )
                         )
                 ) {EpisodeTitle = $"{episodeV2.Parent.Title} Episode {episodeV2.Number}"};

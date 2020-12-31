@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Erabikata.Models.Input;
 
 namespace Erabikata.Models.Configuration
@@ -6,6 +7,6 @@ namespace Erabikata.Models.Configuration
     {
         public SubtitleProcessingInputSettings Input { get; set; }
 
-        public string[] IgnoredPartsOfSpeech { get; set; }
+        public HashSet<string> IgnoredPartsOfSpeech { get; set; }
     }
 }
