@@ -7,7 +7,12 @@ interface IBackendSelection {
 
 const params = new URLSearchParams(window.location.search);
 const initialState: IBackendSelection = {
-    baseUrl: params.get('env') ?? window.location.origin
+    baseUrl:
+        params.get('env') ??
+        // Convenience override for frontend-only local dev
+        window.location.origin === 'http://localhost:3000'
+            ? 'https://erabikata2.apps.lasath.org'
+            : window.location.origin
 };
 
 const slice = createSlice({
