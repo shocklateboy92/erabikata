@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { analyzerChangeRequest } from 'features/backendSelection';
 import { fetchRankedWords } from 'features/rankedWords/slice';
 import { RootState } from '../../app/rootReducer';
 import { Occurence, WordInfo } from '../../backend.generated';
@@ -38,6 +39,9 @@ const slice = createSlice({
             .addCase(fetchWordIfNeeded.fulfilled, ({ byId }, { payload }) => ({
                 byId: { ...byId, [payload.text]: transformWord(payload) }
             }))
+            // Not going to try keeping different contexts for diferent
+            // analyzers. Just ditch old data and fetch new stuff
+            .addCase(analyzerChangeRequest, (state) => initialState)
 });
 
 const transformWord = (word: WordInfo) => ({

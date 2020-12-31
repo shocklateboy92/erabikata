@@ -1,7 +1,7 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { WordClient, WordInfo } from 'backend.generated';
-import { selectBaseUrl } from 'features/backendSelection';
+import { selectAnalyzer, selectBaseUrl } from 'features/backendSelection';
 import { useLocation } from 'react-router-dom';
 
 interface IWordContextArgs {
@@ -32,14 +32,16 @@ export const fetchWordIfNeeded: AsyncThunk<
         },
         { getState }
     ) => {
-        return new WordClient(selectBaseUrl(getState)).index(
+        const state = getState();
+        return new WordClient(selectBaseUrl(state)).index(
             // This is checked for null by the `condition` below
             baseForm!,
             onlyPartsOfSpeech,
             includeEpisode,
             includeTime,
             pagingInfo?.max ?? 0,
-            pagingInfo?.skip
+            pagingInfo?.skip,
+            selectAnalyzer(state)
         );
     },
     {

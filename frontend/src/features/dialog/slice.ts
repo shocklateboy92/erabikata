@@ -1,7 +1,11 @@
 import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { DialogInfo, NowPlayingInfo, SubsClient } from 'backend.generated';
-import { selectBaseUrl } from 'features/backendSelection';
+import {
+    analyzerChangeRequest,
+    selectAnalyzer,
+    selectBaseUrl
+} from 'features/backendSelection';
 import { wordContextFetchSucceeded } from 'features/wordContext';
 
 interface IDialogState {
@@ -27,10 +31,17 @@ export const fetchDialogById: AsyncThunk<
     { state: RootState }
 > = createAsyncThunk(
     'dialog/byEpisode',
-    ({ episode, time, count }, { getState }) =>
+    ({ episode, time, count }, { getState }) => {
+        const state = getState();
         // Making this request unconditionally, because we don't know if there are
         // other dialog between the ones we have in the cache.
-        new SubsClient(selectBaseUrl(getState)).index(episode, time, count ?? 3)
+        return new SubsClient(selectBaseUrl(state)).index(
+            episode,
+            time,
+            count ?? 3,
+            selectAnalyzer(state)
+        );
+    }
 );
 
 const initialState: IDialogState = {
@@ -84,6 +95,9 @@ const dialogSlice = createSlice({
                     }
                 }
             )
+            // Not going to try keeping different dialog for diferent
+            // analyzers. Just ditch old data and fetch new stuff
+            .addCase(analyzerChangeRequest, (state) => initialState)
 });
 
 export const selectDialogContent = (
