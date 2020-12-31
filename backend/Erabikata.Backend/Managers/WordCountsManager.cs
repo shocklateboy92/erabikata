@@ -18,16 +18,25 @@ namespace Erabikata.Backend.Managers
             _settings = settings.Value;
             _database = database;
 
-            WordRanks = BuildWordCountsSorted(true);
-            WordRanksMap = WordRanks.Select((kv, index) => (kv, index))
-                .ToDictionary(kvp => kvp.kv.word, kvp => kvp.index);
+            WordRanks =
+                new[] {Analyzer.Kuromoji, Analyzer.SudachiA, Analyzer.SudachiB, Analyzer.SudachiC}
+                    .ToDictionary(
+                        analyzer => analyzer,
+                        analyzer => BuildWordCountsSorted(analyzer, respectPartOfSpeechFilter: true)
+                    );
+            WordRanksMap = WordRanks.ToDictionary(
+                ranks => ranks.Key,
+                ranks => ranks.Value.Select((kv, index) => (kv, index))
+                    .ToDictionary(kvp => kvp.kv.word, kvp => kvp.index)
+            );
         }
 
-        public IReadOnlyDictionary<string, int> WordRanksMap { get; }
+        public IReadOnlyDictionary<Analyzer, Dictionary<string, int>> WordRanksMap { get; }
 
-        public (string word, int count)[] WordRanks { get; }
+        public IReadOnlyDictionary<Analyzer, (string word, int count)[]> WordRanks { get; }
 
         public (string word, int count)[] BuildWordCountsSorted(
+            Analyzer analyzer,
             bool respectPartOfSpeechFilter,
             IReadOnlyCollection<string>? includePartsOfSpeech = null,
             IReadOnlyCollection<string>? ignoredWords = null)
@@ -46,7 +55,7 @@ namespace Erabikata.Backend.Managers
             }
 
             foreach (var episode in _database.AllEpisodesV2.Values)
-            foreach (var sentence in episode.KuromojiAnalyzedSentences)
+            foreach (var sentence in episode.AnalyzedSentences[analyzer])
             foreach (var line in sentence.Analyzed)
             {
                 CountSentence(

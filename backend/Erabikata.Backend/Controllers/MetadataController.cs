@@ -48,7 +48,7 @@ namespace Erabikata.Backend.Controllers
                     0,
                     (i, ep) => ep.Dialog.Aggregate(0, (d, s) => s.Analyzed.Length + d) + i
                 ),
-                uniqueWords = _wordCountsManager.WordRanks.Length
+                uniqueWords = _wordCountsManager.WordRanks[Analyzer.Kuromoji].Length
             };
         }
 

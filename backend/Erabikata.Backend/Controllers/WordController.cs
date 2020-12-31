@@ -38,9 +38,10 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] HashSet<string> onlyPartsOfSpeech,
             string? includeEpisode,
             double? includeTime,
-            [FromQuery] PagingInfo pagingInfo)
+            [FromQuery] PagingInfo pagingInfo,
+            Analyzer analyzer = Analyzer.Kuromoji)
         {
-            var rank = _wordCounts.WordRanksMap.GetValueOrDefault(text, -1);
+            var rank = _wordCounts.WordRanksMap[analyzer].GetValueOrDefault(text, -1);
             if (rank < 0)
             {
                 return new WordInfo
@@ -90,7 +91,7 @@ namespace Erabikata.Backend.Controllers
                     episode => episode.FilteredInputSentences
                         .Where(
                             sentence =>
-                                episode.KuromojiAnalyzedSentences[sentence.Index]
+                                episode.AnalyzedSentences[analyzer][sentence.Index]
                                     .Analyzed.Any(line => line.Any(IsTargetWord))
                         )
                         .Select(
@@ -101,7 +102,7 @@ namespace Erabikata.Backend.Controllers
                                     $"{episode.Parent.Title} Episode {episode.Number}",
                                 Text = new DialogInfo(
                                     sentence,
-                                    episode.KuromojiAnalyzedSentences[sentence.Index]
+                                    episode.AnalyzedSentences[analyzer][sentence.Index]
                                 ),
                                 Time = sentence.Time,
                                 VlcCommand = CreateVlcCommand(episode.FilePath, sentence.Time)
@@ -112,7 +113,7 @@ namespace Erabikata.Backend.Controllers
 
             if (includeEpisode != null && includeTime != null)
             {
-                var ranksMap = _wordCounts.WordRanksMap;
+                var ranksMap = _wordCounts.WordRanksMap[analyzer];
                 var knownWords = await _knownWordsProvider.GetKnownWords();
 
                 occurrences = occurrences.OrderByDescending(
@@ -139,7 +140,7 @@ namespace Erabikata.Backend.Controllers
             {
                 Text = text,
                 Rank = rank,
-                TotalOccurrences = _wordCounts.WordRanks[rank].count,
+                TotalOccurrences = _wordCounts.WordRanks[analyzer][rank].count,
                 Occurrences = occurrences.Skip(pagingInfo.Skip).Take(pagingInfo.Max),
                 PagingInfo = pagingInfo
             };

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
+using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -24,7 +25,8 @@ namespace Erabikata.Backend.Controllers
         public ActionResult<NowPlayingInfo> Index(
             [FromQuery] [BindRequired] string episode,
             [FromQuery] double time = 0.0,
-            [FromQuery] int count = 3)
+            [FromQuery] int count = 3,
+            [FromQuery] Analyzer analyzer = Analyzer.Kuromoji)
         {
             if (int.TryParse(episode, out var episodeId) &&
                 _database.AllEpisodesV2.ContainsKey(episodeId))
@@ -46,7 +48,7 @@ namespace Erabikata.Backend.Controllers
                         .Select(
                             sentence => new DialogInfo(
                                 sentence,
-                                episodeV2.KuromojiAnalyzedSentences[sentence.Index]
+                                episodeV2.AnalyzedSentences[analyzer][sentence.Index]
                             )
                         )
                 ) {EpisodeTitle = $"{episodeV2.Parent.Title} Episode {episodeV2.Number}"};

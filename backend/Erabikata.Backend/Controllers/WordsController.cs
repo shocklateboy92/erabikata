@@ -31,7 +31,8 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] bool excludeKnownWords = true,
             [FromQuery] int max = 100,
             [FromQuery] int skip = 0,
-            [FromQuery] HashSet<string>? onlyPartsOfSpeech = null)
+            [FromQuery] HashSet<string>? onlyPartsOfSpeech = null,
+            Analyzer analyzer = Analyzer.Kuromoji)
         {
             IReadOnlyCollection<string>? knownWords = null;
             if (excludeKnownWords)
@@ -41,13 +42,18 @@ namespace Erabikata.Backend.Controllers
 
 
             return _wordCountsManager
-                .BuildWordCountsSorted(respectPartOfSpeechFilter, onlyPartsOfSpeech, knownWords)
+                .BuildWordCountsSorted(
+                    analyzer,
+                    respectPartOfSpeechFilter,
+                    onlyPartsOfSpeech,
+                    knownWords
+                )
                 .Select(
                     (wordCount) => new WordInfo
                     {
                         Text = wordCount.word,
                         TotalOccurrences = wordCount.count,
-                        Rank = _wordCountsManager.WordRanksMap[wordCount.word],
+                        Rank = _wordCountsManager.WordRanksMap[analyzer][wordCount.word],
                     }
                 )
                 .Skip(skip)

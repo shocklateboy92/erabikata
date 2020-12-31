@@ -101,12 +101,34 @@ namespace Erabikata.Backend.Managers
                                         Id = int.Parse(info.Key.Split('/').Last()),
                                         Parent = metaData,
                                         Number = index + 1,
-                                        KuromojiAnalyzedSentences =
-                                            JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
-                                                await File.ReadAllTextAsync(
-                                                    GetDataPath("kuromoji", metadataFile, index)
-                                                )
-                                            ),
+                                        AnalyzedSentences =
+                                            new Dictionary<Analyzer, AnalyzedSentenceV2[]>
+                                            {
+                                                [Analyzer.Kuromoji] =
+                                                    await DeserializeAnalyzedSentences(
+                                                        metadataFile,
+                                                        index,
+                                                        "kuromoji"
+                                                    ),
+                                                [Analyzer.SudachiA] =
+                                                    await DeserializeAnalyzedSentences(
+                                                        metadataFile,
+                                                        index,
+                                                        "sudachi_a"
+                                                    ),
+                                                [Analyzer.SudachiB] =
+                                                    await DeserializeAnalyzedSentences(
+                                                        metadataFile,
+                                                        index,
+                                                        "sudachi_b"
+                                                    ),
+                                                [Analyzer.SudachiC] =
+                                                    await DeserializeAnalyzedSentences(
+                                                        metadataFile,
+                                                        index,
+                                                        "sudachi_c"
+                                                    )
+                                            },
                                         InputSentences = inputSentences,
                                         FilteredInputSentences =
                                             inputSentences
@@ -143,9 +165,15 @@ namespace Erabikata.Backend.Managers
             AllShows = allShows;
         }
 
-        private static string GetDataPath(string dataType, string metadataFile, int index)
-        {
-            return Path.Combine(metadataFile, $"../{dataType}/{index + 1:00}.json");
-        }
+        private static async Task<AnalyzedSentenceV2[]> DeserializeAnalyzedSentences(
+            string metadataFile,
+            int index,
+            string prefix) =>
+            JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
+                await File.ReadAllTextAsync(GetDataPath(prefix, metadataFile, index))
+            );
+
+        private static string GetDataPath(string dataType, string metadataFile, int index) =>
+            Path.Combine(metadataFile, $"../{dataType}/{index + 1:00}.json");
     }
 }

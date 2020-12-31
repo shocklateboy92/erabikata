@@ -6,9 +6,6 @@ namespace Erabikata.Models.Input.V2
 #nullable enable
     public class EpisodeV2
     {
-        public IReadOnlyList<AnalyzedSentenceV2> KuromojiAnalyzedSentences { get; set; } =
-            new List<AnalyzedSentenceV2>();
-
         public IReadOnlyList<InputSentence> InputSentences { get; set; } =
             new List<InputSentence>();
 
@@ -25,6 +22,9 @@ namespace Erabikata.Models.Input.V2
         public ShowInfo Parent { get; set; } = null!; // TODO: replace with init property
 
         public int Number { get; set; }
+
+        public IReadOnlyDictionary<Analyzer, AnalyzedSentenceV2[]> AnalyzedSentences { get; set; } =
+            new Dictionary<Analyzer, AnalyzedSentenceV2[]>();
     }
 
     public class InputSentence
