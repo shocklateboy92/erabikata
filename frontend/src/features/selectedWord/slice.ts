@@ -43,7 +43,7 @@ const slice = createSlice({
                       sentenceTimestamp: timestamp,
                       episode
                   },
-        selectionClearRequested: (state) => {}
+        selectionClearRequested: (state) => ({})
     }
 });
 
