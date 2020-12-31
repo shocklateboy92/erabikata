@@ -33,16 +33,11 @@ const slice = createSlice({
                 timestamp?: number;
                 episode?: string;
             }>
-        ) =>
-            state?.wordBaseForm === word &&
-            state.sentenceTimestamp === timestamp
-                ? // close the panel if the same word is tapped
-                  {}
-                : {
-                      wordBaseForm: word,
-                      sentenceTimestamp: timestamp,
-                      episode
-                  },
+        ) => ({
+            wordBaseForm: word,
+            sentenceTimestamp: timestamp,
+            episode
+        }),
         selectionClearRequested: (state) => ({})
     }
 });
