@@ -1,10 +1,9 @@
 import classNames from 'classnames';
 import { AppHeader } from 'features/header';
 import { selectionClearRequested } from 'features/selectedWord';
-import React, { FC, ReactNode, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './page.module.scss';
-import Helmet from 'react-helmet';
 
 export interface IPageProps {
     secondaryChildren?: () => ReactNode;
@@ -13,20 +12,24 @@ export interface IPageProps {
 
 export const Page: FC<IPageProps> = (props) => {
     const dispatch = useDispatch();
+
+    // Much cheaper than including react-helmet
+    useEffect(() => {
+        document.title = props.title
+            ? `${props.title} - Erabikata`
+            : 'Erabikata';
+    }, [props.title]);
+
     const [touchState, setTouchState] = useState<{
         position: number;
         shouldClose: boolean;
     }>();
+
     const secondary = props.secondaryChildren?.();
 
     return (
         <div className="App">
             <AppHeader>{props.title}</AppHeader>
-            <Helmet>
-                <title>
-                    {props.title ? `${props.title} - Erabikata` : 'Erabikata'}
-                </title>
-            </Helmet>
             <div className={styles.container}>
                 <div
                     className={classNames(styles.secondary, {
