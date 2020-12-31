@@ -1,6 +1,7 @@
 import { useTypedSelector } from 'app/hooks';
 import { useAppDispatch } from 'app/store';
 import { Analyzer } from 'backend.generated';
+import { FullWidthText } from 'components/fullWidth';
 import React, { FC } from 'react';
 import { selectAnalyzer } from '.';
 import { analyzerChangeRequest } from './slice';
@@ -18,7 +19,7 @@ export const AnalyzerSelector: FC = () => {
     const dispatch = useAppDispatch();
     const currentAnaylzer = useTypedSelector(selectAnalyzer);
     return (
-        <>
+        <FullWidthText>
             <h2>Use Analyzer</h2>
             <form>
                 {Object.keys(analyzerTexts).map((strKey) => {
@@ -41,6 +42,6 @@ export const AnalyzerSelector: FC = () => {
                     );
                 })}
             </form>
-        </>
+        </FullWidthText>
     );
 };

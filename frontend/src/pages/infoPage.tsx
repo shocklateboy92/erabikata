@@ -28,7 +28,6 @@ export const InfoPage: FC = () => {
                     <br />
                     <BackendInfo />
                 </p>
-                <AnalyzerSelector />
                 {canUpdate && (
                     <ActionButton
                         icon={mdiRefresh}
@@ -43,6 +42,7 @@ export const InfoPage: FC = () => {
                     </ActionButton>
                 )}
             </FullWidthText>
+            <AnalyzerSelector />
             <HassCheck />
             <FullWidthText>
                 <h2>Playback Options</h2>
