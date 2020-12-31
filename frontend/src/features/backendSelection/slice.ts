@@ -9,7 +9,7 @@ interface IBackendSelection {
 
 const params = new URLSearchParams(window.location.search);
 const initialState: IBackendSelection = {
-    analyzer: 'Kuromoji',
+    analyzer: 'SudachiC',
     baseUrl:
         params.get('env') ??
         // Convenience override for frontend-only local dev
