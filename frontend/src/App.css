@@ -27,12 +27,6 @@ ruby {
     font-size: 1.5em;
 }
 
-rt {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-}
-
 img {
     max-width: 100%;
 }
