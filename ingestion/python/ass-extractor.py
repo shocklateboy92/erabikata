@@ -46,30 +46,16 @@ def do_parse(file_path: str):
             doc = ass.parse(f)
             results = []
 
-            include_styles = []
             styles_file = file.with_name("include_styles.txt")
-            if styles_file.exists():
-                include_styles = [
-                    s.strip() for s in styles_file.read_text().splitlines()
-                ]
+            include_styles = [
+                s.strip() for s in styles_file.read_text().splitlines()
+            ]
 
             for event in sorted(doc.events, key=lambda x: x.start):
                 if event.TYPE != "Dialogue":
                     continue
 
-                extract_style = (
-                    event.style in include_styles
-                    if include_styles
-                    else (
-                        event.style not in EXCLUDE_STYLES
-                        and event.style in INCLUDE_STYLES
-                        or any(
-                            style.lower() in event.style.lower()
-                            for style in INCLUDE_STYLE_PATTERNS
-                        )
-                    )
-                )
-                if extract_style:
+                if event.style in include_styles:
                     text = []
                     try:
                         parsed = parse_ass(event.text)
