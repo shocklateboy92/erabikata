@@ -15,7 +15,7 @@ const getInitialState = (): ISelectedWordState => {
     const search = new URLSearchParams(window.location.search);
     return {
         wordBaseForm: getParam(search, 'word'),
-        sentenceTimestamp: parseInt(search.get('time') ?? ''),
+        sentenceTimestamp: parseFloat(search.get('time') ?? ''),
         episode: getParam(search, 'episode')
     };
 };
