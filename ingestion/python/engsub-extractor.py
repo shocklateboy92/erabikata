@@ -8,6 +8,7 @@ from typing import List, Tuple
 import ffmpeg
 
 MEDIA_ROOT = "/mnt/net/media"
+TRACKS_FILE_NAME = 'include_tracks.txt'
 
 input_root = argv[1] if len(argv) > 1 else "../../anime-subs"
 show_paths = [
@@ -40,10 +41,16 @@ def do_extract(input: str, output: Path):
         info = ffmpeg.probe(input)
         subs = [s for s in info["streams"] if s["codec_type"] == "subtitle"]
 
+        track_arg = {}
         if len(subs) > 1:
-            raise NotImplementedError("File has more than one subtitle:", subs)
+            tracks_file = output.with_name(TRACKS_FILE_NAME)
+            if not tracks_file.exists():
+                raise NotImplementedError(f"File has more than one subtitle but no `{TRACKS_FILE_NAME}` file:", subs)
 
-        job = ffmpeg.input(input).output(str(output))
+            include_tracks = [s.strip() for s in tracks_file.read_text().splitlines()]
+            track_arg = next({'map': f"0:{f['index']}"} for f in subs if f['tags']['title'] in include_tracks)
+
+        job = ffmpeg.input(input).output(str(output), **track_arg)
         ffmpeg.run(job, quiet=True)
 
     except ffmpeg.Error as err:
