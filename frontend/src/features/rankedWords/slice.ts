@@ -18,17 +18,26 @@ export const fetchRankedWords: AsyncThunk<
     WordInfo[],
     { pageNum: number },
     { state: RootState }
-> = createAsyncThunk('rankedWords', (paging, { getState }) => {
-    const state = getState();
-    return new WordsClient(selectBaseUrl(state)).ranked(
-        true,
-        false,
-        WORDS_PER_PAGE,
-        paging.pageNum * WORDS_PER_PAGE,
-        null,
-        selectAnalyzer(state)
-    );
-});
+> = createAsyncThunk(
+    'rankedWords',
+    (paging, { getState }) => {
+        const state = getState();
+        return new WordsClient(selectBaseUrl(state)).ranked(
+            true,
+            false,
+            WORDS_PER_PAGE,
+            paging.pageNum * WORDS_PER_PAGE,
+            null,
+            selectAnalyzer(state)
+        );
+    },
+    {
+        condition: ({ pageNum }, { getState }) =>
+            !getState().wordRanks.sorted.find(
+                (a) => a.rank === pageNum * WORDS_PER_PAGE
+            )
+    }
+);
 
 interface IRankedWordsState {
     sorted: { rank: number; word: string }[];
