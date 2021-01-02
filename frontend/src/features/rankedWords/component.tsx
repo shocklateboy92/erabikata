@@ -42,7 +42,7 @@ export const RankedWords: FC = () => {
             )}
             <div className={styles.container}>
                 {words.map((word) => (
-                    <SelectableDiv key={word?.rank} word={word?.text}>
+                    <SelectableDiv key={word.rank} word={word.text}>
                         <ruby>{word?.text}</ruby>
                         <div
                             className={styles.info}

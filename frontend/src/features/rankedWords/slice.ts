@@ -1,12 +1,11 @@
 import {
     AsyncThunk,
     createAsyncThunk,
-    createEntityAdapter,
     createSelector,
     createSlice
 } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { PagingInfo, WordInfo, WordsClient } from 'backend.generated';
+import { WordInfo, WordsClient } from 'backend.generated';
 import {
     analyzerChangeRequest,
     selectAnalyzer,
@@ -14,10 +13,6 @@ import {
 } from 'features/backendSelection';
 
 const WORDS_PER_PAGE = 200;
-
-const adapter = createEntityAdapter<{ id: number; text: string }>({
-    sortComparer: (a, b) => a.id - b.id
-});
 
 export const fetchRankedWords: AsyncThunk<
     WordInfo[],
@@ -35,49 +30,47 @@ export const fetchRankedWords: AsyncThunk<
     );
 });
 
+interface IRankedWordsState {
+    sorted: { rank: number; word: string }[];
+}
+const initialState: IRankedWordsState = { sorted: [] };
+
 const slice = createSlice({
     name: 'wordRanks',
-    initialState: adapter.getInitialState(),
+    initialState,
     reducers: {},
     extraReducers: (builder) =>
         builder
-            .addCase(fetchRankedWords.fulfilled, (state, { payload }) =>
-                adapter.upsertMany(
-                    state,
-                    payload.map((p) => ({ id: p.rank, text: p.text }))
-                )
-            )
+            .addCase(fetchRankedWords.fulfilled, (state, { payload }) => ({
+                sorted: state.sorted
+                    .concat(
+                        payload.map((p) => ({ rank: p.rank, word: p.text }))
+                    )
+                    .sort((a, b) => a.rank - b.rank)
+            }))
             // Not going to try keeping different ranks for diferent
             // analyzers. Just ditch old data and fetch new stuff
-            .addCase(analyzerChangeRequest, (state) =>
-                adapter.getInitialState()
-            )
+            .addCase(analyzerChangeRequest, (_) => ({ sorted: [] }))
 });
 
 export const wordRanksReducer = slice.reducer;
-const selectIds = (
-    { ids }: ReturnType<typeof slice.reducer>,
-    pageNum: number
-) => {
-    const start = ids.findIndex((i) => i === pageNum * WORDS_PER_PAGE);
-    if (start < 0) {
-        return ids.slice(0, WORDS_PER_PAGE);
-    }
-    if (start + WORDS_PER_PAGE > ids.length) {
-        return ids.slice(ids.length - WORDS_PER_PAGE);
-    }
-
-    return ids.slice(start, start + WORDS_PER_PAGE);
-};
 
 export const selectRankedWords = createSelector(
     [
         (_: RootState, pageNum: number) => pageNum,
-        (state) => state.wordRanks,
+        (state) => state.wordRanks.sorted,
         (state) => state.wordContexts.byId
     ],
-    (pageNum, ranks, contexts) =>
-        selectIds(ranks, pageNum).map(
-            (id) => contexts[ranks.entities[id]!.text]
-        )
+    (pageNum, sorted, contexts) => {
+        const startIndex = Math.max(
+            0,
+            Math.min(
+                sorted.findIndex((i) => i.rank === pageNum * WORDS_PER_PAGE),
+                sorted.length - WORDS_PER_PAGE
+            )
+        );
+        return sorted
+            .slice(startIndex, startIndex + WORDS_PER_PAGE)
+            .map(({ word }) => contexts[word]!);
+    }
 );

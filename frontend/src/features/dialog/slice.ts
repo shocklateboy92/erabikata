@@ -6,7 +6,7 @@ import {
     selectAnalyzer,
     selectBaseUrl
 } from 'features/backendSelection';
-import { wordContextFetchSucceeded } from 'features/wordContext';
+import { fetchWordIfNeeded } from 'features/wordContext';
 
 interface IDialogState {
     order: {
@@ -81,7 +81,7 @@ const dialogSlice = createSlice({
                 })
             )
             .addCase(
-                wordContextFetchSucceeded,
+                fetchWordIfNeeded.fulfilled,
                 (state, { payload: { occurrences } }) => {
                     for (const occurence of occurrences) {
                         if (!state.content[occurence.episodeId]) {

@@ -51,13 +51,13 @@ export const fetchWordIfNeeded: AsyncThunk<
                 return false;
             }
 
-            const count = pagingInfo?.max ?? 0;
             const { wordContexts } = getState();
             if (
                 // This is kind of a ghetto way of busting the cached word summary
                 // when navigating to a word details page.
                 // TODO: Replace with proper paging/scrolling support.
-                (wordContexts.byId[baseForm]?.occurrences.length ?? -1) >= count
+                pagingInfo?.max &&
+                (wordContexts.byId[baseForm]?.occurrences.length ?? 0) > 0
             ) {
                 return false;
             }
@@ -84,5 +84,3 @@ export const fetchFullWordIfNeeded = (
         pagingInfo: { max: 200, skip: 0 }
     });
 };
-
-export const wordContextFetchSucceeded = fetchWordIfNeeded.fulfilled;

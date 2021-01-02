@@ -4,7 +4,6 @@ import { InlineError } from 'components/inlineError';
 import { Ruby } from 'components/ruby';
 import { selectIsFuriganaEnabled } from 'features/furigana';
 import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
-import { fetchWordIfNeeded } from 'features/wordContext';
 import moment from 'moment';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
@@ -55,11 +54,6 @@ export const Dialog: FC<{
                                             word: word.baseForm,
                                             timestamp: dialog.startTime,
                                             episode
-                                        })
-                                    );
-                                    dispatch(
-                                        fetchWordIfNeeded({
-                                            baseForm: word.baseForm
                                         })
                                     );
                                 }}
