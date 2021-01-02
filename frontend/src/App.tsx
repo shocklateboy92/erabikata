@@ -21,7 +21,7 @@ function App() {
                 <Route path="/dialog">
                     <DialogPage />
                 </Route>
-                <Route path="/rankedWords">
+                <Route path="/rankedWords/:pageNum?">
                     <RankedWordsPage />
                 </Route>
                 <Route path="/settings">
