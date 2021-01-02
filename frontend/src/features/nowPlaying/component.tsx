@@ -12,23 +12,23 @@ export const NowPlaying: FC = () => {
     const isPlayerSelected = useTypedSelector(selectIsPlayerSelected);
     const session = useTypedSelector(selectSelectedPlayer);
 
-    if (!session) {
-        if (isPlayerSelected) {
-            return (
-                <Page>
-                    <FullWidthText>
-                        字幕はまもなくここに出てきます！
-                        <br />
-                        少々お待ちください。
-                    </FullWidthText>
-                </Page>
-            );
-        }
-
+    if (!isPlayerSelected) {
         return (
             <Page>
                 <FullWidthText>
                     <Link to="/settings">プレイヤーをセレクトしてね！</Link>
+                </FullWidthText>
+            </Page>
+        );
+    }
+
+    if (!session) {
+        return (
+            <Page>
+                <FullWidthText>
+                    字幕はまもなくここに出てきます！
+                    <br />
+                    少々お待ちください。
                 </FullWidthText>
             </Page>
         );
