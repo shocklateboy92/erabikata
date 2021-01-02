@@ -12,11 +12,7 @@ export const Ruby: FC<IRubyProps> = ({
     ...rest
 }) => (
     <ruby {...rest}>
-        {(children === '\n' || children === '\\n' || children === '\\N' ? (
-            <br />
-        ) : (
-            children
-        )) ?? reading}
+        {children ?? reading}
         {!hideReading &&
             children &&
             children !== reading &&

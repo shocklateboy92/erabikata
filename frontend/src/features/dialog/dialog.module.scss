@@ -7,6 +7,13 @@
     .metadata {
         margin-bottom: 0.25em;
     }
+
+    ruby {
+        user-select: text;
+        rt {
+            user-select: none;
+        }
+    }
 }
 
 .active {
