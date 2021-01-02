@@ -1,9 +1,4 @@
-import {
-    AsyncThunk,
-    createAsyncThunk,
-    createSelector,
-    createSlice
-} from '@reduxjs/toolkit';
+import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { WordInfo, WordsClient } from 'backend.generated';
 import {
@@ -64,22 +59,14 @@ const slice = createSlice({
 
 export const wordRanksReducer = slice.reducer;
 
-export const selectRankedWords = createSelector(
-    [
-        (_: RootState, pageNum: number) => pageNum,
-        (state) => state.wordRanks.sorted,
-        (state) => state.wordContexts.byId
-    ],
-    (pageNum, sorted, contexts) => {
-        const startIndex = Math.max(
-            0,
-            Math.min(
-                sorted.findIndex((i) => i.rank === pageNum * WORDS_PER_PAGE),
-                sorted.length - WORDS_PER_PAGE
-            )
-        );
-        return sorted
-            .slice(startIndex, startIndex + WORDS_PER_PAGE)
-            .map(({ word }) => contexts[word]!);
-    }
-);
+export const selectRankedWordsArray = (state: RootState, pageNum: number) => {
+    const sorted = state.wordRanks.sorted;
+    const startIndex = Math.max(
+        0,
+        Math.min(
+            sorted.findIndex((i) => i.rank === pageNum * WORDS_PER_PAGE),
+            sorted.length - WORDS_PER_PAGE
+        )
+    );
+    return sorted.slice(startIndex, startIndex + WORDS_PER_PAGE);
+};
