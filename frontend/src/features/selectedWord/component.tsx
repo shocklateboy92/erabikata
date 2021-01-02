@@ -12,7 +12,7 @@ import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { SelectedWordContext } from './context';
+import { WordContext } from './context';
 import styles from './selectedWord.module.scss';
 import { selectionClearRequested, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
@@ -49,7 +49,7 @@ export const SelectedWord: FC<{}> = () => {
             <div className={styles.summary}>
                 <div className={styles.title}>{selectedWord.wordBaseForm}</div>
                 <div className={styles.content}>
-                    <SelectedWordContext word={selectedWord.wordBaseForm} />
+                    <WordContext word={selectedWord.wordBaseForm} />
                     <div className={styles.actions}>
                         <InlineButton
                             onClick={async () => {

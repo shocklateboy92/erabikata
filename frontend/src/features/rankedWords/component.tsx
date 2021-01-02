@@ -3,34 +3,31 @@ import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { RootState } from 'app/rootReducer';
 import classNames from 'classnames';
-import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
-import { selectWordInfo } from 'features/wordContext';
+import {
+    newWordSelected,
+    selectSelectedWord,
+    WordContext
+} from 'features/selectedWord';
 import React, { FC, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
 import { fetchRankedWords, selectRankedWordsArray } from './slice';
 
-const SelectableDiv: FC<{ word: string }> = ({ word, children }) => {
+const SelectableDiv: FC<{ word: string }> = ({ word }) => {
     const isActive = useTypedSelector(
         (state) => selectSelectedWord(state).wordBaseForm === word
     );
-    const context = useTypedSelector((state) => selectWordInfo(word, state));
     const dispatch = useDispatch();
     return (
         <div
             className={classNames(styles.word, {
                 [styles.active]: isActive
             })}
+            onClick={() => dispatch(newWordSelected({ word }))}
         >
             <ruby>{word}</ruby>
-            <div
-                className={styles.info}
-                onClick={() => dispatch(newWordSelected({ word }))}
-            >
-                <div>Rank: {context?.rank}</div>
-                <div>Occurrences: {context?.totalOccurrences}</div>
-            </div>
+            <WordContext word={word} />
             <Link to={`/word/${word}`}>
                 <Icon path={mdiShare} size="2em" />
             </Link>

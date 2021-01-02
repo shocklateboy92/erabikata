@@ -4,7 +4,7 @@ import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './selectedWord.module.scss';
 
-export const SelectedWordContext: FC<{ word: string }> = ({ word }) => {
+export const WordContext: FC<{ word: string }> = ({ word }) => {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(fetchWordIfNeeded({ baseForm: word }));
