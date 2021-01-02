@@ -1,5 +1,11 @@
 #!/bin/bash
 
-export PATH="$(pwd)/ingestion:${PATH}";
+if [[ -e "./init.sh" ]]; then
 
-ln -sf "$IKNOW_DIR/anime-subs" ./anime-subs
+    export PATH="$(pwd)/ingestion:${PATH}";
+    ln -sf "$IKNOW_DIR/anime-subs" ./anime-subs
+
+else
+    echo "Error: Must be sourced in $ERAB_DIR";
+fi
+
