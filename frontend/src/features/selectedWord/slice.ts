@@ -49,16 +49,5 @@ export const selectSelectedWordContext = (state: RootState) =>
     (state.selectedWord?.wordBaseForm &&
         state.wordContexts.byId[state.selectedWord.wordBaseForm]) ||
     null;
-export const selectSelectedWordInfo = createSelector(
-    [selectSelectedWord, selectSelectedWordContext],
-    (state: ISelectedWordState | null, context: IWordInfoState) =>
-        state?.episode &&
-        state.sentenceTimestamp && {
-            word: state.wordBaseForm,
-            context,
-            sentence: { startTime: state.sentenceTimestamp },
-            episode: state.episode
-        }
-);
 
 export const { newWordSelected, selectionClearRequested } = slice.actions;

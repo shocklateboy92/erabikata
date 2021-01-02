@@ -1,4 +1,4 @@
-import { mdiClose, mdiShare, mdiShareVariant, mdiVlc } from '@mdi/js';
+import { mdiClose, mdiShare, mdiShareVariant } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { InlineButton } from 'components/button';
@@ -12,12 +12,9 @@ import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { SelectedWordContext } from './context';
 import styles from './selectedWord.module.scss';
-import {
-    selectionClearRequested,
-    selectSelectedWord,
-    selectSelectedWordContext
-} from './slice';
+import { selectionClearRequested, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
 
 const ICON_SIZE = 1;
@@ -32,23 +29,18 @@ declare global {
 export const SelectedWord: FC<{}> = () => {
     const dispatch = useDispatch();
     const selectedWord = useTypedSelector(selectSelectedWord);
-    const wordContext = useTypedSelector(selectSelectedWordContext);
     if (!selectedWord?.wordBaseForm) {
         return null;
     }
 
-    const parentEpisodeId = selectedWord.episode;
-    const parentDialogId = selectedWord.sentenceTimestamp;
-
-    const vlcCommand = wordContext?.occurrences.find(
-        (w) => w.time === parentDialogId && w.episodeId === parentEpisodeId
-    )?.vlcCommand;
+    const episodeId = selectedWord.episode;
+    const dialogId = selectedWord.sentenceTimestamp;
 
     let dialogUrl: URL | null = null;
-    if (parentEpisodeId && parentDialogId) {
+    if (episodeId && dialogId) {
         dialogUrl = new URL('/dialog', document.baseURI);
-        dialogUrl.searchParams.set('episode', parentEpisodeId);
-        dialogUrl.searchParams.set('time', parentDialogId.toString());
+        dialogUrl.searchParams.set('episode', episodeId);
+        dialogUrl.searchParams.set('time', dialogId.toString());
         dialogUrl.searchParams.set('word', selectedWord.wordBaseForm);
     }
 
@@ -57,11 +49,7 @@ export const SelectedWord: FC<{}> = () => {
             <div className={styles.summary}>
                 <div className={styles.title}>{selectedWord.wordBaseForm}</div>
                 <div className={styles.content}>
-                    <div className={styles.text}>
-                        Rank: {wordContext?.rank ?? '????'}
-                        <br />
-                        Occurrences: {wordContext?.totalOccurrences ?? '????'}
-                    </div>
+                    <SelectedWordContext word={selectedWord.wordBaseForm} />
                     <div className={styles.actions}>
                         <InlineButton
                             onClick={async () => {
@@ -77,19 +65,10 @@ export const SelectedWord: FC<{}> = () => {
                         </InlineButton>
                         <WordLink
                             word={selectedWord.wordBaseForm}
-                            includeEpisode={parentEpisodeId}
-                            includeTime={parentDialogId}
+                            includeEpisode={episodeId}
+                            includeTime={dialogId}
                             iconSize={ICON_SIZE}
                         />
-                        {vlcCommand && (
-                            <button
-                                onClick={() =>
-                                    navigator.clipboard.writeText(vlcCommand)
-                                }
-                            >
-                                <Icon path={mdiVlc} size={ICON_SIZE} />
-                            </button>
-                        )}
                         <InlineButton
                             hideOnMobile
                             onClick={() => {
@@ -99,8 +78,8 @@ export const SelectedWord: FC<{}> = () => {
                             <Icon path={mdiClose} size={ICON_SIZE} />
                         </InlineButton>
                         <HassPlayButton
-                            dialogId={parentDialogId}
-                            episodeId={parentEpisodeId}
+                            dialogId={dialogId}
+                            episodeId={episodeId}
                             iconSize={ICON_SIZE}
                         />
                     </div>
@@ -136,32 +115,27 @@ export const SelectedWord: FC<{}> = () => {
                         >
                             {
                                 <DialogList
-                                    episode={parentEpisodeId!}
-                                    time={parentDialogId!}
+                                    episode={episodeId!}
+                                    time={dialogId!}
                                     count={2}
                                 />
                             }
                         </Drawer>
                     </>
                 )}
-                {parentEpisodeId &&
-                    parentDialogId &&
-                    !isNaN(parseInt(parentEpisodeId)) && (
-                        <>
-                            <Separator />
-                            <ImageContext
-                                episodeId={parentEpisodeId}
-                                time={parentDialogId}
-                            />
-                        </>
-                    )}
-                {parentEpisodeId && parentDialogId && (
+                {episodeId && dialogId && !isNaN(parseInt(episodeId)) && (
+                    <>
+                        <Separator />
+                        <ImageContext episodeId={episodeId} time={dialogId} />
+                    </>
+                )}
+                {episodeId && dialogId && (
                     <>
                         <Separator />
                         <Drawer summary="English Context">
                             <EngDialogList
-                                episodeId={parentEpisodeId}
-                                time={parentDialogId}
+                                episodeId={episodeId}
+                                time={dialogId}
                             ></EngDialogList>
                         </Drawer>
                     </>
