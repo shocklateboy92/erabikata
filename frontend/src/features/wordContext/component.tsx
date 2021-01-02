@@ -2,7 +2,7 @@ import { useTypedSelector } from 'app/hooks';
 import { fetchWordIfNeeded, selectWordInfo } from 'features/wordContext';
 import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import styles from './selectedWord.module.scss';
+import styles from './wordContext.module.scss';
 
 export const WordContext: FC<{ word: string }> = ({ word }) => {
     const dispatch = useDispatch();

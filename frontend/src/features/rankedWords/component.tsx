@@ -3,11 +3,8 @@ import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { RootState } from 'app/rootReducer';
 import classNames from 'classnames';
-import {
-    newWordSelected,
-    selectSelectedWord,
-    WordContext
-} from 'features/selectedWord';
+import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
+import { WordContext } from 'features/wordContext';
 import React, { FC, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
