@@ -36,3 +36,13 @@
 .outer {
     margin: auto;
 }
+
+.pageLink {
+    text-align: center;
+    a {
+        margin: 1em;
+        display: inline-flex;
+        align-items: center;
+        font-size: larger;
+    }
+}

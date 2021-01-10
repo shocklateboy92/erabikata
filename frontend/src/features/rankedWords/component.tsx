@@ -1,4 +1,4 @@
-import { mdiShare } from '@mdi/js';
+import { mdiChevronLeft, mdiChevronRight, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { RootState } from 'app/rootReducer';
@@ -32,6 +32,16 @@ const SelectableDiv: FC<{ word: string }> = ({ word }) => {
     );
 };
 
+const ChangePageLink: FC<{ pageNum: number }> = ({ pageNum, children }) => (
+    <div className={styles.pageLink}>
+        <Link to={`/rankedWords/${pageNum}`}>{children}</Link>
+    </div>
+);
+
+const ChangePageIcon: FC<{ path: string }> = ({ path }) => (
+    <Icon path={path} size={'1.5em'} />
+);
+
 export const RankedWords: FC = () => {
     const pageParam = parseInt(useParams<{ pageNum: string }>().pageNum);
     const pageNum = isNaN(pageParam) ? 0 : pageParam;
@@ -49,14 +59,20 @@ export const RankedWords: FC = () => {
     return (
         <div className={styles.outer}>
             {pageNum > 0 && (
-                <Link to={`/rankedWords/${pageNum - 1}`}>Previous Page</Link>
+                <ChangePageLink pageNum={pageNum - 1}>
+                    <ChangePageIcon path={mdiChevronLeft} />
+                    Previous Page
+                </ChangePageLink>
             )}
             <div className={styles.container}>
                 {words.map((word) => (
                     <SelectableDiv key={word.rank} word={word.word} />
                 ))}
             </div>
-            <Link to={`/rankedWords/${pageNum + 1}`}>Next Page</Link>
+            <ChangePageLink pageNum={pageNum + 1}>
+                Next Page
+                <ChangePageIcon path={mdiChevronRight} />
+            </ChangePageLink>
         </div>
     );
 };
