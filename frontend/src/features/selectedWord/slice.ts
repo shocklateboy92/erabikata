@@ -38,9 +38,13 @@ const slice = createSlice({
             episode
         }),
         selectionClearRequested: (state) => ({}),
-        dialogSelection: (state, { payload }: PayloadAction<number>) => ({
+        dialogSelection: (
+            state,
+            { payload }: PayloadAction<{ time: number; episode?: string }>
+        ) => ({
             ...state,
-            sentenceTimestamp: payload
+            sentenceTimestamp: payload.time,
+            episode: payload.episode ?? state.episode
         })
     }
 });

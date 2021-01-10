@@ -32,7 +32,7 @@ export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
         <p
             className={classNames({ highlightColor })}
             onClick={() => {
-                dispatch(dialogSelection(content.time));
+                dispatch(dialogSelection({ time: content.time }));
             }}
         >
             {formatTime(content.time)}
