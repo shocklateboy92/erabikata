@@ -35,6 +35,10 @@ input + label {
     margin-left: 0.5em;
 }
 
+.highlightColor {
+    color: #61dafb;
+}
+
 @media (max-width: 40em) {
     .hideOnMobile {
         display: none;

@@ -1,6 +1,13 @@
-import { useAppSelector } from 'app/hooks';
+import { useAppSelector, useTypedSelector } from 'app/hooks';
+import classNames from 'classnames';
 import { InlineError } from 'components/inlineError';
+import { formatTime } from 'components/time';
+import {
+    dialogSelection,
+    selectIsCurrentlySelected
+} from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
+import { useDispatch } from 'react-redux';
 import { IEngDialogProps } from './engDialogList';
 import { selectEnglishDialogContent } from './slice';
 
@@ -8,6 +15,10 @@ export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
     const content = useAppSelector((state) =>
         selectEnglishDialogContent(state, episodeId, time)
     );
+    const highlightColor = useTypedSelector((state) =>
+        selectIsCurrentlySelected(state, episodeId, time)
+    );
+    const dispatch = useDispatch();
 
     if (!content) {
         return (
@@ -18,7 +29,14 @@ export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
     }
 
     return (
-        <p>
+        <p
+            className={classNames({ highlightColor })}
+            onClick={() => {
+                dispatch(dialogSelection(content.time));
+            }}
+        >
+            {formatTime(content.time)}
+            <br />
             {content.text?.map((text, index) => (
                 <Fragment key={index}>
                     {index > 0 && <br />}

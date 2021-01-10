@@ -2,9 +2,9 @@ import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
 import { InlineError } from 'components/inlineError';
 import { Ruby } from 'components/ruby';
+import { formatTime } from 'components/time';
 import { selectIsFuriganaEnabled } from 'features/furigana';
 import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
-import moment from 'moment';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './dialog.module.scss';
@@ -33,7 +33,7 @@ export const Dialog: FC<{
     return (
         <div className={styles.container}>
             <div className={styles.metadata}>
-                {moment.utc(dialog.startTime * 1000).format('H:mm:ss')} {title}
+                {formatTime(dialog.startTime)} {title}
             </div>
             <div>
                 {dialog.words.map((line, lineIndex) => (

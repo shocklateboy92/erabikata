@@ -37,11 +37,23 @@ const slice = createSlice({
             sentenceTimestamp: timestamp,
             episode
         }),
-        selectionClearRequested: (state) => ({})
+        selectionClearRequested: (state) => ({}),
+        dialogSelection: (state, { payload }: PayloadAction<number>) => ({
+            ...state,
+            sentenceTimestamp: payload
+        })
     }
 });
 
 export const selectedWordReducer = slice.reducer;
+
+export const selectIsCurrentlySelected = (
+    state: RootState,
+    episodeId: string,
+    time: number
+) =>
+    state.selectedWord.episode === episodeId &&
+    state.selectedWord.sentenceTimestamp === time;
 
 export const selectSelectedWord = (state: RootState) => state.selectedWord;
 export const selectSelectedWordContext = (state: RootState) =>
@@ -49,4 +61,8 @@ export const selectSelectedWordContext = (state: RootState) =>
         state.wordContexts.byId[state.selectedWord.wordBaseForm]) ||
     null;
 
-export const { newWordSelected, selectionClearRequested } = slice.actions;
+export const {
+    newWordSelected,
+    selectionClearRequested,
+    dialogSelection
+} = slice.actions;
