@@ -45,16 +45,18 @@ const Notification: FC<{ id: number }> = ({ id }) => {
 };
 
 export const NotifcationsView: FC = () => {
-    const activeNotification = useTypedSelector(
+    const activeNotifications = useTypedSelector(
         (state) => state.notifications.active
     );
-    if (!activeNotification) {
+    if (!activeNotifications.length) {
         return null;
     }
 
     return (
         <div className={styles.container}>
-            <Notification id={activeNotification} />
+            {activeNotifications.map((n) => (
+                <Notification key={n} id={n} />
+            ))}
         </div>
     );
 };

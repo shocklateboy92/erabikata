@@ -8,7 +8,7 @@ interface INotification {
 
 interface INotifactionState {
     nextId: number;
-    active: number | null;
+    active: number[];
     content: {
         [key: number]: INotification | undefined;
     };
@@ -16,7 +16,7 @@ interface INotifactionState {
 
 const initialState: INotifactionState = {
     content: {},
-    active: null,
+    active: [],
     nextId: 0
 };
 
@@ -29,7 +29,7 @@ const slice = createSlice({
             { payload }: PayloadAction<{ title?: string; text: string }>
         ) => ({
             nextId: state.nextId + 1,
-            active: state.nextId,
+            active: [...state.active, state.nextId],
             content: {
                 ...state.content,
                 [state.nextId]: {
@@ -38,8 +38,10 @@ const slice = createSlice({
                 }
             }
         }),
-        notificationDeactivation: (state, { payload }: PayloadAction<number>) =>
-            payload === state.active ? { ...state, active: null } : state
+        notificationDeactivation: (
+            state,
+            { payload }: PayloadAction<number>
+        ) => ({ ...state, active: state.active.filter((id) => id !== payload) })
     }
 });
 
