@@ -25,3 +25,14 @@
         margin: 0;
     }
 }
+
+.wrapper {
+    max-height: 0;
+    animation: growUp 0.5s forwards ease-out;
+}
+
+@keyframes growUp {
+    to {
+        max-height: 100px;
+    }
+}

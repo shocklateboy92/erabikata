@@ -32,13 +32,19 @@ const Notification: FC<{ id: number }> = ({ id }) => {
     }
 
     return (
-        <div className={styles.item}>
-            <div>
-                {content.title && <h4>{content.title}</h4>}
-                {content.text}
-            </div>
-            <div onClick={() => dispatch(notificationDeactivation(content.id))}>
-                <Icon path={mdiClose} size={'2em'} />
+        <div className={styles.wrapper}>
+            <div className={styles.item}>
+                <div>
+                    {content.title && <h4>{content.title}</h4>}
+                    {content.text}
+                </div>
+                <div
+                    onClick={() =>
+                        dispatch(notificationDeactivation(content.id))
+                    }
+                >
+                    <Icon path={mdiClose} size={'2em'} />
+                </div>
             </div>
         </div>
     );
