@@ -52,16 +52,22 @@ export const fetchWordIfNeeded: AsyncThunk<
             }
 
             const { wordContexts } = getState();
-            if (pagingInfo?.max) {
-                // This is kind of a ghetto way of busting the cached word summary
-                // when navigating to a word details page.
-                // TODO: Replace with proper paging/scrolling support.
-                return (
-                    (wordContexts.byId[baseForm]?.occurrences.length ?? 0) === 0
-                );
+            const context = wordContexts.byId[baseForm];
+            if (context) {
+                const alreadyFetchedCount = context.occurrences.length;
+
+                // If we already have more than we need, skip
+                if (alreadyFetchedCount >= (pagingInfo?.max ?? 0)) {
+                    return false;
+                }
+
+                // If we already have all there is, skip
+                if (alreadyFetchedCount === context.totalOccurrences) {
+                    return false;
+                }
             }
 
-            return !wordContexts.byId[baseForm];
+            return true;
         }
     }
 );
