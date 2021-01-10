@@ -91,6 +91,7 @@ export const SelectedWord: FC<{}> = () => {
                     exact
                     baseForm={selectedWord.wordBaseForm}
                     initiallyOpen
+                    toggleDefinition
                 />
                 <Separator />
                 <WordDefinition

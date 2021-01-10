@@ -22,7 +22,7 @@ export const WordDefinition: FC<{
         selectDefinitionById(state, baseForm)
     );
 
-    const [showDefinition, setShowDefinition] = useState(false);
+    const [showDefinition, setShowDefinition] = useState(true);
 
     const definition = (exact ? results?.exact : results?.related) ?? [];
 
