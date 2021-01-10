@@ -8,11 +8,12 @@ import { DialogList } from 'features/dialog/dialogList';
 import { EngDialogList } from 'features/engDialog/engDialogList';
 import { HassPlayButton } from 'features/hass';
 import { ImageContext } from 'features/imageContext/component';
+import { WordContext } from 'features/wordContext';
+import { WordOccurrences } from 'features/wordContext/occurrences';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { WordContext } from 'features/wordContext';
 import styles from './selectedWord.module.scss';
 import { selectionClearRequested, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
@@ -141,6 +142,11 @@ export const SelectedWord: FC<{}> = () => {
                         </Drawer>
                     </>
                 )}
+                <Separator />
+
+                <Drawer summary="Occurrences">
+                    <WordOccurrences word={selectedWord.wordBaseForm} />
+                </Drawer>
                 <Separator />
             </div>
         </div>

@@ -5,7 +5,7 @@ import { Ruby } from 'components/ruby';
 import { formatTime } from 'components/time';
 import { selectIsFuriganaEnabled } from 'features/furigana';
 import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
-import React, { FC } from 'react';
+import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './dialog.module.scss';
 import { selectDialogContent } from './slice';
@@ -35,9 +35,10 @@ export const Dialog: FC<{
             <div className={styles.metadata}>
                 {formatTime(dialog.startTime)} {title}
             </div>
-            <div>
+            <div className={styles.lines}>
                 {dialog.words.map((line, lineIndex) => (
-                    <div key={lineIndex}>
+                    <Fragment key={lineIndex}>
+                        {lineIndex > 0 && <br />}
                         {line.map((word, index) => (
                             <SelectableRuby
                                 key={index}
@@ -66,7 +67,7 @@ export const Dialog: FC<{
                                 }
                             </SelectableRuby>
                         ))}
-                    </div>
+                    </Fragment>
                 ))}
                 {children}
             </div>

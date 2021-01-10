@@ -1,3 +1,10 @@
 .text {
     flex-grow: 1;
 }
+
+.dialog {
+    svg {
+        margin-left: 1vw;
+        vertical-align: bottom;
+    }
+}
