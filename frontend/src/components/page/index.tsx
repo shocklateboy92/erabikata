@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { AppHeader } from 'features/header';
+import { NotifcationsView } from 'features/notifications';
 import { selectionClearRequested } from 'features/selectedWord';
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -69,6 +70,7 @@ export const Page: FC<IPageProps> = (props) => {
                 <div className={styles.separator} />
                 <div className={styles.primary}>{props.children}</div>
             </div>
+            <NotifcationsView />
         </div>
     );
 };

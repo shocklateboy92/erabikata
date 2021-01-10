@@ -4,6 +4,7 @@ import { dialogReducer } from 'features/dialog/slice';
 import { engDialogReducer } from 'features/engDialog/slice';
 import { furiganaReducer } from 'features/furigana/slice';
 import { hassReducer } from 'features/hass';
+import { notificationReducer } from 'features/notifications';
 import { wordRanksReducer } from 'features/rankedWords/slice';
 import { selectedWordReducer } from 'features/selectedWord/slice';
 import { spinnerTopReducer } from 'features/spinnerTop';
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
     engDialog: engDialogReducer,
     backend: backendReducer,
     wakeLock: wakeLockReducer,
+    notifications: notificationReducer,
     hass: hassReducer
 });
 

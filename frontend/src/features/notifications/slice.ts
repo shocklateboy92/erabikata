@@ -10,7 +10,7 @@ interface INotifactionState {
     nextId: number;
     active: number | null;
     content: {
-        [key: number]: INotification;
+        [key: number]: INotification | undefined;
     };
 }
 
@@ -38,10 +38,10 @@ const slice = createSlice({
                 }
             }
         }),
-        notifactionDeactivation: (state, { payload }: PayloadAction<number>) =>
+        notificationDeactivation: (state, { payload }: PayloadAction<number>) =>
             payload === state.active ? { ...state, active: null } : state
     }
 });
 
-export const { notification, notifactionDeactivation } = slice.actions;
+export const { notification, notificationDeactivation } = slice.actions;
 export const notificationReducer = slice.reducer;

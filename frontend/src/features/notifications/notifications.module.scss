@@ -1,0 +1,26 @@
+.container {
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    padding: 1vmin;
+    border-radius: 5px;
+    border: 1px solid white;
+    width: 70%;
+}
+
+.item {
+    display: flex;
+    align-items: center;
+
+    justify-content: space-between;
+
+    :not(:first-child) {
+        margin-left: 1vw;
+    }
+
+    h4 {
+        margin: 0;
+    }
+}
