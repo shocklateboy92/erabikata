@@ -144,12 +144,13 @@ namespace Erabikata.Backend.Controllers
                 );
             }
 
+            var occurrencesList = occurrences.ToList();
             return new WordInfo
             {
                 Text = text,
                 Rank = rank,
-                TotalOccurrences = _wordCounts.WordRanks[analyzer][rank].count,
-                Occurrences = occurrences.Skip(pagingInfo.Skip).Take(pagingInfo.Max),
+                TotalOccurrences = occurrencesList.Count,
+                Occurrences = occurrencesList.Skip(pagingInfo.Skip).Take(pagingInfo.Max),
                 PagingInfo = pagingInfo
             };
         }
