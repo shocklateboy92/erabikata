@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
 import { selectionClearRequested } from 'features/selectedWord';
+import { getMatchingAction } from 'features/shortcuts';
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './page.module.scss';
@@ -29,7 +30,15 @@ export const Page: FC<IPageProps> = (props) => {
     const secondary = props.secondaryChildren?.();
 
     return (
-        <div className="App">
+        <div
+            className="App"
+            onKeyPress={(e) => {
+                const action = getMatchingAction(e);
+                if (action) {
+                    dispatch(action);
+                }
+            }}
+        >
             <AppHeader>{props.title}</AppHeader>
             <div className={styles.container}>
                 <div
