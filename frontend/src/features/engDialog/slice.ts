@@ -57,13 +57,14 @@ const episodeSelectors = episodeAdapter.getSelectors();
 export const selectNearbyEnglishDialog = (
     state: RootState,
     episodeId: string,
-    time: number
+    time: number,
+    count?: number
 ) =>
     selectNearbyValues(
         episodeSelectors.selectById(state.engDialog, episodeId)?.dialog
             .ids as number[],
         time,
-        2
+        count ?? 2
     );
 
 export const selectEnglishDialogContent = (

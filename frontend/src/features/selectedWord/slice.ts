@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { selectDialogContent, selectNearbyDialog } from 'features/dialog/slice';
+import { selectDialogContent } from 'features/dialog/slice';
+import {
+    selectEnglishDialogContent,
+    selectNearbyEnglishDialog
+} from 'features/engDialog/slice';
 
 interface ISelectedWordState {
     wordBaseForm?: string;
@@ -77,6 +81,24 @@ export const selectSelectedDialog = (state: RootState) => {
     // }
 
     return selectDialogContent(episode, sentenceTimestamp, state);
+};
+export const selectSelectedEnglishDialog = (state: RootState) => {
+    const { episode, sentenceTimestamp } = state.selectedWord;
+    if (!episode || !sentenceTimestamp) {
+        return;
+    }
+
+    const nearest = selectNearbyEnglishDialog(
+        state,
+        episode,
+        sentenceTimestamp,
+        1
+    );
+    if (nearest.length < 1) {
+        return;
+    }
+
+    return selectEnglishDialogContent(state, episode, nearest[0]);
 };
 
 export const {

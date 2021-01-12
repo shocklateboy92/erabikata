@@ -1,7 +1,10 @@
 import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
 import { notification } from 'features/notifications';
-import { selectSelectedDialog } from 'features/selectedWord';
+import {
+    selectSelectedDialog,
+    selectSelectedEnglishDialog
+} from 'features/selectedWord';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -36,6 +39,13 @@ const handlers: { key: string; action: AppThunk }[] = [
                     )
                     .join('\n'),
             'Japanese text'
+        )
+    },
+    {
+        key: 'd',
+        action: copyAction(
+            (state) => selectSelectedEnglishDialog(state)?.text?.join('\n'),
+            'English text'
         )
     }
 ];
