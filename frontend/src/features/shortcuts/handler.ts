@@ -1,5 +1,5 @@
 import { RootState } from 'app/rootReducer';
-import { AppThunk } from 'app/store';
+import store, { AppThunk } from 'app/store';
 import { notification } from 'features/notifications';
 import { selectSelectedDialog } from 'features/selectedWord';
 
@@ -27,7 +27,8 @@ const handlers: { key: string; action: AppThunk }[] = [
                         line
                             .map((word) =>
                                 isKana(word.displayText) ||
-                                word.displayText === word.reading
+                                word.displayText === word.reading ||
+                                !word.reading
                                     ? word.displayText
                                     : `${word.displayText}[${word.reading}]`
                             )
@@ -39,7 +40,23 @@ const handlers: { key: string; action: AppThunk }[] = [
     }
 ];
 
-export const getMatchingAction = (e: React.KeyboardEvent) => {
+export const handler = (e: KeyboardEvent) => {
     const action = handlers.find((a) => a.key === e.key)?.action;
-    return action;
+    if (action) {
+        store.dispatch(action);
+    }
 };
+
+declare global {
+    interface Window {
+        oldHandler?: typeof handler;
+    }
+}
+
+if (window.oldHandler) {
+    console.log('removing old keypress handler');
+    window.removeEventListener('keypress', window.oldHandler);
+}
+
+window.addEventListener('keypress', handler);
+window.oldHandler = handler;
