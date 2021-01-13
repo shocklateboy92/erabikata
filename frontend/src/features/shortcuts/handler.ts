@@ -3,7 +3,8 @@ import store, { AppThunk } from 'app/store';
 import { notification } from 'features/notifications';
 import {
     selectSelectedDialog,
-    selectSelectedEnglishDialog
+    selectSelectedEnglishDialog,
+    selectSelectedWord
 } from 'features/selectedWord';
 
 const copyAction = (
@@ -23,23 +24,23 @@ const isKana = (text: string) =>
 const handlers: { key: string; action: AppThunk }[] = [
     {
         key: 'c',
-        action: copyAction(
-            (state) =>
-                selectSelectedDialog(state)
-                    ?.words.map((line) =>
-                        line
-                            .map((word) =>
-                                isKana(word.displayText) ||
-                                word.displayText === word.reading ||
-                                !word.reading
-                                    ? word.displayText
-                                    : `${word.displayText}[${word.reading}]`
-                            )
-                            .join('')
-                    )
-                    .join('\n'),
-            'Japanese text'
-        )
+        action: copyAction((state) => {
+            const currentWord = selectSelectedWord(state);
+            return selectSelectedDialog(state)
+                ?.words.map((line) =>
+                    line
+                        .map((word) =>
+                            word.baseForm === currentWord.wordBaseForm ||
+                            isKana(word.displayText) ||
+                            word.displayText === word.reading ||
+                            !word.reading
+                                ? word.displayText
+                                : `${word.displayText}[${word.reading}]`
+                        )
+                        .join('')
+                )
+                .join('\n');
+        }, 'Japanese text')
     },
     {
         key: 'd',
