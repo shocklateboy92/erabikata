@@ -144,7 +144,14 @@ export const SelectedWord: FC<{}> = () => {
                 )}
                 <Separator />
 
-                <Drawer summary="Occurrences">
+                <Drawer
+                    summary="Occurrences"
+                    extraActions={(iconSize) => (
+                        <Link to={`/word/${selectedWord.wordBaseForm}`}>
+                            <Icon path={mdiShare} size={iconSize} />
+                        </Link>
+                    )}
+                >
                     <WordOccurrences word={selectedWord.wordBaseForm} />
                 </Drawer>
                 <Separator />
