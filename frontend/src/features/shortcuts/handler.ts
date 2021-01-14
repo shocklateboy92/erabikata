@@ -6,6 +6,7 @@ import {
     selectSelectedEnglishDialog,
     selectSelectedWord
 } from 'features/selectedWord';
+import { selectDefinitionById } from 'features/wordDefinition';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -48,6 +49,18 @@ const handlers: { key: string; action: AppThunk }[] = [
             (state) => selectSelectedEnglishDialog(state)?.text?.join('\n'),
             'English text'
         )
+    },
+    {
+        key: 'x',
+        action: copyAction((state) => {
+            const word = selectSelectedWord(state).wordBaseForm;
+            if (!word) {
+                return;
+            }
+
+            return selectDefinitionById(state, word)?.exact[0].japanese[0]
+                .reading;
+        }, 'word reading')
     }
 ];
 
