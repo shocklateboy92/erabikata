@@ -16,8 +16,6 @@ export const InfoPage: FC = () => {
 
         navigator.serviceWorker.ready.then((worker) => {
             worker.addEventListener('updatefound', eventHandler);
-            // kick off the check for updates
-            worker.update();
         });
 
         return () => {
@@ -25,6 +23,11 @@ export const InfoPage: FC = () => {
                 worker.removeEventListener('updatefound', eventHandler)
             );
         };
+    }, []);
+
+    useEffect(() => {
+        // kick off the check for updates super frequently.
+        navigator.serviceWorker.ready.then((worker) => worker.update());
     });
 
     return (
