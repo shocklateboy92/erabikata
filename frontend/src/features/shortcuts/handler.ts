@@ -36,7 +36,7 @@ const handlers: { key: string; action: AppThunk }[] = [
                             word.displayText === word.reading ||
                             !word.reading
                                 ? word.displayText
-                                : `${word.displayText}[${word.reading}]`
+                                : ` ${word.displayText}[${word.reading}]`
                         )
                         .join('')
                 )
