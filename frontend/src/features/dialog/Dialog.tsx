@@ -15,7 +15,8 @@ export const Dialog: FC<{
     time: number;
     title?: string;
     readOnly?: boolean;
-}> = ({ time, episode, title, readOnly, children }) => {
+    dialogFreeSelection?: boolean;
+}> = ({ time, episode, title, readOnly, dialogFreeSelection, children }) => {
     const dispatch = useDispatch();
     const furiganaEnabled = useTypedSelector(selectIsFuriganaEnabled);
     const dialog = useTypedSelector(
@@ -43,6 +44,7 @@ export const Dialog: FC<{
                             <SelectableRuby
                                 key={index}
                                 episode={episode}
+                                dialogFreeSelection={dialogFreeSelection}
                                 time={dialog.startTime}
                                 word={word.baseForm}
                                 onClick={() => {
@@ -76,15 +78,19 @@ export const Dialog: FC<{
 };
 
 const SelectableRuby: FC<
-    { episode: string; time: number; word: string } & React.ComponentProps<
-        typeof Ruby
-    >
-> = ({ episode, time, word, ...restProps }) => {
+    {
+        episode: string;
+        time: number;
+        word: string;
+        dialogFreeSelection?: boolean;
+    } & React.ComponentProps<typeof Ruby>
+> = ({ episode, time, word, dialogFreeSelection, ...restProps }) => {
     const isActive = useTypedSelector((state) => {
         const selectedWord = selectSelectedWord(state);
         return (
-            selectedWord?.episode === episode &&
-            selectedWord.sentenceTimestamp === time &&
+            ((selectedWord?.episode === episode &&
+                selectedWord.sentenceTimestamp === time) ||
+                dialogFreeSelection) &&
             selectedWord.wordBaseForm === word
         );
     });
