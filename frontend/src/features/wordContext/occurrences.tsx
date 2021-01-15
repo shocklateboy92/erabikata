@@ -31,7 +31,6 @@ export const WordOccurrences: FC<{ word: string }> = (props) => {
                         episode={con.episodeId}
                         time={con.time}
                         title={con.episodeName}
-                        dialogFreeSelection
                     >
                         <WordLink
                             word={props.word}
