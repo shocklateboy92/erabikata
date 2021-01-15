@@ -1,7 +1,6 @@
 import { mdiImport } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
-import { InlineButton } from 'components/button';
 import { Dialog } from 'features/dialog/Dialog';
 import { dialogSelection } from 'features/selectedWord';
 import { WordLink } from 'features/selectedWord/wordLink';
@@ -39,7 +38,8 @@ export const WordOccurrences: FC<{ word: string }> = (props) => {
                             includeTime={con.time}
                             iconSize={ICON_SIZE}
                         />
-                        <InlineButton
+                        <span
+                            role="button"
                             onClick={() => {
                                 dispatch(
                                     dialogSelection({
@@ -50,7 +50,7 @@ export const WordOccurrences: FC<{ word: string }> = (props) => {
                             }}
                         >
                             <Icon path={mdiImport} size={ICON_SIZE} />
-                        </InlineButton>
+                        </span>
                     </Dialog>
                 </div>
             ))}
