@@ -27,7 +27,13 @@ export const InfoPage: FC = () => {
 
     useEffect(() => {
         // kick off the check for updates super frequently.
-        navigator.serviceWorker.ready.then((worker) => worker.update());
+        navigator.serviceWorker.ready.then((worker) => {
+            if (worker.waiting) {
+                setCanUpdate(true);
+            }
+
+            worker.update();
+        });
     });
 
     return (
