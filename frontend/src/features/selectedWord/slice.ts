@@ -52,6 +52,34 @@ const slice = createSlice({
             sentenceTimestamp: payload.time,
             episode: payload.episode ?? state.episode
         }),
+
+        episodeDialogShift: (
+            state,
+            {
+                payload: { direction, episodeDialog }
+            }: PayloadAction<{ direction: -1 | 1; episodeDialog?: number[] }>
+        ) => {
+            if (!(state.sentenceTimestamp && episodeDialog)) {
+                return state;
+            }
+
+            const index = episodeDialog.findIndex(
+                (d) => d >= state.sentenceTimestamp! // null checked above
+            );
+            const sentenceTimestamp =
+                episodeDialog[
+                    Math.max(
+                        0,
+                        Math.min(episodeDialog.length, index + direction)
+                    )
+                ];
+
+            return {
+                ...state,
+                sentenceTimestamp
+            };
+        },
+
         dialogWordShift: (
             state,
             {
@@ -62,7 +90,7 @@ const slice = createSlice({
             if (!(dialog && word)) {
                 return state;
             }
-            let lastIndex: [number, number] | null = null;
+            let lastIndex: [number, number] = [0, 0];
             for (let lineIdx = 0; lineIdx < dialog.words.length; lineIdx++) {
                 const line = dialog.words[lineIdx];
                 for (let wordIdx = 0; wordIdx < line.length; wordIdx++) {
@@ -70,9 +98,6 @@ const slice = createSlice({
                         lastIndex = [lineIdx, wordIdx];
                     }
                 }
-            }
-            if (!lastIndex) {
-                return state;
             }
 
             let [shiftedRow, shiftedCol] = lastIndex;
@@ -114,6 +139,8 @@ export const selectIsCurrentlySelected = (
     state.selectedWord.episode === episodeId &&
     state.selectedWord.sentenceTimestamp === time;
 
+export const selectSelectedEpisodeContent = (state: RootState) =>
+    state.dialog.order[state.selectedWord.episode!];
 export const selectSelectedWord = (state: RootState) => state.selectedWord;
 export const selectSelectedWordContext = (state: RootState) =>
     (state.selectedWord?.wordBaseForm &&
@@ -155,5 +182,6 @@ export const {
     newWordSelected,
     selectionClearRequested,
     dialogSelection,
-    dialogWordShift
+    dialogWordShift,
+    episodeDialogShift
 } = slice.actions;

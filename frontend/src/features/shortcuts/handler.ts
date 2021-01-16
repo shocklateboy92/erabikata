@@ -4,8 +4,10 @@ import { isKana, toggleWordFurigana } from 'features/furigana';
 import { notification } from 'features/notifications';
 import {
     dialogWordShift,
+    episodeDialogShift,
     selectSelectedDialog,
     selectSelectedEnglishDialog,
+    selectSelectedEpisodeContent,
     selectSelectedWord
 } from 'features/selectedWord';
 import { selectDefinitionById } from 'features/wordDefinition';
@@ -89,6 +91,28 @@ const handlers: { key: string; action: AppThunk }[] = [
                     dialog: selectSelectedDialog(getState())
                 })
             )
+    },
+    {
+        key: 'J',
+        action: (dispatch, getState) => {
+            dispatch(
+                episodeDialogShift({
+                    direction: 1,
+                    episodeDialog: selectSelectedEpisodeContent(getState())
+                })
+            );
+        }
+    },
+    {
+        key: 'K',
+        action: (dispatch, getState) => {
+            dispatch(
+                episodeDialogShift({
+                    direction: -1,
+                    episodeDialog: selectSelectedEpisodeContent(getState())
+                })
+            );
+        }
     }
 ];
 
