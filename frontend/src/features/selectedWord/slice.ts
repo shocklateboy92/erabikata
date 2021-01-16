@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import { DialogInfo } from 'backend.generated';
 import { selectDialogContent } from 'features/dialog/slice';
 import {
     selectEnglishDialogContent,
@@ -50,7 +51,56 @@ const slice = createSlice({
             ...state,
             sentenceTimestamp: payload.time,
             episode: payload.episode ?? state.episode
-        })
+        }),
+        dialogWordShift: (
+            state,
+            {
+                payload: { direction, dialog }
+            }: PayloadAction<{ dialog?: DialogInfo; direction: 1 | -1 }>
+        ) => {
+            const word = state.wordBaseForm;
+            if (!(dialog && word)) {
+                return state;
+            }
+            let lastIndex: [number, number] | null = null;
+            for (let lineIdx = 0; lineIdx < dialog.words.length; lineIdx++) {
+                const line = dialog.words[lineIdx];
+                for (let wordIdx = 0; wordIdx < line.length; wordIdx++) {
+                    if (line[wordIdx].baseForm === word) {
+                        lastIndex = [lineIdx, wordIdx];
+                    }
+                }
+            }
+            if (!lastIndex) {
+                return state;
+            }
+
+            let [shiftedRow, shiftedCol] = lastIndex;
+            do {
+                shiftedCol = shiftedCol + direction;
+                if (shiftedCol >= dialog.words[shiftedRow].length) {
+                    shiftedRow++;
+                    if (shiftedRow >= dialog.words.length) {
+                        return state;
+                    }
+                    shiftedCol = 0;
+                }
+                if (shiftedCol < 0) {
+                    shiftedRow--;
+                    if (shiftedRow < 0) {
+                        return state;
+                    }
+                    shiftedCol = dialog.words[shiftedRow].length - 1;
+                }
+            } while (dialog.words[shiftedRow][shiftedCol].baseForm === ' ');
+
+            const wordBaseForm = dialog.words[shiftedRow][shiftedCol].baseForm;
+
+            return {
+                ...state,
+                wordBaseForm
+            };
+        }
     }
 });
 
@@ -104,5 +154,6 @@ export const selectSelectedEnglishDialog = (state: RootState) => {
 export const {
     newWordSelected,
     selectionClearRequested,
-    dialogSelection
+    dialogSelection,
+    dialogWordShift
 } = slice.actions;

@@ -3,12 +3,12 @@ import store, { AppThunk } from 'app/store';
 import { isKana, toggleWordFurigana } from 'features/furigana';
 import { notification } from 'features/notifications';
 import {
+    dialogWordShift,
     selectSelectedDialog,
     selectSelectedEnglishDialog,
     selectSelectedWord
 } from 'features/selectedWord';
 import { selectDefinitionById } from 'features/wordDefinition';
-import { dialogWordShiftAction } from './dialogWordShift';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -21,7 +21,7 @@ const copyAction = (
     }
 };
 
-const handlers: { key: string; shift?: boolean; action: AppThunk }[] = [
+const handlers: { key: string; action: AppThunk }[] = [
     {
         key: 'c',
         action: copyAction((state) => {
@@ -71,19 +71,29 @@ const handlers: { key: string; shift?: boolean; action: AppThunk }[] = [
         }
     },
     {
-        key: 'l',
-        action: dialogWordShiftAction((index) => index + 1)
+        key: 'L',
+        action: (dispatch, getState) =>
+            dispatch(
+                dialogWordShift({
+                    direction: 1,
+                    dialog: selectSelectedDialog(getState())
+                })
+            )
     },
     {
-        key: 'h',
-        action: dialogWordShiftAction((index) => index - 1)
+        key: 'H',
+        action: (dispatch, getState) =>
+            dispatch(
+                dialogWordShift({
+                    direction: -1,
+                    dialog: selectSelectedDialog(getState())
+                })
+            )
     }
 ];
 
 export const handler = (e: KeyboardEvent) => {
-    const action = handlers.find(
-        (a) => a.key === e.key && e.shiftKey === !!a.shift
-    )?.action;
+    const action = handlers.find((a) => a.key === e.key)?.action;
     if (action) {
         store.dispatch(action);
     }
