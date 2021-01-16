@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { DialogInfo, WordInfo } from 'backend.generated';
+import { DialogInfo } from 'backend.generated';
 import { selectDialogContent } from 'features/dialog/slice';
 import {
     selectEnglishDialogContent,
