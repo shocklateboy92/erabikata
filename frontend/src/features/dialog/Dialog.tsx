@@ -1,9 +1,8 @@
 import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
 import { InlineError } from 'components/inlineError';
-import { Ruby } from 'features/furigana';
 import { formatTime } from 'components/time';
-import { selectIsFuriganaEnabled } from 'features/furigana';
+import { Ruby } from 'features/furigana';
 import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,7 +16,6 @@ export const Dialog: FC<{
     readOnly?: boolean;
 }> = ({ time, episode, title, readOnly, children }) => {
     const dispatch = useDispatch();
-    const furiganaEnabled = useTypedSelector(selectIsFuriganaEnabled);
     const dialog = useTypedSelector(
         selectDialogContent.bind(null, episode, time)
     );
@@ -45,7 +43,7 @@ export const Dialog: FC<{
                                 episode={episode}
                                 alwaysHighlightSelectedWord={readOnly}
                                 time={dialog.startTime}
-                                word={word.baseForm}
+                                baseForm={word.baseForm}
                                 onClick={() => {
                                     if (readOnly) {
                                         return;
@@ -60,7 +58,6 @@ export const Dialog: FC<{
                                     );
                                 }}
                                 reading={word.reading}
-                                hideReading={!furiganaEnabled}
                             >
                                 {
                                     // It seems the analyzers replace japanese spaces with normal spaces
@@ -80,10 +77,16 @@ const SelectableRuby: FC<
     {
         episode: string;
         time: number;
-        word: string;
+        baseForm: string;
         alwaysHighlightSelectedWord?: boolean;
     } & React.ComponentProps<typeof Ruby>
-> = ({ episode, time, word, alwaysHighlightSelectedWord, ...restProps }) => {
+> = ({
+    episode,
+    time,
+    baseForm: word,
+    alwaysHighlightSelectedWord,
+    ...restProps
+}) => {
     const isActive = useTypedSelector((state) => {
         const selectedWord = selectSelectedWord(state);
         return (
@@ -97,6 +100,7 @@ const SelectableRuby: FC<
     return (
         <Ruby
             className={classNames({ [styles.active]: isActive })}
+            baseForm={word}
             {...restProps}
         />
     );

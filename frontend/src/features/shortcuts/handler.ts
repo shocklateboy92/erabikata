@@ -1,6 +1,6 @@
 import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
-import { isKana } from 'features/furigana';
+import { isKana, toggleWordFurigana } from 'features/furigana';
 import { notification } from 'features/notifications';
 import {
     selectSelectedDialog,
@@ -59,6 +59,15 @@ const handlers: { key: string; action: AppThunk }[] = [
             return selectDefinitionById(state, word)?.exact[0].japanese[0]
                 .reading;
         }, 'word reading')
+    },
+    {
+        key: 't',
+        action: (dispatch, getState) => {
+            const word = selectSelectedWord(getState()).wordBaseForm;
+            if (word) {
+                dispatch(toggleWordFurigana(word));
+            }
+        }
     }
 ];
 

@@ -4,7 +4,7 @@ import { RootState } from 'app/rootReducer';
 const initialState: {
     enabled: boolean;
     words: {
-        [wordBaseForm: string]: { localEnable: boolean } | undefined;
+        [wordBaseForm: string]: { hide: boolean } | undefined;
     };
 } = {
     enabled: true,
@@ -21,7 +21,7 @@ const slice = createSlice({
             words: {
                 ...state.words,
                 [payload]: {
-                    localEnable: !state.words[payload]?.localEnable
+                    hide: !state.words[payload]?.hide
                 }
             }
         })
@@ -31,6 +31,6 @@ const slice = createSlice({
 export const selectIsFuriganaEnabled = (state: RootState) =>
     state.furigana.enabled;
 
-export const { toggleFurigana } = slice.actions;
+export const { toggleFurigana, toggleWordFurigana } = slice.actions;
 
 export const furiganaReducer = slice.reducer;
