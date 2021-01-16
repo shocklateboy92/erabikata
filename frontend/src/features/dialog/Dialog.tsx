@@ -1,7 +1,7 @@
 import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
 import { InlineError } from 'components/inlineError';
-import { Ruby } from 'components/ruby';
+import { Ruby } from 'features/furigana';
 import { formatTime } from 'components/time';
 import { selectIsFuriganaEnabled } from 'features/furigana';
 import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
