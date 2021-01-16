@@ -1,15 +1,30 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 
-const initialState = {
-    enabled: true
+const initialState: {
+    enabled: boolean;
+    words: {
+        [wordBaseForm: string]: { localEnable: boolean } | undefined;
+    };
+} = {
+    enabled: true,
+    words: {}
 };
 
 const slice = createSlice({
     name: 'furigana',
     initialState,
     reducers: {
-        toggleFurigana: (state) => ({ enabled: !state.enabled })
+        toggleFurigana: (state) => ({ ...state, enabled: !state.enabled }),
+        toggleWordFurigana: (state, { payload }: PayloadAction<string>) => ({
+            ...state,
+            words: {
+                ...state.words,
+                [payload]: {
+                    localEnable: !state.words[payload]?.localEnable
+                }
+            }
+        })
     }
 });
 
