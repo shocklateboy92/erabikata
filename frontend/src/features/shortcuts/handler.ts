@@ -1,5 +1,6 @@
 import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
+import { isKana } from 'features/furigana';
 import { notification } from 'features/notifications';
 import {
     selectSelectedDialog,
@@ -18,9 +19,6 @@ const copyAction = (
         dispatch(notification({ title: `${name} copied to clipboard`, text }));
     }
 };
-
-const isKana = (text: string) =>
-    text.match(/^[\u3000-\u303f\u3040-\u309f\u30a0-\u30ff\uff00-\uff9f]*$/);
 
 const handlers: { key: string; action: AppThunk }[] = [
     {
