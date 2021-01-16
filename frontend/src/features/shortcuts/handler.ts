@@ -1,6 +1,10 @@
 import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
-import { isKana, toggleWordFurigana } from 'features/furigana';
+import {
+    isKana,
+    selectIsFuriganaHiddenForWord,
+    toggleWordFurigana
+} from 'features/furigana';
 import { notification } from 'features/notifications';
 import {
     dialogWordShift,
@@ -36,6 +40,10 @@ const handlers: { key: string; alt?: boolean; action: AppThunk }[] = [
                         .map((word) =>
                             word.baseForm === currentWord.wordBaseForm ||
                             isKana(word.displayText) ||
+                            selectIsFuriganaHiddenForWord(
+                                state,
+                                word.baseForm
+                            ) ||
                             word.displayText === word.reading ||
                             !word.reading
                                 ? word.displayText.replaceAll(' ', '　')

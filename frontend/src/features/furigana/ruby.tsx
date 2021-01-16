@@ -1,6 +1,7 @@
 import { useTypedSelector } from 'app/hooks';
 import React, { FC } from 'react';
 import { isKana } from './kana';
+import { selectIsFuriganaHiddenForWord } from './slice';
 
 interface IRubyProps extends React.ComponentProps<'ruby'> {
     reading?: string;
@@ -13,9 +14,10 @@ export const Ruby: FC<IRubyProps> = ({
     baseForm,
     ...rest
 }) => {
-    const hideReading = useTypedSelector(
-        (state) => state.furigana.words[baseForm]?.hide
+    const hideReading = useTypedSelector((state) =>
+        selectIsFuriganaHiddenForWord(state, baseForm)
     );
+
     return (
         <ruby {...rest}>
             {children ?? reading}

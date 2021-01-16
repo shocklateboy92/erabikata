@@ -30,6 +30,10 @@ const slice = createSlice({
 
 export const selectIsFuriganaEnabled = (state: RootState) =>
     state.furigana.enabled;
+export const selectIsFuriganaHiddenForWord = (
+    state: RootState,
+    baseForm: string
+) => state.furigana.words[baseForm]?.hide;
 
 export const { toggleFurigana, toggleWordFurigana } = slice.actions;
 
