@@ -33,7 +33,7 @@ const handlers: { key: string; action: AppThunk }[] = [
                             isKana(word.displayText) ||
                             word.displayText === word.reading ||
                             !word.reading
-                                ? word.displayText
+                                ? word.displayText.replaceAll(' ', '　')
                                 : ` ${word.displayText}[${word.reading}]`
                         )
                         .join('')
