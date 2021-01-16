@@ -1,17 +1,20 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { DialogInfo } from 'backend.generated';
+import { DialogInfo, WordInfo } from 'backend.generated';
 import { selectDialogContent } from 'features/dialog/slice';
 import {
     selectEnglishDialogContent,
     selectNearbyEnglishDialog
 } from 'features/engDialog/slice';
+import { IWordInfoState } from 'features/wordContext';
 
 interface ISelectedWordState {
     wordBaseForm?: string;
     sentenceTimestamp?: number;
     episode?: string;
 }
+
+type Direction = 1 | -1;
 
 const getParam = (search: URLSearchParams, param: string): string | undefined =>
     search.get(param) ?? undefined;
@@ -57,7 +60,7 @@ const slice = createSlice({
             state,
             {
                 payload: { direction, episodeDialog }
-            }: PayloadAction<{ direction: -1 | 1; episodeDialog?: number[] }>
+            }: PayloadAction<{ direction: Direction; episodeDialog?: number[] }>
         ) => {
             if (!(state.sentenceTimestamp && episodeDialog)) {
                 return state;
@@ -84,7 +87,7 @@ const slice = createSlice({
             state,
             {
                 payload: { direction, dialog }
-            }: PayloadAction<{ dialog?: DialogInfo; direction: 1 | -1 }>
+            }: PayloadAction<{ dialog?: DialogInfo; direction: Direction }>
         ) => {
             const word = state.wordBaseForm;
             if (!(dialog && word)) {
@@ -124,6 +127,56 @@ const slice = createSlice({
             return {
                 ...state,
                 wordBaseForm
+            };
+        },
+
+        occurrenceShift: (
+            state,
+            {
+                payload: { direction, context }
+            }: PayloadAction<{ context?: IWordInfoState; direction: Direction }>
+        ) => {
+            if (!context) {
+                return state;
+            }
+
+            let index = context.occurrences.findIndex(
+                (a) =>
+                    a.time === state.sentenceTimestamp &&
+                    a.episodeId === state.episode
+            );
+
+            if (index < 0) {
+                // No occurrence is explicitly selected.
+                // Try finding closest one in current episode
+                const epOcs = context.occurrences.filter(
+                    (o) => o.episodeId === state.episode
+                );
+
+                // If the closest occurrence isn't even in this episode,
+                // bail out. I don't know what would even cause that.
+                if (!epOcs.length) {
+                    return state;
+                }
+
+                epOcs.sort(
+                    (a, b) =>
+                        Math.abs(a.time - (state.sentenceTimestamp ?? 0)) -
+                        Math.abs(b.time - (state.sentenceTimestamp ?? 0))
+                );
+                index = context.occurrences.indexOf(epOcs[0]);
+            }
+
+            const newIndex = index + direction;
+            const newOccurrence =
+                context.occurrences[
+                    Math.max(0, Math.min(context.occurrences.length, newIndex))
+                ];
+
+            return {
+                ...state,
+                episode: newOccurrence.episodeId,
+                sentenceTimestamp: newOccurrence.time
             };
         }
     }
@@ -183,5 +236,6 @@ export const {
     selectionClearRequested,
     dialogSelection,
     dialogWordShift,
-    episodeDialogShift
+    episodeDialogShift,
+    occurrenceShift
 } = slice.actions;

@@ -5,10 +5,12 @@ import { notification } from 'features/notifications';
 import {
     dialogWordShift,
     episodeDialogShift,
+    occurrenceShift,
     selectSelectedDialog,
     selectSelectedEnglishDialog,
     selectSelectedEpisodeContent,
-    selectSelectedWord
+    selectSelectedWord,
+    selectSelectedWordContext
 } from 'features/selectedWord';
 import { selectDefinitionById } from 'features/wordDefinition';
 
@@ -23,7 +25,7 @@ const copyAction = (
     }
 };
 
-const handlers: { key: string; action: AppThunk }[] = [
+const handlers: { key: string; alt?: boolean; action: AppThunk }[] = [
     {
         key: 'c',
         action: copyAction((state) => {
@@ -113,11 +115,37 @@ const handlers: { key: string; action: AppThunk }[] = [
                 })
             );
         }
+    },
+    {
+        key: 'j',
+        alt: true,
+        action: (dispatch, getState) => {
+            dispatch(
+                occurrenceShift({
+                    direction: 1,
+                    context: selectSelectedWordContext(getState())
+                })
+            );
+        }
+    },
+    {
+        key: 'k',
+        alt: true,
+        action: (dispatch, getState) => {
+            dispatch(
+                occurrenceShift({
+                    direction: -1,
+                    context: selectSelectedWordContext(getState())
+                })
+            );
+        }
     }
 ];
 
 export const handler = (e: KeyboardEvent) => {
-    const action = handlers.find((a) => a.key === e.key)?.action;
+    const action = handlers.find(
+        (a) => a.key === e.key && e.altKey === !!e.altKey
+    )?.action;
     if (action) {
         store.dispatch(action);
     }
@@ -131,8 +159,8 @@ declare global {
 
 if (window.oldHandler) {
     console.log('removing old keypress handler');
-    window.removeEventListener('keypress', window.oldHandler);
+    window.removeEventListener('keydown', window.oldHandler);
 }
 
-window.addEventListener('keypress', handler);
+window.addEventListener('keydown', handler);
 window.oldHandler = handler;
