@@ -8,6 +8,7 @@ import {
     selectSelectedWord
 } from 'features/selectedWord';
 import { selectDefinitionById } from 'features/wordDefinition';
+import { dialogWordShiftAction } from './dialogWordShift';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -20,7 +21,7 @@ const copyAction = (
     }
 };
 
-const handlers: { key: string; action: AppThunk }[] = [
+const handlers: { key: string; shift?: boolean; action: AppThunk }[] = [
     {
         key: 'c',
         action: copyAction((state) => {
@@ -68,11 +69,21 @@ const handlers: { key: string; action: AppThunk }[] = [
                 dispatch(toggleWordFurigana(word));
             }
         }
+    },
+    {
+        key: 'l',
+        action: dialogWordShiftAction((index) => index + 1)
+    },
+    {
+        key: 'h',
+        action: dialogWordShiftAction((index) => index - 1)
     }
 ];
 
 export const handler = (e: KeyboardEvent) => {
-    const action = handlers.find((a) => a.key === e.key)?.action;
+    const action = handlers.find(
+        (a) => a.key === e.key && e.shiftKey === !!a.shift
+    )?.action;
     if (action) {
         store.dispatch(action);
     }
