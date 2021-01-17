@@ -29,7 +29,12 @@ const copyAction = (
     }
 };
 
-const handlers: { key: string; alt?: boolean; action: AppThunk }[] = [
+const handlers: {
+    key: string;
+    alt?: boolean;
+    ctrl?: boolean;
+    action: AppThunk;
+}[] = [
     {
         key: 'c',
         action: copyAction((state) => {
@@ -152,7 +157,7 @@ const handlers: { key: string; alt?: boolean; action: AppThunk }[] = [
 
 export const handler = (e: KeyboardEvent) => {
     const action = handlers.find(
-        (a) => a.key === e.key && e.altKey === !!e.altKey
+        (a) => a.key === e.key && e.altKey === !!a.alt && e.ctrlKey === !!a.ctrl
     )?.action;
     if (action) {
         store.dispatch(action);
