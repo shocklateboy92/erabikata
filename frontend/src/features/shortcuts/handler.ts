@@ -165,8 +165,8 @@ const handlers: {
             }
 
             return definiton.english
-                .map((word) => word.senses.join('; '))
-                .join('\n');
+                .map((meaning) => meaning.senses.join('\n'))
+                .join('\n\n');
         }, 'Primary word definition')
     },
     {
@@ -181,8 +181,8 @@ const handlers: {
             }
 
             return definiton.english
-                .map((word) => word.tags.join('; '))
-                .join('\n');
+                .map((word) => word.tags.join(','))
+                .join('\n\n');
         }, 'Primary word notes')
     }
 ];
