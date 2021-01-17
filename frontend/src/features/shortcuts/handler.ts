@@ -152,6 +152,38 @@ const handlers: {
                 })
             );
         }
+    },
+    {
+        key: 's',
+        action: copyAction((state) => {
+            const selectedWord = selectSelectedWord(state).wordBaseForm;
+            const definiton =
+                selectedWord &&
+                selectDefinitionById(state, selectedWord)?.exact[0];
+            if (!definiton) {
+                return;
+            }
+
+            return definiton.english
+                .map((word) => word.senses.join('; '))
+                .join('\n');
+        }, 'Primary word definition')
+    },
+    {
+        key: 'a',
+        action: copyAction((state) => {
+            const selectedWord = selectSelectedWord(state).wordBaseForm;
+            const definiton =
+                selectedWord &&
+                selectDefinitionById(state, selectedWord)?.exact[0];
+            if (!definiton) {
+                return;
+            }
+
+            return definiton.english
+                .map((word) => word.tags.join('; '))
+                .join('\n');
+        }, 'Primary word notes')
     }
 ];
 
