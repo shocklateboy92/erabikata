@@ -181,7 +181,7 @@ const handlers: {
             }
 
             return definiton.english
-                .map((word) => word.tags.join(','))
+                .map((word) => word.tags.join(', '))
                 .join('\n\n');
         }, 'Primary word notes')
     }
