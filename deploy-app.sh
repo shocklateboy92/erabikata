@@ -5,7 +5,7 @@ set -xe
 image_name=registry.apps.lasath.org/erabikata2
 backend_dir=backend/Erabikata.Backend
 backend_build_dir="$backend_dir/bin/Release"
-www_dir="$backend_build_dir/netcoreapp3.1/publish/wwwroot"
+www_dir="$backend_build_dir/net5.0/publish/wwwroot"
 frontend_build_dir=frontend/build
 
 # Clear old crap, in case I haven't done a git clean
