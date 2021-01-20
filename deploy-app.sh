@@ -14,10 +14,10 @@ rm -rf $frontend_build_dir
 
 dotnet publish --configuration=Release $backend_dir/*.csproj
 
-yarn --cwd frontend install
+MAKEFLAGS="-j13" yarn --cwd frontend install
 [[ "$@" =~ 'full' ]] && yarn --cwd frontend dev
 yarn --cwd frontend build
-cp -rvf $frontend_build_dir $www_dir
+cp -rvf "$frontend_build_dir" "$www_dir"
 
 docker build -t $image_name $backend_dir
 docker push $image_name
