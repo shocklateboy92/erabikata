@@ -8,6 +8,8 @@ namespace Erabikata.Models.Input
 
         [JsonProperty("base")] public string Base { get; set; }
 
+        [JsonProperty("dictionary")] public string Dictionary { get; set; }
+
         [JsonProperty("partOfSpeech")] public string[] PartOfSpeech { get; set; }
 
         [JsonProperty("conjugationType")] public string ConjugationType { get; set; }

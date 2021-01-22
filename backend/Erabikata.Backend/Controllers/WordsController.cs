@@ -15,13 +15,16 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly WordCountsManager _wordCountsManager;
         private readonly KnownWordsProvider _knownWordsProvider;
+        private readonly SubtitleDatabaseManager _database;
 
         public WordsController(
             WordCountsManager wordCountsManager,
-            KnownWordsProvider knownWordsProvider)
+            KnownWordsProvider knownWordsProvider,
+            SubtitleDatabaseManager database)
         {
             _wordCountsManager = wordCountsManager;
             _knownWordsProvider = knownWordsProvider;
+            _database = database;
         }
 
         [HttpGet]
@@ -58,6 +61,32 @@ namespace Erabikata.Backend.Controllers
                 )
                 .Skip(skip)
                 .Take(max);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public object Search(string query, Analyzer analyzer = Analyzer.SudachiC)
+        {
+            var matches = new Dictionary<string, ICollection<string>>();
+            foreach (var episodeV2 in _database.AllEpisodesV2.Values)
+            foreach (var sentenceV2 in episodeV2.AnalyzedSentences[analyzer])
+            foreach (var line in sentenceV2.Analyzed)
+            foreach (var word in line)
+            {
+                if (word.Dictionary.Contains(query))
+                {
+                    if (matches.ContainsKey(word.Base))
+                    {
+                        matches[word.Base].Add(word.Dictionary);
+                    }
+                    else
+                    {
+                        matches.Add(word.Base, new HashSet<string> {word.Dictionary});
+                    }
+                }
+            }
+
+            return new {matches};
         }
     }
 }
