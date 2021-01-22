@@ -83,6 +83,7 @@ public class Main {
                                     token -> {
                                       var word = new AnalyzedDialog.Word();
                                       word.base = token.getBaseForm();
+                                      word.dictionary = token.getBaseForm();
                                       word.conjugationType = token.getConjugationType();
                                       word.original = token.getSurface();
                                       word.partOfSpeech =

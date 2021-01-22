@@ -8,6 +8,7 @@ public class AnalyzedDialog extends Dialog {
   public static class Word {
     public String original;
     public String base;
+    public String dictionary;
     public String[] partOfSpeech;
     public String conjugationType;
     public String reading;

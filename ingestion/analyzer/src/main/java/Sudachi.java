@@ -27,7 +27,7 @@ public class Sudachi {
                                   token -> {
                                     var word = new AnalyzedDialog.Word();
                                     word.base = token.normalizedForm();
-//                                      word.base = token.dictionaryForm();
+                                    word.dictionary = token.dictionaryForm();
 //                                      word.conjugationType = token.getConjugationType();
                                     word.original = token.surface();
                                     word.partOfSpeech = token.partOfSpeech().toArray(new String[0]);
