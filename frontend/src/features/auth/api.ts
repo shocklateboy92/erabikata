@@ -23,6 +23,8 @@ const createContext = () => {
     });
 };
 
+const scopes = ['api://cb9157f3-50fe-47bf-af0b-77c976a2a698/Data.Store'];
+
 export const signIn: AuthAsyncThunk<void> = createAsyncThunk(
     'signIn',
     async (context) => {
@@ -30,7 +32,7 @@ export const signIn: AuthAsyncThunk<void> = createAsyncThunk(
 
         console.log('startgin');
         const token = await context.userManager.loginRedirect({
-            scopes: ['User.Read']
+            scopes
         });
         console.log('finishe');
         console.log(token);
@@ -46,13 +48,17 @@ export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
         const account = await context.userManager.handleRedirectPromise();
         console.log(account);
         const tokens = await context.userManager.acquireTokenSilent({
-            scopes: ['User.Read', 'openid', 'profile'],
+            scopes,
             account: account?.account ?? allAccounts[0]
         });
         console.log(tokens);
         const headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + tokens.idToken);
-        await fetch('http://localhost:5000/api/debug', {
+        headers.append('Authorization', 'Bearer ' + tokens.accessToken);
+        fetch('http://localhost:5000/api/debug', {
+            method: 'GET',
+            headers
+        });
+        fetch('https://graph.microsoft.com/v1.0/users/me', {
             method: 'GET',
             headers
         });
