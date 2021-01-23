@@ -68,6 +68,7 @@ namespace Erabikata.Backend
 
             app.UseCors();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseOpenApi();

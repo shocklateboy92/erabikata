@@ -41,9 +41,21 @@ export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
     'checkSignInResult',
     async (context) => {
         context.userManager = context.userManager ?? createContext();
-        console.log(context.userManager.getAllAccounts());
-        const accounts = await context.userManager.handleRedirectPromise();
-        console.log(accounts);
+        const allAccounts = context.userManager.getAllAccounts();
+        console.log(allAccounts);
+        const account = await context.userManager.handleRedirectPromise();
+        console.log(account);
+        const tokens = await context.userManager.acquireTokenSilent({
+            scopes: ['User.Read', 'openid', 'profile'],
+            account: account?.account ?? allAccounts[0]
+        });
+        console.log(tokens);
+        const headers = new Headers();
+        headers.append('Authorization', 'Bearer ' + tokens.idToken);
+        await fetch('http://localhost:5000/api/debug', {
+            method: 'GET',
+            headers
+        });
     }
 );
 
