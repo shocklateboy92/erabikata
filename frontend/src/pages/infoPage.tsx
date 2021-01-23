@@ -1,5 +1,6 @@
 import { FullWidthText } from 'components/fullWidth';
 import { Page } from 'components/page';
+import { AuthSettings } from 'features/auth';
 import { AnalyzerSelector } from 'features/backendSelection/analyzerSelector';
 import { HassCheck } from 'features/hass';
 import { UpdateCheck } from 'features/update';
@@ -15,6 +16,7 @@ export const InfoPage: FC = () => {
                 <h2>Playback Options</h2>
                 <WakeLockOption />
             </FullWidthText>
+            <AuthSettings />
         </Page>
     );
 };
