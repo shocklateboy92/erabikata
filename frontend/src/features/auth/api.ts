@@ -1,34 +1,49 @@
+import { PublicClientApplication } from '@azure/msal-browser';
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { selectBaseUrl } from 'features/backendSelection';
-import { UserManager } from 'oidc-client';
 import React, { useContext } from 'react';
 
 interface IAuthContext {
-    userManager?: UserManager;
+    userManager?: PublicClientApplication;
 }
 
-type AppAsyncThunk<ReturnType, ArgumentType> = AsyncThunk<
+type AuthAsyncThunk<ReturnType> = AsyncThunk<
     ReturnType,
     IAuthContext,
     { state: RootState }
 >;
 
-const createContext = (state: RootState | (() => RootState)) => {
-    const baseUrl = selectBaseUrl(state);
-    return new UserManager({
-        authority: baseUrl,
-        client_id: 'frontend',
-        redirect_uri: window.location.href
+const createContext = () => {
+    return new PublicClientApplication({
+        auth: {
+            clientId: 'cb9157f3-50fe-47bf-af0b-77c976a2a698',
+            redirectUri: window.location.origin + '/settings',
+            authority: 'https://login.microsoftonline.com/consumers'
+        }
     });
 };
 
-export const signIn: AppAsyncThunk<void, void> = createAsyncThunk(
+export const signIn: AuthAsyncThunk<void> = createAsyncThunk(
     'signIn',
-    async (context, { getState }) => {
-        context.userManager = context.userManager ?? createContext(getState);
+    async (context) => {
+        context.userManager = context.userManager ?? createContext();
 
-        await context.userManager.signinRedirect();
+        console.log('startgin');
+        const token = await context.userManager.loginRedirect({
+            scopes: ['User.Read']
+        });
+        console.log('finishe');
+        console.log(token);
+    }
+);
+
+export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
+    'checkSignInResult',
+    async (context) => {
+        context.userManager = context.userManager ?? createContext();
+        console.log(context.userManager.getAllAccounts());
+        const accounts = await context.userManager.handleRedirectPromise();
+        console.log(accounts);
     }
 );
 
