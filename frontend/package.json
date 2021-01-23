@@ -16,6 +16,7 @@
     "home-assistant-js-websocket": "^5.7.0",
     "moment": "^2.29.1",
     "node-sass": "4",
+    "oidc-client": "^1.10.1",
     "preval.macro": "^5.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
