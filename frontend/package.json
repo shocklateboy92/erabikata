@@ -16,7 +16,6 @@
     "home-assistant-js-websocket": "^5.7.0",
     "moment": "^2.29.1",
     "node-sass": "4",
-    "oidc-client": "^1.10.1",
     "preval.macro": "^5.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
@@ -61,6 +60,7 @@
     ]
   },
   "devDependencies": {
+    "@azure/msal-browser": "^2.10.0",
     "@types/classnames": "^2.2.11",
     "@types/preval.macro": "^3.0.0",
     "@types/react": "^16.9.56",
