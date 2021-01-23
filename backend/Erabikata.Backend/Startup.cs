@@ -40,7 +40,7 @@ namespace Erabikata.Backend
                 )
             );
 
-            services.AddMicrosoftIdentityWebApiAuthentication(Configuration.GetSection("Auth"));
+            services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
             services.AddControllers()
                 .AddJsonOptions(
