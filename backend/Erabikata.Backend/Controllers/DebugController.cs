@@ -13,7 +13,18 @@ namespace Erabikata.Backend.Controllers
         [HttpGet]
         public object Index()
         {
-            return new {Headers = Request.Headers.ToDictionary(kv => kv.Key, kv => kv.Value)};
+            return new
+            {
+                Headers = Request.Headers.ToDictionary(kv => kv.Key, kv => kv.Value),
+                User.Identity,
+                claims = User.Claims.Select(claim => new {claim.Type, claim.Value}),
+                ids = User.Identities.Select(identity => new
+                {
+                    identity.Name
+                })
+                ,d = User.FindFirst("oid")?.Value
+                // User.Identities
+            };
         }
     }
 }
