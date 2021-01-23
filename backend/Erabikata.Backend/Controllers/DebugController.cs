@@ -1,7 +1,7 @@
-using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -17,13 +17,9 @@ namespace Erabikata.Backend.Controllers
             {
                 Headers = Request.Headers.ToDictionary(kv => kv.Key, kv => kv.Value),
                 User.Identity,
-                claims = User.Claims.Select(claim => new {claim.Type, claim.Value}),
-                ids = User.Identities.Select(identity => new
-                {
-                    identity.Name
-                })
-                ,d = User.FindFirst("oid")?.Value
-                // User.Identities
+                claims =
+                    User.Claims.Select(claim => new {claim.Type, claim.ValueType, claim.Value}),
+                Id = User.GetObjectId()
             };
         }
     }
