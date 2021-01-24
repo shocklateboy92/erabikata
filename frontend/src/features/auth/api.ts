@@ -88,7 +88,12 @@ export function createApiCallThunk<
         args: ArgumentType,
         analyzer: Analyzer
     ) => Promise<ReturnType>,
-    options?: Parameters<typeof createAsyncThunk>[2]
+    options?: {
+        condition: (
+            arg: ArgumentType,
+            thunk: { getState: () => RootState }
+        ) => boolean | undefined;
+    }
 ) {
     return createAsyncThunk<ReturnType, ArgumentType, { state: RootState }>(
         name,
@@ -97,7 +102,6 @@ export function createApiCallThunk<
             return payloadCreator(
                 new constructor({}, selectBaseUrl(state)),
                 arg,
-
                 selectAnalyzer(state)
             );
         },

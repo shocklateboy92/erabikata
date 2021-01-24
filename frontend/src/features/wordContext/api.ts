@@ -52,9 +52,7 @@ export const fetchWordIfNeeded: AsyncThunk<
                 return false;
             }
 
-            // TODO: Figure out how to pass type through createApiCallThunk
-            // and remove this cast.
-            const { wordContexts } = getState() as RootState;
+            const { wordContexts } = getState();
             const context = wordContexts.byId[baseForm];
             if (context) {
                 const alreadyFetchedCount = context.occurrences.length;

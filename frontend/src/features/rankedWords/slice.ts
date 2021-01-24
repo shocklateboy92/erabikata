@@ -1,11 +1,8 @@
-import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { WordInfo, WordsClient } from 'backend.generated';
-import {
-    analyzerChangeRequest,
-    selectAnalyzer,
-    selectBaseUrl
-} from 'features/backendSelection';
+import { createApiCallThunk } from 'features/auth/api';
+import { analyzerChangeRequest } from 'features/backendSelection';
 
 const WORDS_PER_PAGE = 200;
 
@@ -13,17 +10,17 @@ export const fetchRankedWords: AsyncThunk<
     WordInfo[],
     { pageNum: number },
     { state: RootState }
-> = createAsyncThunk(
+> = createApiCallThunk(
+    WordsClient,
     'rankedWords',
-    (paging, { getState }) => {
-        const state = getState();
-        return new WordsClient(selectBaseUrl(state)).ranked(
+    (client, paging, analyzer) => {
+        return client.ranked(
             true,
             false,
             WORDS_PER_PAGE,
             paging.pageNum * WORDS_PER_PAGE,
             null,
-            selectAnalyzer(state)
+            analyzer
         );
     },
     {
