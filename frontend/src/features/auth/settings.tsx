@@ -1,27 +1,30 @@
 import { mdiAccount } from '@mdi/js';
+import { useTypedSelector } from 'app/hooks';
 import { ActionButton } from 'components/button/actionButton';
 import { FullWidthText } from 'components/fullWidth';
-import React, { FC, useEffect } from 'react';
+import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
-import { checkSignIn, signIn, useAuth } from './api';
+import { signIn } from './api';
+import { selectIsUserSignedIn } from './slice';
 
 export const AuthSettings: FC = () => {
-    const auth = useAuth();
     const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(checkSignIn(auth));
-    }, [auth, dispatch]);
+    const signedIn = useTypedSelector(selectIsUserSignedIn);
 
     return (
         <FullWidthText>
-            <ActionButton
-                icon={mdiAccount}
-                onClick={() => {
-                    dispatch(signIn(auth));
-                }}
-            >
-                Sign In
-            </ActionButton>
+            {signedIn ? (
+                <ActionButton icon={mdiAccount}>Sign Out</ActionButton>
+            ) : (
+                <ActionButton
+                    icon={mdiAccount}
+                    onClick={() => {
+                        dispatch(signIn());
+                    }}
+                >
+                    Sign In
+                </ActionButton>
+            )}
         </FullWidthText>
     );
 };

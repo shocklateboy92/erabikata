@@ -1,4 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
+import { authReducer } from 'features/auth/slice';
 import { backendReducer } from 'features/backendSelection';
 import { dialogReducer } from 'features/dialog/slice';
 import { engDialogReducer } from 'features/engDialog/slice';
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     engDialog: engDialogReducer,
     backend: backendReducer,
     wakeLock: wakeLockReducer,
+    auth: authReducer,
     notifications: notificationReducer,
     hass: hassReducer
 });
