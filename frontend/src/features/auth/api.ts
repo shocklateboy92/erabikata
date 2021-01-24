@@ -1,8 +1,8 @@
 import { PublicClientApplication } from '@azure/msal-browser';
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { IApiClientConfig } from 'backend.generated';
-import { selectBaseUrl } from 'features/backendSelection';
+import { Analyzer, IApiClientConfig } from 'backend.generated';
+import { selectAnalyzer, selectBaseUrl } from 'features/backendSelection';
 import React, { useContext } from 'react';
 
 interface IAuthContext {
@@ -85,15 +85,23 @@ export function createApiCallThunk<
     name: string,
     payloadCreator: (
         client: ClientType,
-        args: ArgumentType
-    ) => Promise<ReturnType>
+        args: ArgumentType,
+        analyzer: Analyzer
+    ) => Promise<ReturnType>,
+    options?: Parameters<typeof createAsyncThunk>[2]
 ) {
     return createAsyncThunk<ReturnType, ArgumentType, { state: RootState }>(
         name,
         (arg, thunk) => {
-            const baseUrl = selectBaseUrl(thunk.getState());
-            return payloadCreator(new constructor({}, baseUrl), arg);
-        }
+            const state = thunk.getState();
+            return payloadCreator(
+                new constructor({}, selectBaseUrl(state)),
+                arg,
+
+                selectAnalyzer(state)
+            );
+        },
+        options
     );
 }
 
