@@ -1,6 +1,7 @@
 import { PublicClientApplication } from '@azure/msal-browser';
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import { IApiClientConfig } from 'backend.generated';
 import { selectBaseUrl } from 'features/backendSelection';
 import React, { useContext } from 'react';
 
@@ -78,7 +79,9 @@ export function createApiCallThunk<
     ReturnType = unknown,
     ArgumentType = void
 >(
-    constructor: { new (baseUrl: string): ClientType },
+    constructor: {
+        new (config: IApiClientConfig, baseUrl: string): ClientType;
+    },
     name: string,
     payloadCreator: (
         client: ClientType,
@@ -89,7 +92,7 @@ export function createApiCallThunk<
         name,
         (arg, thunk) => {
             const baseUrl = selectBaseUrl(thunk.getState());
-            return payloadCreator(new constructor(baseUrl), arg);
+            return payloadCreator(new constructor({}, baseUrl), arg);
         }
     );
 }
