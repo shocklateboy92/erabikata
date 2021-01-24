@@ -1,10 +1,15 @@
 import { PublicClientApplication } from '@azure/msal-browser';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import store from 'app/store';
 import { Analyzer, IApiClientConfig } from 'backend.generated';
 import { selectAnalyzer, selectBaseUrl } from 'features/backendSelection';
 import { notification } from 'features/notifications';
-import { authenticationError, selectIsUserSignedIn } from './slice';
+import {
+    authenticationError,
+    authenticationSuccess,
+    selectIsUserSignedIn
+} from './slice';
 
 const scopes = ['api://cb9157f3-50fe-47bf-af0b-77c976a2a698/Data.Store'];
 const userManager = new PublicClientApplication({
@@ -15,7 +20,9 @@ const userManager = new PublicClientApplication({
     }
 });
 
-userManager.handleRedirectPromise();
+userManager
+    .handleRedirectPromise()
+    .then((token) => token && store.dispatch(authenticationSuccess()));
 
 export const signIn = createAsyncThunk('signIn', () => {
     userManager.loginRedirect({
