@@ -1,7 +1,7 @@
-import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
+import { AsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { WordClient, WordInfo } from 'backend.generated';
-import { selectAnalyzer, selectBaseUrl } from 'features/backendSelection';
+import { createApiCallThunk } from 'features/auth/api';
 import { useLocation } from 'react-router-dom';
 
 interface IWordContextArgs {
@@ -20,9 +20,11 @@ export const fetchWordIfNeeded: AsyncThunk<
     WordInfo,
     IWordContextArgs,
     { state: RootState }
-> = createAsyncThunk(
+> = createApiCallThunk(
+    WordClient,
     'fetchWordContext',
     (
+        client,
         {
             baseForm,
             pagingInfo,
@@ -30,10 +32,9 @@ export const fetchWordIfNeeded: AsyncThunk<
             includeEpisode,
             includeTime
         },
-        { getState }
+        analyzer
     ) => {
-        const state = getState();
-        return new WordClient(selectBaseUrl(state)).index(
+        return client.index(
             // This is checked for null by the `condition` below
             baseForm!,
             onlyPartsOfSpeech,
@@ -41,7 +42,7 @@ export const fetchWordIfNeeded: AsyncThunk<
             includeTime,
             pagingInfo?.max ?? 0,
             pagingInfo?.skip,
-            selectAnalyzer(state)
+            analyzer
         );
     },
     {
@@ -51,7 +52,9 @@ export const fetchWordIfNeeded: AsyncThunk<
                 return false;
             }
 
-            const { wordContexts } = getState();
+            // TODO: Figure out how to pass type through createApiCallThunk
+            // and remove this cast.
+            const { wordContexts } = getState() as RootState;
             const context = wordContexts.byId[baseForm];
             if (context) {
                 const alreadyFetchedCount = context.occurrences.length;
