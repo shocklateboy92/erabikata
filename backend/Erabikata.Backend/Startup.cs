@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using MongoDB.Driver;
 
 namespace Erabikata.Backend
 {
@@ -28,6 +29,10 @@ namespace Erabikata.Backend
             );
             services.Configure<VideoInputSettings>(Configuration.GetSection("VideoInput"));
 
+            services.AddSingleton(
+                _ => new MongoClient(Configuration.GetSection("Db:ConnectionString").Get<string>())
+                    .GetDatabase("erabikata")
+            );
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
             services.AddSingleton<EpisodeInfoManager>();
