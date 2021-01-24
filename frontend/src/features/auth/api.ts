@@ -67,7 +67,13 @@ export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
     }
 );
 
-export const createApiCallThunk = <
+export type ApiCallThunk<ReturnedType, ArgumentType> = AsyncThunk<
+    ReturnedType,
+    ArgumentType,
+    { state: RootState }
+>;
+
+export function createApiCallThunk<
     ClientType,
     ReturnType = unknown,
     ArgumentType = void
@@ -78,14 +84,15 @@ export const createApiCallThunk = <
         client: ClientType,
         args: ArgumentType
     ) => Promise<ReturnType>
-) =>
-    createAsyncThunk<ReturnType, ArgumentType, { state: RootState }>(
+) {
+    return createAsyncThunk<ReturnType, ArgumentType, { state: RootState }>(
         name,
         (arg, thunk) => {
             const baseUrl = selectBaseUrl(thunk.getState());
             return payloadCreator(new constructor(baseUrl), arg);
         }
     );
+}
 
 const AuthContext = React.createContext<IAuthContext>({});
 export const useAuth = () => useContext(AuthContext);
