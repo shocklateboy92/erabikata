@@ -1,6 +1,5 @@
 import {
     AsyncThunk,
-    createAsyncThunk,
     createEntityAdapter,
     createSlice,
     EntityState
@@ -11,7 +10,7 @@ import {
     EngSubsClient,
     EngSubsResponse
 } from 'backend.generated';
-import { selectBaseUrl } from 'features/backendSelection';
+import { createApiCallThunk } from 'features/auth/api';
 import { selectNearbyValues } from 'features/dialog/slice';
 
 interface IEnglishEpisode {
@@ -29,9 +28,9 @@ export const fetchEnglishDialog: AsyncThunk<
     EngSubsResponse,
     [episodeId: string, time: number],
     { state: RootState }
-> = createAsyncThunk('englishDialog', (args, { getState }) =>
+> = createApiCallThunk(EngSubsClient, 'englishDialog', (client, args) =>
     // We fetch unconditionally because there may be missing gaps in dialog
-    new EngSubsClient(selectBaseUrl(getState)).index(...args)
+    client.index(...args)
 );
 
 const slice = createSlice({
