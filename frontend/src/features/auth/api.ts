@@ -1,78 +1,29 @@
 import { PublicClientApplication } from '@azure/msal-browser';
-import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { Analyzer, IApiClientConfig } from 'backend.generated';
 import { selectAnalyzer, selectBaseUrl } from 'features/backendSelection';
-import React, { useContext } from 'react';
-
-interface IAuthContext {
-    userManager?: PublicClientApplication;
-}
-
-type AuthAsyncThunk<ReturnType> = AsyncThunk<
-    ReturnType,
-    IAuthContext,
-    { state: RootState }
->;
-
-const createContext = () => {
-    return new PublicClientApplication({
-        auth: {
-            clientId: 'cb9157f3-50fe-47bf-af0b-77c976a2a698',
-            redirectUri: window.location.origin + '/settings',
-            authority: 'https://login.microsoftonline.com/consumers'
-        }
-    });
-};
+import { notification } from 'features/notifications';
+import { authenticationError, selectIsUserSignedIn } from './slice';
 
 const scopes = ['api://cb9157f3-50fe-47bf-af0b-77c976a2a698/Data.Store'];
-
-export const signIn: AuthAsyncThunk<void> = createAsyncThunk(
-    'signIn',
-    async (context) => {
-        context.userManager = context.userManager ?? createContext();
-
-        console.log('startgin');
-        const token = await context.userManager.loginRedirect({
-            scopes
-        });
-        console.log('finishe');
-        console.log(token);
+const userManager = new PublicClientApplication({
+    auth: {
+        clientId: 'cb9157f3-50fe-47bf-af0b-77c976a2a698',
+        redirectUri: window.location.origin + '/settings',
+        authority: 'https://login.microsoftonline.com/consumers'
     }
-);
+});
 
-export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
-    'checkSignInResult',
-    async (context, thunk) => {
-        context.userManager = context.userManager ?? createContext();
-        const allAccounts = context.userManager.getAllAccounts();
-        console.log(allAccounts);
-        // thunk.
-        const account = await context.userManager.handleRedirectPromise();
-        console.log(account);
-        const tokens = await context.userManager.acquireTokenSilent({
-            scopes,
-            account: account?.account ?? allAccounts[0]
-        });
-        console.log(tokens);
-        const headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + tokens.accessToken);
-        fetch('http://localhost:5000/api/debug', {
-            method: 'GET',
-            headers
-        });
-        fetch('https://graph.microsoft.com/v1.0/users/me', {
-            method: 'GET',
-            headers
-        });
-    }
-);
+userManager.handleRedirectPromise();
 
-export type ApiCallThunk<ReturnedType, ArgumentType> = AsyncThunk<
-    ReturnedType,
-    ArgumentType,
-    { state: RootState }
->;
+export const signIn = createAsyncThunk('signIn', () => {
+    userManager.loginRedirect({
+        scopes
+    });
+});
+
+export const getIsUserSignedIn = () => userManager.getAllAccounts().length > 0;
 
 export function createApiCallThunk<
     ClientType,
@@ -92,15 +43,36 @@ export function createApiCallThunk<
         condition: (
             arg: ArgumentType,
             thunk: { getState: () => RootState }
-        ) => boolean | undefined;
+        ) => boolean;
     }
 ) {
     return createAsyncThunk<ReturnType, ArgumentType, { state: RootState }>(
         name,
-        (arg, thunk) => {
+        async (arg, thunk) => {
             const state = thunk.getState();
+            const config: IApiClientConfig = {};
+            if (selectIsUserSignedIn(state)) {
+                try {
+                    config.authToken = (
+                        await userManager.acquireTokenSilent({
+                            scopes,
+                            account: userManager.getAllAccounts()[0]
+                        })
+                    ).accessToken;
+                } catch (exception) {
+                    console.log(exception);
+                    thunk.dispatch(authenticationError());
+                    thunk.dispatch(
+                        notification({
+                            title: 'Sign in again',
+                            text:
+                                'Something went wrong trying to access a protected resource. Signing in again might fix the problem.'
+                        })
+                    );
+                }
+            }
             return payloadCreator(
-                new constructor({}, selectBaseUrl(state)),
+                new constructor(config, selectBaseUrl(state)),
                 arg,
                 selectAnalyzer(state)
             );
@@ -108,6 +80,3 @@ export function createApiCallThunk<
         options
     );
 }
-
-const AuthContext = React.createContext<IAuthContext>({});
-export const useAuth = () => useContext(AuthContext);
