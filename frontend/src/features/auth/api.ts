@@ -1,6 +1,7 @@
 import { PublicClientApplication } from '@azure/msal-browser';
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import { selectBaseUrl } from 'features/backendSelection';
 import React, { useContext } from 'react';
 
 interface IAuthContext {
@@ -41,10 +42,11 @@ export const signIn: AuthAsyncThunk<void> = createAsyncThunk(
 
 export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
     'checkSignInResult',
-    async (context) => {
+    async (context, thunk) => {
         context.userManager = context.userManager ?? createContext();
         const allAccounts = context.userManager.getAllAccounts();
         console.log(allAccounts);
+        // thunk.
         const account = await context.userManager.handleRedirectPromise();
         console.log(account);
         const tokens = await context.userManager.acquireTokenSilent({
@@ -64,6 +66,26 @@ export const checkSignIn: AuthAsyncThunk<void> = createAsyncThunk(
         });
     }
 );
+
+export const createApiCallThunk = <
+    ClientType,
+    ReturnType = unknown,
+    ArgumentType = void
+>(
+    constructor: { new (baseUrl: string): ClientType },
+    name: string,
+    payloadCreator: (
+        client: ClientType,
+        args: ArgumentType
+    ) => Promise<ReturnType>
+) =>
+    createAsyncThunk<ReturnType, ArgumentType, { state: RootState }>(
+        name,
+        (arg, thunk) => {
+            const baseUrl = selectBaseUrl(thunk.getState());
+            return payloadCreator(new constructor(baseUrl), arg);
+        }
+    );
 
 const AuthContext = React.createContext<IAuthContext>({});
 export const useAuth = () => useContext(AuthContext);
