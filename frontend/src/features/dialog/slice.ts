@@ -1,11 +1,8 @@
-import { AsyncThunk, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { DialogInfo, NowPlayingInfo, SubsClient } from 'backend.generated';
-import {
-    analyzerChangeRequest,
-    selectAnalyzer,
-    selectBaseUrl
-} from 'features/backendSelection';
+import { createApiCallThunk } from 'features/auth/api';
+import { analyzerChangeRequest } from 'features/backendSelection';
 import { fetchWordIfNeeded } from 'features/wordContext';
 
 interface IDialogState {
@@ -29,19 +26,10 @@ export const fetchDialogById: AsyncThunk<
     NowPlayingInfo,
     IDialogId & { count?: number },
     { state: RootState }
-> = createAsyncThunk(
+> = createApiCallThunk(
+    SubsClient,
     'dialog/byEpisode',
-    ({ episode, time, count }, { getState }) => {
-        const state = getState();
-        // Making this request unconditionally, because we don't know if there are
-        // other dialog between the ones we have in the cache.
-        return new SubsClient(selectBaseUrl(state)).index(
-            episode,
-            time,
-            count ?? 3,
-            selectAnalyzer(state)
-        );
-    }
+    (client, { episode, time, count }) => client.index(episode, time, count)
 );
 
 const initialState: IDialogState = {
