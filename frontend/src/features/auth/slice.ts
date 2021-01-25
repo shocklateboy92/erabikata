@@ -5,7 +5,6 @@ import { getIsUserSignedIn } from './api';
 
 interface IAuthState {
     isSignedIn: boolean;
-    todoistToken?: string;
 }
 
 const initialState: IAuthState = {
