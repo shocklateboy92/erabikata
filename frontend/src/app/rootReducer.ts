@@ -9,6 +9,7 @@ import { notificationReducer } from 'features/notifications';
 import { wordRanksReducer } from 'features/rankedWords/slice';
 import { selectedWordReducer } from 'features/selectedWord/slice';
 import { spinnerTopReducer } from 'features/spinnerTop';
+import { todoistReducer } from 'features/todoist/slice';
 import { wakeLockReducer } from 'features/wakeLock';
 import { wordDefinitionReducer } from 'features/wordDefinition';
 import { wordContextsReducer } from '../features/wordContext';
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     wordRanks: wordRanksReducer,
     engDialog: engDialogReducer,
     backend: backendReducer,
+    todoist: todoistReducer,
     wakeLock: wakeLockReducer,
     auth: authReducer,
     notifications: notificationReducer,
