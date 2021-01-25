@@ -60,12 +60,11 @@ export function createApiCallThunk<
             const config: IApiClientConfig = {};
             if (selectIsUserSignedIn(state)) {
                 try {
-                    config.authToken = (
-                        await userManager.acquireTokenSilent({
-                            scopes,
-                            account: userManager.getAllAccounts()[0]
-                        })
-                    ).accessToken;
+                    const token = await userManager.acquireTokenSilent({
+                        scopes,
+                        account: userManager.getAllAccounts()[0]
+                    });
+                    config.authToken = `${token.tokenType} ${token.accessToken}`;
                 } catch (exception) {
                     console.log(exception);
                     thunk.dispatch(authenticationError());
