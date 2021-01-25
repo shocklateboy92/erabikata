@@ -22,6 +22,7 @@
     "react-redux": "^7.2.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.0",
+    "todoist-rest-api": "^1.3.4",
     "unofficial-jisho-api": "^2.0.12",
     "workbox-background-sync": "^5.1.3",
     "workbox-broadcast-update": "^5.1.3",
