@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json.Serialization;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
@@ -29,9 +30,15 @@ namespace Erabikata.Backend
             );
             services.Configure<VideoInputSettings>(Configuration.GetSection("VideoInput"));
 
+            var connectionString = Configuration.GetSection("Db:ConnectionString").Get<string>();
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Db:ConnectionString not specified. Unable to startup."
+                );
+            }
             services.AddSingleton(
-                _ => new MongoClient(Configuration.GetSection("Db:ConnectionString").Get<string>())
-                    .GetDatabase("erabikata")
+                _ => new MongoClient(connectionString).GetDatabase("erabikata")
             );
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
