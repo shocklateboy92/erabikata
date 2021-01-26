@@ -1,10 +1,10 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import axios from 'axios';
 import { UserClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
+import { TodoistTask } from 'todoist-rest-api';
 import { selectIsTodoistInitialized } from './selectors';
-import todoist, { TodoistTask } from 'todoist-rest-api';
-import { notification } from 'features/notifications';
 
 export const initializeTodoist: AsyncThunk<
     string,
@@ -23,25 +23,19 @@ export const fetchCandidateTasks: AsyncThunk<
     { state: RootState }
 > = createAsyncThunk(
     'fetchTasks',
-    async (_, { getState, dispatch }) => {
-        // from the condition, we know this is not null
-        const api = todoist(getState().todoist.authToken!);
-        const labels = await api.v1.label.findAll({});
-
-        const label_id = labels.find((l) => l.name === 'erabikata_root_task')
-            ?.id;
-        if (!label_id) {
-            dispatch(
-                notification({
-                    title: 'Something went wrong with todoist',
-                    text:
-                        "We couldn't find a label with the name `erabikata_root_task`."
-                })
-            );
-            return [];
-        }
-
-        return await api.v1.task.findAll({ label_id });
+    async (_, { getState }) => {
+        const response = await axios.get<TodoistTask[]>(
+            'https://api.todoist.com/rest/v1/tasks',
+            {
+                params: {
+                    filter: '@erabikata_root_task'
+                },
+                headers: {
+                    Authorization: `Bearer ${getState().todoist.authToken}`
+                }
+            }
+        );
+        return response.data;
     },
     { condition: (_, { getState }) => selectIsTodoistInitialized(getState()) }
 );

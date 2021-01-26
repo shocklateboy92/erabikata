@@ -1,15 +1,16 @@
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { selectNowPlayingEpisodeId } from 'features/hass';
-import React from 'react';
-import { FC, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { fetchCandidateTasks } from './api';
+import React, { FC, useEffect } from 'react';
+import { fetchCandidateTasks, initializeTodoist } from './api';
 import { selectIsTodoistInitialized } from './selectors';
 
 export const TodoistContainer: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     useEffect(() => {
-        dispatch(fetchCandidateTasks());
+        dispatch(initializeTodoist()).then(() =>
+            dispatch(fetchCandidateTasks())
+        );
     }, [dispatch]);
 
     const isInitialized = useTypedSelector(selectIsTodoistInitialized);
