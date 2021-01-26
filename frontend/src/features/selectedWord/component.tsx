@@ -8,6 +8,7 @@ import { DialogList } from 'features/dialog/dialogList';
 import { EngDialogList } from 'features/engDialog/engDialogList';
 import { HassPlayButton } from 'features/hass';
 import { ImageContext } from 'features/imageContext/component';
+import { TodoistDrawer } from 'features/todoist/drawer';
 import { WordContext } from 'features/wordContext';
 import { WordOccurrences } from 'features/wordContext/occurrences';
 import { WordDefinition } from 'features/wordDefinition';
@@ -154,6 +155,8 @@ export const SelectedWord: FC<{}> = () => {
                 >
                     <WordOccurrences word={selectedWord.wordBaseForm} />
                 </Drawer>
+                <Separator />
+                <TodoistDrawer />
                 <Separator />
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { fetchCandidateTasks, initializeTodoist } from './api';
 
 interface ITodoistState {
@@ -7,17 +7,21 @@ interface ITodoistState {
         id: number;
         content: string;
     }[];
-    selectedTask: number;
+    userSelectedTaskId?: number;
 }
 const initialState: ITodoistState = {
-    candidateTasks: [],
-    selectedTask: -1
+    candidateTasks: []
 };
 
 const slice = createSlice({
     name: 'todoist',
     initialState,
-    reducers: {},
+    reducers: {
+        userTaskSelection: (state, { payload }: PayloadAction<number>) => ({
+            ...state,
+            userSelectedTask: payload
+        })
+    },
     extraReducers: (builder) =>
         builder
             .addCase(initializeTodoist.fulfilled, (state, { payload }) => ({
@@ -29,8 +33,7 @@ const slice = createSlice({
                 candidateTasks: payload.map(({ id, content }) => ({
                     id,
                     content
-                })),
-                selectedTask: payload.findIndex()
+                }))
             }))
 });
 
