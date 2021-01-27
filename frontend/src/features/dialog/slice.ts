@@ -29,7 +29,8 @@ export const fetchDialogById: AsyncThunk<
 > = createApiCallThunk(
     SubsClient,
     'dialog/byEpisode',
-    (client, { episode, time, count }) => client.index(episode, time, count)
+    (client, { episode, time, count }, analyzer) =>
+        client.index(episode, time, count, analyzer)
 );
 
 const initialState: IDialogState = {
