@@ -71,6 +71,7 @@ namespace Erabikata.Backend
 
             var mongoDatabase = new MongoClient(connectionString).GetDatabase("erabikata");
             AddCollection<ActivityExecution>(services, mongoDatabase);
+            AddCollection<WordState>(services, mongoDatabase);
             AddCollection<UserInfo>(services, mongoDatabase);
         }
 
