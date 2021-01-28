@@ -20,6 +20,7 @@ namespace Erabikata.Backend.Models.Actions
                 options =>
                 {
                     var builder = JsonSubtypesConverterBuilder
+                        // Not using `nameOf()` here because camelCase
                         .Of<Activity>("activityType")
                         .SerializeDiscriminatorProperty(true);
                     foreach (var activityType in KnownActivityTypes)
