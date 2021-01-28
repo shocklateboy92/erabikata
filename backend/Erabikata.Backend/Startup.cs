@@ -53,11 +53,11 @@ namespace Erabikata.Backend
 
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
-            services.AddControllers().AddErabikataJsonSettings();
+            services.AddControllers().AddNewtonsoftJson();
 
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
-            services.AddOpenApiDocument();
+            services.AddOpenApiDocument(settings => { settings.GenerateKnownTypes = true; });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -76,7 +76,7 @@ namespace Erabikata.Backend
             app.UseAuthorization();
 
             app.UseOpenApi();
-            app.UseSwaggerUi3();
+            app.UseReDoc();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 

@@ -5,7 +5,7 @@ namespace Erabikata.Backend.Models.Actions
     [DataContract]
     public class UnlearnWord : Activity
     {
-        public UnlearnWord(string activityType, string baseForm) : base(activityType)
+        public UnlearnWord(string baseForm)
         {
             BaseForm = baseForm;
         }
