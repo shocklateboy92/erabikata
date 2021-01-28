@@ -12,20 +12,19 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class ActionsController : ControllerBase
     {
-        private readonly IMongoDatabase _mongoDatabase;
+        private readonly IMongoCollection<ActivityExecution> _mongo;
 
-        public ActionsController(IMongoDatabase mongoDatabase)
+        public ActionsController(IMongoCollection<ActivityExecution> mongo)
         {
-            _mongoDatabase = mongoDatabase;
+            _mongo = mongo;
         }
 
         [HttpPost]
         [Route("execute")]
         public async Task<ActionResult> Execute([FromBody] Activity activity)
         {
-            var collection = _mongoDatabase.GetCollection<ActivityExecution>(nameof(ActivityExecution));
             var execution = new ActivityExecution(ObjectId.Empty, activity);
-            await collection.InsertOneAsync(execution);
+            await _mongo.InsertOneAsync(execution);
             return Ok(execution.Id);
         }
 
@@ -33,10 +32,8 @@ namespace Erabikata.Backend.Controllers
         [Route("list")]
         public async Task<List<ActivityExecution>> List()
         {
-            var collection = _mongoDatabase.GetCollection<ActivityExecution>(nameof(ActivityExecution));
-            var cursor = await collection.FindAsync(FilterDefinition<ActivityExecution>.Empty);
-            var list =  await cursor.ToListAsync();
-            return list;
+            using var cursor = await _mongo.FindAsync(FilterDefinition<ActivityExecution>.Empty);
+            return await cursor.ToListAsync();
         }
     }
 }

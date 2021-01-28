@@ -1,7 +1,9 @@
 using System;
+using Erabikata.Backend.Controllers;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Actions;
+using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,15 +32,8 @@ namespace Erabikata.Backend
             );
             services.Configure<VideoInputSettings>(Configuration.GetSection("VideoInput"));
 
-            var connectionString = Configuration.GetSection("Db:ConnectionString").Get<string>();
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new InvalidOperationException(
-                    "Db:ConnectionString not specified. Unable to startup."
-                );
-            }
+            ConfigureDatabase(services);
 
-            services.AddSingleton(_ => new MongoClient(connectionString).GetDatabase("erabikata"));
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
             services.AddSingleton<EpisodeInfoManager>();
@@ -58,6 +53,28 @@ namespace Erabikata.Backend
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
             services.AddOpenApiDocument(settings => { settings.GenerateKnownTypes = true; });
+        }
+
+        private void ConfigureDatabase(IServiceCollection services)
+        {
+            var connectionString = Configuration.GetSection("Db:ConnectionString").Get<string>();
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new InvalidOperationException(
+                    "Db:ConnectionString not specified. Unable to startup."
+                );
+            }
+
+            var mongoDatabase = new MongoClient(connectionString).GetDatabase("erabikata");
+            AddCollection<ActivityExecution>(services, mongoDatabase);
+            AddCollection<UserInfo>(services, mongoDatabase);
+        }
+
+        private static void AddCollection<TDataType>(
+            IServiceCollection services,
+            IMongoDatabase mongoDatabase)
+        {
+            services.AddSingleton(mongoDatabase.GetCollection<TDataType>(typeof(TDataType).Name));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
