@@ -1,9 +1,24 @@
 import { useTypedSelector } from 'app/hooks';
 import { useAppDispatch } from 'app/store';
-import { selectNowPlayingEpisodeId } from 'features/hass';
+import { selectNowPlayingMedia } from 'features/hass';
 import React, { FC, useEffect } from 'react';
 import { fetchCandidateTasks, initializeTodoist } from './api';
 import { selectIsTodoistInitialized } from './selectors';
+
+const TaskCreator: FC = () => {
+    const media = useTypedSelector(selectNowPlayingMedia);
+    if (!media) {
+        return <div>今、何も再生されていません </div>;
+    }
+
+    return (
+        <div>
+            Create new task for currently playing episode?
+            <br />
+            Do words for '{media.title}'
+        </div>
+    );
+};
 
 export const TodoistContainer: FC = () => {
     const dispatch = useAppDispatch();
@@ -22,10 +37,10 @@ export const TodoistContainer: FC = () => {
             );
         }
 
-        const nowPlaying = selectNowPlayingEpisodeId(state);
+        const nowPlaying = selectNowPlayingMedia(state);
         if (nowPlaying) {
             return todoist.candidateTasks.find((t) =>
-                t.content.includes('episode=' + nowPlaying)
+                t.content.includes('episode=' + nowPlaying.id)
             );
         }
     });
@@ -35,7 +50,7 @@ export const TodoistContainer: FC = () => {
     }
 
     if (!task) {
-        return <div>タスクを選んでね！</div>;
+        return <TaskCreator />;
     }
 
     return <div>{task.content}</div>;

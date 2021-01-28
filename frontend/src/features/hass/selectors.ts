@@ -11,8 +11,8 @@ export const selectSelectedPlayer = (
     state: RootState
 ): IPlayerInfo | undefined => state.hass.players[state.hass.selectedPlayer!];
 
-export const selectNowPlayingEpisodeId = (state: RootState) =>
-    selectSelectedPlayer(state)?.media?.id;
+export const selectNowPlayingMedia = (state: RootState) =>
+    selectSelectedPlayer(state)?.media;
 
 export const selectIsCurrentPlayerActive = (state: RootState) =>
     state.hass.selectedPlayer &&
