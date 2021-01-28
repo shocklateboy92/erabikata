@@ -2,7 +2,9 @@ using System;
 using System.Text.Json.Serialization;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
+using Erabikata.Backend.Models.Actions;
 using Erabikata.Models.Configuration;
+using JsonSubTypes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
+using Action = Erabikata.Backend.Models.Actions.Action;
 
 namespace Erabikata.Backend
 {
@@ -37,9 +40,8 @@ namespace Erabikata.Backend
                     "Db:ConnectionString not specified. Unable to startup."
                 );
             }
-            services.AddSingleton(
-                _ => new MongoClient(connectionString).GetDatabase("erabikata")
-            );
+
+            services.AddSingleton(_ => new MongoClient(connectionString).GetDatabase("erabikata"));
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
             services.AddSingleton<EpisodeInfoManager>();
@@ -54,14 +56,7 @@ namespace Erabikata.Backend
 
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
-            services.AddControllers()
-                .AddJsonOptions(
-                    options =>
-                    {
-                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                        options.JsonSerializerOptions.IgnoreNullValues = true;
-                    }
-                );
+            services.AddControllers().AddNewtonsoftJson();
 
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
