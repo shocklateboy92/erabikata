@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Erabikata.Backend.DataProviders;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Managers;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
@@ -14,12 +14,12 @@ namespace Erabikata.Backend.Controllers
     public class WordsController : ControllerBase
     {
         private readonly WordCountsManager _wordCountsManager;
-        private readonly KnownWordsProvider _knownWordsProvider;
+        private readonly WordStateManager _knownWordsProvider;
         private readonly SubtitleDatabaseManager _database;
 
         public WordsController(
             WordCountsManager wordCountsManager,
-            KnownWordsProvider knownWordsProvider,
+            WordStateManager knownWordsProvider,
             SubtitleDatabaseManager database)
         {
             _wordCountsManager = wordCountsManager;
@@ -40,7 +40,7 @@ namespace Erabikata.Backend.Controllers
             IReadOnlyCollection<string>? knownWords = null;
             if (excludeKnownWords)
             {
-                knownWords = await _knownWordsProvider.GetKnownWords();
+                knownWords = await _knownWordsProvider.SelectAllKnownWordsMap();
             }
 
 

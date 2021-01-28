@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
 using Erabikata.Models.Input;
@@ -17,19 +16,16 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly SubtitleDatabaseManager _database;
         private readonly EpisodeInfoManager _episodeInfoManager;
-        private readonly KnownWordsProvider _knownWordsProvider;
 
         private readonly WordCountsManager _wordCountsManager;
 
         public MetadataController(
             SubtitleDatabaseManager database,
             WordCountsManager wordCountsManager,
-            KnownWordsProvider knownWordsProvider,
             EpisodeInfoManager episodeInfoManager)
         {
             _database = database;
             _wordCountsManager = wordCountsManager;
-            _knownWordsProvider = knownWordsProvider;
             _episodeInfoManager = episodeInfoManager;
         }
 
@@ -96,13 +92,6 @@ namespace Erabikata.Backend.Controllers
                         .Take(max)
                 }
             );
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IActionResult> KnownWords()
-        {
-            return Ok(await _knownWordsProvider.GetKnownWords());
         }
 
         [HttpGet]
