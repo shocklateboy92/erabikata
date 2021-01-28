@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 
 namespace Erabikata.Backend
 {
@@ -47,7 +48,13 @@ namespace Erabikata.Backend
 
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers()
+                .AddNewtonsoftJson(
+                    options =>
+                    {
+                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                    }
+                );
 
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
