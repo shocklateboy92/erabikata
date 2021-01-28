@@ -1,18 +1,23 @@
+using System.Runtime.Serialization;
 using JsonSubTypes;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 
 namespace Erabikata.Backend.Models.Actions
 {
-    [JsonConverter(typeof(JsonSubtypes), "ActionType")]
+    [JsonConverter(typeof(JsonSubtypes), nameof(ActivityType))]
     [JsonSubtypes.KnownSubTypeAttribute(typeof(LearnWord), nameof(LearnWord))]
     [JsonSubtypes.KnownSubTypeAttribute(typeof(UnlearnWord), nameof(UnlearnWord))]
-    public class Action
+    [BsonDiscriminator(nameof(ActivityType))]
+    [BsonKnownTypes(typeof(LearnWord), typeof(UnlearnWord))]
+    public class Activity
     {
-        public Action(string actionType)
+        protected Activity(string activityType)
         {
-            ActionType = actionType;
+            ActivityType = activityType;
         }
 
-        public string ActionType { get; }
+        [DataMember]
+        public string ActivityType { get; set; }
     }
 }

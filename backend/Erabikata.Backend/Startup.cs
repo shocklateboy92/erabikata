@@ -12,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
-using Action = Erabikata.Backend.Models.Actions.Action;
 
 namespace Erabikata.Backend
 {
