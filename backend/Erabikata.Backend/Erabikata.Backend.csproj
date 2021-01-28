@@ -14,7 +14,6 @@
     <PackageReference Include="MongoDB.Driver" Version="2.11.6" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NSwag.AspNetCore" Version="13.5.0" />
-    <PackageReference Include="Octokit" Version="0.47.0" />
     <PackageReference Include="SubtitlesParser" Version="1.4.8" />
     <PackageReference Include="Xabe.FFmpeg" Version="4.4.0" />
   </ItemGroup>

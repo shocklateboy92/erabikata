@@ -1,7 +1,6 @@
 using System;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Controllers;
-using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
@@ -39,8 +38,6 @@ namespace Erabikata.Backend
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
             services.AddSingleton<EpisodeInfoManager>();
-
-            services.AddHttpClient<KnownWordsProvider>();
 
             services.AddCors(
                 options => options.AddDefaultPolicy(

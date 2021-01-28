@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
-using Octokit;
 
 namespace Erabikata.Backend.Controllers
 {

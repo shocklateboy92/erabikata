@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
-using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
