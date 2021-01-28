@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
@@ -20,7 +22,7 @@ namespace Erabikata.Backend.CollectionManagers
             {
                 case LearnWord toLearn:
                     await _collection.ReplaceOneAsync(
-                        state => state.BaseForm == toLearn.BaseForm,
+                        word => word.BaseForm == toLearn.BaseForm,
                         new WordState(toLearn.BaseForm) {IsKnown = true},
                         new ReplaceOptions {IsUpsert = true}
                     );
@@ -33,6 +35,12 @@ namespace Erabikata.Backend.CollectionManagers
                     );
                     break;
             }
+        }
+
+        public async Task<IReadOnlyCollection<string>> SelectAllKnownWordsMap()
+        {
+            var knownWords = await _collection.Find(word => word.IsKnown).ToListAsync();
+            return knownWords.Select(state => state.BaseForm).ToHashSet();
         }
     }
 }

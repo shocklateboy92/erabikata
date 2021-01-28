@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
 using Erabikata.Models.Configuration;
@@ -19,14 +20,14 @@ namespace Erabikata.Backend.Controllers
         private readonly SubtitleDatabaseManager _database;
         private readonly EpisodeInfoManager _episodeInfoManager;
         private readonly WordCountsManager _wordCounts;
-        private readonly KnownWordsProvider _knownWordsProvider;
+        private readonly WordStateManager _knownWordsProvider;
         private readonly SubtitleProcessingSettings _processingSettings;
 
         public WordController(
             SubtitleDatabaseManager database,
             WordCountsManager wordCounts,
             EpisodeInfoManager episodeInfoManager,
-            KnownWordsProvider knownWordsProvider,
+            WordStateManager knownWordsProvider,
             IOptions<SubtitleProcessingSettings> processingSettings)
         {
             _database = database;
@@ -122,7 +123,7 @@ namespace Erabikata.Backend.Controllers
             if (includeEpisode != null && includeTime != null)
             {
                 var ranksMap = _wordCounts.WordRanksMap[analyzer];
-                var knownWords = await _knownWordsProvider.GetKnownWords();
+                var knownWords = await _knownWordsProvider.SelectAllKnownWordsMap();
 
                 occurrences = occurrences.OrderByDescending(
                     occurence =>

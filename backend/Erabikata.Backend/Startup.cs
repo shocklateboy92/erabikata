@@ -3,7 +3,6 @@ using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Controllers;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
-using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
 using Microsoft.AspNetCore.Builder;
@@ -35,8 +34,7 @@ namespace Erabikata.Backend
 
             ConfigureDatabase(services);
 
-            services.AddSingleton<ICollectionManager, WordStateManager>();
-            services.AddSingleton<ICollectionManager, DummyCollectionManager>();
+            services.AddCollectionManagers();
 
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
