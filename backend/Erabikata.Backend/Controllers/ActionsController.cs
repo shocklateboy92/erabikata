@@ -25,6 +25,7 @@ namespace Erabikata.Backend.Controllers
         {
             var execution = new ActivityExecution(ObjectId.Empty, activity);
             await _mongo.InsertOneAsync(execution);
+
             return Ok(execution.Id);
         }
 
