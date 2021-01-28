@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Microsoft.AspNetCore.Mvc;
@@ -13,10 +15,14 @@ namespace Erabikata.Backend.Controllers
     public class ActionsController : ControllerBase
     {
         private readonly IMongoCollection<ActivityExecution> _mongo;
+        private readonly IReadOnlyCollection<ICollectionManager> _collectionManagers;
 
-        public ActionsController(IMongoCollection<ActivityExecution> mongo)
+        public ActionsController(
+            IMongoCollection<ActivityExecution> mongo,
+            IEnumerable<ICollectionManager> collectionManagers)
         {
             _mongo = mongo;
+            _collectionManagers = collectionManagers.ToList();
         }
 
         [HttpPost]
@@ -25,6 +31,10 @@ namespace Erabikata.Backend.Controllers
         {
             var execution = new ActivityExecution(ObjectId.Empty, activity);
             await _mongo.InsertOneAsync(execution);
+            foreach (var manager in _collectionManagers)
+            {
+                await manager.OnActivityExecuting(activity);
+            }
 
             return Ok(execution.Id);
         }

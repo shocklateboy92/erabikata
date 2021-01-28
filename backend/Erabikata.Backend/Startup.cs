@@ -1,4 +1,5 @@
 using System;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Controllers;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
@@ -33,6 +34,9 @@ namespace Erabikata.Backend
             services.Configure<VideoInputSettings>(Configuration.GetSection("VideoInput"));
 
             ConfigureDatabase(services);
+
+            services.AddSingleton<ICollectionManager, WordStateManager>();
+            services.AddSingleton<ICollectionManager, DummyCollectionManager>();
 
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
