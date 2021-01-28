@@ -20,7 +20,7 @@ namespace Erabikata.Backend.Models.Actions
                 options =>
                 {
                     var builder = JsonSubtypesConverterBuilder
-                        .Of<Activity>(nameof(Activity.ActivityType))
+                        .Of<Activity>("activityType")
                         .SerializeDiscriminatorProperty(true);
                     foreach (var activityType in KnownActivityTypes)
                     {

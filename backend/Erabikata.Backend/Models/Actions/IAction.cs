@@ -1,5 +1,4 @@
 using System.Runtime.Serialization;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Erabikata.Backend.Models.Actions
 {
