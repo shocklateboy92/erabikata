@@ -1,10 +1,8 @@
 using System;
-using System.Text.Json.Serialization;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Models.Configuration;
-using JsonSubTypes;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -55,7 +53,7 @@ namespace Erabikata.Backend
 
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddControllers().AddErabikataJsonSettings();
 
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
