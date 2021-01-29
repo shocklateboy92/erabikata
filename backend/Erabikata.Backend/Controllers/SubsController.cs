@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Managers;
+using Erabikata.Backend.Models.Database;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
@@ -18,12 +21,15 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly SubtitleDatabaseManager _database;
         private readonly SubtitleProcessingSettings _processingSettings;
+        private readonly DialogCollectionManager _dialogCollection;
 
         public SubsController(
             SubtitleDatabaseManager database,
-            IOptions<SubtitleProcessingSettings> processingSettings)
+            IOptions<SubtitleProcessingSettings> processingSettings,
+            DialogCollectionManager dialogCollection)
         {
             _database = database;
+            _dialogCollection = dialogCollection;
             _processingSettings = processingSettings.Value;
         }
 
@@ -68,6 +74,13 @@ namespace Erabikata.Backend.Controllers
             }
 
             return new NowPlayingInfo(episode, time, GetClosestSubs(time, count, ep));
+        }
+
+        [HttpPut]
+        public async Task<IEnumerable<Dialog>> Insert([FromBody] ICollection<Dialog> dialogs)
+        {
+            await _dialogCollection.InsertMany(dialogs);
+            return dialogs;
         }
 
         private static IEnumerable<DialogInfo> GetClosestSubs(double time, int count, Episode? ep)
