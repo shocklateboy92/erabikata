@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using NJsonSchema.Generation;
 
 namespace Erabikata.Backend
 {
@@ -58,7 +59,13 @@ namespace Erabikata.Backend
 
             services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
 
-            services.AddOpenApiDocument(settings => { settings.GenerateKnownTypes = true; });
+            services.AddOpenApiDocument(
+                settings =>
+                {
+                    settings.GenerateKnownTypes = true;
+                    settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
+                }
+            );
         }
 
         private void ConfigureDatabase(IServiceCollection services)
