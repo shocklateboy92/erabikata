@@ -67,7 +67,8 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public object Search(string query, Analyzer analyzer = Analyzer.SudachiC)
         {
-            var matches = _database.AllEpisodesV2.Values.SelectMany(
+            var matches = _database.AllEpisodesV2.Values
+                .SelectMany(
                     v2 => v2.AnalyzedSentences[analyzer]
                         .SelectMany(sentenceV2 => sentenceV2.Analyzed)
                         .SelectMany(
@@ -79,8 +80,10 @@ namespace Erabikata.Backend.Controllers
                     group => new
                     {
                         baseForm = group.Key,
-                        link = $"{Request.Scheme}://{Request.Host}/word/{group.Key}",
-                        dictionaryForms = group.Select(analyzed => analyzed.Dictionary).Distinct(),
+                        link =
+                            $"{Request.Scheme}://{Request.Host}/word/{group.Key}?word={group.Key}",
+                        dictionaryForms =
+                            group.Select(analyzed => analyzed.Dictionary).Distinct(),
                     }
                 );
 
