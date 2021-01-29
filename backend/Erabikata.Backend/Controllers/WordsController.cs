@@ -67,24 +67,22 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public object Search(string query, Analyzer analyzer = Analyzer.SudachiC)
         {
-            var matches = new Dictionary<string, ICollection<string>>();
-            foreach (var episodeV2 in _database.AllEpisodesV2.Values)
-            foreach (var sentenceV2 in episodeV2.AnalyzedSentences[analyzer])
-            foreach (var line in sentenceV2.Analyzed)
-            foreach (var word in line)
-            {
-                if (word.Dictionary.Contains(query))
-                {
-                    if (matches.ContainsKey(word.Base))
+            var matches = _database.AllEpisodesV2.Values.SelectMany(
+                    v2 => v2.AnalyzedSentences[analyzer]
+                        .SelectMany(sentenceV2 => sentenceV2.Analyzed)
+                        .SelectMany(
+                            line => line.Where(analyzed => analyzed.Dictionary.Contains(query))
+                        )
+                )
+                .GroupBy(analyzed => analyzed.Base)
+                .Select(
+                    group => new
                     {
-                        matches[word.Base].Add(word.Dictionary);
+                        baseForm = group.Key,
+                        link = $"{Request.Scheme}://{Request.Host}/word/{group.Key}",
+                        dictionaryForms = group.Select(analyzed => analyzed.Dictionary).Distinct(),
                     }
-                    else
-                    {
-                        matches.Add(word.Base, new HashSet<string> {word.Dictionary});
-                    }
-                }
-            }
+                );
 
             return new {matches};
         }
