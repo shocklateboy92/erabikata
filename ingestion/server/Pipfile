@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 sudachipy = "*"
 sudachidict-full = "*"
+grpcio-tools = "*"
 
 [dev-packages]
 black = "*"
@@ -15,3 +16,6 @@ python_version = "3.9"
 
 [pipenv]
 allow_prereleases = true
+
+[scripts]
+generate = "python -m grpc_tools.protoc -I../../protos --python_out=./generated --grpc_python_out=./generated ../../protos/analyzer.proto"
