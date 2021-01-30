@@ -17,9 +17,10 @@ message AnalyzedResponse {
   repeated Word words = 1;
 
   message Word {
-    string BaseForm = 1;
-    string DictionaryForm = 2;
-    string Reading = 3;
+    string baseForm = 1;
+    string dictionaryForm = 2;
+    string reading = 3;
+    string original = 4;
   }
 }
 
