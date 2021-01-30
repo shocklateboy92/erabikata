@@ -23,6 +23,6 @@ message AnalyzedResponse {
   }
 }
 
-service Analyzer {
+service AnalyzerService {
   rpc AnalyzeText(AnalyzeRequest) returns (AnalyzedResponse) {}
 }
