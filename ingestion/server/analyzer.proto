@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package erabikata;
+
+enum AnalyzerMode {
+  SudachiA = 0;
+  SudachiB = 1;
+  SudachiC = 2;
+}
+
+message AnalyzeRequest {
+  string text = 1;
+  AnalyzerMode mode = 2;
+}
+
+message AnalyzedResponse {
+  repeated Word words = 1;
+
+  message Word {
+    string BaseForm = 1;
+    string DictionaryForm = 2;
+    string Reading = 3;
+  }
+}
+
+service Analyzer {
+  rpc AnalyzeText(AnalyzeRequest) returns (AnalyzedResponse) {}
+}
