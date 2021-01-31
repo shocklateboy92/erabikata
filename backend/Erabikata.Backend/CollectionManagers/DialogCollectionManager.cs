@@ -9,6 +9,7 @@ using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input;
 using Erabikata.Models.Input.V2;
 using Grpc.Core;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 
@@ -16,7 +17,9 @@ namespace Erabikata.Backend.CollectionManagers
 {
     public class DialogCollectionManager : ICollectionManager
     {
-        private readonly IMongoCollection<Dialog> _mongoCollection;
+        private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>>
+            _mongoCollections;
+
         private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
         private readonly SeedDataProvider _seedDataProvider;
 
@@ -27,7 +30,12 @@ namespace Erabikata.Backend.CollectionManagers
         {
             _analyzerServiceClient = analyzerServiceClient;
             _seedDataProvider = seedDataProvider;
-            _mongoCollection = database.GetCollection<Dialog>(nameof(Dialog));
+            _mongoCollections =
+                new[] {AnalyzerMode.SudachiA, AnalyzerMode.SudachiB, AnalyzerMode.SudachiC}
+                    .ToDictionary(
+                        mode => mode,
+                        mode => database.GetCollection<Dialog>(nameof(Dialog) + mode)
+                    );
         }
 
         public async Task OnActivityExecuting(Activity activity)
@@ -35,67 +43,86 @@ namespace Erabikata.Backend.CollectionManagers
             switch (activity)
             {
                 case BeginIngestion:
-                    await _mongoCollection.DeleteManyAsync(FilterDefinition<Dialog>.Empty);
+                    await Task.WhenAll(
+                        _mongoCollections.Values.Select(
+                            collection => collection.DeleteManyAsync(FilterDefinition<Dialog>.Empty)
+                        )
+                    );
                     var showFiles = _seedDataProvider.GetShowMetadataFiles();
-                    var showTasks = showFiles.Select(
-                        async metadataFilePath =>
-                        {
-                            var metadata = JsonConvert.DeserializeObject<ShowInfo>(
-                                await File.ReadAllTextAsync(metadataFilePath)
-                            );
-                            var episodeTasks = metadata.Episodes.Select(
-                                async (episode, index) =>
-                                {
-                                    var inputSentences =
-                                        JsonConvert.DeserializeObject<InputSentence[]>(
-                                            await File.ReadAllTextAsync(
-                                                SeedDataProvider.GetDataPath(
-                                                    "input",
-                                                    metadataFilePath,
-                                                    index
-                                                )
-                                            )
-                                        );
-
-                                    foreach (var sentence in inputSentences)
+                    await Task.WhenAll(
+                        _mongoCollections.SelectMany(
+                            pair =>
+                            {
+                                var (mode, mongoCollection) = pair;
+                                return showFiles.Select(
+                                    async metadataFilePath =>
                                     {
-                                        var analyzedLines = new List<Dialog.Word[]>();
-                                        foreach (var line in sentence.Text)
-                                        {
-                                            var analyzedResponse =await _analyzerServiceClient.AnalyzeTextAsync(
-                                                new AnalyzeRequest
+                                        var metadata = JsonConvert.DeserializeObject<ShowInfo>(
+                                            await File.ReadAllTextAsync(metadataFilePath)
+                                        );
+                                        var episodeTasks = metadata.Episodes.Select(
+                                            async (episode, index) =>
+                                            {
+                                                var inputSentences =
+                                                    JsonConvert.DeserializeObject<InputSentence[]>(
+                                                        await File.ReadAllTextAsync(
+                                                            SeedDataProvider.GetDataPath(
+                                                                "input",
+                                                                metadataFilePath,
+                                                                index
+                                                            )
+                                                        )
+                                                    );
+
+                                                foreach (var sentence in inputSentences)
                                                 {
-                                                    Text = line, Mode = AnalyzerMode.SudachiC
+                                                    var analyzedLines =
+                                                        new List<IReadOnlyList<Dialog.Word>>();
+                                                    foreach (var line in sentence.Text)
+                                                    {
+                                                        var analyzedResponse =
+                                                            await _analyzerServiceClient
+                                                                .AnalyzeTextAsync(
+                                                                    new AnalyzeRequest
+                                                                    {
+                                                                        Text = line, Mode = mode
+                                                                    }
+                                                                );
+
+                                                        analyzedLines.Add(
+                                                            analyzedResponse.Words.Select(
+                                                                    word => new Dialog.Word(
+                                                                        word.BaseForm,
+                                                                        word.DictionaryForm
+                                                                    ) {Reading = word.Reading}
+                                                                )
+                                                                .ToList()
+                                                        );
+                                                    }
+
+                                                    var dialog = new Dialog(
+                                                        ObjectId.Empty,
+                                                        episode[index].Key.Split('/').Last(),
+                                                        sentence.Time
+                                                    ) {Time = sentence.Time, Lines = analyzedLines};
+                                                    await mongoCollection.InsertOneAsync(dialog);
                                                 }
-                                            );
-                                            var words = analyzedResponse.Words.ToList();
-                                            var analyzedLine = new List<Dialog.Word>();
-                                            foreach(var word in words){
-                                                Dialog.Word dialogWord = new Dialog.Word(word.BaseForm, word.DictionaryForm);
-                                                dialogWord.Reading = word.Reading;
-                                                analyzedLine.Add(dialogWord);
                                             }
-                                            analyzedLines.Add(analyzedLine.ToArray());
-                                        }
-                                        //todo change timestamp to dialog index
-                                        var episodeId = int.Parse(episode[index].Key.Split('/').Last());
-                                        var dialog = new Dialog((episodeId.ToString(), sentence.Time)){Lines = analyzedLines.ToArray()};
-                                        await _mongoCollection.InsertOneAsync(dialog);
+                                        );
+                                        await Task.WhenAll(episodeTasks);
                                     }
-                                }
-                            );
-                            await Task.WhenAll(episodeTasks);
-                        }
-                    ); 
-                    await Task.WhenAll(showTasks);
-                    Console.WriteLine("done"); //todo remove
+                                );
+                            }
+                        )
+                    );
                     break;
             }
         }
 
         public Task InsertMany(IEnumerable<Dialog> dialogs)
         {
-            return _mongoCollection.InsertManyAsync(dialogs);
+            // return _mongoCollections.InsertManyAsync(dialogs);
+            return Task.CompletedTask;
         }
     }
 }
