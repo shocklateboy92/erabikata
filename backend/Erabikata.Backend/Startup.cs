@@ -4,6 +4,7 @@ using Erabikata.Backend.Controllers;
 using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
+using Erabikata.Backend.DataProviders;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,8 @@ namespace Erabikata.Backend
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
             services.AddSingleton<EpisodeInfoManager>();
+
+            services.AddSingleton<SeedDataProvider>();
 
             services.AddCors(
                 options => options.AddDefaultPolicy(

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Erabikata.Models.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Erabikata.Backend.DataProviders
 {
@@ -10,9 +11,9 @@ namespace Erabikata.Backend.DataProviders
     {
         private readonly SubtitleProcessingSettings _settings;
 
-        public SeedDataProvider(SubtitleProcessingSettings settings)
+        public SeedDataProvider(IOptions<SubtitleProcessingSettings> settings)
         {
-            _settings = settings;
+            _settings = settings.Value;
         }
 
         public ICollection<string> GetShowMetadataFiles()

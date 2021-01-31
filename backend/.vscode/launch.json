@@ -9,7 +9,7 @@
         "type": "coreclr",
         "request": "launch",
         "preLaunchTask": "build",
-        "program": "${workspaceFolder}/Erabikata.Backend/bin/Debug/netcoreapp3.1/Erabikata.Backend.dll",
+        "program": "${workspaceFolder}/Erabikata.Backend/bin/Debug/net5.0/Erabikata.Backend.dll",
         "args": [],
         "cwd": "${workspaceFolder}/Erabikata.Backend",
         "stopAtEntry": false,

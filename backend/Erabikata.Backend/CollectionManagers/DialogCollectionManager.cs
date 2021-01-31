@@ -77,17 +77,18 @@ namespace Erabikata.Backend.CollectionManagers
                                             }
                                             analyzedLines.Add(analyzedLine.ToArray());
                                         }
+                                        //todo change timestamp to dialog index
                                         var episodeId = int.Parse(episode[index].Key.Split('/').Last());
                                         var dialog = new Dialog((episodeId.ToString(), sentence.Time)){Lines = analyzedLines.ToArray()};
+                                        await _mongoCollection.InsertOneAsync(dialog);
                                     }
                                 }
                             );
+                            await Task.WhenAll(episodeTasks);
                         }
-                    );
-                    var resposne = await _analyzerServiceClient.AnalyzeTextAsync(
-                        new AnalyzeRequest {Mode = AnalyzerMode.SudachiC, Text = "本当のテクストではありません"}
                     ); 
-                    Console.WriteLine(JsonConvert.SerializeObject(resposne, Formatting.Indented));
+                    await Task.WhenAll(showTasks);
+                    Console.WriteLine("done"); //todo remove
                     break;
             }
         }
