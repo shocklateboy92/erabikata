@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,12 +6,10 @@ using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
-using Erabikata.Models.Input;
 using Erabikata.Models.Input.V2;
-using Grpc.Core;
+using Grpc.Core.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Erabikata.Backend.CollectionManagers
@@ -51,98 +48,94 @@ namespace Erabikata.Backend.CollectionManagers
                         )
                     );
                     var showFiles = _seedDataProvider.GetShowMetadataFiles();
-                    await Task.WhenAll(
-                        _mongoCollections.SelectMany(
-                            pair =>
+                    var tasks = await Task.WhenAll(
+                        showFiles.Select(
+                            async metadataFilePath =>
                             {
-                                var (mode, mongoCollection) = pair;
-                                return showFiles.AsParallel()
-                                    .Select(
-                                        async metadataFilePath =>
-                                        {
-                                            await using var file = File.OpenRead(metadataFilePath);
-                                            var metadata =
-                                                await JsonSerializer.DeserializeAsync<ShowInfo>(
-                                                    file,
-                                                    new JsonSerializerOptions
-                                                    {
-                                                        PropertyNamingPolicy =
-                                                            JsonNamingPolicy.CamelCase
-                                                    }
-                                                );
-                                            for (var index = 0;
-                                                index < metadata!.Episodes.Count;
-                                                index++)
-                                            {
-                                                await IngestEpisode(
-                                                    metadataFilePath,
-                                                    index,
-                                                    mode,
-                                                    metadata.Episodes[index],
-                                                    mongoCollection
-                                                );
-                                            }
-                                        }
-                                    );
+                                var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
+                                return metadata.Episodes.Select(
+                                    (_, index) => new
+                                    {
+                                        path = SeedDataProvider.GetDataPath(
+                                            "input",
+                                            metadataFilePath,
+                                            index
+                                        ),
+                                        id = metadata.Key.Split('/').Last(),
+                                    }
+                                );
                             }
                         )
                     );
+                    foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
+                    {
+                        var jobs = tasks.SelectMany(a => a)
+                            .Select(
+                                async job =>
+                                {
+                                    var input = await DeserializeFile<InputSentence[]>(job.path);
+                                    var client = _analyzerServiceClient.AnalyzeDialogBulk();
+#pragma warning disable 4014
+                                    client.RequestStream.WriteAllAsync(
+                                            input.Select(
+                                                sentence =>
+                                                {
+                                                    var request = new AnalyzeDialogRequest
+                                                    {
+                                                        Style = sentence.Style,
+                                                        Time = sentence.Time,
+                                                        Mode = analyzerMode
+                                                    };
+                                                    request.Lines.Add(sentence.Text);
+                                                    return request;
+                                                }
+                                            )
+                                        )
+                                        .ConfigureAwait(false);
+#pragma warning restore 4014
+                                    var responses = await client.ResponseStream.ToListAsync();
+                                    await mongoCollection.InsertManyAsync(
+                                        responses.Select(
+                                            response =>
+                                                new Dialog(ObjectId.Empty, job.id, response.Time)
+                                                {
+                                                    Lines = response.Lines.Select(
+                                                            line => line.Words.Select(
+                                                                    word => new Dialog.Word(
+                                                                        word.BaseForm,
+                                                                        word.DictionaryForm
+                                                                    ) {Reading = word.Reading}
+                                                                )
+                                                                .ToList()
+                                                        )
+                                                        .ToList()
+                                                }
+                                        )
+                                    );
+                                }
+                            );
+                        await Task.WhenAll(jobs);
+                    }
+
+
                     break;
             }
-        }
-
-        private async Task IngestEpisode(
-            string metadataFilePath,
-            int index,
-            AnalyzerMode mode,
-            IReadOnlyList<ShowInfo.EpisodeInfo> episode,
-            IMongoCollection<Dialog> mongoCollection)
-        {
-            await using var fileStream = File.OpenRead(
-                SeedDataProvider.GetDataPath("input", metadataFilePath, index)
-            );
-            var inputSentences = await JsonSerializer.DeserializeAsync<InputSentence[]>(
-                fileStream,
-                new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase}
-            );
-
-            var outputSentences = new List<Dialog>();
-            foreach (var sentence in inputSentences!)
-            {
-                var analyzedLines = new List<IReadOnlyList<Dialog.Word>>();
-                foreach (var line in sentence.Text)
-                {
-                    var analyzedResponse =
-                        await _analyzerServiceClient.AnalyzeTextAsync(
-                            new AnalyzeRequest {Text = line, Mode = mode}
-                        );
-
-                    analyzedLines.Add(
-                        analyzedResponse.Words.Select(
-                                word => new Dialog.Word(word.BaseForm, word.DictionaryForm)
-                                {
-                                    Reading = word.Reading
-                                }
-                            )
-                            .ToList()
-                    );
-                }
-
-                outputSentences.Add(
-                    new Dialog(ObjectId.Empty, episode[index].Key.Split('/').Last(), sentence.Time)
-                    {
-                        Time = sentence.Time, Lines = analyzedLines
-                    }
-                );
-            }
-
-            await mongoCollection.InsertManyAsync(outputSentences);
         }
 
         public Task InsertMany(IEnumerable<Dialog> dialogs)
         {
             // return _mongoCollections.InsertManyAsync(dialogs);
             return Task.CompletedTask;
+        }
+
+        private static async Task<T> DeserializeFile<T>(string path)
+        {
+            await using var file = File.OpenRead(path);
+            var results = await JsonSerializer.DeserializeAsync<T>(
+                file,
+                new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase}
+            );
+            return results!;
         }
     }
 }

@@ -13,19 +13,34 @@ message AnalyzeRequest {
   AnalyzerMode mode = 2;
 }
 
-message AnalyzedResponse {
-  repeated Word words = 1;
+message AnalyzedResponse { repeated AnalyzedWord words = 1; }
 
-  message Word {
-    string baseForm = 1;
-    string dictionaryForm = 2;
-    string reading = 3;
-    string original = 4;
-  }
+message AnalyzedWord {
+  string baseForm = 1;
+  string dictionaryForm = 2;
+  string reading = 3;
+  string original = 4;
+}
+
+message AnalyzeDialogRequest {
+  repeated string lines = 1;
+  AnalyzerMode mode = 2;
+  double time = 3;
+  string style = 4;
+}
+
+message AnalyzeDialogResponse {
+  repeated Line lines = 1;
+  message Line { repeated AnalyzedWord words = 1; }
+  double time = 3;
+  string style = 4;
 }
 
 service AnalyzerService {
   rpc AnalyzeText(AnalyzeRequest) returns (AnalyzedResponse) {}
 
   rpc AnalyzeBulk(stream AnalyzeRequest) returns (stream AnalyzedResponse) {}
+
+  rpc AnalyzeDialogBulk(stream AnalyzeDialogRequest)
+      returns (stream AnalyzeDialogResponse) {}
 }

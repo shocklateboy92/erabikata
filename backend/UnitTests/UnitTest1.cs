@@ -4,6 +4,8 @@ using Erabikata;
 using Erabikata.Backend;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
+using Grpc.Core;
+using Grpc.Core.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -34,6 +36,38 @@ namespace UnitTests
         public async Task Test1()
         {
             await Manager.OnActivityExecuting(new BeginIngestion("a", "b"));
+        }
+
+        [Test]
+        public async Task LocalTest()
+        {
+            var client = new AnalyzerService.AnalyzerServiceClient(
+                new Channel("127.0.0.1:5001", ChannelCredentials.Insecure)
+            );
+            var bulk = client.AnalyzeDialogBulk();
+            await bulk.RequestStream.WriteAllAsync( new[]
+                {
+                    new AnalyzeDialogRequest
+                    {
+                        Lines = {"やっぱりできた子だね", "どうするかな"},
+                        Mode = AnalyzerMode.SudachiC,
+                        Style = "yolo",
+                        Time = 0.3
+                    },
+                    new AnalyzeDialogRequest
+                    {
+                        Lines = { "わざわざ来てくれたって", "何かあんでしょ？"},
+                        Mode = AnalyzerMode.SudachiC,
+                        Style = "yolo",
+                        Time = 4.3
+                    }
+                }
+            );
+
+            await foreach (var response in bulk.ResponseStream.ReadAllAsync())
+            {
+                Console.WriteLine(response.Lines);
+            }
         }
     }
 }
