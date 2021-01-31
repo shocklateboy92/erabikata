@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.14.0"/>
+    <PackageReference Include="Grpc" Version="2.35.0"/>
+    <PackageReference Include="Grpc.Tools" Version="2.35.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.2"/>
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.2"/>
     <PackageReference Include="Microsoft.Identity.Web" Version="1.5.1"/>
@@ -23,6 +29,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Erabikata.Models\Erabikata.Models.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="../../protos/analyzer.proto" Link="Protos/analyzer.proto"/>
   </ItemGroup>
 
   <ItemGroup>
