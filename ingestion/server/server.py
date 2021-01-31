@@ -13,10 +13,6 @@ modeMap = {
     analyzer_pb2.AnalyzerMode.SudachiC: tokenizer.Tokenizer.SplitMode.C,
 }
 
-res = analyzer.tokenize("国家公務員", tokenizer.Tokenizer.SplitMode.A)
-results = [{"surface": a.surface(), "dictionary": a.dictionary_form()} for a in res]
-
-
 class AnalyzerServicer(analyzer_pb2_grpc.AnalyzerServiceServicer):
     def AnalyzeText(self, request, context):
         logging.info(
