@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.DataProviders;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
@@ -18,12 +19,15 @@ namespace Erabikata.Backend.Managers
     {
         private readonly ILogger<SubtitleDatabaseManager> _logger;
         private readonly SubtitleProcessingSettings _settings;
+        private readonly SeedDataProvider _seedDataProvider;
 
         public SubtitleDatabaseManager(
             ILogger<SubtitleDatabaseManager> logger,
-            IOptions<SubtitleProcessingSettings> settings)
+            IOptions<SubtitleProcessingSettings> settings,
+            SeedDataProvider seedDataProvider)
         {
             _logger = logger;
+            _seedDataProvider = seedDataProvider;
             _settings = settings.Value;
         }
 
@@ -71,12 +75,7 @@ namespace Erabikata.Backend.Managers
 
             var allShows = new ConcurrentBag<ShowInfo>();
 
-            var newFiles = Directory.EnumerateFiles(
-                    _settings.Input.RootDirectory,
-                    "show-metadata.json",
-                    SearchOption.AllDirectories
-                )
-                .ToList();
+            var newFiles = _seedDataProvider.GetShowMetadataFiles();
             _logger.LogInformation($"Found {newFiles.Count} shows in new format.");
             var readTasks = newFiles.Select(
                     async metadataFile =>
@@ -93,7 +92,7 @@ namespace Erabikata.Backend.Managers
                                     var inputSentences =
                                         JsonConvert.DeserializeObject<InputSentence[]>(
                                             await File.ReadAllTextAsync(
-                                                GetDataPath("input", metadataFile, index)
+                                                SeedDataProvider.GetDataPath("input", metadataFile, index)
                                             )
                                         );
                                     return new EpisodeV2
@@ -142,7 +141,7 @@ namespace Erabikata.Backend.Managers
                                         EnglishSentences = JsonConvert
                                             .DeserializeObject<InputSentence[]>(
                                                 await File.ReadAllTextAsync(
-                                                    GetDataPath("english", metadataFile, index)
+                                                    SeedDataProvider.GetDataPath("english", metadataFile, index)
                                                 )
                                             )
                                             .Where(sentence => sentence.Text.Any())
@@ -170,10 +169,7 @@ namespace Erabikata.Backend.Managers
             int index,
             string prefix) =>
             JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
-                await File.ReadAllTextAsync(GetDataPath(prefix, metadataFile, index))
+                await File.ReadAllTextAsync(SeedDataProvider.GetDataPath(prefix, metadataFile, index))
             );
-
-        private static string GetDataPath(string dataType, string metadataFile, int index) =>
-            Path.Combine(metadataFile, $"../{dataType}/{index + 1:00}.json");
     }
 }
