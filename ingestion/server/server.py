@@ -31,6 +31,11 @@ class AnalyzerServicer(analyzer_pb2_grpc.AnalyzerServiceServicer):
             ]
         )
 
+    def AnalyzeBulk(self, request_iterator, context):
+        logging.info("Received bulk request")
+        for request in request_iterator:
+            yield self.AnalyzeText(request, context)
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))

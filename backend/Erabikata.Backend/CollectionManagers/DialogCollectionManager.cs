@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
@@ -12,6 +13,7 @@ using Grpc.Core;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Erabikata.Backend.CollectionManagers
 {
@@ -54,69 +56,87 @@ namespace Erabikata.Backend.CollectionManagers
                             pair =>
                             {
                                 var (mode, mongoCollection) = pair;
-                                return showFiles.Select(
-                                    async metadataFilePath =>
-                                    {
-                                        var metadata = JsonConvert.DeserializeObject<ShowInfo>(
-                                            await File.ReadAllTextAsync(metadataFilePath)
-                                        );
-                                        var episodeTasks = metadata.Episodes.Select(
-                                            async (episode, index) =>
-                                            {
-                                                var inputSentences =
-                                                    JsonConvert.DeserializeObject<InputSentence[]>(
-                                                        await File.ReadAllTextAsync(
-                                                            SeedDataProvider.GetDataPath(
-                                                                "input",
-                                                                metadataFilePath,
-                                                                index
-                                                            )
-                                                        )
-                                                    );
-
-                                                foreach (var sentence in inputSentences)
-                                                {
-                                                    var analyzedLines =
-                                                        new List<IReadOnlyList<Dialog.Word>>();
-                                                    foreach (var line in sentence.Text)
+                                return showFiles.AsParallel()
+                                    .Select(
+                                        async metadataFilePath =>
+                                        {
+                                            await using var file = File.OpenRead(metadataFilePath);
+                                            var metadata =
+                                                await JsonSerializer.DeserializeAsync<ShowInfo>(
+                                                    file,
+                                                    new JsonSerializerOptions
                                                     {
-                                                        var analyzedResponse =
-                                                            await _analyzerServiceClient
-                                                                .AnalyzeTextAsync(
-                                                                    new AnalyzeRequest
-                                                                    {
-                                                                        Text = line, Mode = mode
-                                                                    }
-                                                                );
-
-                                                        analyzedLines.Add(
-                                                            analyzedResponse.Words.Select(
-                                                                    word => new Dialog.Word(
-                                                                        word.BaseForm,
-                                                                        word.DictionaryForm
-                                                                    ) {Reading = word.Reading}
-                                                                )
-                                                                .ToList()
-                                                        );
+                                                        PropertyNamingPolicy =
+                                                            JsonNamingPolicy.CamelCase
                                                     }
-
-                                                    var dialog = new Dialog(
-                                                        ObjectId.Empty,
-                                                        episode[index].Key.Split('/').Last(),
-                                                        sentence.Time
-                                                    ) {Time = sentence.Time, Lines = analyzedLines};
-                                                    await mongoCollection.InsertOneAsync(dialog);
-                                                }
+                                                );
+                                            for (var index = 0;
+                                                index < metadata!.Episodes.Count;
+                                                index++)
+                                            {
+                                                await IngestEpisode(
+                                                    metadataFilePath,
+                                                    index,
+                                                    mode,
+                                                    metadata.Episodes[index],
+                                                    mongoCollection
+                                                );
                                             }
-                                        );
-                                        await Task.WhenAll(episodeTasks);
-                                    }
-                                );
+                                        }
+                                    );
                             }
                         )
                     );
                     break;
             }
+        }
+
+        private async Task IngestEpisode(
+            string metadataFilePath,
+            int index,
+            AnalyzerMode mode,
+            IReadOnlyList<ShowInfo.EpisodeInfo> episode,
+            IMongoCollection<Dialog> mongoCollection)
+        {
+            await using var fileStream = File.OpenRead(
+                SeedDataProvider.GetDataPath("input", metadataFilePath, index)
+            );
+            var inputSentences = await JsonSerializer.DeserializeAsync<InputSentence[]>(
+                fileStream,
+                new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase}
+            );
+
+            var outputSentences = new List<Dialog>();
+            foreach (var sentence in inputSentences!)
+            {
+                var analyzedLines = new List<IReadOnlyList<Dialog.Word>>();
+                foreach (var line in sentence.Text)
+                {
+                    var analyzedResponse =
+                        await _analyzerServiceClient.AnalyzeTextAsync(
+                            new AnalyzeRequest {Text = line, Mode = mode}
+                        );
+
+                    analyzedLines.Add(
+                        analyzedResponse.Words.Select(
+                                word => new Dialog.Word(word.BaseForm, word.DictionaryForm)
+                                {
+                                    Reading = word.Reading
+                                }
+                            )
+                            .ToList()
+                    );
+                }
+
+                outputSentences.Add(
+                    new Dialog(ObjectId.Empty, episode[index].Key.Split('/').Last(), sentence.Time)
+                    {
+                        Time = sentence.Time, Lines = analyzedLines
+                    }
+                );
+            }
+
+            await mongoCollection.InsertManyAsync(outputSentences);
         }
 
         public Task InsertMany(IEnumerable<Dialog> dialogs)

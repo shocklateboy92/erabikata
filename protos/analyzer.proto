@@ -26,4 +26,6 @@ message AnalyzedResponse {
 
 service AnalyzerService {
   rpc AnalyzeText(AnalyzeRequest) returns (AnalyzedResponse) {}
+
+  rpc AnalyzeBulk(stream AnalyzeRequest) returns (stream AnalyzedResponse) {}
 }
