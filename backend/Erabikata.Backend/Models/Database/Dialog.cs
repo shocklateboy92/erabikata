@@ -13,7 +13,7 @@ namespace Erabikata.Backend.Models.Database
 
         [BsonId] [DataMember] public (string episode, double time) Id { get; set; }
 
-        public Word[][] Lines { get; } = Array.Empty<Word[]>();
+        public Word[][] Lines { get; init; } = Array.Empty<Word[]>();
 
         [DataContract]
         public record Word

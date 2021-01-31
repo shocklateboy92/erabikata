@@ -59,7 +59,7 @@ namespace Erabikata.Backend.CollectionManagers
 
                                     foreach (var sentence in inputSentences)
                                     {
-                                        var analyzedLines = new List<List<Analyzed>>();
+                                        var analyzedLines = new List<Dialog.Word[]>();
                                         foreach (var line in sentence.Text)
                                         {
                                             var analyzedResponse =await _analyzerServiceClient.AnalyzeTextAsync(
@@ -68,15 +68,25 @@ namespace Erabikata.Backend.CollectionManagers
                                                     Text = line, Mode = AnalyzerMode.SudachiC
                                                 }
                                             );
+                                            var words = analyzedResponse.Words.ToList();
+                                            var analyzedLine = new List<Dialog.Word>();
+                                            foreach(var word in words){
+                                                Dialog.Word dialogWord = new Dialog.Word(word.BaseForm, word.DictionaryForm);
+                                                dialogWord.Reading = word.Reading;
+                                                analyzedLine.Add(dialogWord);
+                                            }
+                                            analyzedLines.Add(analyzedLine.ToArray());
                                         }
+                                        var episodeId = int.Parse(episode[index].Key.Split('/').Last());
+                                        var dialog = new Dialog((episodeId.ToString(), sentence.Time)){Lines = analyzedLines.ToArray()};
                                     }
                                 }
-                            )
+                            );
                         }
                     );
                     var resposne = await _analyzerServiceClient.AnalyzeTextAsync(
                         new AnalyzeRequest {Mode = AnalyzerMode.SudachiC, Text = "本当のテクストではありません"}
-                    );
+                    ); 
                     Console.WriteLine(JsonConvert.SerializeObject(resposne, Formatting.Indented));
                     break;
             }
