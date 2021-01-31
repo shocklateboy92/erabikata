@@ -7,32 +7,33 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.14.0"/>
-    <PackageReference Include="Grpc" Version="2.35.0"/>
+    <PackageReference Include="Google.Protobuf" Version="3.14.0" />
+    <PackageReference Include="Grpc" Version="2.35.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.34.0" />
     <PackageReference Include="Grpc.Tools" Version="2.35.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.2"/>
-    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.2"/>
-    <PackageReference Include="Microsoft.Identity.Web" Version="1.5.1"/>
-    <PackageReference Include="MongoDB.Driver" Version="2.11.6"/>
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3"/>
-    <PackageReference Include="NSwag.AspNetCore" Version="13.5.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Identity.Web" Version="1.5.1" />
+    <PackageReference Include="MongoDB.Driver" Version="2.11.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="NSwag.AspNetCore" Version="13.5.0" />
     <PackageReference Include="NSwag.MSBuild" Version="13.10.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SubtitlesParser" Version="1.4.8"/>
-    <PackageReference Include="Xabe.FFmpeg" Version="4.4.0"/>
+    <PackageReference Include="SubtitlesParser" Version="1.4.8" />
+    <PackageReference Include="Xabe.FFmpeg" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Erabikata.Models\Erabikata.Models.csproj"/>
+    <ProjectReference Include="..\Erabikata.Models\Erabikata.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="../../protos/analyzer.proto" Link="Protos/analyzer.proto"/>
+    <Protobuf Include="../../protos/analyzer.proto" Link="Protos/analyzer.proto" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +45,7 @@
   </ItemGroup>
 
   <Target Name="NSwag" AfterTargets="Build">
-    <Exec EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net50) aspnetcore2openapi /assembly:$(TargetDir)$(AssemblyName).dll /output:$(TargetDir)swagger.json"/>
+    <Exec EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net50) aspnetcore2openapi /assembly:$(TargetDir)$(AssemblyName).dll /output:$(TargetDir)swagger.json" />
   </Target>
 
 </Project>

@@ -47,6 +47,15 @@ namespace Erabikata.Backend
                 )
             );
 
+            services.AddGrpcClient<AnalyzerService.AnalyzerServiceClient>(
+                o =>
+                {
+                    o.Address = new Uri(
+                        Configuration.GetSection("ServiceClients:Analyzer:BaseUrl").Value
+                    );
+                }
+            );
+
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
             services.AddControllers()
