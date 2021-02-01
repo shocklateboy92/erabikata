@@ -1,9 +1,9 @@
 {
-  "runtime": "NetCore31",
+  "runtime": "Net50",
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
-      "url": "$(host)/swagger/v1/swagger.json",
+      "url": "../backend/Erabikata.Backend/obj/swagger.json",
       "output": null,
     }
   },

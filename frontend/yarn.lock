@@ -7978,10 +7978,10 @@ npm-run-path@^4.0.0:
     gauge "~2.7.3"
     set-blocking "~2.0.0"
 
-nswag@^13.9.2:
-  version "13.9.2"
-  resolved "https://registry.yarnpkg.com/nswag/-/nswag-13.9.2.tgz#f56e3ff03c92b51c1d64b5eaa2c0d88af682fe8a"
-  integrity sha512-SjXbijSyqx+gT+2/9T6bjmWxHb0a0UdiZmGETo/h8IdjVxHmm8OnhPN7w/0TRzitBzw876WtQdzKD8sCccibWg==
+nswag@^13.10.1:
+  version "13.10.1"
+  resolved "https://registry.yarnpkg.com/nswag/-/nswag-13.10.1.tgz#d9b371d2c107e2c987b254cfaddcff17fe6ada86"
+  integrity sha512-T/RYfHgQR+lABhbpF2ko5ax7vcvXt7H17Kd1ux4w8JtEiVSo9KwgRKhIsTvhHxKsBXEKYLww6t/s67MVjJOSJQ==
 
 nth-check@^1.0.2, nth-check@~1.0.1:
   version "1.0.2"
