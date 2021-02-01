@@ -27,6 +27,7 @@ class AnalyzerServicer(analyzer_pb2_grpc.AnalyzerServiceServicer):
                     dictionaryForm=word.dictionary_form(),
                     reading=word.reading_form(),
                     original=word.surface(),
+                    partOfSpeech=word.part_of_speech(),
                 )
                 for word in results
             ]

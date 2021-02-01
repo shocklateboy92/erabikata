@@ -34,46 +34,46 @@ namespace Erabikata.Backend.Controllers
         }
 
         [HttpGet]
-        public ActionResult<NowPlayingInfo> Index(
+        public async Task<ActionResult<NowPlayingInfo>> Index(
             [FromQuery] [BindRequired] string episode,
+            [FromQuery] Analyzer analyzer,
             [FromQuery] double time = 0.0,
-            [FromQuery] int count = 3,
-            [FromQuery] Analyzer analyzer = Analyzer.Kuromoji)
+            [FromQuery] int count = 3)
         {
             if (int.TryParse(episode, out var episodeId) &&
                 _database.AllEpisodesV2.ContainsKey(episodeId))
             {
                 var episodeV2 = _database.AllEpisodesV2[episodeId];
-                var startIndex = Math.Max(
-                    0,
-                    Array.FindIndex(
-                        episodeV2.FilteredInputSentences.ToArray(),
-                        sentence => sentence.Time >= time
-                    ) - count
+                var dialog = await _dialogCollection.GetNearestDialog(
+                    episodeId,
+                    time,
+                    count * 2,
+                    analyzer.ToAnalyzerMode()
                 );
 
                 return new NowPlayingInfo(
                     episodeId.ToString(),
                     time,
-                    episodeV2.FilteredInputSentences.Skip(startIndex)
-                        .Take(count * 2)
-                        .Select(
-                            sentence => new DialogInfo(
-                                sentence,
-                                episodeV2.AnalyzedSentences[analyzer][sentence.Index],
-                                _processingSettings.IgnoredPartsOfSpeech
-                            )
+                    dialog.Select(
+                        d => new DialogInfo(
+                            d.Time,
+                            d.Lines.Select(
+                                    list => list.Select(
+                                            word => new DialogInfo.WordRef(
+                                                word.OriginalForm,
+                                                word.BaseForm,
+                                                word.Reading
+                                            )
+                                        )
+                                        .ToArray()
+                                )
+                                .ToArray()
                         )
+                    )
                 ) {EpisodeTitle = $"{episodeV2.Parent.Title} Episode {episodeV2.Number}"};
             }
 
-            var ep = _database.AllEpisodes.FirstOrDefault(e => e.Title == episode);
-            if (ep == null)
-            {
-                return NotFound();
-            }
-
-            return new NowPlayingInfo(episode, time, GetClosestSubs(time, count, ep));
+            return BadRequest();
         }
 
         [HttpPut]

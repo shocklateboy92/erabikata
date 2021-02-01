@@ -6,9 +6,6 @@ namespace Erabikata.Models.Input.V2
 #nullable enable
     public class EpisodeV2
     {
-        public IReadOnlyList<InputSentence> InputSentences { get; set; } =
-            new List<InputSentence>();
-
         public IReadOnlyList<InputSentence> EnglishSentences { get; set; } =
             new List<InputSentence>();
 
@@ -23,8 +20,8 @@ namespace Erabikata.Models.Input.V2
 
         public int Number { get; set; }
 
-        public IReadOnlyDictionary<Analyzer, AnalyzedSentenceV2[]> AnalyzedSentences { get; set; } =
-            new Dictionary<Analyzer, AnalyzedSentenceV2[]>();
+        public IReadOnlyDictionary<Analyzer, IReadOnlyList<AnalyzedSentenceV2>> AnalyzedSentences { get; set; } =
+            new Dictionary<Analyzer, IReadOnlyList<AnalyzedSentenceV2>>();
     }
 
     public class InputSentence

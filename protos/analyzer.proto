@@ -20,6 +20,8 @@ message AnalyzedWord {
   string dictionaryForm = 2;
   string reading = 3;
   string original = 4;
+
+  repeated string partOfSpeech = 5;
 }
 
 message AnalyzeDialogRequest {

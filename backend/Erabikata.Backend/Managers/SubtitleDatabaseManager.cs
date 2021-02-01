@@ -1,10 +1,13 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.DataProviders;
+using Erabikata.Backend.Models.Database;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
@@ -18,15 +21,18 @@ namespace Erabikata.Backend.Managers
     public class SubtitleDatabaseManager
     {
         private readonly ILogger<SubtitleDatabaseManager> _logger;
+        private readonly DialogCollectionManager _dialogCollectionManager;
         private readonly SubtitleProcessingSettings _settings;
         private readonly SeedDataProvider _seedDataProvider;
 
         public SubtitleDatabaseManager(
             ILogger<SubtitleDatabaseManager> logger,
             IOptions<SubtitleProcessingSettings> settings,
+            DialogCollectionManager dialogCollectionManager,
             SeedDataProvider seedDataProvider)
         {
             _logger = logger;
+            _dialogCollectionManager = dialogCollectionManager;
             _seedDataProvider = seedDataProvider;
             _settings = settings.Value;
         }
@@ -92,43 +98,41 @@ namespace Erabikata.Backend.Managers
                                     var inputSentences =
                                         JsonConvert.DeserializeObject<InputSentence[]>(
                                             await File.ReadAllTextAsync(
-                                                SeedDataProvider.GetDataPath("input", metadataFile, index)
+                                                SeedDataProvider.GetDataPath(
+                                                    "input",
+                                                    metadataFile,
+                                                    index
+                                                )
                                             )
                                         );
+                                    var episodeId = int.Parse(info.Key.Split('/').Last());
                                     return new EpisodeV2
                                     {
-                                        Id = int.Parse(info.Key.Split('/').Last()),
+                                        Id = episodeId,
                                         Parent = metaData,
                                         Number = index + 1,
                                         AnalyzedSentences =
-                                            new Dictionary<Analyzer, AnalyzedSentenceV2[]>
+                                            new Dictionary<Analyzer,
+                                                IReadOnlyList<AnalyzedSentenceV2>>
                                             {
                                                 [Analyzer.Kuromoji] =
-                                                    await DeserializeAnalyzedSentences(
-                                                        metadataFile,
-                                                        index,
-                                                        "kuromoji"
-                                                    ),
+                                                    Array.Empty<AnalyzedSentenceV2>(),
                                                 [Analyzer.SudachiA] =
                                                     await DeserializeAnalyzedSentences(
-                                                        metadataFile,
-                                                        index,
-                                                        "sudachi_a"
+                                                        episodeId,
+                                                        AnalyzerMode.SudachiA
                                                     ),
                                                 [Analyzer.SudachiB] =
                                                     await DeserializeAnalyzedSentences(
-                                                        metadataFile,
-                                                        index,
-                                                        "sudachi_b"
+                                                        episodeId,
+                                                        AnalyzerMode.SudachiB
                                                     ),
                                                 [Analyzer.SudachiC] =
                                                     await DeserializeAnalyzedSentences(
-                                                        metadataFile,
-                                                        index,
-                                                        "sudachi_c"
+                                                        episodeId,
+                                                        AnalyzerMode.SudachiC
                                                     )
                                             },
-                                        InputSentences = inputSentences,
                                         FilteredInputSentences =
                                             inputSentences
                                                 .Select(
@@ -141,7 +145,11 @@ namespace Erabikata.Backend.Managers
                                         EnglishSentences = JsonConvert
                                             .DeserializeObject<InputSentence[]>(
                                                 await File.ReadAllTextAsync(
-                                                    SeedDataProvider.GetDataPath("english", metadataFile, index)
+                                                    SeedDataProvider.GetDataPath(
+                                                        "english",
+                                                        metadataFile,
+                                                        index
+                                                    )
                                                 )
                                             )
                                             .Where(sentence => sentence.Text.Any())
@@ -164,12 +172,26 @@ namespace Erabikata.Backend.Managers
             AllShows = allShows;
         }
 
-        private static async Task<AnalyzedSentenceV2[]> DeserializeAnalyzedSentences(
-            string metadataFile,
-            int index,
-            string prefix) =>
-            JsonConvert.DeserializeObject<AnalyzedSentenceV2[]>(
-                await File.ReadAllTextAsync(SeedDataProvider.GetDataPath(prefix, metadataFile, index))
-            );
+        private async Task<IReadOnlyList<AnalyzedSentenceV2>>
+            DeserializeAnalyzedSentences(int episodeId, AnalyzerMode mode) =>
+            (await _dialogCollectionManager.GetEpisodeDialog(episodeId, mode)).Select(
+                dialog => new AnalyzedSentenceV2(
+                    dialog.Lines.Select(
+                            list => list.Select(
+                                    word => new Analyzed
+                                    {
+                                        Base = word.BaseForm,
+                                        Dictionary = word.DictionaryForm,
+                                        Original = word.OriginalForm,
+                                        Reading = word.Reading,
+                                        PartOfSpeech = word.PartOfSpeech
+                                    }
+                                )
+                                .ToArray()
+                        )
+                        .ToArray()
+                )
+            )
+            .ToList();
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,14 +62,14 @@ namespace Erabikata.Backend.CollectionManagers
                     {
                         var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
                         return metadata.Episodes.Select(
-                            (_, index) => new
+                            (episode, index) => new
                             {
                                 path = SeedDataProvider.GetDataPath(
                                     "input",
                                     metadataFilePath,
                                     index
                                 ),
-                                id = metadata.Key.Split('/').Last(),
+                                id = int.Parse(episode[0].Key.Split('/').Last())
                             }
                         );
                     }
@@ -109,8 +110,14 @@ namespace Erabikata.Backend.CollectionManagers
                                                 line => line.Words.Select(
                                                         word => new Dialog.Word(
                                                             word.BaseForm,
-                                                            word.DictionaryForm
-                                                        ) {Reading = word.Reading}
+                                                            word.DictionaryForm,
+                                                            word.Original,
+                                                            word.Reading
+                                                        )
+                                                        {
+                                                            PartOfSpeech =
+                                                                word.PartOfSpeech.ToArray()
+                                                        }
                                                     )
                                                     .ToList()
                                             )
@@ -130,6 +137,16 @@ namespace Erabikata.Backend.CollectionManagers
             return Task.CompletedTask;
         }
 
+        public async Task<IReadOnlyList<Dialog>> GetEpisodeDialog(
+            int episodeId,
+            AnalyzerMode analyzerMode)
+        {
+            return await _mongoCollections[analyzerMode]
+                .Find(dialog => dialog.EpisodeId == episodeId)
+                .SortBy(dialog => dialog.Time)
+                .ToListAsync();
+        }
+
         private static async Task<T> DeserializeFile<T>(string path)
         {
             await using var file = File.OpenRead(path);
@@ -139,5 +156,18 @@ namespace Erabikata.Backend.CollectionManagers
             );
             return results!;
         }
+
+        public Task<List<Dialog>> GetNearestDialog(
+            int episodeId,
+            double time,
+            int count,
+            AnalyzerMode analyzerMode) =>
+            _mongoCollections[analyzerMode]
+                .Find(
+                    dialog => dialog.EpisodeId == episodeId && dialog.Time > time - 10 &&
+                              dialog.Time < time + 10
+                )
+                .SortBy(dialog => dialog.Time)
+                .ToListAsync();
     }
 }
