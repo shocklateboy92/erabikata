@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +8,7 @@ using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -21,18 +21,21 @@ namespace Erabikata.Backend.Controllers
         private readonly WordCountsManager _wordCounts;
         private readonly WordStateManager _knownWordsProvider;
         private readonly SubtitleProcessingSettings _processingSettings;
+        private readonly DialogCollectionManager _dialogCollectionManager;
 
         public WordController(
             SubtitleDatabaseManager database,
             WordCountsManager wordCounts,
             EpisodeInfoManager episodeInfoManager,
             WordStateManager knownWordsProvider,
-            IOptions<SubtitleProcessingSettings> processingSettings)
+            IOptions<SubtitleProcessingSettings> processingSettings,
+            DialogCollectionManager dialogCollectionManager)
         {
             _database = database;
             _wordCounts = wordCounts;
             _episodeInfoManager = episodeInfoManager;
             _knownWordsProvider = knownWordsProvider;
+            _dialogCollectionManager = dialogCollectionManager;
             _processingSettings = processingSettings.Value;
         }
 
@@ -57,106 +60,45 @@ namespace Erabikata.Backend.Controllers
                 };
             }
 
-            bool IsTargetWord(Analyzed word) =>
-                word.Base == text && (onlyPartsOfSpeech.Count == 0 ||
-                                      word.PartOfSpeech.Any(onlyPartsOfSpeech.Contains));
-
-
-            var occurrences = _database.AllEpisodesV2.Values.SelectMany(
-                episode => episode.FilteredInputSentences
-                    .Where(
-                        sentence => episode.AnalyzedSentences[analyzer][sentence.Index]
-                            .Analyzed.Any(line => line.Any(IsTargetWord))
-                    )
-                    .Select(
-                        sentence => new WordInfo.Occurence
-                        {
-                            EpisodeId = episode.Id.ToString(),
-                            EpisodeName = $"{episode.Parent.Title} Episode {episode.Number}",
-                            Text = new DialogInfo(
-                                sentence,
-                                episode.AnalyzedSentences[analyzer][sentence.Index],
-                                _processingSettings.IgnoredPartsOfSpeech
-                            ),
-                            Time = sentence.Time,
-                            VlcCommand = CreateVlcCommand(episode.FilePath, sentence.Time)
-                        }
-                    )
+            var (matches, count) = await (
+                _dialogCollectionManager.GetMatches(
+                    text,
+                    analyzer.ToAnalyzerMode(),
+                    pagingInfo.Skip,
+                    pagingInfo.Max
+                ), _dialogCollectionManager.CountMatches(text, analyzer.ToAnalyzerMode()));
+            var occurrences = matches.Select(
+                dialog => new WordInfo.Occurence
+                {
+                    EpisodeId = dialog.EpisodeId.ToString(),
+                    EpisodeName = $"tbd",
+                    Text = new DialogInfo(
+                        dialog.Time,
+                        dialog.Lines.Select(
+                                list => list.Words.Select(
+                                        word => new DialogInfo.WordRef(
+                                            word.OriginalForm,
+                                            word.BaseForm,
+                                            word.Reading
+                                        )
+                                    )
+                                    .ToArray()
+                            )
+                            .ToArray()
+                    ),
+                    Time = dialog.Time,
+                }
             );
 
-            if (analyzer == Analyzer.Kuromoji)
-            {
-                occurrences = occurrences.Concat(
-                    _database.AllEpisodes.SelectMany(
-                        episode =>
-                        {
-                            var episodeInfo = _episodeInfoManager.GetEpisodeInfo(episode);
-                            return episode.Dialog.SelectMany(
-                                sentence =>
-                                {
-                                    return sentence.Analyzed.Where(IsTargetWord)
-                                        // Easiest ways to avoid duplicates in sentence
-                                        .Take(1)
-                                        .Select(
-                                            word => new WordInfo.Occurence
-                                            {
-                                                EpisodeName = episodeInfo.Title,
-                                                EpisodeId = episode.Title,
-                                                Time = sentence.StartTime,
-                                                Text = new DialogInfo(sentence),
-                                                VlcCommand = episodeInfo.VideoFile != null
-                                                    ? CreateVlcCommand(
-                                                        episodeInfo.VideoFile,
-                                                        sentence.StartTime
-                                                    )
-                                                    : null,
-                                            }
-                                        );
-                                }
-                            );
-                        }
-                    )
-                );
-            }
-
-            if (includeEpisode != null && includeTime != null)
-            {
-                var ranksMap = _wordCounts.WordRanksMap[analyzer];
-                var knownWords = await _knownWordsProvider.SelectAllKnownWordsMap();
-
-                occurrences = occurrences.OrderByDescending(
-                    occurence =>
-                    {
-                        if (occurence.Time.Equals(includeTime) &&
-                            occurence.EpisodeId == includeEpisode)
-                        {
-                            return int.MaxValue;
-                        }
-
-                        return occurence.Text.Words.Sum(
-                            line => line.Sum(
-                                word => knownWords.Contains(word.BaseForm)
-                                    ? ranksMap.GetValueOrDefault(word.BaseForm, 0)
-                                    : 0
-                            )
-                        );
-                    }
-                );
-            }
-
-            var occurrencesList = occurrences.ToList();
             return new WordInfo
             {
                 Text = text,
                 Rank = rank,
-                TotalOccurrences = occurrencesList.Count,
-                Occurrences = occurrencesList.Skip(pagingInfo.Skip).Take(pagingInfo.Max),
+                TotalOccurrences = count,
+                Occurrences = occurrences,
                 PagingInfo = pagingInfo
             };
         }
-
-        private static string CreateVlcCommand(string path, double time) =>
-            $"vlc '{path}' --start-time={time - 10}";
 
         [HttpGet]
         [Route("{word}/[action]")]

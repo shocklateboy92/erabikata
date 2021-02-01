@@ -177,7 +177,7 @@ namespace Erabikata.Backend.Managers
             (await _dialogCollectionManager.GetEpisodeDialog(episodeId, mode)).Select(
                 dialog => new AnalyzedSentenceV2(
                     dialog.Lines.Select(
-                            list => list.Select(
+                            list => list.Words.Select(
                                     word => new Analyzed
                                     {
                                         Base = word.BaseForm,

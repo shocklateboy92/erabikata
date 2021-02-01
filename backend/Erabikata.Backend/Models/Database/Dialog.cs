@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -22,8 +21,7 @@ namespace Erabikata.Backend.Models.Database
         [DataMember] public double Time { get; set; }
 
         [DataMember]
-        public IReadOnlyList<IReadOnlyList<Word>> Lines { get; init; } =
-            new List<IReadOnlyList<Word>>();
+        public Line[] Lines { get; set; } = Array.Empty<Line>();
 
         [DataContract]
         public record Word
@@ -46,5 +44,7 @@ namespace Erabikata.Backend.Models.Database
 
             [DataMember] public string OriginalForm { get; set; }
         }
+
+        public record Line(Word[] Words);
     }
 }

@@ -13,7 +13,7 @@ namespace Erabikata.Models.Output
         [JsonProperty(Required = Required.Always)] public int Rank { get; set; } = -1;
 
         [JsonProperty(Required = Required.Always)]
-        public int TotalOccurrences { get; set; }
+        public long TotalOccurrences { get; set; }
 
         [JsonProperty(Required = Required.Always)]
         public IEnumerable<Occurence> Occurrences { get; set; } = Enumerable.Empty<Occurence>();

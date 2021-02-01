@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -107,21 +106,23 @@ namespace Erabikata.Backend.CollectionManagers
                                     response => new Dialog(ObjectId.Empty, job.id, response.Time)
                                     {
                                         Lines = response.Lines.Select(
-                                                line => line.Words.Select(
-                                                        word => new Dialog.Word(
-                                                            word.BaseForm,
-                                                            word.DictionaryForm,
-                                                            word.Original,
-                                                            word.Reading
+                                                line => new Dialog.Line(
+                                                    line.Words.Select(
+                                                            word => new Dialog.Word(
+                                                                word.BaseForm,
+                                                                word.DictionaryForm,
+                                                                word.Original,
+                                                                word.Reading
+                                                            )
+                                                            {
+                                                                PartOfSpeech =
+                                                                    word.PartOfSpeech.ToArray()
+                                                            }
                                                         )
-                                                        {
-                                                            PartOfSpeech =
-                                                                word.PartOfSpeech.ToArray()
-                                                        }
-                                                    )
-                                                    .ToList()
+                                                        .ToArray()
+                                                )
                                             )
-                                            .ToList()
+                                            .ToArray()
                                     }
                                 )
                             );
@@ -129,12 +130,6 @@ namespace Erabikata.Backend.CollectionManagers
                     );
                 await Task.WhenAll(jobs);
             }
-        }
-
-        public Task InsertMany(IEnumerable<Dialog> dialogs)
-        {
-            // return _mongoCollections.InsertManyAsync(dialogs);
-            return Task.CompletedTask;
         }
 
         public async Task<IReadOnlyList<Dialog>> GetEpisodeDialog(
@@ -157,6 +152,8 @@ namespace Erabikata.Backend.CollectionManagers
             return results!;
         }
 
+        private const int TimeDelta = 10;
+
         public Task<List<Dialog>> GetNearestDialog(
             int episodeId,
             double time,
@@ -164,10 +161,28 @@ namespace Erabikata.Backend.CollectionManagers
             AnalyzerMode analyzerMode) =>
             _mongoCollections[analyzerMode]
                 .Find(
-                    dialog => dialog.EpisodeId == episodeId && dialog.Time > time - 10 &&
-                              dialog.Time < time + 10
+                    dialog => dialog.EpisodeId == episodeId && dialog.Time > time - TimeDelta &&
+                              dialog.Time < time + TimeDelta
                 )
                 .SortBy(dialog => dialog.Time)
                 .ToListAsync();
+
+        public Task<List<Dialog>> GetMatches(
+            string baseForm,
+            AnalyzerMode analyzerMode,
+            int skip,
+            int take) =>
+            Find(baseForm, analyzerMode).Skip(skip).Limit(take).ToListAsync();
+
+        public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
+            Find(baseForm, mode).CountDocumentsAsync();
+
+        private IFindFluent<Dialog, Dialog> Find(string baseForm, AnalyzerMode analyzerMode) =>
+            _mongoCollections[analyzerMode]
+                .Find(
+                    dialog => dialog.Lines.Any(
+                        line => line.Words.Any(word => word.BaseForm == baseForm)
+                    )
+                );
     }
 }
