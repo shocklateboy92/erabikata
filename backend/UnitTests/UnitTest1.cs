@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Erabikata;
 using Erabikata.Backend;
@@ -9,6 +10,7 @@ using Grpc.Core.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 
@@ -36,6 +38,13 @@ namespace UnitTests
         public async Task Test1()
         {
             await Manager.OnActivityExecuting(new BeginIngestion("a", "b"));
+        }
+
+        [Test]
+        public async Task Test2()
+        {
+            var res = await Manager.GetSortedWordCounts(AnalyzerMode.SudachiC);
+            Console.WriteLine(res.Take(3).ToJson());
         }
 
         [Test]

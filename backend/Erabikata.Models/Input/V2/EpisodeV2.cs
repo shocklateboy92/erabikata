@@ -11,9 +11,6 @@ namespace Erabikata.Models.Input.V2
 
         public string FilePath { get; set; } = string.Empty;
 
-        public IReadOnlyList<FilteredInputSentence> FilteredInputSentences { get; set; } =
-            new List<FilteredInputSentence>();
-
         public int Id { get; set; }
 
         public ShowInfo Parent { get; set; } = null!; // TODO: replace with init property

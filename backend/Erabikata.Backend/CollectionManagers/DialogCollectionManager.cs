@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,6 +11,7 @@ using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input.V2;
 using Grpc.Core.Utils;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
@@ -190,6 +192,30 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
             Find(baseForm, mode).CountDocumentsAsync();
+
+        public async Task<List<WordRank>> GetSortedWordCounts(AnalyzerMode mode)
+        {
+            var results = await _mongoCollections[mode]
+                .AggregateAsync(
+                    (PipelineDefinition<Dialog, WordRank>) new BsonDocument[]
+                    {
+                        new()
+                        {
+                            {
+                                "$project",
+                                new BsonDocument("BaseForm", "$Lines.Words.BaseForm")
+                            }
+                        },
+                        new() {{"$unwind", "$BaseForm"}},
+                        new() {{"$unwind", "$BaseForm"}}, new() {{"$sortByCount", "$BaseForm"}}
+                    }
+                );
+            return await results.ToListAsync();
+        }
+
+        public record WordRank(
+            [property: BsonId] string BaseForm,
+            [property: BsonElement("count")] uint Count);
 
         private IFindFluent<Dialog, Dialog> Find(string baseForm, AnalyzerMode analyzerMode) =>
             _mongoCollections[analyzerMode]

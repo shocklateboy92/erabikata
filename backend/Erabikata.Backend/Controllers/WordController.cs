@@ -36,7 +36,8 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] PagingInfo pagingInfo,
             Analyzer analyzer = Analyzer.Kuromoji)
         {
-            var rank = _wordCounts.WordRanksMap[analyzer].GetValueOrDefault(text, -1);
+            var rank = _wordCounts.WordRanksMap[analyzer.ToAnalyzerMode()]
+                .GetValueOrDefault(text, -1);
             if (rank < 0)
             {
                 return new WordInfo

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
 using Microsoft.Extensions.Options;
@@ -8,32 +10,51 @@ namespace Erabikata.Backend.Managers
 {
     public class WordCountsManager
     {
+        private readonly DialogCollectionManager _dialogCollectionManager;
         private readonly SubtitleDatabaseManager _database;
         private readonly SubtitleProcessingSettings _settings;
 
         public WordCountsManager(
             IOptions<SubtitleProcessingSettings> settings,
+            DialogCollectionManager dialogCollectionManager,
             SubtitleDatabaseManager database)
         {
             _settings = settings.Value;
+            _dialogCollectionManager = dialogCollectionManager;
             _database = database;
+        }
 
-            WordRanks =
-                new[] {Analyzer.Kuromoji, Analyzer.SudachiA, Analyzer.SudachiB, Analyzer.SudachiC}
-                    .ToDictionary(
-                        analyzer => analyzer,
-                        analyzer => BuildWordCountsSorted(analyzer, respectPartOfSpeechFilter: true)
-                    );
+        public async Task Initialize()
+        {
+            var wordRanks = new Dictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>>();
+            foreach (var mode in new[]
+            {
+                AnalyzerMode.SudachiA, AnalyzerMode.SudachiB, AnalyzerMode.SudachiC
+            })
+            {
+                wordRanks.Add(mode, await _dialogCollectionManager.GetSortedWordCounts(mode));
+            }
+
+            WordRanks = wordRanks;
+
             WordRanksMap = WordRanks.ToDictionary(
                 ranks => ranks.Key,
                 ranks => ranks.Value.Select((kv, index) => (kv, index))
-                    .ToDictionary(kvp => kvp.kv.word, kvp => kvp.index)
+                    .ToDictionary(kvp => kvp.kv.BaseForm, kvp => kvp.index)
             );
         }
 
-        public IReadOnlyDictionary<Analyzer, Dictionary<string, int>> WordRanksMap { get; }
+        public IReadOnlyDictionary<AnalyzerMode, Dictionary<string, int>> WordRanksMap
+        {
+            get;
+            private set;
+        } = new Dictionary<AnalyzerMode, Dictionary<string, int>>();
 
-        public IReadOnlyDictionary<Analyzer, (string word, int count)[]> WordRanks { get; }
+        public IReadOnlyDictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>> WordRanks
+        {
+            get;
+            private set;
+        } = new Dictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>>();
 
         public (string word, int count)[] BuildWordCountsSorted(
             Analyzer analyzer,

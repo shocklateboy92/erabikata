@@ -44,19 +44,14 @@ namespace Erabikata.Backend.Controllers
             }
 
 
-            return _wordCountsManager
-                .BuildWordCountsSorted(
-                    analyzer,
-                    respectPartOfSpeechFilter,
-                    onlyPartsOfSpeech,
-                    knownWords
-                )
+            return _wordCountsManager.WordRanks[analyzer.ToAnalyzerMode()]
                 .Select(
                     (wordCount) => new WordInfo
                     {
-                        Text = wordCount.word,
-                        TotalOccurrences = wordCount.count,
-                        Rank = _wordCountsManager.WordRanksMap[analyzer][wordCount.word],
+                        Text = wordCount.BaseForm,
+                        TotalOccurrences = wordCount.Count,
+                        Rank = _wordCountsManager.WordRanksMap[analyzer.ToAnalyzerMode()][
+                            wordCount.BaseForm],
                     }
                 )
                 .Skip(skip)

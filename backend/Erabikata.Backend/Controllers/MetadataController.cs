@@ -31,18 +31,19 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public object Totals()
         {
+            // TODO: Re-implement this
             return new
             {
-                episodes = _database.AllEpisodes.Count,
-                lines = _database.AllEpisodes.Aggregate(
-                    0,
-                    (i, episode) => episode.Dialog.Length + i
-                ),
-                words = _database.AllEpisodes.Aggregate(
-                    0,
-                    (i, ep) => ep.Dialog.Aggregate(0, (d, s) => s.Analyzed.Length + d) + i
-                ),
-                uniqueWords = _wordCountsManager.WordRanks[Analyzer.Kuromoji].Length
+                // episodes = _database.AllEpisodes.Count,
+                // lines = _database.AllEpisodes.Aggregate(
+                //     0,
+                //     (i, episode) => episode.Dialog.Length + i
+                // ),
+                // words = _database.AllEpisodes.Aggregate(
+                //     0,
+                //     (i, ep) => ep.Dialog.Aggregate(0, (d, s) => s.Analyzed.Length + d) + i
+                // ),
+                // uniqueWords = _wordCountsManager.WordRanks[Analyzer.Kuromoji].Length
             };
         }
 
