@@ -14,7 +14,7 @@ const initialState: IBackendSelection = {
         params.get('env') ??
         // Convenience override for frontend-only local dev
         (window.location.origin === 'http://localhost:3000'
-            ? 'https://erabikata2.apps.lasath.org'
+            ? 'https://erabikata3.apps.lasath.org'
             : window.location.origin)
 };
 
