@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -170,9 +171,22 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<List<Dialog>> GetMatches(
             string baseForm,
             AnalyzerMode analyzerMode,
-            int skip,
-            int take) =>
+            int skip = 0,
+            int take = int.MaxValue) =>
             Find(baseForm, analyzerMode).Skip(skip).Limit(take).ToListAsync();
+
+        public Task<List<Dialog>>
+            GetFuzzyMatches(string baseOrDictionaryForm, AnalyzerMode analyzerMode) =>
+            _mongoCollections[analyzerMode]
+                .Find(
+                    dialog => dialog.Lines.Any(
+                        line => line.Words.Any(
+                            word => word.BaseForm.Contains(baseOrDictionaryForm) ||
+                                    word.DictionaryForm.Contains(baseOrDictionaryForm)
+                        )
+                    )
+                )
+                .ToListAsync();
 
         public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
             Find(baseForm, mode).CountDocumentsAsync();

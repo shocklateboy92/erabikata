@@ -15,16 +15,16 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly WordCountsManager _wordCountsManager;
         private readonly WordStateManager _knownWordsProvider;
-        private readonly SubtitleDatabaseManager _database;
+        private readonly DialogCollectionManager _dialogCollectionManager;
 
         public WordsController(
             WordCountsManager wordCountsManager,
             WordStateManager knownWordsProvider,
-            SubtitleDatabaseManager database)
+            DialogCollectionManager dialogCollectionManager)
         {
             _wordCountsManager = wordCountsManager;
             _knownWordsProvider = knownWordsProvider;
-            _database = database;
+            _dialogCollectionManager = dialogCollectionManager;
         }
 
         [HttpGet]
@@ -65,25 +65,26 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public object Search(string query, Analyzer analyzer = Analyzer.SudachiC)
+        public async Task<object> Search(string query, Analyzer analyzer = Analyzer.SudachiC)
         {
-            var matches = _database.AllEpisodesV2.Values
+            var matchingDialog =
+                await _dialogCollectionManager.GetFuzzyMatches(query, analyzer.ToAnalyzerMode());
+            var matches = matchingDialog.SelectMany(sentenceV2 => sentenceV2.Lines)
                 .SelectMany(
-                    v2 => v2.AnalyzedSentences[analyzer]
-                        .SelectMany(sentenceV2 => sentenceV2.Analyzed)
-                        .SelectMany(
-                            line => line.Where(analyzed => analyzed.Dictionary.Contains(query))
-                        )
+                    line => line.Words.Where(
+                        analyzed => analyzed.DictionaryForm.Contains(query) ||
+                                    analyzed.BaseForm.Contains(query)
+                    )
                 )
-                .GroupBy(analyzed => analyzed.Base)
+                .GroupBy(analyzed => analyzed.BaseForm)
                 .Select(
                     group => new
                     {
                         baseForm = group.Key,
                         link =
                             $"{Request.Scheme}://{Request.Host}/word/{group.Key}?word={group.Key}",
-                        dictionaryForms =
-                            group.Select(analyzed => analyzed.Dictionary).Distinct(),
+                        dictionaryForms = group.Select(analyzed => analyzed.DictionaryForm)
+                            .Distinct(),
                     }
                 );
 
