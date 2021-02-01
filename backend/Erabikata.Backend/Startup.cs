@@ -40,7 +40,6 @@ namespace Erabikata.Backend
 
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
-            services.AddSingleton<EpisodeInfoManager>();
 
             services.AddSingleton<SeedDataProvider>();
 

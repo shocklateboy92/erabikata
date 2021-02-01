@@ -16,9 +16,6 @@ namespace Erabikata.Models.Input.V2
         public ShowInfo Parent { get; set; } = null!; // TODO: replace with init property
 
         public int Number { get; set; }
-
-        public IReadOnlyDictionary<Analyzer, IReadOnlyList<AnalyzedSentenceV2>> AnalyzedSentences { get; set; } =
-            new Dictionary<Analyzer, IReadOnlyList<AnalyzedSentenceV2>>();
     }
 
     public class InputSentence
@@ -39,31 +36,5 @@ namespace Erabikata.Models.Input.V2
 
         [JsonProperty("size", NullValueHandling = NullValueHandling.Ignore)]
         public long? Size { get; set; }
-    }
-
-    public class FilteredInputSentence : InputSentence
-    {
-        public FilteredInputSentence(InputSentence sentence, int index) : base(
-            sentence.Text,
-            sentence.Time,
-            sentence.Style,
-            sentence.Size
-        )
-        {
-            Index = index;
-        }
-
-        public int Index { get; }
-    }
-
-    public class AnalyzedSentenceV2
-    {
-        public AnalyzedSentenceV2(Analyzed[][] analyzed)
-        {
-            Analyzed = analyzed;
-        }
-
-        [JsonProperty(Required = Required.Always, PropertyName = "analyzed")]
-        public Analyzed[][] Analyzed { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
@@ -35,7 +36,7 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] int max = 100,
             [FromQuery] int skip = 0,
             [FromQuery] HashSet<string>? onlyPartsOfSpeech = null,
-            Analyzer analyzer = Analyzer.Kuromoji)
+            [Required] Analyzer analyzer = Analyzer.Kuromoji)
         {
             IReadOnlyCollection<string>? knownWords = null;
             if (excludeKnownWords)

@@ -1,8 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using Erabikata.Models.Input;
-using Erabikata.Models.Input.V2;
 using Newtonsoft.Json;
 
 namespace Erabikata.Models.Output
@@ -20,43 +18,6 @@ namespace Erabikata.Models.Output
         {
             StartTime = startTime;
             Words = tokenized;
-        }
-
-        public DialogInfo(
-            InputSentence sentence,
-            AnalyzedSentenceV2 analyzedSentenceV2,
-            ICollection<string> ignoredPartsOfSpeech)
-        {
-            StartTime = sentence.Time;
-            Words = analyzedSentenceV2.Analyzed.Select(
-                    a => a.Select(
-                            f => new WordRef(
-                                f.Original,
-                                f.Base == "*" ? f.Original : f.Base,
-                                f.PartOfSpeech.Any(ignoredPartsOfSpeech.Contains)
-                                    ? string.Empty
-                                    : f.Reading
-                            )
-                        )
-                        .ToArray()
-                )
-                .ToArray();
-        }
-
-        public DialogInfo(Sentence sentence)
-        {
-            this.StartTime = sentence.StartTime;
-            this.Words = new[]
-            {
-                sentence.Analyzed.Select(
-                        word => new WordRef(
-                            displayText: word.Original,
-                            baseForm: word.Base == "*" ? word.Original : word.Base,
-                            reading: word.Reading
-                        )
-                    )
-                    .ToArray()
-            };
         }
 
         public class WordRef
