@@ -30,7 +30,7 @@ namespace UnitTests
             Manager = host.Build().Services.GetRequiredService<DialogCollectionManager>();
         }
 
-        private DialogCollectionManager Manager { get; set; }
+        private DialogCollectionManager Manager { get; set; } = null!;
 
         [Test]
         public async Task Test1()

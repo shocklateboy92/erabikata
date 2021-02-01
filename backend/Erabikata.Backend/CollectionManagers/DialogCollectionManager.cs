@@ -47,78 +47,80 @@ namespace Erabikata.Backend.CollectionManagers
                             collection => collection.DeleteManyAsync(FilterDefinition<Dialog>.Empty)
                         )
                     );
-                    var showFiles = _seedDataProvider.GetShowMetadataFiles();
-                    var tasks = await Task.WhenAll(
-                        showFiles.Select(
-                            async metadataFilePath =>
-                            {
-                                var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
-                                return metadata.Episodes.Select(
-                                    (_, index) => new
-                                    {
-                                        path = SeedDataProvider.GetDataPath(
-                                            "input",
-                                            metadataFilePath,
-                                            index
-                                        ),
-                                        id = metadata.Key.Split('/').Last(),
-                                    }
-                                );
-                            }
-                        )
-                    );
-                    foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
-                    {
-                        var jobs = tasks.SelectMany(a => a)
-                            .Select(
-                                async job =>
-                                {
-                                    var input = await DeserializeFile<InputSentence[]>(job.path);
-                                    var client = _analyzerServiceClient.AnalyzeDialogBulk();
-#pragma warning disable 4014
-                                    client.RequestStream.WriteAllAsync(
-                                            input.Select(
-                                                sentence =>
-                                                {
-                                                    var request = new AnalyzeDialogRequest
-                                                    {
-                                                        Style = sentence.Style,
-                                                        Time = sentence.Time,
-                                                        Mode = analyzerMode
-                                                    };
-                                                    request.Lines.Add(sentence.Text);
-                                                    return request;
-                                                }
-                                            )
-                                        )
-                                        .ConfigureAwait(false);
-#pragma warning restore 4014
-                                    var responses = await client.ResponseStream.ToListAsync();
-                                    await mongoCollection.InsertManyAsync(
-                                        responses.Select(
-                                            response =>
-                                                new Dialog(ObjectId.Empty, job.id, response.Time)
-                                                {
-                                                    Lines = response.Lines.Select(
-                                                            line => line.Words.Select(
-                                                                    word => new Dialog.Word(
-                                                                        word.BaseForm,
-                                                                        word.DictionaryForm
-                                                                    ) {Reading = word.Reading}
-                                                                )
-                                                                .ToList()
-                                                        )
-                                                        .ToList()
-                                                }
-                                        )
-                                    );
-                                }
-                            );
-                        await Task.WhenAll(jobs);
-                    }
-
-
+                    await IngestDialog();
                     break;
+            }
+        }
+
+        private async Task IngestDialog()
+        {
+            var showFiles = _seedDataProvider.GetShowMetadataFiles();
+            var tasks = await Task.WhenAll(
+                showFiles.Select(
+                    async metadataFilePath =>
+                    {
+                        var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
+                        return metadata.Episodes.Select(
+                            (_, index) => new
+                            {
+                                path = SeedDataProvider.GetDataPath(
+                                    "input",
+                                    metadataFilePath,
+                                    index
+                                ),
+                                id = metadata.Key.Split('/').Last(),
+                            }
+                        );
+                    }
+                )
+            );
+            foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
+            {
+                var jobs = tasks.SelectMany(a => a)
+                    .Select(
+                        async job =>
+                        {
+                            var input = await DeserializeFile<InputSentence[]>(job.path);
+                            var client = _analyzerServiceClient.AnalyzeDialogBulk();
+#pragma warning disable 4014
+                            client.RequestStream.WriteAllAsync(
+                                    input.Select(
+                                        sentence =>
+                                        {
+                                            var request = new AnalyzeDialogRequest
+                                            {
+                                                Style = sentence.Style,
+                                                Time = sentence.Time,
+                                                Mode = analyzerMode
+                                            };
+                                            request.Lines.Add(sentence.Text);
+                                            return request;
+                                        }
+                                    )
+                                )
+                                .ConfigureAwait(false);
+#pragma warning restore 4014
+                            var responses = await client.ResponseStream.ToListAsync();
+                            await mongoCollection.InsertManyAsync(
+                                responses.Select(
+                                    response => new Dialog(ObjectId.Empty, job.id, response.Time)
+                                    {
+                                        Lines = response.Lines.Select(
+                                                line => line.Words.Select(
+                                                        word => new Dialog.Word(
+                                                            word.BaseForm,
+                                                            word.DictionaryForm
+                                                        ) {Reading = word.Reading}
+                                                    )
+                                                    .ToList()
+                                            )
+                                            .ToList()
+                                    }
+                                )
+                            );
+                        }
+                    );
+                await Task.WhenAll(jobs);
             }
         }
 
