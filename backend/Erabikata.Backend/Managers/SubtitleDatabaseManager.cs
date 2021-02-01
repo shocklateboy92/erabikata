@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.DataProviders;
-using Erabikata.Backend.Models.Database;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
@@ -91,20 +90,10 @@ namespace Erabikata.Backend.Managers
                         );
                         allShows.Add(metaData);
 
-                        var episodeTasks = metaData.Episodes.First()
+                        var episodeTasks = metaData.Episodes[0]
                             .Select(
                                 async (info, index) =>
                                 {
-                                    var inputSentences =
-                                        JsonConvert.DeserializeObject<InputSentence[]>(
-                                            await File.ReadAllTextAsync(
-                                                SeedDataProvider.GetDataPath(
-                                                    "input",
-                                                    metadataFile,
-                                                    index
-                                                )
-                                            )
-                                        );
                                     var episodeId = int.Parse(info.Key.Split('/').Last());
                                     return new EpisodeV2
                                     {
@@ -133,15 +122,6 @@ namespace Erabikata.Backend.Managers
                                                         AnalyzerMode.SudachiC
                                                     )
                                             },
-                                        FilteredInputSentences =
-                                            inputSentences
-                                                .Select(
-                                                    (sentence, i) =>
-                                                        new FilteredInputSentence(sentence, i)
-                                                )
-                                                .Where(sentence => sentence.Text.Any())
-                                                .OrderBy(sentence => sentence.Time)
-                                                .ToArray(),
                                         EnglishSentences = JsonConvert
                                             .DeserializeObject<InputSentence[]>(
                                                 await File.ReadAllTextAsync(
