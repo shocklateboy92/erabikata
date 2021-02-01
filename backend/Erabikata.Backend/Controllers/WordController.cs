@@ -1,13 +1,12 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Managers;
-using Erabikata.Models.Configuration;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.Controllers
@@ -16,27 +15,15 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class WordController : ControllerBase
     {
-        private readonly SubtitleDatabaseManager _database;
-        private readonly EpisodeInfoManager _episodeInfoManager;
         private readonly WordCountsManager _wordCounts;
-        private readonly WordStateManager _knownWordsProvider;
-        private readonly SubtitleProcessingSettings _processingSettings;
         private readonly DialogCollectionManager _dialogCollectionManager;
 
         public WordController(
-            SubtitleDatabaseManager database,
             WordCountsManager wordCounts,
-            EpisodeInfoManager episodeInfoManager,
-            WordStateManager knownWordsProvider,
-            IOptions<SubtitleProcessingSettings> processingSettings,
             DialogCollectionManager dialogCollectionManager)
         {
-            _database = database;
             _wordCounts = wordCounts;
-            _episodeInfoManager = episodeInfoManager;
-            _knownWordsProvider = knownWordsProvider;
             _dialogCollectionManager = dialogCollectionManager;
-            _processingSettings = processingSettings.Value;
         }
 
         [HttpGet]
@@ -56,7 +43,7 @@ namespace Erabikata.Backend.Controllers
                 {
                     Text = text,
                     TotalOccurrences = 0,
-                    Occurrences = new WordInfo.Occurence[] { }
+                    Occurrences = System.Array.Empty<WordInfo.Occurence>()
                 };
             }
 
@@ -102,28 +89,24 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("{word}/[action]")]
-        public IEnumerable<string> PartsOfSpeech([FromRoute] string word, Analyzer analyzer)
+        public async Task<IEnumerable<string>> PartsOfSpeech(
+            [FromRoute] string word,
+            [Required] Analyzer analyzer)
         {
-            var words = _database.AllEpisodesV2.Values.SelectMany(
-                v2 => v2.AnalyzedSentences[analyzer]
-                    .SelectMany(
-                        sentenceV2 => sentenceV2.Analyzed.SelectMany(
-                            line => line.Where(analyzedWord => analyzedWord.Base == word)
-                                .SelectMany(analyzed => analyzed.PartOfSpeech)
-                        )
-                    )
+            var matches = await _dialogCollectionManager.GetMatches(
+                word,
+                analyzer.ToAnalyzerMode(),
+                skip: 0,
+                take: int.MaxValue
             );
-            if (analyzer == Analyzer.Kuromoji)
-            {
-                words = _database.AllEpisodes.SelectMany(
-                    ep => ep.Dialog.SelectMany(
-                        line => line.Analyzed.Where(w => w.Base == word)
-                            .SelectMany(w => w.PartOfSpeech)
-                    )
-                );
-            }
 
-            return words.Distinct();
+            return matches.SelectMany(
+                    dialog => dialog.Lines.SelectMany(
+                        line => line.Words.Where(analyzedWord => analyzedWord.BaseForm == word)
+                            .SelectMany(analyzed => analyzed.PartOfSpeech)
+                    )
+                )
+                .Distinct();
         }
     }
 }
