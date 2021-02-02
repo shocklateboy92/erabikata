@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Erabikata.Models.Configuration;
+using Erabikata.Models.Input.V2;
 using Microsoft.Extensions.Options;
 
 namespace Erabikata.Backend.DataProviders
@@ -15,7 +16,7 @@ namespace Erabikata.Backend.DataProviders
         {
             _settings = settings.Value;
         }
-
+        
         public ICollection<string> GetShowMetadataFiles()
         {
             // TODO: Figure out how to make this async
