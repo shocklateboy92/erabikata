@@ -1,10 +1,12 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata;
 using Erabikata.Backend;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
+using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Core.Utils;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +20,11 @@ namespace UnitTests
 {
     public class Tests
     {
+        private static readonly Channel LocalChannel = new Channel(
+            "127.0.0.1:5001",
+            ChannelCredentials.Insecure
+        );
+
         [SetUp]
         public void Setup()
         {
@@ -48,13 +55,35 @@ namespace UnitTests
         }
 
         [Test]
+        public async Task Test3()
+        {
+            var client = new AssParserService.AssParserServiceClient(LocalChannel);
+            await using var stream = File.OpenRead(
+                "/home/fernie/src/iknow/anime-subs/watched/v2/Shirobako/english/17.ass"
+            );
+            using var request = client.ParseAss();
+            while (stream.CanRead)
+            {
+                var buffer = new byte[1024];
+                await stream.ReadAsync(buffer);
+                await request.RequestStream.WriteAsync(
+                    new ParseAssRequestChunk {Content = ByteString.CopyFrom(buffer)}
+                );
+            }
+
+            await foreach (var response in request.ResponseStream.ReadAllAsync())
+            {
+                Console.WriteLine(response.Lines.Aggregate(0, (i, s) => s.Length + i));
+            }
+        }
+
+        [Test]
         public async Task LocalTest()
         {
-            var client = new AnalyzerService.AnalyzerServiceClient(
-                new Channel("127.0.0.1:5001", ChannelCredentials.Insecure)
-            );
+            var client = new AnalyzerService.AnalyzerServiceClient(LocalChannel);
             var bulk = client.AnalyzeDialogBulk();
-            await bulk.RequestStream.WriteAllAsync( new[]
+            await bulk.RequestStream.WriteAllAsync(
+                new[]
                 {
                     new AnalyzeDialogRequest
                     {
@@ -65,7 +94,7 @@ namespace UnitTests
                     },
                     new AnalyzeDialogRequest
                     {
-                        Lines = { "わざわざ来てくれたって", "何かあんでしょ？"},
+                        Lines = {"わざわざ来てくれたって", "何かあんでしょ？"},
                         Mode = AnalyzerMode.SudachiC,
                         Style = "yolo",
                         Time = 4.3

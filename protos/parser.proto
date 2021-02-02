@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package erabikata;
+
+message ParseAssRequestChunk { bytes content = 2; }
+
+message AssParsedResponseDialog {
+  double time = 1;
+  string style = 2;
+  repeated string lines = 3;
+}
+
+service AssParserService {
+  rpc ParseAss(stream ParseAssRequestChunk)
+      returns (stream AssParsedResponseDialog) {}
+}

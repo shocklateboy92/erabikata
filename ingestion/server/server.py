@@ -1,7 +1,9 @@
+from ass_parser import AssParserServicer
 import logging
 from sudachipy import tokenizer, dictionary
 import analyzer_pb2
 import analyzer_pb2_grpc
+import parser_pb2_grpc
 
 import grpc
 from concurrent import futures
@@ -61,6 +63,7 @@ class AnalyzerServicer(analyzer_pb2_grpc.AnalyzerServiceServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     analyzer_pb2_grpc.add_AnalyzerServiceServicer_to_server(AnalyzerServicer(), server)
+    parser_pb2_grpc.add_AssParserServiceServicer_to_server(AssParserServicer(), server)
     server.add_insecure_port("[::]:5001")
     server.start()
     server.wait_for_termination()
