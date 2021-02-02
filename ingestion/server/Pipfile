@@ -7,6 +7,7 @@ name = "pypi"
 sudachipy = "*"
 sudachidict-full = "*"
 grpcio-tools = "*"
+pysubs2 = "*"
 
 [dev-packages]
 black = "*"

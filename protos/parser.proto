@@ -7,7 +7,8 @@ message ParseAssRequestChunk { bytes content = 2; }
 message AssParsedResponseDialog {
   double time = 1;
   string style = 2;
-  repeated string lines = 3;
+  bool isComment = 3;
+  repeated string lines = 5;
 }
 
 service AssParserService {

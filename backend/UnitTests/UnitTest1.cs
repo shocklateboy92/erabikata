@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -62,14 +63,16 @@ namespace UnitTests
                 "/home/fernie/src/iknow/anime-subs/watched/v2/Shirobako/english/17.ass"
             );
             using var request = client.ParseAss();
-            while (stream.CanRead)
+            int count;
+            using var memory = MemoryPool<byte>.Shared.Rent(4096);
+            while ((count = await stream.ReadAsync(memory.Memory))> 0)
             {
-                var buffer = new byte[1024];
-                await stream.ReadAsync(buffer);
                 await request.RequestStream.WriteAsync(
-                    new ParseAssRequestChunk {Content = ByteString.CopyFrom(buffer)}
+                    new ParseAssRequestChunk {Content = ByteString.CopyFrom(memory.Memory.ToArray(), 0, count)}
                 );
             }
+
+            await request.RequestStream.CompleteAsync();
 
             await foreach (var response in request.ResponseStream.ReadAllAsync())
             {
