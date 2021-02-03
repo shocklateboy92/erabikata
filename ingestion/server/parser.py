@@ -8,15 +8,14 @@ import pysubs2
 class AssParserServicer(parser_pb2_grpc.AssParserServiceServicer):
     def ParseAss(self, request_iterator, context):
         logging.info("Recieved ass parse request")
-        stream = io.StringIO()
+        stream = io.BytesIO()
         size = 0
         for request in request_iterator:
-            stream.write(request.content.decode("utf-8"))
+            stream.write(request.content)
             size += len(request.content)
 
         print(f"read {size} bytes")
-        stream.seek(0)
-        doc = pysubs2.SSAFile.from_file(stream)
+        doc = pysubs2.SSAFile.from_file(io.StringIO(stream.getvalue().decode("utf-8")))
 
         for event in doc.events:
             yield parser_pb2.AssParsedResponseDialog(
