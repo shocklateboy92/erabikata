@@ -42,9 +42,9 @@ namespace Erabikata.Backend.DataProviders
                         async metadataFilePath =>
                         {
                             var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
-                            return metadata.Episodes.Select(
+                            return metadata.Episodes[0].Select(
                                     (episode, index) => new ShowContentFile(
-                                        Id: int.Parse(episode[0].Key.Split('/').Last()),
+                                        Id: int.Parse(episode.Key.Split('/').Last()),
                                         Path: GetDataPath(
                                             dataType,
                                             metadataFilePath,
