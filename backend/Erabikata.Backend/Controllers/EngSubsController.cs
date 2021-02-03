@@ -1,17 +1,9 @@
-using System;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
-using Erabikata.Backend.Managers;
-using Erabikata.Models;
-using Erabikata.Models.Configuration;
-using Erabikata.Models.Output;
+using Erabikata.Backend.Models.Output;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using SubtitlesParser.Classes;
-using SubtitlesParser.Classes.Parsers;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -19,42 +11,25 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class EngSubsController : ControllerBase
     {
-        private readonly SubtitleDatabaseManager _subtitleDatabaseManager;
         private readonly EngSubCollectionManager _engSubCollectionManager;
 
-        public EngSubsController(SubtitleDatabaseManager subtitleDatabaseManager, EngSubCollectionManager engSubCollectionManager)
+        public EngSubsController(EngSubCollectionManager engSubCollectionManager)
         {
-            _subtitleDatabaseManager = subtitleDatabaseManager;
             _engSubCollectionManager = engSubCollectionManager;
         }
 
-        public ActionResult<EngSubsResponse> Index(
+        public async Task<ActionResult<EngSubsResponse>> Index(
             string episodeId,
             double timeStamp,
             int count = 3)
         {
-            // _engSubCollectionManager.getne
-            var sentences =
-                int.TryParse(episodeId, out var newEpId) &&
-                _subtitleDatabaseManager.AllEpisodesV2.ContainsKey(newEpId)
-                    ? _subtitleDatabaseManager.AllEpisodesV2[newEpId].EnglishSentences.ToArray()
-                    : null;
-
-            if (sentences == null)
+            if (!int.TryParse(episodeId, out var episode))
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            var index = Array.FindIndex(sentences, sentence => sentence.Time > timeStamp);
-            return new EngSubsResponse
-            {
-                Dialog = sentences.Skip(Math.Max(0, index - count))
-                    .Take(count * 2)
-                    .Select(
-                        sentence =>
-                            new EnglishSentence {Text = sentence.Text, Time = sentence.Time}
-                    )
-            };
+            var subs = await _engSubCollectionManager.GetNearestSubs(episode, timeStamp, count);
+            return new EngSubsResponse(subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>());
         }
     }
 }
