@@ -49,14 +49,8 @@ namespace Erabikata.Backend
                 )
             );
 
-            services.AddGrpcClient<AnalyzerService.AnalyzerServiceClient>(
-                o =>
-                {
-                    o.Address = new Uri(
-                        Configuration.GetSection("ServiceClients:Analyzer:BaseUrl").Value
-                    );
-                }
-            );
+            AddGrpcClient<AnalyzerService.AnalyzerServiceClient>(services);
+            AddGrpcClient<AssParserService.AssParserServiceClient>(services);
 
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
@@ -78,6 +72,17 @@ namespace Erabikata.Backend
                 }
             );
         }
+
+        private IHttpClientBuilder AddGrpcClient<TServicer>(IServiceCollection services)
+            where TServicer : class =>
+            services.AddGrpcClient<TServicer>(
+                options =>
+                {
+                    options.Address = new Uri(
+                        Configuration.GetSection("ServiceClients:Analyzer:BaseUrl").Value
+                    );
+                }
+            );
 
         private void ConfigureDatabase(IServiceCollection services)
         {

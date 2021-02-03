@@ -42,7 +42,7 @@ namespace Erabikata.Backend.Managers
             );
             var allShows = new ConcurrentBag<ShowInfo>();
 
-            var newFiles = _seedDataProvider.GetShowMetadataFiles();
+            var newFiles = _seedDataProvider.GetShowMetadataFilesI().ToList();
             _logger.LogInformation("Found {Count} shows in new format", newFiles.Count);
             var readTasks = newFiles.Select(
                     async metadataFile =>
@@ -68,7 +68,8 @@ namespace Erabikata.Backend.Managers
                                                     SeedDataProvider.GetDataPath(
                                                         "english",
                                                         metadataFile,
-                                                        index
+                                                        index,
+                                                        "json"
                                                     )
                                                 )
                                             )

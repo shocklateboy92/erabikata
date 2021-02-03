@@ -57,33 +57,15 @@ namespace Erabikata.Backend.CollectionManagers
 
         private async Task IngestDialog()
         {
-            var showFiles = _seedDataProvider.GetShowMetadataFiles();
-            var tasks = await Task.WhenAll(
-                showFiles.Select(
-                    async metadataFilePath =>
-                    {
-                        var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
-                        return metadata.Episodes.Select(
-                            (episode, index) => new
-                            {
-                                path = SeedDataProvider.GetDataPath(
-                                    "input",
-                                    metadataFilePath,
-                                    index
-                                ),
-                                id = int.Parse(episode[0].Key.Split('/').Last())
-                            }
-                        );
-                    }
-                )
-            );
+            var showEpisode = await _seedDataProvider.GetShowMetadataFiles("input", "json");
             foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
             {
-                var jobs = tasks.SelectMany(a => a)
+                var jobs = showEpisode.SelectMany(a => a)
                     .Select(
                         async job =>
                         {
-                            var input = await DeserializeFile<InputSentence[]>(job.path);
+                            var input =
+                                await SeedDataProvider.DeserializeFile<InputSentence[]>(job.Path);
                             var client = _analyzerServiceClient.AnalyzeDialogBulk();
 #pragma warning disable 4014
                             client.RequestStream.WriteAllAsync(
@@ -106,7 +88,7 @@ namespace Erabikata.Backend.CollectionManagers
                             var responses = await client.ResponseStream.ToListAsync();
                             await mongoCollection.InsertManyAsync(
                                 responses.Select(
-                                    response => new Dialog(ObjectId.Empty, job.id, response.Time)
+                                    response => new Dialog(ObjectId.Empty, job.Id, response.Time)
                                     {
                                         Lines = response.Lines.Select(
                                                 line => new Dialog.Line(
@@ -133,26 +115,6 @@ namespace Erabikata.Backend.CollectionManagers
                     );
                 await Task.WhenAll(jobs);
             }
-        }
-
-        public async Task<IReadOnlyList<Dialog>> GetEpisodeDialog(
-            int episodeId,
-            AnalyzerMode analyzerMode)
-        {
-            return await _mongoCollections[analyzerMode]
-                .Find(dialog => dialog.EpisodeId == episodeId)
-                .SortBy(dialog => dialog.Time)
-                .ToListAsync();
-        }
-
-        private static async Task<T> DeserializeFile<T>(string path)
-        {
-            await using var file = File.OpenRead(path);
-            var results = await JsonSerializer.DeserializeAsync<T>(
-                file,
-                new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase}
-            );
-            return results!;
         }
 
         private const int TimeDelta = 10;
