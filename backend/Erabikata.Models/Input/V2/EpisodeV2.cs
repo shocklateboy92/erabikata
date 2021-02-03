@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Erabikata.Models.Input.V2
@@ -6,9 +5,6 @@ namespace Erabikata.Models.Input.V2
 #nullable enable
     public class EpisodeV2
     {
-        public IReadOnlyList<InputSentence> EnglishSentences { get; set; } =
-            new List<InputSentence>();
-
         public string FilePath { get; set; } = string.Empty;
 
         public int Id { get; set; }

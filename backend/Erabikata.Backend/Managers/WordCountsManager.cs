@@ -2,26 +2,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
-using Erabikata.Models.Configuration;
-using Microsoft.Extensions.Options;
+using Grpc.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Erabikata.Backend.Managers
 {
     public class WordCountsManager
     {
+        private readonly ILogger<WordCountsManager> _logger;
         private readonly DialogCollectionManager _dialogCollectionManager;
-        private readonly SubtitleProcessingSettings _settings;
 
         public WordCountsManager(
-            IOptions<SubtitleProcessingSettings> settings,
+            ILogger<WordCountsManager> logger,
             DialogCollectionManager dialogCollectionManager)
         {
-            _settings = settings.Value;
+            _logger = logger;
             _dialogCollectionManager = dialogCollectionManager;
         }
 
         public async Task Initialize()
         {
+            _logger.LogInformation("Building word ranks map");
             var wordRanks = new Dictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>>();
             foreach (var mode in new[]
             {

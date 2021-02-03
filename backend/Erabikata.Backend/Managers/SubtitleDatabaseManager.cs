@@ -1,13 +1,10 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Models.Configuration;
-using Erabikata.Models.Input;
 using Erabikata.Models.Input.V2;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -52,9 +49,9 @@ namespace Erabikata.Backend.Managers
                         );
                         allShows.Add(metaData);
 
-                        var episodeTasks = metaData.Episodes[0]
+                        return metaData.Episodes[0]
                             .Select(
-                                async (info, index) =>
+                                (info, index) =>
                                 {
                                     var episodeId = int.Parse(info.Key.Split('/').Last());
                                     return new EpisodeV2
@@ -62,27 +59,11 @@ namespace Erabikata.Backend.Managers
                                         Id = episodeId,
                                         Parent = metaData,
                                         Number = index + 1,
-                                        EnglishSentences = JsonConvert
-                                            .DeserializeObject<InputSentence[]>(
-                                                await File.ReadAllTextAsync(
-                                                    SeedDataProvider.GetDataPath(
-                                                        "english",
-                                                        metadataFile,
-                                                        index,
-                                                        "json"
-                                                    )
-                                                )
-                                            )
-                                            .Where(sentence => sentence.Text.Any())
-                                            .OrderBy(sentence => sentence.Time)
-                                            .ToArray(),
                                         FilePath = info.File
                                     };
                                 }
                             )
                             .ToList();
-                        await Task.WhenAll(episodeTasks);
-                        return episodeTasks.Select(task => task.Result);
                     }
                 )
                 .ToList();

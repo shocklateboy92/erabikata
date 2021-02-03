@@ -15,39 +15,29 @@ namespace Erabikata.Backend.Controllers
     public class WordsController : ControllerBase
     {
         private readonly WordCountsManager _wordCountsManager;
-        private readonly WordStateManager _knownWordsProvider;
         private readonly DialogCollectionManager _dialogCollectionManager;
 
         public WordsController(
             WordCountsManager wordCountsManager,
-            WordStateManager knownWordsProvider,
             DialogCollectionManager dialogCollectionManager)
         {
             _wordCountsManager = wordCountsManager;
-            _knownWordsProvider = knownWordsProvider;
             _dialogCollectionManager = dialogCollectionManager;
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<WordInfo>> Ranked(
+        public IEnumerable<WordInfo> Ranked(
+            [Required] Analyzer analyzer,
             [FromQuery] bool respectPartOfSpeechFilter = true,
             [FromQuery] bool excludeKnownWords = true,
             [FromQuery] int max = 100,
             [FromQuery] int skip = 0,
-            [FromQuery] HashSet<string>? onlyPartsOfSpeech = null,
-            [Required] Analyzer analyzer = Analyzer.Kuromoji)
+            [FromQuery] HashSet<string>? onlyPartsOfSpeech = null)
         {
-            IReadOnlyCollection<string>? knownWords = null;
-            if (excludeKnownWords)
-            {
-                knownWords = await _knownWordsProvider.SelectAllKnownWordsMap();
-            }
-
-
             return _wordCountsManager.WordRanks[analyzer.ToAnalyzerMode()]
                 .Select(
-                    (wordCount) => new WordInfo
+                    wordCount => new WordInfo
                     {
                         Text = wordCount.BaseForm,
                         TotalOccurrences = wordCount.Count,
