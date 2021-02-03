@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,9 +10,7 @@ using Erabikata.Backend.Models.Database;
 using Google.Protobuf;
 using Grpc.Core.Utils;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver;
-using MoreLinq;
 
 namespace Erabikata.Backend.CollectionManagers
 {
@@ -78,7 +77,7 @@ namespace Erabikata.Backend.CollectionManagers
                 subtitleEvents.Select(
                     dialog => new EngSub(
                         ObjectId.Empty,
-                        time: dialog.Time,
+                        time: TimeSpan.FromMilliseconds(dialog.Time).TotalSeconds,
                         lines: dialog.Lines.ToArray(),
                         isComment: dialog.IsComment,
                         style: dialog.Style,
@@ -87,5 +86,20 @@ namespace Erabikata.Backend.CollectionManagers
                 )
             );
         }
+
+        public Task<List<EngSub>> GetNearestSubs(int episodeId, double time, int count) =>
+            _mongoCollection.Aggregate()
+                .Match(sub => sub.EpisodeId == episodeId)
+                // Turns out, we can't do this using LINQ until Mongo Linq V3 gets released
+                // Don't know when that will be.
+                .AppendStage<EngSub>(
+                    $"{{ $addFields: {{ delta: {{ $abs: {{ $subtract: ['$Time', {time}] }} }} }} }}"
+                )
+                .Sort("{ delta: 1 }")
+                .Limit(count)
+                // Undo the previous `AppendStage` so LINQ doesn't find out about it
+                .AppendStage<EngSub>("{ $unset: 'delta' }")
+                .SortBy(sub => sub.Time)
+                .ToListAsync();
     }
 }

@@ -5,7 +5,7 @@ using MongoDB.Bson;
 namespace Erabikata.Backend.Models.Database
 {
     [DataContract]
-    public class EngSub
+    public record EngSub
     {
         [DataMember] public ObjectId Id { get; set; }
 

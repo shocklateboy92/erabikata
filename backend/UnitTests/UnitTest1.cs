@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using NUnit.Framework;
 
@@ -39,8 +40,12 @@ namespace UnitTests
 
             var host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(builder => builder.UseStartup<Startup>());
-            Manager = host.Build().Services.GetRequiredService<DialogCollectionManager>();
+            var serviceProvider = host.Build().Services;
+            Manager = serviceProvider.GetRequiredService<DialogCollectionManager>();
+            EngManager = serviceProvider.GetRequiredService<EngSubCollectionManager>();
         }
+
+        public EngSubCollectionManager EngManager { get; set; } = null!;
 
         private DialogCollectionManager Manager { get; set; } = null!;
 
@@ -80,6 +85,13 @@ namespace UnitTests
             {
                 Console.WriteLine(response.Lines.Aggregate(0, (i, s) => s.Length + i));
             }
+        }
+
+        [Test]
+        public async Task Test5()
+        {
+            var rest = await EngManager.GetNearestSubs(1865, 47, 3);
+            Console.WriteLine(rest.ToJson(new JsonWriterSettings {Indent = true}));
         }
 
         [Test]

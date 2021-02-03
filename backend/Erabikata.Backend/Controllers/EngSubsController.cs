@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Managers;
 using Erabikata.Models;
 using Erabikata.Models.Configuration;
@@ -19,10 +20,12 @@ namespace Erabikata.Backend.Controllers
     public class EngSubsController : ControllerBase
     {
         private readonly SubtitleDatabaseManager _subtitleDatabaseManager;
+        private readonly EngSubCollectionManager _engSubCollectionManager;
 
-        public EngSubsController(SubtitleDatabaseManager subtitleDatabaseManager)
+        public EngSubsController(SubtitleDatabaseManager subtitleDatabaseManager, EngSubCollectionManager engSubCollectionManager)
         {
             _subtitleDatabaseManager = subtitleDatabaseManager;
+            _engSubCollectionManager = engSubCollectionManager;
         }
 
         public ActionResult<EngSubsResponse> Index(
@@ -30,6 +33,7 @@ namespace Erabikata.Backend.Controllers
             double timeStamp,
             int count = 3)
         {
+            // _engSubCollectionManager.getne
             var sentences =
                 int.TryParse(episodeId, out var newEpId) &&
                 _subtitleDatabaseManager.AllEpisodesV2.ContainsKey(newEpId)
