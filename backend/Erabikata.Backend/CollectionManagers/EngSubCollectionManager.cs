@@ -1,3 +1,4 @@
+using System;
 using System.Buffers;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using Erabikata.Backend.Models.Database;
 using Google.Protobuf;
 using Grpc.Core.Utils;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 using MoreLinq;
 
@@ -45,48 +47,45 @@ namespace Erabikata.Backend.CollectionManagers
             var inputFiles = await _seedDataProvider.GetShowMetadataFiles("english", "ass");
             foreach (var showFiles in inputFiles)
             {
-                await Task.WhenAll(
-                    showFiles.Select(
-                        async showFile =>
-                        {
-                            var client = _assParserServiceClient.ParseAss();
-                            await using var showFileStream = File.OpenRead(showFile.Path);
-                            using var buffer = MemoryPool<byte>.Shared.Rent(4096);
-                            int lastReadBytesCount;
-                            while ((lastReadBytesCount =
-                                await showFileStream.ReadAsync(buffer.Memory)) > 0)
-                            {
-                                await client.RequestStream.WriteAsync(
-                                    new ParseAssRequestChunk
-                                    {
-                                        Content = ByteString.CopyFrom(
-                                            buffer.Memory.ToArray(),
-                                            0,
-                                            lastReadBytesCount
-                                        )
-                                    }
-                                );
-                            }
+                await Task.WhenAll(showFiles.Select(IngestEpisode));
+            }
+        }
 
-                            await client.RequestStream.CompleteAsync();
-
-                            var subtitleEvents = await client.ResponseStream.ToListAsync();
-                            await _mongoCollection.InsertManyAsync(
-                                subtitleEvents.Select(
-                                    dialog => new EngSub(
-                                        ObjectId.Empty,
-                                        time: dialog.Time,
-                                        lines: dialog.Lines.ToArray(),
-                                        isComment: dialog.IsComment,
-                                        style: dialog.Style,
-                                        episodeId: showFile.Id
-                                    )
-                                )
-                            );
-                        }
-                    )
+        private async Task IngestEpisode(SeedDataProvider.ShowContentFile showFile)
+        {
+            var client = _assParserServiceClient.ParseAss();
+            await using var showFileStream = File.OpenRead(showFile.Path);
+            using var buffer = MemoryPool<byte>.Shared.Rent(4096);
+            int lastReadBytesCount;
+            while ((lastReadBytesCount = await showFileStream.ReadAsync(buffer.Memory)) > 0)
+            {
+                await client.RequestStream.WriteAsync(
+                    new ParseAssRequestChunk
+                    {
+                        Content = ByteString.CopyFrom(
+                            buffer.Memory.ToArray(),
+                            0,
+                            lastReadBytesCount
+                        )
+                    }
                 );
             }
+
+            await client.RequestStream.CompleteAsync();
+
+            var subtitleEvents = await client.ResponseStream.ToListAsync();
+            await _mongoCollection.InsertManyAsync(
+                subtitleEvents.Select(
+                    dialog => new EngSub(
+                        ObjectId.Empty,
+                        time: dialog.Time,
+                        lines: dialog.Lines.ToArray(),
+                        isComment: dialog.IsComment,
+                        style: dialog.Style,
+                        episodeId: showFile.Id
+                    )
+                )
+            );
         }
     }
 }
