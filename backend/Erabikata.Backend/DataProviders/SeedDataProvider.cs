@@ -57,7 +57,7 @@ namespace Erabikata.Backend.DataProviders
             );
         }
 
-        public static string GetDataPath(
+        private static string GetDataPath(
             string dataType,
             string metadataFile,
             int index,

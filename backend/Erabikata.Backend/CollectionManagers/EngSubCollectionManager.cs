@@ -34,7 +34,7 @@ namespace Erabikata.Backend.CollectionManagers
         {
             switch (activity)
             {
-                case BeginIngestion:
+                case IngestShows:
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<EngSub>.Empty);
                     await IngestEngSubs();
                     break;

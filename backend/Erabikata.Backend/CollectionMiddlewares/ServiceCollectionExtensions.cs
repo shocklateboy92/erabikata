@@ -6,6 +6,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
     {
         public static IServiceCollection AddCollectionMiddlewares(
             this IServiceCollection serviceCollection) =>
-            serviceCollection.AddSingleton<ICollectionMiddleware, SeedDataMiddleware>();
+            serviceCollection.AddSingleton<ICollectionMiddleware, RevisionControlMiddleware>()
+                .AddSingleton<ICollectionMiddleware, SeedDataMiddleware>();
     }
 }

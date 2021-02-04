@@ -39,18 +39,19 @@ namespace Erabikata.Backend.CollectionManagers
         {
             switch (activity)
             {
-                case BeginIngestion:
+                case IngestShows ingestShows:
                     await Task.WhenAll(
                         _mongoCollections.Values.Select(
                             collection => collection.DeleteManyAsync(FilterDefinition<Dialog>.Empty)
                         )
                     );
-                    await IngestDialog();
+                    await IngestDialog(ingestShows.ShowsToIngest);
                     break;
             }
         }
 
-        private async Task IngestDialog()
+        private async Task IngestDialog(
+            ICollection<IngestShows.ShowToIngest> ingestShowsShowsToIngest)
         {
             var showEpisode = await _seedDataProvider.GetShowMetadataFiles("input", "json");
             foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
