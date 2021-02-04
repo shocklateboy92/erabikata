@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input.V2;
+using Grpc.Core;
 using Grpc.Core.Utils;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -17,16 +20,22 @@ namespace Erabikata.Backend.CollectionManagers
         private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>>
             _mongoCollections;
 
+        private readonly Logger<DialogCollectionManager> _logger;
+        private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
         private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
         private readonly SeedDataProvider _seedDataProvider;
 
         public DialogCollectionManager(
             IMongoDatabase database,
+            Logger<DialogCollectionManager> logger,
             AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
-            SeedDataProvider seedDataProvider)
+            SeedDataProvider seedDataProvider,
+            AssParserService.AssParserServiceClient assParserServiceClient)
         {
+            _logger = logger;
             _analyzerServiceClient = analyzerServiceClient;
             _seedDataProvider = seedDataProvider;
+            _assParserServiceClient = assParserServiceClient;
             _mongoCollections =
                 new[] {AnalyzerMode.SudachiA, AnalyzerMode.SudachiB, AnalyzerMode.SudachiC}
                     .ToDictionary(
@@ -54,6 +63,52 @@ namespace Erabikata.Backend.CollectionManagers
             ICollection<IngestShows.ShowToIngest> ingestShowsShowsToIngest)
         {
             var showEpisode = await _seedDataProvider.GetShowMetadataFiles("input", "json");
+            foreach (var showToIngest in ingestShowsShowsToIngest)
+            {
+                var includeStylesFile =
+                    showToIngest.Files.FirstOrDefault(
+                        path => path.EndsWith("input/include_styles.txt")
+                    );
+                var includeStyles = includeStylesFile == null
+                    ? null
+                    : (await File.ReadAllLinesAsync(includeStylesFile)).ToHashSet();
+                showToIngest.Info.Episodes[0]
+                    .Select(
+                        async (info, index) =>
+                        {
+                            var skippedLines = 0;
+                            var file = showToIngest.Files.FirstOrDefault(
+                                path => path.EndsWith($"input/{index}.ass") ||
+                                        path.EndsWith($"input/{index}.srt")
+                            );
+                            if (file == null)
+                            {
+                                _logger.LogError(
+                                    "Unable to find input file for episode '{EpisodeId}'",
+                                    info.Key
+                                );
+                                return;
+                            }
+
+                            var client = _assParserServiceClient.ParseAss();
+                            await EngSubCollectionManager.WriteFileToParserClient(client, file);
+                            await foreach (var line in client.ResponseStream.ReadAllAsync())
+                            {
+                                if (line.IsComment || includeStyles?.Contains(line.Style) == false)
+                                {
+                                    skippedLines++;
+                                    continue;
+                                }
+
+                                foreach (var (mode, collection) in _mongoCollections)
+                                {
+                                    // var request
+                                }
+                            }
+                        }
+                    );
+            }
+
             foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
             {
                 var jobs = showEpisode.SelectMany(a => a)

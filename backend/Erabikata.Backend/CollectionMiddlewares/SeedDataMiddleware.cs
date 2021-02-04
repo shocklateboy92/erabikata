@@ -22,14 +22,18 @@ namespace Erabikata.Backend.CollectionMiddlewares
             switch (activity)
             {
                 case BeginIngestion:
+                    var filesInSeed = _seedDataProvider.GetAllFiles();
                     var showsToIngest = await Task.WhenAll(
-                        _seedDataProvider.GetShowMetadataFilesI()
+                        filesInSeed.Where(path => path.EndsWith("show-metadata.json"))
                             .Select(
-                                async path => new IngestShows.ShowToIngest(
-                                    // Pretty sure this won't be null, because the file must
-                                    // exist for Directory.EnumerateFiles() to find it.
-                                    BasePath: Directory.GetParent(path)!.FullName,
-                                    Info: await SeedDataProvider.DeserializeFile<ShowInfo>(path)
+                                async showPath => new IngestShows.ShowToIngest(
+                                    Files: filesInSeed.Where(
+                                            path => path.StartsWith(
+                                                Directory.GetParent(path)!.FullName
+                                            )
+                                        )
+                                        .ToList(),
+                                    Info: await SeedDataProvider.DeserializeFile<ShowInfo>(showPath)
                                 )
                             )
                     );

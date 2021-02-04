@@ -13,6 +13,6 @@ namespace Erabikata.Backend.Models.Actions
 
         [DataMember] public ICollection<ShowToIngest> ShowsToIngest { get; }
 
-        public record ShowToIngest(string BasePath, ShowInfo Info);
+        public record ShowToIngest(ICollection<string> Files, ShowInfo Info);
     }
 }

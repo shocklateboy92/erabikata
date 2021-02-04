@@ -8,6 +8,7 @@ using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Google.Protobuf;
+using Grpc.Core;
 using Grpc.Core.Utils;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -53,24 +54,7 @@ namespace Erabikata.Backend.CollectionManagers
         private async Task IngestEpisode(SeedDataProvider.ShowContentFile showFile)
         {
             var client = _assParserServiceClient.ParseAss();
-            await using var showFileStream = File.OpenRead(showFile.Path);
-            using var buffer = MemoryPool<byte>.Shared.Rent(4096);
-            int lastReadBytesCount;
-            while ((lastReadBytesCount = await showFileStream.ReadAsync(buffer.Memory)) > 0)
-            {
-                await client.RequestStream.WriteAsync(
-                    new ParseAssRequestChunk
-                    {
-                        Content = ByteString.CopyFrom(
-                            buffer.Memory.ToArray(),
-                            0,
-                            lastReadBytesCount
-                        )
-                    }
-                );
-            }
-
-            await client.RequestStream.CompleteAsync();
+            await WriteFileToParserClient(client, showFile.Path);
 
             var subtitleEvents = await client.ResponseStream.ToListAsync();
             await _mongoCollection.InsertManyAsync(
@@ -85,6 +69,26 @@ namespace Erabikata.Backend.CollectionManagers
                     )
                 )
             );
+        }
+
+        public static async Task WriteFileToParserClient(
+            AsyncDuplexStreamingCall<ParseAssRequestChunk, AssParsedResponseDialog> client,
+            string filePath)
+        {
+            await using var showFileStream = File.OpenRead(filePath);
+            using var buffer = MemoryPool<byte>.Shared.Rent(4096);
+            int lastReadBytesCount;
+            while ((lastReadBytesCount = await showFileStream.ReadAsync(buffer.Memory)) > 0)
+            {
+                await client.RequestStream.WriteAsync(
+                    new ParseAssRequestChunk
+                    {
+                        Content = ByteString.CopyFrom(buffer.Memory.ToArray(), 0, lastReadBytesCount)
+                    }
+                );
+            }
+
+            await client.RequestStream.CompleteAsync();
         }
 
         public Task<List<EngSub>> GetNearestSubs(int episodeId, double time, int count) =>

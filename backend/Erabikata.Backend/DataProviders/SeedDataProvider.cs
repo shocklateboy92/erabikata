@@ -29,6 +29,15 @@ namespace Erabikata.Backend.DataProviders
             );
         }
 
+        public IReadOnlyCollection<string> GetAllFiles()
+        {
+            return Directory.EnumerateFiles(
+                    _settings.Input.RootDirectory,
+                    "*",
+                    SearchOption.AllDirectories
+                )
+                .ToList();
+        }
 
         public async Task<ICollection<ShowContentFile>[]> GetShowMetadataFiles(
             string dataType,
@@ -40,7 +49,8 @@ namespace Erabikata.Backend.DataProviders
                         async metadataFilePath =>
                         {
                             var metadata = await DeserializeFile<ShowInfo>(metadataFilePath);
-                            return metadata.Episodes[0].Select(
+                            return metadata.Episodes[0]
+                                .Select(
                                     (episode, index) => new ShowContentFile(
                                         Id: int.Parse(episode.Key.Split('/').Last()),
                                         Path: GetDataPath(
