@@ -1,7 +1,7 @@
 using System;
 using Erabikata.Models.Input;
 
-namespace Erabikata.Backend
+namespace Erabikata.Backend.Extensions
 {
     public static class EnumConversionExtensions
     {

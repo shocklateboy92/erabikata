@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
+using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -17,15 +20,18 @@ namespace Erabikata.Backend.Controllers
     public class ActionsController : ControllerBase
     {
         private readonly IMongoCollection<ActivityExecution> _mongo;
+        private readonly ILogger<ActionsController> _logger;
         private readonly IReadOnlyCollection<ICollectionManager> _collectionManagers;
         private readonly IEnumerable<ICollectionMiddleware> _collectionMiddlewares;
 
         public ActionsController(
             IMongoCollection<ActivityExecution> mongo,
             IEnumerable<ICollectionManager> collectionManagers,
+            ILogger<ActionsController> logger,
             IEnumerable<ICollectionMiddleware> collectionMiddlewares)
         {
             _mongo = mongo;
+            _logger = logger;
             _collectionMiddlewares = collectionMiddlewares;
             _collectionManagers = collectionManagers.ToList();
         }
@@ -37,28 +43,38 @@ namespace Erabikata.Backend.Controllers
             var execution = new ActivityExecution(ObjectId.Empty, activity);
             await _mongo.InsertOneAsync(execution);
 
-            var middleware = _collectionMiddlewares.GetEnumerator();
-
-            Task ExecuteMiddleware(Activity previousActivity)
-            {
-                if (middleware.MoveNext())
-                {
-                    return middleware.Current.Execute(activity, ExecuteMiddleware);
-                }
-
-                middleware.Dispose();
-                return ExecuteCollectionManagers(previousActivity);
-            }
-
-            await ExecuteMiddleware(activity);
+            await ExecuteMiddleware(activity, _collectionMiddlewares);
 
             return Ok(execution.Id);
+        }
+
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+        private Task ExecuteMiddleware(
+            Activity previousActivity,
+            IEnumerable<ICollectionMiddleware> remaining)
+        {
+            var current = remaining.FirstOrDefault();
+            if (current != null)
+            {
+                _logger.LogInformationString(
+                    $"Executing '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
+                );
+                return current.Execute(
+                    previousActivity,
+                    modifiedActivity => ExecuteMiddleware(modifiedActivity, remaining.Skip(1))
+                );
+            }
+
+            return ExecuteCollectionManagers(previousActivity);
         }
 
         private async Task ExecuteCollectionManagers(Activity activity)
         {
             foreach (var manager in _collectionManagers)
             {
+                _logger.LogInformationString(
+                    $"Executing '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
+                );
                 await manager.OnActivityExecuting(activity);
             }
         }
