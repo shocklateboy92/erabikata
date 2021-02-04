@@ -1,5 +1,8 @@
 using System;
+using System.Linq;
+using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
+using Erabikata.Backend.CollectionMiddlewares;
 using Erabikata.Backend.Controllers;
 using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Database;
@@ -7,6 +10,7 @@ using Erabikata.Models.Configuration;
 using Erabikata.Backend.DataProviders;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,6 +41,7 @@ namespace Erabikata.Backend
             ConfigureDatabase(services);
 
             services.AddCollectionManagers();
+            services.AddCollectionMiddlewares();
 
             services.AddSingleton<SubtitleDatabaseManager>();
             services.AddSingleton<WordCountsManager>();
