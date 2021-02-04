@@ -29,7 +29,10 @@ namespace Erabikata.Backend.Controllers
             }
 
             var subs = await _engSubCollectionManager.GetNearestSubs(episode, timeStamp, count);
-            return new EngSubsResponse(subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>());
+            return new EngSubsResponse
+            {
+                Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
+            };
         }
     }
 }

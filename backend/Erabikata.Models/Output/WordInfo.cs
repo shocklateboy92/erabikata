@@ -18,9 +18,6 @@ namespace Erabikata.Models.Output
         [JsonProperty(Required = Required.Always)]
         public IEnumerable<Occurence> Occurrences { get; set; } = Enumerable.Empty<Occurence>();
 
-        [JsonProperty(Required = Required.Default)]
-        public PagingInfo PagingInfo { get; set; }
-
         public class Occurence
         {
             [JsonProperty(Required = Required.Always)]

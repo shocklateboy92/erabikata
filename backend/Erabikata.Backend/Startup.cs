@@ -69,6 +69,7 @@ namespace Erabikata.Backend
                 {
                     settings.GenerateKnownTypes = true;
                     settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
+                    settings.RequireParametersWithoutDefault = true;
                 }
             );
         }

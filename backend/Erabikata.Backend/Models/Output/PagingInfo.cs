@@ -1,4 +1,4 @@
-namespace Erabikata.Models.Input
+namespace Erabikata.Backend.Models.Output
 {
     public class PagingInfo
     {

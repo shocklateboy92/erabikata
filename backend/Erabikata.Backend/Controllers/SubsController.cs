@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
@@ -28,8 +29,8 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         public async Task<ActionResult<NowPlayingInfo>> Index(
-            [FromQuery] [BindRequired] string episode,
             [FromQuery] Analyzer analyzer,
+            [FromQuery] string episode,
             [FromQuery] double time = 0.0,
             [FromQuery] int count = 3)
         {

@@ -37,12 +37,9 @@ export const fetchWordIfNeeded: AsyncThunk<
         return client.index(
             // This is checked for null by the `condition` below
             baseForm!,
-            onlyPartsOfSpeech,
-            includeEpisode,
-            includeTime,
+            analyzer,
             pagingInfo?.max ?? 0,
-            pagingInfo?.skip,
-            analyzer
+            pagingInfo?.skip ?? 0
         );
     },
     {

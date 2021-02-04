@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Managers;
+using Erabikata.Backend.Models.Output;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
@@ -31,11 +32,8 @@ namespace Erabikata.Backend.Controllers
         [Route("{text}")]
         public async Task<WordInfo> Index(
             [FromRoute] string text,
-            [FromQuery] HashSet<string> onlyPartsOfSpeech,
-            string? includeEpisode,
-            double? includeTime,
-            [FromQuery] PagingInfo pagingInfo,
-            [BindRequired] Analyzer analyzer)
+            [BindRequired] Analyzer analyzer,
+            [FromQuery] PagingInfo pagingInfo)
         {
             var rank = _wordCounts.WordRanksMap[analyzer.ToAnalyzerMode()]
                 .GetValueOrDefault(text, -1);
@@ -85,7 +83,6 @@ namespace Erabikata.Backend.Controllers
                 Rank = rank,
                 TotalOccurrences = count,
                 Occurrences = occurrences,
-                PagingInfo = pagingInfo
             };
         }
 

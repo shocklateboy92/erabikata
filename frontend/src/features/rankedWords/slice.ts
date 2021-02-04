@@ -15,12 +15,12 @@ export const fetchRankedWords: AsyncThunk<
     'rankedWords',
     (client, paging, analyzer) => {
         return client.ranked(
+            analyzer,
             true,
             false,
             WORDS_PER_PAGE,
             paging.pageNum * WORDS_PER_PAGE,
-            null,
-            analyzer
+            null
         );
     },
     {

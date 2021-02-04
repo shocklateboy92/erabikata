@@ -30,7 +30,7 @@ export const fetchDialogById: AsyncThunk<
     SubsClient,
     'dialog/byEpisode',
     (client, { episode, time, count }, analyzer) =>
-        client.index(episode, time, count, analyzer)
+        client.index(analyzer, episode, time, count)
 );
 
 const initialState: IDialogState = {

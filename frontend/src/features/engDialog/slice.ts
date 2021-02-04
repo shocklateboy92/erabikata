@@ -5,20 +5,16 @@ import {
     EntityState
 } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import {
-    EnglishSentence,
-    EngSubsClient,
-    EngSubsResponse
-} from 'backend.generated';
+import { EngSubsClient, EngSubsResponse, Sentence } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
 import { selectNearbyValues } from 'features/dialog/slice';
 
 interface IEnglishEpisode {
     id: string;
-    dialog: EntityState<EnglishSentence>;
+    dialog: EntityState<Sentence>;
 }
 
-const timeAdapter = createEntityAdapter<EnglishSentence>({
+const timeAdapter = createEntityAdapter<Sentence>({
     selectId: (s) => s.time,
     sortComparer: (a, b) => a.time - b.time
 });

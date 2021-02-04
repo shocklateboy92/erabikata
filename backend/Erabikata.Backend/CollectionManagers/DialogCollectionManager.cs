@@ -1,9 +1,5 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
@@ -13,7 +9,6 @@ using Grpc.Core.Utils;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Erabikata.Backend.CollectionManagers
 {
