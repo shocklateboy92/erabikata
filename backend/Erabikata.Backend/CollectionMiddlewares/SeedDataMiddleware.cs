@@ -29,7 +29,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                 async showPath => new IngestShows.ShowToIngest(
                                     Files: filesInSeed.Where(
                                             path => path.StartsWith(
-                                                Directory.GetParent(path)!.FullName
+                                                showPath.Replace("/show-metadata.json", string.Empty)
                                             )
                                         )
                                         .ToList(),

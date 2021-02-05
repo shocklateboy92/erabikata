@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input.V2;
 using Grpc.Core;
 using Grpc.Core.Utils;
+using Mapster;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -20,21 +20,18 @@ namespace Erabikata.Backend.CollectionManagers
         private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>>
             _mongoCollections;
 
-        private readonly Logger<DialogCollectionManager> _logger;
+        private readonly ILogger<DialogCollectionManager> _logger;
         private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
         private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
-        private readonly SeedDataProvider _seedDataProvider;
 
         public DialogCollectionManager(
             IMongoDatabase database,
-            Logger<DialogCollectionManager> logger,
+            ILogger<DialogCollectionManager> logger,
             AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
-            SeedDataProvider seedDataProvider,
             AssParserService.AssParserServiceClient assParserServiceClient)
         {
             _logger = logger;
             _analyzerServiceClient = analyzerServiceClient;
-            _seedDataProvider = seedDataProvider;
             _assParserServiceClient = assParserServiceClient;
             _mongoCollections =
                 new[] {AnalyzerMode.SudachiA, AnalyzerMode.SudachiB, AnalyzerMode.SudachiC}
@@ -60,111 +57,69 @@ namespace Erabikata.Backend.CollectionManagers
         }
 
         private async Task IngestDialog(
-            ICollection<IngestShows.ShowToIngest> ingestShowsShowsToIngest)
+            IEnumerable<IngestShows.ShowToIngest> ingestShowsShowsToIngest)
         {
-            var showEpisode = await _seedDataProvider.GetShowMetadataFiles("input", "json");
-            foreach (var showToIngest in ingestShowsShowsToIngest)
+            foreach (var (files, showInfo) in ingestShowsShowsToIngest)
             {
                 var includeStylesFile =
-                    showToIngest.Files.FirstOrDefault(
-                        path => path.EndsWith("input/include_styles.txt")
-                    );
+                    files.FirstOrDefault(path => path.EndsWith("input/include_styles.txt"));
                 var includeStyles = includeStylesFile == null
-                    ? null
+                    ? new HashSet<string>()
                     : (await File.ReadAllLinesAsync(includeStylesFile)).ToHashSet();
-                showToIngest.Info.Episodes[0]
-                    .Select(
-                        async (info, index) =>
-                        {
-                            var skippedLines = 0;
-                            var file = showToIngest.Files.FirstOrDefault(
-                                path => path.EndsWith($"input/{index}.ass") ||
-                                        path.EndsWith($"input/{index}.srt")
-                            );
-                            if (file == null)
-                            {
-                                _logger.LogError(
-                                    "Unable to find input file for episode '{EpisodeId}'",
-                                    info.Key
-                                );
-                                return;
-                            }
 
-                            var client = _assParserServiceClient.ParseAss();
-                            await EngSubCollectionManager.WriteFileToParserClient(client, file);
-                            await foreach (var line in client.ResponseStream.ReadAllAsync())
-                            {
-                                if (line.IsComment || includeStyles?.Contains(line.Style) == false)
-                                {
-                                    skippedLines++;
-                                    continue;
-                                }
+                await Task.WhenAll(
+                    showInfo.Episodes[0]
+                        .Select(
+                            (info, index) => IngestEpisode(
+                                files.FirstOrDefault(
+                                    path => path.EndsWith($"input/{index + 1:00}.ass") ||
+                                            path.EndsWith($"input/{index + 1:00}.srt")
+                                ),
+                                (index + 1, info.Key),
+                                includeStyles
+                            )
+                        )
+                );
+            }
+        }
 
-                                foreach (var (mode, collection) in _mongoCollections)
-                                {
-                                    // var request
-                                }
-                            }
-                        }
-                    );
+        private async Task IngestEpisode(
+            string? file,
+            (int index, string key) info,
+            IReadOnlySet<string> includeStyles)
+        {
+            var episodeId = int.Parse(info.key.Split('/').Last());
+            if (file == null)
+            {
+                _logger.LogError("Unable to find input file for episode '{EpisodeId}'", info);
+                return;
             }
 
-            foreach (var (analyzerMode, mongoCollection) in _mongoCollections)
+            using var client = _assParserServiceClient.ParseAss();
+            await EngSubCollectionManager.WriteFileToParserClient(client, file);
+
+            var dialog = await client.ResponseStream.ToListAsync();
+            var toInclude = dialog.Where(
+                responseDialog => !responseDialog.IsComment &&
+                                  (includeStyles.Contains(responseDialog.Style) ||
+                                   file.EndsWith(".srt"))
+            );
+
+            foreach (var (_, collection) in _mongoCollections)
             {
-                var jobs = showEpisode.SelectMany(a => a)
-                    .Select(
-                        async job =>
+                using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
+                await analyzer.RequestStream.WriteAllAsync(
+                    toInclude.Adapt<IEnumerable<AnalyzeDialogRequest>>()
+                );
+                var analyzed = await analyzer.ResponseStream.ToListAsync();
+                await collection.InsertManyAsync(
+                    analyzed.Select(
+                        response => new Dialog(ObjectId.Empty, episodeId, time: response.Time)
                         {
-                            var input =
-                                await SeedDataProvider.DeserializeFile<InputSentence[]>(job.Path);
-                            var client = _analyzerServiceClient.AnalyzeDialogBulk();
-#pragma warning disable 4014
-                            client.RequestStream.WriteAllAsync(
-                                    input.Select(
-                                        sentence =>
-                                        {
-                                            var request = new AnalyzeDialogRequest
-                                            {
-                                                Style = sentence.Style,
-                                                Time = sentence.Time,
-                                                Mode = analyzerMode
-                                            };
-                                            request.Lines.Add(sentence.Text);
-                                            return request;
-                                        }
-                                    )
-                                )
-                                .ConfigureAwait(false);
-#pragma warning restore 4014
-                            var responses = await client.ResponseStream.ToListAsync();
-                            await mongoCollection.InsertManyAsync(
-                                responses.Select(
-                                    response => new Dialog(ObjectId.Empty, job.Id, response.Time)
-                                    {
-                                        Lines = response.Lines.Select(
-                                                line => new Dialog.Line(
-                                                    line.Words.Select(
-                                                            word => new Dialog.Word(
-                                                                word.BaseForm,
-                                                                word.DictionaryForm,
-                                                                word.Original,
-                                                                word.Reading
-                                                            )
-                                                            {
-                                                                PartOfSpeech =
-                                                                    word.PartOfSpeech.ToArray()
-                                                            }
-                                                        )
-                                                        .ToArray()
-                                                )
-                                            )
-                                            .ToArray()
-                                    }
-                                )
-                            );
+                            Lines = response.Lines.Adapt<Dialog.Line[]>()
                         }
-                    );
-                await Task.WhenAll(jobs);
+                    )
+                );
             }
         }
 

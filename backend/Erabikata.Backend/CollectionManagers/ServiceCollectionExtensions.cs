@@ -9,9 +9,9 @@ namespace Erabikata.Backend.CollectionManagers
         {
             AddCollectionManager<WordStateManager>(serviceCollection);
             AddCollectionManager<DummyCollectionManager>(serviceCollection);
-            AddCollectionManager<DatabaseInfoManager>(serviceCollection);
             AddCollectionManager<DialogCollectionManager>(serviceCollection);
             AddCollectionManager<EngSubCollectionManager>(serviceCollection);
+            AddCollectionManager<DatabaseInfoManager>(serviceCollection);
             return serviceCollection;
         }
 
