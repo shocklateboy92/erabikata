@@ -14,8 +14,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
+using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Events;
 using Newtonsoft.Json;
 using NJsonSchema.Generation;
 
@@ -100,7 +104,23 @@ namespace Erabikata.Backend
                 );
             }
 
-            var mongoDatabase = new MongoClient(connectionString).GetDatabase("erabikata");
+            var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+            // var dbLogger = services.BuildServiceProvider()
+            //     .GetRequiredService<ILogger<MongoClient>>();
+            // clientSettings.ClusterConfigurator = cb =>
+            // {
+            //     cb.Subscribe<CommandStartedEvent>(
+            //         e =>
+            //         {
+            //             dbLogger.LogInformation(
+            //                 "{CommandName} - {Command}",
+            //                 e.CommandName,
+            //                 e.Command.ToJson(new JsonWriterSettings {Indent = true})
+            //             );
+            //         }
+            //     );
+            // };
+            var mongoDatabase = new MongoClient(clientSettings).GetDatabase("erabikata");
             services.AddSingleton(mongoDatabase);
             AddCollection<ActivityExecution>(services, mongoDatabase);
             AddCollection<WordState>(services, mongoDatabase);

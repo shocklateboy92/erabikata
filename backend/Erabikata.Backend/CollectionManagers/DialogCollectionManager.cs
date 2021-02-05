@@ -100,23 +100,42 @@ namespace Erabikata.Backend.CollectionManagers
 
             var dialog = await client.ResponseStream.ToListAsync();
             var toInclude = dialog.Where(
-                responseDialog => !responseDialog.IsComment &&
-                                  (includeStyles.Contains(responseDialog.Style) ||
-                                   file.EndsWith(".srt"))
-            );
+                    responseDialog => !responseDialog.IsComment &&
+                                      (includeStyles.Contains(responseDialog.Style) ||
+                                       file.EndsWith(".srt"))
+                )
+                .ToList();
 
             foreach (var (_, collection) in _mongoCollections)
             {
                 using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
                 await analyzer.RequestStream.WriteAllAsync(
-                    toInclude.Adapt<IEnumerable<AnalyzeDialogRequest>>()
+                    toInclude.Select(
+                        responseDialog =>
+                        {
+                            var request = responseDialog.Adapt<AnalyzeDialogRequest>();
+                            request.Lines.AddRange(responseDialog.Lines);
+                            return request;
+                        }
+                    )
                 );
                 var analyzed = await analyzer.ResponseStream.ToListAsync();
                 await collection.InsertManyAsync(
                     analyzed.Select(
                         response => new Dialog(ObjectId.Empty, episodeId, time: response.Time)
                         {
-                            Lines = response.Lines.Adapt<Dialog.Line[]>()
+                            Lines = response.Lines.Select(
+                                line => new Dialog.Line(
+                                    line.Words.Select(
+                                        word => new Dialog.Word(
+                                            word.BaseForm,
+                                            word.DictionaryForm,
+                                            word.Original,
+                                            word.Reading
+                                        )
+                                    )
+                                )
+                            )
                         }
                     )
                 );
@@ -164,9 +183,9 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<List<WordRank>> GetSortedWordCounts(AnalyzerMode mode) =>
             _mongoCollections[mode]
                 .Aggregate()
-                .Unwind<Dialog, Dialog.Line>(dialog => dialog.Lines)
-                .Unwind<Dialog.Line, Dialog.Word>(line => line.Words)
-                .SortByCount(word => word.BaseForm)
+                .Unwind(dialog => dialog.Lines)
+                .Unwind("Lines.Words")
+                .SortByCount<string>("$Lines.Words.BaseForm")
                 .Project(count => new WordRank(count.Id, count.Count))
                 .ToListAsync();
 

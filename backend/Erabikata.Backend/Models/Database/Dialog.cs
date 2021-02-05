@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -21,7 +22,7 @@ namespace Erabikata.Backend.Models.Database
         [DataMember] public double Time { get; set; }
 
         [DataMember]
-        public Line[] Lines { get; set; } = Array.Empty<Line>();
+        public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
 
         [DataContract]
         public record Word
@@ -45,6 +46,6 @@ namespace Erabikata.Backend.Models.Database
             [DataMember] public string OriginalForm { get; set; }
         }
 
-        public record Line(Word[] Words);
+        public record Line(IEnumerable<Word> Words);
     }
 }
