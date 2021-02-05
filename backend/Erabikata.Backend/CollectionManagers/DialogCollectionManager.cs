@@ -161,29 +161,18 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
             Find(baseForm, mode).CountDocumentsAsync();
 
-        public async Task<List<WordRank>> GetSortedWordCounts(AnalyzerMode mode)
-        {
-            var results = await _mongoCollections[mode]
-                .AggregateAsync(
-                    (PipelineDefinition<Dialog, WordRank>) new BsonDocument[]
-                    {
-                        new()
-                        {
-                            {
-                                "$project",
-                                new BsonDocument("BaseForm", "$Lines.Words.BaseForm")
-                            }
-                        },
-                        new() {{"$unwind", "$BaseForm"}},
-                        new() {{"$unwind", "$BaseForm"}}, new() {{"$sortByCount", "$BaseForm"}}
-                    }
-                );
-            return await results.ToListAsync();
-        }
+        public Task<List<WordRank>> GetSortedWordCounts(AnalyzerMode mode) =>
+            _mongoCollections[mode]
+                .Aggregate()
+                .Unwind<Dialog, Dialog.Line>(dialog => dialog.Lines)
+                .Unwind<Dialog.Line, Dialog.Word>(line => line.Words)
+                .SortByCount(word => word.BaseForm)
+                .Project(count => new WordRank(count.Id, count.Count))
+                .ToListAsync();
 
         public record WordRank(
             [property: BsonId] string BaseForm,
-            [property: BsonElement("count")] uint Count);
+            [property: BsonElement("count")] long Count);
 
         private IFindFluent<Dialog, Dialog> Find(string baseForm, AnalyzerMode analyzerMode) =>
             _mongoCollections[analyzerMode]
