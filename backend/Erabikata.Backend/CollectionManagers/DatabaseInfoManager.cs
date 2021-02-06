@@ -28,11 +28,11 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public async Task<string?> GetCurrentCommit()
+        public async Task<string> GetCurrentCommit()
         {
             var dbInfo = await _mongoCollection.Find(FilterDefinition<DatabaseInfo>.Empty)
                 .FirstOrDefaultAsync();
-            return dbInfo?.IngestedCommit;
+            return dbInfo?.IngestedCommit ?? string.Empty;
         }
     }
 }
