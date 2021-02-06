@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
-using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
@@ -17,14 +16,10 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class SubsController : ControllerBase
     {
-        private readonly SubtitleDatabaseManager _database;
         private readonly DialogCollectionManager _dialogCollection;
 
-        public SubsController(
-            SubtitleDatabaseManager database,
-            DialogCollectionManager dialogCollection)
+        public SubsController(DialogCollectionManager dialogCollection)
         {
-            _database = database;
             _dialogCollection = dialogCollection;
         }
 

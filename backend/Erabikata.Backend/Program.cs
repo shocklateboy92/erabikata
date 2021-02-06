@@ -14,7 +14,6 @@ namespace Erabikata.Backend
         {
             var host = CreateHostBuilder(args).Build();
 
-            await host.Services.GetRequiredService<SubtitleDatabaseManager>().Initialize();
             await host.Services.GetRequiredService<WordCountsManager>().Initialize();
 
             await host.RunAsync();
