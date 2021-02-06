@@ -28,27 +28,34 @@ namespace Erabikata.Backend.CollectionManagers
                         .Project(filter => filter.ShowId)
                         .ToListAsync();
                     var showIdMap = existingShows.ToHashSet();
-                    var tasks = ingestShows.ShowsToIngest.Where(
-                            show => !showIdMap.Contains(show.Info.Key.ParseId())
-                        )
-                        .Select(
-                            async show =>
-                            {
-                                var file = show.Files.FirstOrDefault(
-                                    name => name.EndsWith("english/include_styles.txt")
-                                );
-                                var styles = file == null
-                                    ? Enumerable.Empty<string>()
-                                    : await File.ReadAllLinesAsync(file);
+                    var toInsert = await Task.WhenAll(
+                        ingestShows.ShowsToIngest
+                            .Where(show => !showIdMap.Contains(show.Info.Key.ParseId()))
+                            .Select(
+                                async show =>
+                                {
+                                    var file = show.Files.FirstOrDefault(
+                                        name => name.EndsWith("english/include_styles.txt")
+                                    );
+                                    var styles = file == null
+                                        ? Enumerable.Empty<string>()
+                                        : await File.ReadAllLinesAsync(file);
 
-                                return new StyleFilter(
-                                    show.Info.Key.ParseId(),
-                                    styles,
-                                    show.Info.Episodes[0].Select(episode => episode.Key.ParseId())
-                                );
-                            }
-                        );
-                    await _mongoCollection.InsertManyAsync(await Task.WhenAll(tasks));
+                                    return new StyleFilter(
+                                        show.Info.Key.ParseId(),
+                                        styles,
+                                        show.Info.Episodes[0]
+                                            .Select(episode => episode.Key.ParseId())
+                                    );
+                                }
+                            )
+                    );
+
+                    if (toInsert.Any())
+                    {
+                        await _mongoCollection.InsertManyAsync(toInsert);
+                    }
+
                     break;
             }
         }
