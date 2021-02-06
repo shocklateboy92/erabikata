@@ -15,7 +15,10 @@ namespace Erabikata.Backend.Models.Output
         [DataContract]
         public class Sentence
         {
-            public Sentence(string id, double time, IReadOnlyList<string> text)
+            public Sentence(
+                string id,
+                double time,
+                [AdaptMember(nameof(EngSub.Lines))] IReadOnlyList<string> text)
             {
                 Id = id;
                 Time = time;

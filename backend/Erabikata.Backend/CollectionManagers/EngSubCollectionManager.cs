@@ -41,31 +41,37 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        private async Task IngestEngSubs(
-            IEnumerable<IngestShows.ShowToIngest> showsToIngest)
+        private async Task IngestEngSubs(IEnumerable<IngestShows.ShowToIngest> showsToIngest)
         {
             foreach (var (files, showInfo) in showsToIngest)
             {
-                await Task.WhenAll(showInfo.Episodes[0].Select(
-                    (episode, index) =>
-                    {
-                        var epNum = index + 1;
-                        var epFile = files.FirstOrDefault(
-                            filePath => filePath.EndsWith($"english/{epNum:00}.ass")
-                        );
+                await Task.WhenAll(
+                    showInfo.Episodes[0]
+                        .Select(
+                            (episode, index) =>
+                            {
+                                var epNum = index + 1;
+                                var epFile = files.FirstOrDefault(
+                                    filePath => filePath.EndsWith($"english/{epNum:00}.ass")
+                                );
 
-                        if (string.IsNullOrEmpty(epFile))
-                        {
-                            _logger.LogError(
-                                "Unable to find english file for episode ({EpNum}, {Key})",
-                                epNum.ToString(),
-                                episode.Key
-                            );
-                            return Task.CompletedTask;
-                        }
+                                if (string.IsNullOrEmpty(epFile))
+                                {
+                                    _logger.LogError(
+                                        "Unable to find english file for episode ({EpNum}, {Key})",
+                                        epNum.ToString(),
+                                        episode.Key
+                                    );
+                                    return Task.CompletedTask;
+                                }
 
-                        return IngestEpisode(epFile, int.Parse(episode.Key.Split('/').Last()));
-                    }));
+                                return IngestEpisode(
+                                    epFile,
+                                    int.Parse(episode.Key.Split('/').Last())
+                                );
+                            }
+                        )
+                );
             }
         }
 
@@ -101,7 +107,11 @@ namespace Erabikata.Backend.CollectionManagers
                 await client.RequestStream.WriteAsync(
                     new ParseAssRequestChunk
                     {
-                        Content = ByteString.CopyFrom(buffer.Memory.ToArray(), 0, lastReadBytesCount)
+                        Content = ByteString.CopyFrom(
+                            buffer.Memory.ToArray(),
+                            0,
+                            lastReadBytesCount
+                        )
                     }
                 );
             }
@@ -109,9 +119,13 @@ namespace Erabikata.Backend.CollectionManagers
             await client.RequestStream.CompleteAsync();
         }
 
-        public Task<List<EngSub>> GetNearestSubs(int episodeId, double time, int count) =>
+        public Task<List<EngSub>> GetNearestSubs(
+            int episodeId,
+            double time,
+            int count,
+            HashSet<string> styleFilter) =>
             _mongoCollection.Aggregate()
-                .Match(sub => sub.EpisodeId == episodeId)
+                .Match(sub => sub.EpisodeId == episodeId && styleFilter.Contains(sub.Style))
                 // Turns out, we can't do this using LINQ until Mongo Linq V3 gets released
                 // Don't know when that will be.
                 .AppendStage<EngSub>(

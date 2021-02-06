@@ -4,6 +4,7 @@ using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Output;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using MoreLinq.Extensions;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -12,10 +13,14 @@ namespace Erabikata.Backend.Controllers
     public class EngSubsController : ControllerBase
     {
         private readonly EngSubCollectionManager _engSubCollectionManager;
+        private readonly StyleFilterCollectionManager _styleFilterCollection;
 
-        public EngSubsController(EngSubCollectionManager engSubCollectionManager)
+        public EngSubsController(
+            EngSubCollectionManager engSubCollectionManager,
+            StyleFilterCollectionManager styleFilterCollection)
         {
             _engSubCollectionManager = engSubCollectionManager;
+            _styleFilterCollection = styleFilterCollection;
         }
 
         public async Task<ActionResult<EngSubsResponse>> Index(
@@ -28,7 +33,13 @@ namespace Erabikata.Backend.Controllers
                 return BadRequest();
             }
 
-            var subs = await _engSubCollectionManager.GetNearestSubs(episode, timeStamp, count);
+            var styles = await _styleFilterCollection.GetActiveStylesFor(episode);
+            var subs = await _engSubCollectionManager.GetNearestSubs(
+                episode,
+                timeStamp,
+                count,
+                styles.ToHashSet()
+            );
             return new EngSubsResponse
             {
                 Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
