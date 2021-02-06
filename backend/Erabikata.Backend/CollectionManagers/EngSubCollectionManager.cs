@@ -61,7 +61,7 @@ namespace Erabikata.Backend.CollectionManagers
                 subtitleEvents.Select(
                     dialog => new EngSub(
                         ObjectId.Empty,
-                        time: TimeSpan.FromMilliseconds(dialog.Time).TotalSeconds,
+                        time: dialog.Time,
                         lines: dialog.Lines.ToArray(),
                         isComment: dialog.IsComment,
                         style: dialog.Style,

@@ -20,7 +20,7 @@ class AssParserServicer(parser_pb2_grpc.AssParserServiceServicer):
         for event in doc.events:
             yield parser_pb2.AssParsedResponseDialog(
                 lines=event.plaintext.splitlines(keepends=False),
-                time=event.start,
+                time=float(event.start) / 1000,
                 isComment=event.type != "Dialogue",
                 style=event.style,
             )
