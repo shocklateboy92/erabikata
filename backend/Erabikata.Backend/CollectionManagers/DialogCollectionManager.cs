@@ -165,6 +165,9 @@ namespace Erabikata.Backend.CollectionManagers
                         reading: word.Reading,
                         isInParenthesis: bracketCount > 0
                     )
+                    {
+                        PartOfSpeech = word.PartOfSpeech
+                    }
                 );
             }
 

@@ -49,9 +49,9 @@ namespace Erabikata.Backend.Models.Database
 
             [DataMember] public string Reading { get; set; }
 
-            [DataMember] public string[] PartOfSpeech { get; set; } = Array.Empty<string>();
-
             [DataMember] public bool IsInParenthesis { get; set; }
+
+            [DataMember] public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 
             [DataMember] public string OriginalForm { get; set; }
         }
