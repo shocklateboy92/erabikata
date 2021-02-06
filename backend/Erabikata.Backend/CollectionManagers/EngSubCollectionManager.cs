@@ -58,7 +58,7 @@ namespace Erabikata.Backend.CollectionManagers
                         {
                             _logger.LogError(
                                 "Unable to find english file for episode ({EpNum}, {Key})",
-                                epNum,
+                                epNum.ToString(),
                                 episode.Key
                             );
                             return Task.CompletedTask;

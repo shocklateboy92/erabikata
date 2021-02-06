@@ -35,10 +35,8 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] double time = 0.0,
             [FromQuery] int count = 3)
         {
-            if (int.TryParse(episode, out var episodeId) &&
-                _database.AllEpisodesV2.ContainsKey(episodeId))
+            if (int.TryParse(episode, out var episodeId))
             {
-                var episodeV2 = _database.AllEpisodesV2[episodeId];
                 var dialog = await _dialogCollection.GetNearestDialog(
                     episodeId,
                     time,
@@ -65,7 +63,7 @@ namespace Erabikata.Backend.Controllers
                                 .ToArray()
                         )
                     )
-                ) {EpisodeTitle = $"{episodeV2.Parent.Title} Episode {episodeV2.Number}"};
+                ) {EpisodeTitle = dialog.FirstOrDefault()?.EpisodeTitle};
             }
 
             return BadRequest();
