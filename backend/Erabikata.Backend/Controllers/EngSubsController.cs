@@ -38,7 +38,7 @@ namespace Erabikata.Backend.Controllers
                 episode,
                 timeStamp,
                 count,
-                styles.ToHashSet()
+                styles
             );
             return new EngSubsResponse
             {

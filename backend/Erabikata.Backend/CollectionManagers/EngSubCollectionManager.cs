@@ -123,7 +123,7 @@ namespace Erabikata.Backend.CollectionManagers
             int episodeId,
             double time,
             int count,
-            HashSet<string> styleFilter) =>
+            IEnumerable<string> styleFilter) =>
             _mongoCollection.Aggregate()
                 .Match(sub => sub.EpisodeId == episodeId && styleFilter.Contains(sub.Style))
                 // Turns out, we can't do this using LINQ until Mongo Linq V3 gets released
