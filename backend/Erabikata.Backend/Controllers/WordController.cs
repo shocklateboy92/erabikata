@@ -59,7 +59,7 @@ namespace Erabikata.Backend.Controllers
                 dialog => new WordInfo.Occurence
                 {
                     EpisodeId = dialog.EpisodeId.ToString(),
-                    EpisodeName = $"tbd",
+                    EpisodeName = dialog.EpisodeTitle,
                     Text = new DialogInfo(
                         dialog.Time,
                         dialog.Lines.Select(

@@ -76,7 +76,8 @@ namespace Erabikata.Backend.CollectionManagers
                                             path.EndsWith($"input/{index + 1:00}.srt")
                                 ),
                                 (index + 1, info.Key),
-                                includeStyles
+                                includeStyles,
+                                showInfo.Title
                             )
                         )
                 );
@@ -86,7 +87,8 @@ namespace Erabikata.Backend.CollectionManagers
         private async Task IngestEpisode(
             string? file,
             (int index, string key) info,
-            IReadOnlySet<string> includeStyles)
+            IReadOnlySet<string> includeStyles,
+            string showTitle)
         {
             var episodeId = int.Parse(info.key.Split('/').Last());
             if (file == null)
@@ -122,21 +124,27 @@ namespace Erabikata.Backend.CollectionManagers
                 var analyzed = await analyzer.ResponseStream.ToListAsync();
                 await collection.InsertManyAsync(
                     analyzed.Select(
-                        response => new Dialog(ObjectId.Empty, episodeId, time: response.Time)
-                        {
-                            Lines = response.Lines.Select(
-                                line => new Dialog.Line(
-                                    line.Words.Select(
-                                        word => new Dialog.Word(
-                                            word.BaseForm,
-                                            word.DictionaryForm,
-                                            word.Original,
-                                            word.Reading
+                        response =>
+                            new Dialog(
+                                ObjectId.Empty,
+                                episodeId,
+                                time: response.Time,
+                                episodeTitle: $"{showTitle} Episode {info.index}"
+                            )
+                            {
+                                Lines = response.Lines.Select(
+                                    line => new Dialog.Line(
+                                        line.Words.Select(
+                                            word => new Dialog.Word(
+                                                word.BaseForm,
+                                                word.DictionaryForm,
+                                                word.Original,
+                                                word.Reading
+                                            )
                                         )
                                     )
                                 )
-                            )
-                        }
+                            }
                     )
                 );
             }

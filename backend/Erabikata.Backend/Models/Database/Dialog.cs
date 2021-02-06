@@ -8,21 +8,23 @@ namespace Erabikata.Backend.Models.Database
 {
     public record Dialog
     {
-        public Dialog(ObjectId id, int episodeId, double time)
+        public Dialog(ObjectId id, int episodeId, double time, string episodeTitle)
         {
             Id = id;
             EpisodeId = episodeId;
             Time = time;
+            EpisodeTitle = episodeTitle;
         }
 
         [BsonId] [DataMember] public ObjectId Id { get; set; }
 
         [DataMember] public int EpisodeId { get; set; }
 
+        [DataMember] public string EpisodeTitle { get; set; }
+
         [DataMember] public double Time { get; set; }
 
-        [DataMember]
-        public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
+        [DataMember] public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
 
         [DataContract]
         public record Word
