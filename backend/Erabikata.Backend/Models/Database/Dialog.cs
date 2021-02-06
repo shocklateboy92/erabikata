@@ -29,12 +29,18 @@ namespace Erabikata.Backend.Models.Database
         [DataContract]
         public record Word
         {
-            public Word(string baseForm, string dictionaryForm, string originalForm, string reading)
+            public Word(
+                string baseForm,
+                string dictionaryForm,
+                string originalForm,
+                string reading,
+                bool isInParenthesis = false)
             {
                 BaseForm = baseForm;
                 DictionaryForm = dictionaryForm;
                 OriginalForm = originalForm;
                 Reading = reading;
+                IsInParenthesis = isInParenthesis;
             }
 
             [DataMember] public string BaseForm { get; set; }
@@ -44,6 +50,8 @@ namespace Erabikata.Backend.Models.Database
             [DataMember] public string Reading { get; set; }
 
             [DataMember] public string[] PartOfSpeech { get; set; } = Array.Empty<string>();
+
+            [DataMember] public bool IsInParenthesis { get; set; }
 
             [DataMember] public string OriginalForm { get; set; }
         }

@@ -130,24 +130,45 @@ namespace Erabikata.Backend.CollectionManagers
                                 episodeId,
                                 time: response.Time,
                                 episodeTitle: $"{showTitle} Episode {info.index}"
-                            )
-                            {
-                                Lines = response.Lines.Select(
-                                    line => new Dialog.Line(
-                                        line.Words.Select(
-                                            word => new Dialog.Word(
-                                                word.BaseForm,
-                                                word.DictionaryForm,
-                                                word.Original,
-                                                word.Reading
-                                            )
-                                        )
-                                    )
-                                )
-                            }
+                            ) {Lines = response.Lines.Select(ProcessLine)}
                     )
                 );
             }
+        }
+
+        private static Dialog.Line ProcessLine(AnalyzeDialogResponse.Types.Line line)
+        {
+            var results = new List<Dialog.Word>(line.Words.Count);
+            foreach (var word in line.Words)
+            {
+                var bracketCount = 0;
+                foreach (var c in word.Original)
+                {
+                    switch (c)
+                    {
+                        case '(':
+                        case '（':
+                            bracketCount++;
+                            break;
+                        case ')':
+                        case '）':
+                            bracketCount--;
+                            break;
+                    }
+                }
+
+                results.Add(
+                    new Dialog.Word(
+                        baseForm: word.BaseForm,
+                        dictionaryForm: word.DictionaryForm,
+                        originalForm: word.Original,
+                        reading: word.Reading,
+                        isInParenthesis: bracketCount > 0
+                    )
+                );
+            }
+
+            return new Dialog.Line(results);
         }
 
         private const int TimeDelta = 10;
@@ -193,6 +214,10 @@ namespace Erabikata.Backend.CollectionManagers
                 .Aggregate()
                 .Unwind(dialog => dialog.Lines)
                 .Unwind("Lines.Words")
+                .Match(
+                    document => document["Lines"]["Words"]["IsInParenthesis"] ==
+                                BsonValue.Create(false)
+                )
                 .SortByCount<string>("$Lines.Words.BaseForm")
                 .Project(count => new WordRank(count.Id, count.Count))
                 .ToListAsync();
