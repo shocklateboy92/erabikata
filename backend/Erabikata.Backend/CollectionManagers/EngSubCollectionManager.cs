@@ -1,15 +1,14 @@
-using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Core.Utils;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -17,17 +16,17 @@ namespace Erabikata.Backend.CollectionManagers
 {
     public class EngSubCollectionManager : ICollectionManager
     {
-        private readonly SeedDataProvider _seedDataProvider;
         private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
         private readonly IMongoCollection<EngSub> _mongoCollection;
+        private readonly ILogger<EngSubCollectionManager> _logger;
 
         public EngSubCollectionManager(
-            SeedDataProvider seedDataProvider,
             IMongoDatabase mongoDatabase,
-            AssParserService.AssParserServiceClient assParserServiceClient)
+            AssParserService.AssParserServiceClient assParserServiceClient,
+            ILogger<EngSubCollectionManager> logger)
         {
-            _seedDataProvider = seedDataProvider;
             _assParserServiceClient = assParserServiceClient;
+            _logger = logger;
             _mongoCollection = mongoDatabase.GetCollection<EngSub>(nameof(EngSub));
         }
 
@@ -35,26 +34,45 @@ namespace Erabikata.Backend.CollectionManagers
         {
             switch (activity)
             {
-                case IngestShows:
+                case IngestShows ingestShows:
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<EngSub>.Empty);
-                    await IngestEngSubs();
+                    await IngestEngSubs(ingestShows.ShowsToIngest);
                     break;
             }
         }
 
-        private async Task IngestEngSubs()
+        private async Task IngestEngSubs(
+            IEnumerable<IngestShows.ShowToIngest> showsToIngest)
         {
-            var inputFiles = await _seedDataProvider.GetShowMetadataFiles("english", "ass");
-            foreach (var showFiles in inputFiles)
+            foreach (var (files, showInfo) in showsToIngest)
             {
-                await Task.WhenAll(showFiles.Select(IngestEpisode));
+                await Task.WhenAll(showInfo.Episodes[0].Select(
+                    (episode, index) =>
+                    {
+                        var epNum = index + 1;
+                        var epFile = files.FirstOrDefault(
+                            filePath => filePath.EndsWith($"english/{epNum:00}.ass")
+                        );
+
+                        if (string.IsNullOrEmpty(epFile))
+                        {
+                            _logger.LogError(
+                                "Unable to find english file for episode ({EpNum}, {Key})",
+                                epNum,
+                                episode.Key
+                            );
+                            return Task.CompletedTask;
+                        }
+
+                        return IngestEpisode(epFile, int.Parse(episode.Key.Split('/').Last()));
+                    }));
             }
         }
 
-        private async Task IngestEpisode(SeedDataProvider.ShowContentFile showFile)
+        private async Task IngestEpisode(string filePath, int id)
         {
             var client = _assParserServiceClient.ParseAss();
-            await WriteFileToParserClient(client, showFile.Path);
+            await WriteFileToParserClient(client, filePath);
 
             var subtitleEvents = await client.ResponseStream.ToListAsync();
             await _mongoCollection.InsertManyAsync(
@@ -65,7 +83,7 @@ namespace Erabikata.Backend.CollectionManagers
                         lines: dialog.Lines.ToArray(),
                         isComment: dialog.IsComment,
                         style: dialog.Style,
-                        episodeId: showFile.Id
+                        episodeId: id
                     )
                 )
             );
