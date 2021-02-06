@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Erabikata.Backend.Managers;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Models.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -14,24 +14,24 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class ImageController : ControllerBase
     {
-        private readonly SubtitleDatabaseManager _subtitleDatabaseManager;
+        private readonly EpisodeInfoCollectionManager _episodeInfoCollectionManager;
         private readonly VideoInputSettings _settings;
 
         public ImageController(
-            SubtitleDatabaseManager subtitleDatabaseManager,
-            IOptions<VideoInputSettings> settings)
+            IOptions<VideoInputSettings> settings,
+            EpisodeInfoCollectionManager episodeInfoCollectionManager)
         {
-            _subtitleDatabaseManager = subtitleDatabaseManager;
+            _episodeInfoCollectionManager = episodeInfoCollectionManager;
             _settings = settings.Value;
         }
 
         [Route("{episodeId}/{time}")]
         public async Task<ActionResult> Index(int episodeId, double time, bool includeSubs = true)
         {
-            if (_subtitleDatabaseManager.AllEpisodesV2.ContainsKey(episodeId))
+            var filePath = await _episodeInfoCollectionManager.GetFilePathOfEpisode(episodeId);
+            if (filePath != null)
             {
-                var input = _subtitleDatabaseManager.AllEpisodesV2[episodeId].FilePath
-                    .Replace("/mnt/data", _settings.RootDirectory);
+                var input = filePath.Replace("/mnt/data", _settings.RootDirectory);
                 var cachePath =
                     $"{_settings.ImageCacheDir}/{includeSubs}-{episodeId}-{time:00000.00}.png";
 

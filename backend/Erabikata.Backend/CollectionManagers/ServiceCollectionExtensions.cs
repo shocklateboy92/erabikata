@@ -11,6 +11,7 @@ namespace Erabikata.Backend.CollectionManagers
             AddCollectionManager<DummyCollectionManager>(serviceCollection);
             AddCollectionManager<DialogCollectionManager>(serviceCollection);
             AddCollectionManager<EngSubCollectionManager>(serviceCollection);
+            AddCollectionManager<EpisodeInfoCollectionManager>(serviceCollection);
             AddCollectionManager<DatabaseInfoManager>(serviceCollection);
             return serviceCollection;
         }
