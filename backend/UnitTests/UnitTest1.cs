@@ -58,7 +58,7 @@ namespace UnitTests
         [Test]
         public async Task Test2()
         {
-            var res = await Manager.GetSortedWordCounts(AnalyzerMode.SudachiC);
+            var res = await Manager.GetSortedWordCounts(AnalyzerMode.SudachiC, new string[] { });
             Console.WriteLine(res.Take(3).ToJson());
         }
 
@@ -72,10 +72,13 @@ namespace UnitTests
             using var request = client.ParseAss();
             int count;
             using var memory = MemoryPool<byte>.Shared.Rent(4096);
-            while ((count = await stream.ReadAsync(memory.Memory))> 0)
+            while ((count = await stream.ReadAsync(memory.Memory)) > 0)
             {
                 await request.RequestStream.WriteAsync(
-                    new ParseAssRequestChunk {Content = ByteString.CopyFrom(memory.Memory.ToArray(), 0, count)}
+                    new ParseAssRequestChunk
+                    {
+                        Content = ByteString.CopyFrom(memory.Memory.ToArray(), 0, count)
+                    }
                 );
             }
 
