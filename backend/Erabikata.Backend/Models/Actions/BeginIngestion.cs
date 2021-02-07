@@ -2,7 +2,7 @@ using System.Runtime.Serialization;
 
 namespace Erabikata.Backend.Models.Actions
 {
-    public class BeginIngestion : Activity
+    public record BeginIngestion : Activity
     {
         public BeginIngestion(string startCommit, string endCommit)
         {

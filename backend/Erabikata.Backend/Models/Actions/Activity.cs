@@ -17,7 +17,7 @@ namespace Erabikata.Backend.Models.Actions
     [KnownType(typeof(UnlearnWord))]
     [KnownType(typeof(BeginIngestion))]
     [KnownType(typeof(EndIngestion))]
-    public class Activity
+    public record Activity
     {
         private const string DiscriminatorName = "activityType";
     }

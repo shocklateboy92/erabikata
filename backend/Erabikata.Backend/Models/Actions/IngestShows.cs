@@ -4,7 +4,7 @@ using Erabikata.Models.Input.V2;
 
 namespace Erabikata.Backend.Models.Actions
 {
-    public class IngestShows : Activity
+    public record IngestShows : Activity
     {
         public IngestShows(ICollection<ShowToIngest> showsToIngest)
         {

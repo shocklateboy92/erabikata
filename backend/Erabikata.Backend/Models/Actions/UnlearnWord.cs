@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 namespace Erabikata.Backend.Models.Actions
 {
     [DataContract]
-    public class UnlearnWord : Activity
+    public record UnlearnWord : Activity
     {
         public UnlearnWord(string baseForm)
         {

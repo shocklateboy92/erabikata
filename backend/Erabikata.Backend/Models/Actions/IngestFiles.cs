@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Erabikata.Backend.Models.Actions
 {
-    public class IngestFiles : Activity
+    public record IngestFiles : Activity
     {
         public IngestFiles(ICollection<string> filesInSeed)
         {
