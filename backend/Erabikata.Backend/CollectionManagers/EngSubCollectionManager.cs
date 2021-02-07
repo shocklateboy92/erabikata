@@ -91,7 +91,8 @@ namespace Erabikata.Backend.CollectionManagers
                         style: dialog.Style,
                         episodeId: id
                     )
-                )
+                ),
+                new InsertManyOptions {IsOrdered = false}
             );
         }
 

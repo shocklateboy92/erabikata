@@ -131,7 +131,8 @@ namespace Erabikata.Backend.CollectionManagers
                                 time: response.Time,
                                 episodeTitle: $"{showTitle} Episode {info.index}"
                             ) {Lines = response.Lines.Select(ProcessLine)}
-                    )
+                    ),
+                    new InsertManyOptions {IsOrdered = false}
                 );
             }
         }
@@ -209,12 +210,11 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
             Find(baseForm, mode).CountDocumentsAsync();
 
-        public Task<List<AggregateSortByCountResult<string>>>
-            GetSortedWordCounts(
-                AnalyzerMode mode,
-                IEnumerable<string> ignoredPartsOfSpeech,
-                int max = int.MaxValue,
-                int skip = 0) =>
+        public Task<List<AggregateSortByCountResult<string>>> GetSortedWordCounts(
+            AnalyzerMode mode,
+            IEnumerable<string> ignoredPartsOfSpeech,
+            int max = int.MaxValue,
+            int skip = 0) =>
             _mongoCollections[mode]
                 .Aggregate()
                 .Unwind(dialog => dialog.Lines)
