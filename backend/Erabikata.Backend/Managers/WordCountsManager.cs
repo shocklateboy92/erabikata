@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Grpc.Core.Logging;
 using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
 namespace Erabikata.Backend.Managers
 {
@@ -11,25 +12,33 @@ namespace Erabikata.Backend.Managers
     {
         private readonly ILogger<WordCountsManager> _logger;
         private readonly DialogCollectionManager _dialogCollectionManager;
+        private readonly PartOfSpeechFilterCollectionManager _partOfSpeechFilter;
 
         public WordCountsManager(
             ILogger<WordCountsManager> logger,
-            DialogCollectionManager dialogCollectionManager)
+            DialogCollectionManager dialogCollectionManager,
+            PartOfSpeechFilterCollectionManager partOfSpeechFilter)
         {
             _logger = logger;
             _dialogCollectionManager = dialogCollectionManager;
+            _partOfSpeechFilter = partOfSpeechFilter;
         }
 
         public async Task Initialize()
         {
             _logger.LogInformation("Building word ranks map");
-            var wordRanks = new Dictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>>();
+            var wordRanks =
+                new Dictionary<AnalyzerMode, List<AggregateSortByCountResult<string>>>();
+            var ignoredPartsOfSpeech = await _partOfSpeechFilter.GetIgnoredPartOfSpeech();
             foreach (var mode in new[]
             {
                 AnalyzerMode.SudachiA, AnalyzerMode.SudachiB, AnalyzerMode.SudachiC
             })
             {
-                wordRanks.Add(mode, await _dialogCollectionManager.GetSortedWordCounts(mode));
+                wordRanks.Add(
+                    mode,
+                    await _dialogCollectionManager.GetSortedWordCounts(mode, ignoredPartsOfSpeech)
+                );
             }
 
             WordRanks = wordRanks;
@@ -37,7 +46,7 @@ namespace Erabikata.Backend.Managers
             WordRanksMap = WordRanks.ToDictionary(
                 ranks => ranks.Key,
                 ranks => ranks.Value.Select((kv, index) => (kv, index))
-                    .ToDictionary(kvp => kvp.kv.BaseForm, kvp => kvp.index)
+                    .ToDictionary(kvp => kvp.kv.Id, kvp => kvp.index)
             );
         }
 
@@ -47,10 +56,10 @@ namespace Erabikata.Backend.Managers
             private set;
         } = new Dictionary<AnalyzerMode, Dictionary<string, int>>();
 
-        public IReadOnlyDictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>> WordRanks
+        public IReadOnlyDictionary<AnalyzerMode, List<AggregateSortByCountResult<string>>> WordRanks
         {
             get;
             private set;
-        } = new Dictionary<AnalyzerMode, List<DialogCollectionManager.WordRank>>();
+        } = new Dictionary<AnalyzerMode, List<AggregateSortByCountResult<string>>>();
     }
 }

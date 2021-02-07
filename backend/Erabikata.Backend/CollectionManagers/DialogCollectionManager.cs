@@ -164,10 +164,7 @@ namespace Erabikata.Backend.CollectionManagers
                         originalForm: word.Original,
                         reading: word.Reading,
                         isInParenthesis: bracketCount > 0
-                    )
-                    {
-                        PartOfSpeech = word.PartOfSpeech
-                    }
+                    ) {PartOfSpeech = word.PartOfSpeech}
                 );
             }
 
@@ -212,18 +209,32 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
             Find(baseForm, mode).CountDocumentsAsync();
 
-        public Task<List<WordRank>> GetSortedWordCounts(AnalyzerMode mode) =>
+        public Task<List<AggregateSortByCountResult<string>>>
+            GetSortedWordCounts(
+                AnalyzerMode mode,
+                IEnumerable<string> ignoredPartsOfSpeech,
+                int max = int.MaxValue,
+                int skip = 0) =>
             _mongoCollections[mode]
                 .Aggregate()
                 .Unwind(dialog => dialog.Lines)
-                .Unwind("Lines.Words")
+                .Unwind<IntermediateDialog>($"{nameof(Dialog.Lines)}.{nameof(Dialog.Line.Words)}")
                 .Match(
-                    document => document["Lines"]["Words"]["IsInParenthesis"] ==
-                                BsonValue.Create(false)
+                    dialog => !dialog.Lines.Words.IsInParenthesis &&
+                              dialog.Lines.Words.PartOfSpeech.Any(
+                                  pos => !ignoredPartsOfSpeech.Contains(pos)
+                              )
                 )
-                .SortByCount<string>("$Lines.Words.BaseForm")
-                .Project(count => new WordRank(count.Id, count.Count))
+                .SortByCount<string>(
+                    $"${nameof(Dialog.Lines)}.{nameof(Dialog.Line.Words)}.{nameof(Dialog.Word.BaseForm)}"
+                )
+                .Skip(skip)
+                .Limit(max)
                 .ToListAsync();
+
+        private record IntermediateLine(Dialog.Word Words);
+
+        private record IntermediateDialog(IntermediateLine Lines);
 
         public record WordRank(
             [property: BsonId] string BaseForm,

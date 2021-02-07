@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
-using Erabikata.Backend.Managers;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
@@ -15,39 +14,38 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class WordsController : ControllerBase
     {
-        private readonly WordCountsManager _wordCountsManager;
         private readonly DialogCollectionManager _dialogCollectionManager;
+        private readonly PartOfSpeechFilterCollectionManager _partOfSpeechFilter;
 
         public WordsController(
-            WordCountsManager wordCountsManager,
-            DialogCollectionManager dialogCollectionManager)
+            DialogCollectionManager dialogCollectionManager,
+            PartOfSpeechFilterCollectionManager partOfSpeechFilter)
         {
-            _wordCountsManager = wordCountsManager;
             _dialogCollectionManager = dialogCollectionManager;
+            _partOfSpeechFilter = partOfSpeechFilter;
         }
 
         [HttpGet]
         [Route("[action]")]
-        public IEnumerable<WordInfo> Ranked(
+        public async Task<IEnumerable<WordInfo>> Ranked(
             [Required] Analyzer analyzer,
-            [FromQuery] bool respectPartOfSpeechFilter = true,
-            [FromQuery] bool excludeKnownWords = true,
             [FromQuery] int max = 100,
-            [FromQuery] int skip = 0,
-            [FromQuery] HashSet<string>? onlyPartsOfSpeech = null)
+            [FromQuery] int skip = 0)
         {
-            return _wordCountsManager.WordRanks[analyzer.ToAnalyzerMode()]
-                .Select(
-                    wordCount => new WordInfo
-                    {
-                        Text = wordCount.BaseForm,
-                        TotalOccurrences = wordCount.Count,
-                        Rank = _wordCountsManager.WordRanksMap[analyzer.ToAnalyzerMode()][
-                            wordCount.BaseForm],
-                    }
-                )
-                .Skip(skip)
-                .Take(max);
+            var ignoredPartsOfSpeech = await _partOfSpeechFilter.GetIgnoredPartOfSpeech();
+            var ranks = await _dialogCollectionManager.GetSortedWordCounts(
+                analyzer.ToAnalyzerMode(),
+                ignoredPartsOfSpeech,
+                max,
+                skip
+            );
+
+            return ranks.Select(
+                (result, index) => new WordInfo
+                {
+                    Text = result.Id, Rank = skip + index, TotalOccurrences = result.Count
+                }
+            );
         }
 
         [HttpGet]
