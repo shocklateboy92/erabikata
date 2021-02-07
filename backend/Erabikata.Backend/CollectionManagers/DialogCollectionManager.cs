@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input.V2;
@@ -70,15 +71,22 @@ namespace Erabikata.Backend.CollectionManagers
                 await Task.WhenAll(
                     showInfo.Episodes[0]
                         .Select(
-                            (info, index) => IngestEpisode(
-                                files.FirstOrDefault(
-                                    path => path.EndsWith($"input/{index + 1:00}.ass") ||
-                                            path.EndsWith($"input/{index + 1:00}.srt")
-                                ),
-                                (index + 1, info.Key),
-                                includeStyles,
-                                showInfo.Title
-                            )
+                            (info, index) =>
+                            {
+                                var epNum = index + 1;
+                                return IngestEpisode(
+                                    files.FirstOrDefault(
+                                        path => SeedDataProvider.IsPathForEpisode(
+                                            path,
+                                            "input",
+                                            epNum
+                                        )
+                                    ),
+                                    (epNum, info.Key),
+                                    includeStyles,
+                                    showInfo.Title
+                                );
+                            }
                         )
                 );
             }

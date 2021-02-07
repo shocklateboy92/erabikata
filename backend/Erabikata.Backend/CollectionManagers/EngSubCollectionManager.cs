@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Google.Protobuf;
@@ -52,7 +53,11 @@ namespace Erabikata.Backend.CollectionManagers
                             {
                                 var epNum = index + 1;
                                 var epFile = files.FirstOrDefault(
-                                    filePath => filePath.EndsWith($"english/{epNum:00}.ass")
+                                    filePath => SeedDataProvider.IsPathForEpisode(
+                                        filePath,
+                                        "english",
+                                        epNum
+                                    )
                                 );
 
                                 if (string.IsNullOrEmpty(epFile))

@@ -85,5 +85,8 @@ namespace Erabikata.Backend.DataProviders
             );
             return results!;
         }
+
+        public static bool IsPathForEpisode(string path, string type, int epNum) =>
+            path.EndsWith($"{type}/{epNum:00}.ass") || path.EndsWith($"{type}/{epNum:00}.srt");
     }
 }
