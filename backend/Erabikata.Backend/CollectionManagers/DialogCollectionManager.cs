@@ -220,9 +220,11 @@ namespace Erabikata.Backend.CollectionManagers
                 .Unwind(dialog => dialog.Lines)
                 .Unwind<IntermediateDialog>($"{nameof(Dialog.Lines)}.{nameof(Dialog.Line.Words)}")
                 .Match(
-                    dialog => !dialog.Lines.Words.IsInParenthesis &&
-                              dialog.Lines.Words.PartOfSpeech.Any(
-                                  pos => !ignoredPartsOfSpeech.Contains(pos)
+                    dialog => dialog.Lines.Words.IsInParenthesis == false &&
+                              !dialog.Lines.Words.PartOfSpeech.Any(
+                                  // ReSharper disable once ConvertClosureToMethodGroup
+                                  // LINQ to Mongo Query generator can't handle method groups
+                                  pos => ignoredPartsOfSpeech.Contains(pos)
                               )
                 )
                 .SortByCount<string>(
