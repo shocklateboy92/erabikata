@@ -9,6 +9,7 @@ namespace Erabikata.Backend.Models.Actions
     [BsonKnownTypes(
         typeof(LearnWord),
         typeof(UnlearnWord),
+        typeof(DictionaryUpdate),
         typeof(IncludePartOfSpeech),
         typeof(ExcludePartOfSpeech),
         typeof(BeginIngestion),
@@ -17,6 +18,7 @@ namespace Erabikata.Backend.Models.Actions
     [JsonConverter(typeof(JsonInheritanceConverter), DiscriminatorName)]
     [KnownType(typeof(LearnWord))]
     [KnownType(typeof(UnlearnWord))]
+    [KnownType(typeof(DictionaryUpdate))]
     [KnownType(typeof(IncludePartOfSpeech))]
     [KnownType(typeof(ExcludePartOfSpeech))]
     [KnownType(typeof(BeginIngestion))]

@@ -34,5 +34,10 @@ namespace Erabikata.Backend.CollectionManagers
                 .FirstOrDefaultAsync();
             return dbInfo?.IngestedCommit ?? string.Empty;
         }
+
+        public Task<string?> GetCurrentDictionary() =>
+            _mongoCollection.Find(FilterDefinition<DatabaseInfo>.Empty)
+                .Project(dbInfo => dbInfo.CurrentDictionary)
+                .FirstOrDefaultAsync();
     }
 }
