@@ -5,8 +5,10 @@ using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
+using Erabikata.Backend.Models.Input.Generated;
 using Grpc.Core.Logging;
 using Microsoft.Extensions.Logging;
 
@@ -39,7 +41,14 @@ namespace Erabikata.Backend.CollectionMiddlewares
                         break;
                     }
 
-                    await FetchDictionary(sourceUrl);
+                    var dict = await FetchDictionary(sourceUrl);
+                    if (dict != null)
+                    {
+                        await next(new DictionaryIngestion(dict));
+                        var poses = dict.Entry.SelectMany(entry => entry.Sense.SelectMany(sense => sense.Pos))
+                            .Distinct();
+                        _logger.LogInformation("Got Poses: {0}", string.Join(",", poses));
+                    }
 
                     break;
                 default:
@@ -48,7 +57,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
             }
         }
 
-        private async Task FetchDictionary(string sourceUrl)
+        private async Task<JMdict?> FetchDictionary(string sourceUrl)
         {
             var response = await _httpClient.GetAsync(sourceUrl);
             response.EnsureSuccessStatusCode();
@@ -59,9 +68,10 @@ namespace Erabikata.Backend.CollectionMiddlewares
                     CompressionMode.Decompress
                 )
             );
-            var str = await stream.ReadToEndAsync();
-            _logger.LogInformation(string.Join("\n", response.Headers));
-            _logger.LogInformation(string.Join("\n", str.Split().Take(10)));
+
+            var serializer = new XmlSerializer(typeof(JMdict), new XmlRootAttribute("JMdict"));
+            var jmDict = (JMdict?) serializer.Deserialize(stream);
+            return jmDict;
         }
     }
 }
