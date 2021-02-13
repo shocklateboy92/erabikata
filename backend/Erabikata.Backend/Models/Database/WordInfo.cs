@@ -23,6 +23,7 @@ namespace Erabikata.Backend.Models.Database
         [DataMember] public IEnumerable<string> Readings { get; set; }
 
         [DataMember]
-        public IEnumerable<string> Normalized { get; set; } = Enumerable.Empty<string>();
+        public IEnumerable<IEnumerable<string>> Normalized { get; set; } =
+            Enumerable.Empty<IEnumerable<string>>();
     }
 }

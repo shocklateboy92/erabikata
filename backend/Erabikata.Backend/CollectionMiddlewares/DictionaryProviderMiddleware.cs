@@ -1,13 +1,17 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
+using Erabikata.Backend.Models.Database;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
 
 namespace Erabikata.Backend.CollectionMiddlewares
 {
@@ -35,7 +39,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                 if (currentUrl != sourceUrl)
                 {
                     var dict = await FetchDictionary(sourceUrl);
-                    await next(new DictionaryIngestion(dict));
+                    await next(new DictionaryIngestion(ProcessDictionary(dict).ToList()));
                 }
             }
 
@@ -56,5 +60,15 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
             return await XElement.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
         }
+
+        public static IEnumerable<WordInfo> ProcessDictionary(XContainer dictionaryIngestion) =>
+            dictionaryIngestion.Elements("entry")
+                .Select(
+                    entry => new WordInfo(
+                        ObjectId.Empty,
+                        entry.Elements("k_ele").Select(ele => ele.Element("keb")!.Value),
+                        entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value)
+                    )
+                );
     }
 }

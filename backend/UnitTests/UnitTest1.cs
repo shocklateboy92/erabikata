@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using Erabikata;
 using Erabikata.Backend;
 using Erabikata.Backend.CollectionManagers;
+using Erabikata.Backend.CollectionMiddlewares;
 using Erabikata.Backend.Models.Actions;
 using Google.Protobuf;
 using Grpc.Core;
@@ -112,7 +113,7 @@ namespace UnitTests
         {
             await using var file = new FileStream("/home/fernie/Downloads/JMdict_e", FileMode.Open);
             var doc = await XElement.LoadAsync(file, LoadOptions.None, CancellationToken.None);
-            var words = WordInfoCollectionManager.ProcessDictionary(doc);
+            var words = DictionaryProviderMiddleware.ProcessDictionary(doc);
             foreach (var batch in words.Batch(100).Batch(20))
             {
                 await Task.WhenAll(batch.Select(
