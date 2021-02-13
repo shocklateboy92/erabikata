@@ -1,15 +1,12 @@
 using System;
-using System.Buffers;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
+using System.Xml.Linq;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
-using Erabikata.Backend.Models.Input.Generated;
-using Grpc.Core.Logging;
 using Microsoft.Extensions.Logging;
 
 namespace Erabikata.Backend.CollectionMiddlewares
@@ -32,32 +29,20 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
-            switch (activity)
+            if (activity is DictionaryUpdate ({ } sourceUrl))
             {
-                case (DictionaryUpdate ({ } sourceUrl)):
-                    var currentUrl = await _databaseInfo.GetCurrentDictionary();
-                    if (currentUrl == sourceUrl)
-                    {
-                        break;
-                    }
-
+                var currentUrl = await _databaseInfo.GetCurrentDictionary();
+                if (currentUrl != sourceUrl)
+                {
                     var dict = await FetchDictionary(sourceUrl);
-                    if (dict != null)
-                    {
-                        await next(new DictionaryIngestion(dict));
-                        var poses = dict.Entry.SelectMany(entry => entry.Sense.SelectMany(sense => sense.Pos))
-                            .Distinct();
-                        _logger.LogInformation("Got Poses: {0}", string.Join(",", poses));
-                    }
-
-                    break;
-                default:
-                    await next(activity);
-                    break;
+                    await next(new DictionaryIngestion(dict));
+                }
             }
+
+            await next(activity);
         }
 
-        private async Task<JMdict?> FetchDictionary(string sourceUrl)
+        private async Task<XElement> FetchDictionary(string sourceUrl)
         {
             var response = await _httpClient.GetAsync(sourceUrl);
             response.EnsureSuccessStatusCode();
@@ -69,9 +54,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                 )
             );
 
-            var serializer = new XmlSerializer(typeof(JMdict), new XmlRootAttribute("JMdict"));
-            var jmDict = (JMdict?) serializer.Deserialize(stream);
-            return jmDict;
+            return await XElement.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
         }
     }
 }

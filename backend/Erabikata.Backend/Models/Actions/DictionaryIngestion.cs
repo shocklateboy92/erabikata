@@ -1,6 +1,6 @@
-using Erabikata.Backend.Models.Input.Generated;
+using System.Xml.Linq;
 
 namespace Erabikata.Backend.Models.Actions
 {
-    public record DictionaryIngestion(JMdict Dictionary) : Activity;
+    public record DictionaryIngestion(XElement Dictionary) : Activity;
 }

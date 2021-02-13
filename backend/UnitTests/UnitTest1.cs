@@ -1,10 +1,11 @@
 using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Formats.Asn1;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Erabikata;
 using Erabikata.Backend;
 using Erabikata.Backend.CollectionManagers;
@@ -17,7 +18,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
-using MongoDB.Driver;
 using NUnit.Framework;
 
 namespace UnitTests
@@ -91,6 +91,20 @@ namespace UnitTests
         }
 
         [Test]
+        public async Task TestJmDict()
+        {
+            await using var file = new FileStream("/home/fernie/Downloads/JMdict_e", FileMode.Open);
+            var doc = await XElement.LoadAsync(file, LoadOptions.None, CancellationToken.None);
+            var poses = doc.Elements("entry")
+                .SelectMany(
+                    entry => entry.Elements("sense")
+                        .SelectMany(sense => sense.Elements("pos").Select(pos => pos.Value))
+                ).Distinct();
+
+            Console.WriteLine(string.Join(", ", poses));
+        }
+
+        [Test]
         public async Task Test5()
         {
             var rest = await EngManager.GetNearestSubs(1865, 47, 3, Array.Empty<string>());
@@ -127,5 +141,8 @@ namespace UnitTests
                 Console.WriteLine(response.Lines);
             }
         }
+
+        [DoesNotReturn]
+        private static void Fail(string message) => Assert.Fail("{0}", message);
     }
 }
