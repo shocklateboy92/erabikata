@@ -14,6 +14,7 @@ namespace Erabikata.Backend.CollectionManagers
             AddCollectionManager<PartOfSpeechFilterCollectionManager>(serviceCollection);
             AddCollectionManager<EngSubCollectionManager>(serviceCollection);
             AddCollectionManager<EpisodeInfoCollectionManager>(serviceCollection);
+            AddCollectionManager<WordInfoCollectionManager>(serviceCollection);
             AddCollectionManager<DatabaseInfoManager>(serviceCollection);
             return serviceCollection;
         }

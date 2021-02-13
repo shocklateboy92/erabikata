@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
+using MoreLinq;
 using NUnit.Framework;
 
 namespace UnitTests
@@ -98,9 +99,33 @@ namespace UnitTests
                 .SelectMany(
                     entry => entry.Elements("sense")
                         .SelectMany(sense => sense.Elements("pos").Select(pos => pos.Value))
-                ).Distinct();
+                )
+                .Distinct();
+
+            var dupes = doc.Elements("entry").Where(entry => entry.Elements("k_ele").Count() > 1);
 
             Console.WriteLine(string.Join(", ", poses));
+        }
+
+        [Test]
+        public async Task TestWordInfoParallel()
+        {
+            await using var file = new FileStream("/home/fernie/Downloads/JMdict_e", FileMode.Open);
+            var doc = await XElement.LoadAsync(file, LoadOptions.None, CancellationToken.None);
+            var words = WordInfoCollectionManager.ProcessDictionary(doc);
+            foreach (var batch in words.Batch(100).Batch(20))
+            {
+                await Task.WhenAll(batch.Select(
+                    async (infos, count) =>
+                    {
+                        Console.WriteLine(
+                            $"making bulk request {count} with {infos.Count()} items"
+                        );
+                        return Array.Empty<object>();
+                    }
+                ));
+            }
+            // Console.WriteLine(words.Batch(100).Batch(20).Count());
         }
 
         [Test]
