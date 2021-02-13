@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -141,8 +140,5 @@ namespace UnitTests
                 Console.WriteLine(response.Lines);
             }
         }
-
-        [DoesNotReturn]
-        private static void Fail(string message) => Assert.Fail("{0}", message);
     }
 }
