@@ -21,7 +21,6 @@
     "react-redux": "^7.2.2",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
-    "unofficial-jisho-api": "^2.0.13",
     "workbox-background-sync": "^6.1.0",
     "workbox-broadcast-update": "^6.1.0",
     "workbox-cacheable-response": "^6.1.0",

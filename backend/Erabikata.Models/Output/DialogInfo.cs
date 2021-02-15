@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Erabikata.Models.Input;
 using Newtonsoft.Json;
@@ -22,7 +23,11 @@ namespace Erabikata.Models.Output
 
         public class WordRef
         {
-            public WordRef(string displayText, string baseForm, string reading)
+            public WordRef(
+                string displayText,
+                string baseForm,
+                string reading,
+                ICollection<int> wordInfoIds)
             {
                 DisplayText = displayText;
                 BaseForm = baseForm;
@@ -30,6 +35,7 @@ namespace Erabikata.Models.Output
                     string.Empty,
                     reading.Select(c => c >= 'ァ' && c <= 'ヴ' ? (char) (c - 0x0060) : c)
                 );
+                DefinitionIds = wordInfoIds;
             }
 
             [JsonProperty(Required = Required.Always)]
@@ -40,6 +46,9 @@ namespace Erabikata.Models.Output
 
             [JsonProperty(Required = Required.Always)]
             public string Reading { get; }
+
+            [JsonProperty(Required = Required.Always)]
+            public IEnumerable<int> DefinitionIds { get; set; }
         }
     }
 #nullable restore

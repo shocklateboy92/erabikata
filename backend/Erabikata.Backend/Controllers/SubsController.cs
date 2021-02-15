@@ -50,7 +50,8 @@ namespace Erabikata.Backend.Controllers
                                             word => new DialogInfo.WordRef(
                                                 word.OriginalForm,
                                                 word.BaseForm,
-                                                word.Reading
+                                                word.Reading,
+                                                word.InfoIds
                                             )
                                         )
                                         .ToArray()

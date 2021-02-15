@@ -1,12 +1,7 @@
-import {
-    AsyncThunk,
-    createAsyncThunk,
-    createEntityAdapter,
-    createSlice
-} from '@reduxjs/toolkit';
+import { AsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import axios from 'axios';
-import * as jisho from 'unofficial-jisho-api';
+import { WordClient, WordDefinition } from 'backend.generated';
+import { createApiCallThunk } from 'features/auth/api';
 
 export interface IJishoWord {
     isCommon: boolean;
@@ -20,83 +15,23 @@ export interface IJishoWord {
 
 export interface IWordDefinition {
     baseForm: string;
-    exact: IJishoWord[];
-    related: IJishoWord[];
+    exact: WordDefinition[];
+    related: WordDefinition[];
 }
 
-const adapter = createEntityAdapter<IWordDefinition>({
-    selectId: (word) => word.baseForm
+const adapter = createEntityAdapter<WordDefinition>({
+    // selectId: (word) => word.id
 });
-const thunk: AsyncThunk<
-    jisho.JishoAPIResult,
-    string,
-    { state: RootState }
-> = createAsyncThunk(
+const thunk: AsyncThunk<WordDefinition, string, {}> = createApiCallThunk(
+    WordClient,
     'wordDefinitions',
-    async (baseForm) => {
-        const repsonse = await axios.get<jisho.JishoAPIResult>(
-            `https://erabikata.apps.lasath.org/api/jisho/api/v1/search/words?keyword=${baseForm}`
-        );
-        return repsonse.data;
-    },
+    (client, word) => client.definition(word),
     {
         condition: (baseForm, { getState }) => {
             return !selectDefinitionById(getState(), baseForm);
         }
     }
 );
-
-/**
- * Groups a list of word senses by tags and maps them to our format
- * @param senses Jisho word senses from API response
- */
-const mapSenses = (senses: jisho.JishoWordSense[]) =>
-    // We reduce right, because destructuring can only separate the
-    // first element. So we map it backwards, taking the "first" of
-    // the previously mapped elements for comparison.
-    senses.reduceRight(([prev, ...rest], next) => {
-        // These are always used together, so we may as well
-        // combine them here and save some work in the UI
-        const newTags = next.parts_of_speech.concat(next.tags);
-
-        // Base case
-        if (!prev) {
-            return [
-                {
-                    tags: newTags,
-                    senses: [next.english_definitions.join('; ')]
-                }
-            ];
-        }
-
-        // If tags of the new one is the same as the last mapped one,
-        // combine new one into last mapped object.
-        if (
-            prev.tags.length === newTags.length &&
-            prev.tags.every((tag, index) => tag === newTags[index])
-        ) {
-            return [
-                {
-                    tags: prev.tags,
-                    senses: [
-                        next.english_definitions.join('; '),
-                        ...prev.senses
-                    ]
-                },
-                ...rest
-            ];
-        }
-
-        // Otherwise just append a newly mapped object.
-        return [
-            {
-                tags: next.parts_of_speech.concat(next.tags),
-                senses: [next.english_definitions.join('; ')]
-            },
-            prev,
-            ...rest
-        ];
-    }, [] as IJishoWord['english']);
 
 const slice = createSlice({
     name: 'wordDefinitions',
@@ -105,65 +40,15 @@ const slice = createSlice({
     extraReducers: (builder) =>
         builder.addCase(
             thunk.fulfilled,
-            (state, { payload: { data, meta }, meta: { arg: baseForm } }) => {
-                if (meta.status !== 200) {
-                    return;
-                }
-
-                adapter.upsertOne(
-                    state,
-                    data.reduce(
-                        ({ baseForm, exact, related }, next) => {
-                            if (
-                                next.japanese.find(
-                                    (j) =>
-                                        j.word === baseForm ||
-                                        j.reading === baseForm
-                                )
-                            ) {
-                                return {
-                                    baseForm,
-                                    exact: [
-                                        ...exact,
-                                        {
-                                            isCommon: next.is_common,
-                                            slug: next.slug,
-                                            japanese: next.japanese,
-                                            english: mapSenses(next.senses)
-                                        }
-                                    ],
-                                    related
-                                };
-                            } else {
-                                return {
-                                    baseForm,
-                                    exact,
-                                    related: [
-                                        ...related,
-                                        {
-                                            isCommon: next.is_common,
-                                            slug: next.slug,
-                                            japanese: next.japanese,
-                                            english: mapSenses(next.senses)
-                                        }
-                                    ]
-                                };
-                            }
-                        },
-                        {
-                            baseForm,
-                            exact: [],
-                            related: []
-                        } as IWordDefinition
-                    )
-                );
+            (state, { payload, meta: { arg: baseForm } }) => {
+                adapter.upsertOne(state, payload);
             }
         )
 });
 
-export const { selectById: selectDefinitionById } = adapter.getSelectors<
-    RootState
->((state) => state.wordDefinitions);
+export const {
+    selectById: selectDefinitionById
+} = adapter.getSelectors<RootState>((state) => state.wordDefinitions);
 
 export const fetchDefinitionsIfNeeded = thunk;
 

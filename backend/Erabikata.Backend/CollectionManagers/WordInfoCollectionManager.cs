@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
@@ -33,6 +34,17 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<List<WordInfo>> GetAllWords()
         {
             return _mongoCollection.Find(FilterDefinition<WordInfo>.Empty).ToListAsync();
+        }
+
+        public async Task<WordInfo?> GetWord(long id) =>
+            await _mongoCollection.Find(word => word.Id == id).FirstOrDefaultAsync();
+
+        public async Task<WordInfo?> SearchWord(string baseForm)
+        {
+            return await _mongoCollection.Find(
+                    word => word.Kanji.Contains(baseForm) || word.Readings.Contains(baseForm)
+                )
+                .FirstOrDefaultAsync();
         }
     }
 }

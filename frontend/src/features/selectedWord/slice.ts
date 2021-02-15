@@ -231,6 +231,25 @@ export const selectSelectedEnglishDialog = (state: RootState) => {
     return selectEnglishDialogContent(state, episode, nearest[0]);
 };
 
+export const selectedWordsRelatedToSelectedWord = (state: RootState) => {
+    const selectedWord = parseInt(selectSelectedWord(state).wordBaseForm ?? '');
+    if (!selectedWord) {
+        return;
+    }
+
+    const lines = selectSelectedDialog(state)?.words;
+    if (!lines) {
+        return;
+    }
+
+    for (const line of lines)
+        for (const word of line) {
+            if (word.definitionIds.includes(selectedWord)) {
+                return word.definitionIds;
+            }
+        }
+};
+
 export const {
     newWordSelected,
     selectionClearRequested,

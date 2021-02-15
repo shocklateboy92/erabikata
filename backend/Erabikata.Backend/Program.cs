@@ -1,6 +1,8 @@
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using Erabikata.Backend.Managers;
+using Mapster;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +16,8 @@ namespace Erabikata.Backend
         {
             var host = CreateHostBuilder(args).Build();
 
-            await host.Services.GetRequiredService<WordCountsManager>().Initialize();
+            // await host.Services.GetRequiredService<WordCountsManager>().Initialize();
+            TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
 
             await host.RunAsync();
         }

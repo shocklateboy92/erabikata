@@ -1,7 +1,8 @@
 import { mdiPageNextOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useAppSelector } from 'app/hooks';
+import { useTypedSelector } from 'app/hooks';
 import { Drawer } from 'components/drawer';
+import { isKana } from 'features/furigana';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchDefinitionsIfNeeded, selectDefinitionById } from './slice';
@@ -18,13 +19,13 @@ export const WordDefinition: FC<{
         dispatch(fetchDefinitionsIfNeeded(baseForm));
     }, [baseForm, dispatch]);
 
-    const results = useAppSelector((state) =>
-        selectDefinitionById(state, baseForm)
+    const results = useTypedSelector((state) =>
+        exact ? selectDefinitionById(state, baseForm) : undefined
     );
 
     const [showDefinition, setShowDefinition] = useState(true);
 
-    const definition = (exact ? results?.exact : results?.related) ?? [];
+    const definition = results ? [results] : [];
 
     return (
         <Drawer
@@ -43,17 +44,14 @@ export const WordDefinition: FC<{
                     <div className={styles.title}>
                         {definition.japanese.map((word, i) => (
                             <ruby key={i}>
-                                {word.word}
-                                {word.word !== word.reading &&
-                                    word.reading !== '*' && (
-                                        <rt>{word.reading}</rt>
-                                    )}
+                                {word.kanji}
+                                {!isKana(word.kanji) && <rt>{word.reading}</rt>}
                             </ruby>
                         ))}
                     </div>
-                    {definition.isCommon && (
+                    {/* {definition.isCommon && (
                         <span className={styles.commonTag}>Common word</span>
-                    )}
+                    )} */}
                     {(!toggleDefinition || showDefinition) &&
                         definition.english.map((english, index) => (
                             <div key={index} className={styles.sense}>

@@ -74,8 +74,7 @@ const handlers: {
                 return;
             }
 
-            return selectDefinitionById(state, word)?.exact[0].japanese[0]
-                .reading;
+            return selectDefinitionById(state, word)?.japanese[0].reading;
         }, 'word reading')
     },
     {
@@ -158,8 +157,7 @@ const handlers: {
         action: copyAction((state) => {
             const selectedWord = selectSelectedWord(state).wordBaseForm;
             const definiton =
-                selectedWord &&
-                selectDefinitionById(state, selectedWord)?.exact[0];
+                selectedWord && selectDefinitionById(state, selectedWord);
             if (!definiton) {
                 return;
             }
@@ -174,8 +172,7 @@ const handlers: {
         action: copyAction((state) => {
             const selectedWord = selectSelectedWord(state).wordBaseForm;
             const definiton =
-                selectedWord &&
-                selectDefinitionById(state, selectedWord)?.exact[0];
+                selectedWord && selectDefinitionById(state, selectedWord);
             if (!definiton) {
                 return;
             }

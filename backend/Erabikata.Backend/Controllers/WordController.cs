@@ -8,6 +8,7 @@ using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Output;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TaskTupleAwaiter;
@@ -20,13 +21,16 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly WordCountsManager _wordCounts;
         private readonly DialogCollectionManager _dialogCollectionManager;
+        private readonly WordInfoCollectionManager _wordInfo;
 
         public WordController(
             WordCountsManager wordCounts,
-            DialogCollectionManager dialogCollectionManager)
+            DialogCollectionManager dialogCollectionManager,
+            WordInfoCollectionManager wordInfo)
         {
             _wordCounts = wordCounts;
             _dialogCollectionManager = dialogCollectionManager;
+            _wordInfo = wordInfo;
         }
 
         [HttpGet]
@@ -67,7 +71,8 @@ namespace Erabikata.Backend.Controllers
                                         word => new DialogInfo.WordRef(
                                             word.OriginalForm,
                                             word.BaseForm,
-                                            word.Reading
+                                            word.Reading,
+                                            word.InfoIds
                                         )
                                     )
                                     .ToArray()
@@ -80,10 +85,7 @@ namespace Erabikata.Backend.Controllers
 
             return new WordInfo
             {
-                Text = text,
-                Rank = rank,
-                TotalOccurrences = count,
-                Occurrences = occurrences,
+                Text = text, Rank = rank, TotalOccurrences = count, Occurrences = occurrences,
             };
         }
 
@@ -107,6 +109,29 @@ namespace Erabikata.Backend.Controllers
                     )
                 )
                 .Distinct();
+        }
+
+        [HttpGet]
+        [Route("{baseFormOrId}/definition")]
+        public async Task<WordDefinition> Definition(string baseFormOrId)
+        {
+            Models.Database.WordInfo? word;
+            if (int.TryParse(baseFormOrId, out var id))
+            {
+                word = await _wordInfo.GetWord(id);
+            }
+
+            word = await _wordInfo.SearchWord(baseFormOrId);
+
+            if (word == null)
+            {
+                return new WordDefinition(
+                    id: baseFormOrId,
+                    Enumerable.Empty<WordDefinition.JapaneseWord>()
+                );
+            }
+
+            return word.Adapt<WordDefinition>();
         }
     }
 }
