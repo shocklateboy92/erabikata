@@ -77,24 +77,20 @@ namespace Erabikata.Backend.CollectionManagers
             while (await cursor.MoveNextAsync())
             {
                 var processed = cursor.Current.AsParallel()
-                    .WithDegreeOfParallelism(24)
                     .Select(
                         dialog =>
                         {
-                            for (var wordsIndex = 0; wordsIndex < words.Count; wordsIndex++)
+                            foreach (var wordInfo in words)
+                            foreach (var line in dialog.Lines)
                             {
-                                foreach (var line in dialog.Lines)
-                                {
-                                    var normalized = words[wordsIndex].Normalized[0];
-                                    var startingIndexes = StartingIndex(line.Words, normalized);
+                                var normalized = wordInfo.Normalized[0];
+                                var startingIndexes = StartingIndex(line.Words, normalized);
 
-                                    foreach (var startingIndex in startingIndexes)
-                                        for (var index = 0; index < normalized.Count; index++)
-                                        {
-                                            line.Words[startingIndex + index]
-                                                .InfoIds.Add(words[wordsIndex].Id);
-                                        }
-                                }
+                                foreach (var startingIndex in startingIndexes)
+                                    for (var index = 0; index < normalized.Count; index++)
+                                    {
+                                        line.Words[startingIndex + index].InfoIds.Add(wordInfo.Id);
+                                    }
                             }
 
                             return dialog;
@@ -102,17 +98,13 @@ namespace Erabikata.Backend.CollectionManagers
                     );
 
                 var replaceOneModels = processed.Select(
-                    dialog => new ReplaceOneModel<Dialog>(
-                        Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
-                        dialog
+                        dialog => new ReplaceOneModel<Dialog>(
+                            Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
+                            dialog
+                        )
                     )
-                );
-                var timer = Stopwatch.StartNew();
-                await _mongoCollections[AnalyzerMode.SudachiC]
-                    .BulkWriteAsync(
-                        replaceOneModels
-                    );
-                Console.WriteLine($"Writing back to database took {timer.ElapsedMilliseconds}ms");
+                    .ToList();
+                await _mongoCollections[AnalyzerMode.SudachiC].BulkWriteAsync(replaceOneModels);
             }
         }
 
