@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
@@ -26,6 +28,11 @@ namespace Erabikata.Backend.CollectionManagers
                     );
                     break;
             }
+        }
+
+        public Task<List<WordInfo>> GetAllWords()
+        {
+            return _mongoCollection.Find(FilterDefinition<WordInfo>.Empty).ToListAsync();
         }
     }
 }

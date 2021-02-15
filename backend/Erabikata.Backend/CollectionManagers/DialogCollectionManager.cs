@@ -54,7 +54,58 @@ namespace Erabikata.Backend.CollectionManagers
                     );
                     await IngestDialog(ingestShows.ShowsToIngest);
                     break;
+                case DictionaryIngestion ({ } words):
+                    // Parallel.ForEachAsync(words,
+                    //     async (info, token) =>
+                    //     {
+                    //         
+                    //     })
+                    break;
             }
+        }
+
+        public Task ProcessWords(IEnumerable<WordInfo> words)
+        {
+            return _mongoCollections[AnalyzerMode.SudachiC]
+                .Find(dialog => dialog.EpisodeId == 2953)
+                .ForEachAsync(
+                    dialog =>
+                    {
+                        foreach (var wordInfo in words)
+                        {
+                            foreach (var line in dialog.Lines)
+                            {
+                                var normalized = wordInfo.Normalized.First().ToList();
+                                var startingIndexes = StartingIndex(
+                                    line.Words.Select(word => word.BaseForm).ToList(),
+                                    normalized
+                                );
+
+                                foreach (var startingIndex in startingIndexes)
+                                    for (var index = 0; index < normalized.Count; index++)
+                                    {
+                                        line.Words[startingIndex + index].InfoIds.Add(wordInfo.Id);
+                                    }
+                            }
+                        }
+
+                        return _mongoCollections[AnalyzerMode.SudachiC].InsertOneAsync(dialog);
+                    }
+                );
+        }
+
+        private static IEnumerable<int> StartingIndex(
+            IReadOnlyList<string> input,
+            IReadOnlyList<string> query)
+        {
+            var startingIndexes = Enumerable.Range(0, input.Count - query.Count + 1);
+            for (var i = 0; i < query.Count; i++)
+            {
+                startingIndexes = startingIndexes.Where(start => input[start + i] == query[i])
+                    .ToArray();
+            }
+
+            return startingIndexes;
         }
 
         private async Task IngestDialog(

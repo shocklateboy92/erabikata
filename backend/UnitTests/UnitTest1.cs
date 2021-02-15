@@ -30,6 +30,8 @@ namespace UnitTests
             ChannelCredentials.Insecure
         );
 
+        private IServiceProvider _serviceProvider = null!;
+
         [SetUp]
         public void Setup()
         {
@@ -41,9 +43,9 @@ namespace UnitTests
 
             var host = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(builder => builder.UseStartup<Startup>());
-            var serviceProvider = host.Build().Services;
-            Manager = serviceProvider.GetRequiredService<DialogCollectionManager>();
-            EngManager = serviceProvider.GetRequiredService<EngSubCollectionManager>();
+            _serviceProvider = host.Build().Services;
+            Manager = _serviceProvider.GetRequiredService<DialogCollectionManager>();
+            EngManager = _serviceProvider.GetRequiredService<EngSubCollectionManager>();
         }
 
         public EngSubCollectionManager EngManager { get; set; } = null!;
@@ -117,7 +119,9 @@ namespace UnitTests
             foreach (var batch in words.Batch(100).Batch(20))
             {
                 await Task.WhenAll(batch.Select(
+#pragma warning disable 1998
                     async (infos, count) =>
+#pragma warning restore 1998
                     {
                         Console.WriteLine(
                             $"making bulk request {count} with {infos.Count()} items"
@@ -127,6 +131,14 @@ namespace UnitTests
                 ));
             }
             // Console.WriteLine(words.Batch(100).Batch(20).Count());
+        }
+
+        [Test]
+        public async Task TestWordMatching()
+        {
+            var wordCm = _serviceProvider.GetRequiredService<WordInfoCollectionManager>();
+            var words = await wordCm.GetAllWords();
+            await Manager.ProcessWords(words);
         }
 
         [Test]

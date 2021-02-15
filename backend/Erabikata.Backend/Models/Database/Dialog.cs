@@ -51,11 +51,14 @@ namespace Erabikata.Backend.Models.Database
 
             [DataMember] public bool IsInParenthesis { get; set; }
 
-            [DataMember] public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
+            [DataMember]
+            public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 
             [DataMember] public string OriginalForm { get; set; }
+
+            [DataMember] public ICollection<ObjectId> InfoIds { get; set; } = new List<ObjectId>();
         }
 
-        public record Line(IEnumerable<Word> Words);
+        public record Line(IReadOnlyList<Word> Words);
     }
 }
