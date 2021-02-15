@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using MongoDB.Bson;
@@ -23,7 +24,7 @@ namespace Erabikata.Backend.Models.Database
         [DataMember] public IEnumerable<string> Readings { get; set; }
 
         [DataMember]
-        public IEnumerable<IEnumerable<string>> Normalized { get; set; } =
-            Enumerable.Empty<IEnumerable<string>>();
+        public IReadOnlyList<IReadOnlyList<string>> Normalized { get; set; } =
+            new Collection<IReadOnlyList<string>>();
     }
 }

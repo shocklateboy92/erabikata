@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -137,8 +138,12 @@ namespace UnitTests
         public async Task TestWordMatching()
         {
             var wordCm = _serviceProvider.GetRequiredService<WordInfoCollectionManager>();
+            var stopwatch = Stopwatch.StartNew();
             var words = await wordCm.GetAllWords();
+            Console.WriteLine($"Reading words took {stopwatch.ElapsedMilliseconds}ms");
+            stopwatch.Restart();
             await Manager.ProcessWords(words);
+            Console.WriteLine($"Processing words took {stopwatch.ElapsedMilliseconds}ms");
         }
 
         [Test]
