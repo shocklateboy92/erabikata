@@ -65,7 +65,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
             dictionaryIngestion.Elements("entry")
                 .Select(
                     entry => new WordInfo(
-                        ObjectId.Empty,
+                        int.Parse(entry.Element("ent_seq")!.Value),
                         entry.Elements("k_ele").Select(ele => ele.Element("keb")!.Value),
                         entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value)
                     )

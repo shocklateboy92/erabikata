@@ -38,7 +38,7 @@ namespace Erabikata.Backend.Models.Database
             public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 
             [DataMember]
-            public ICollection<ObjectId> InfoIds { get; set; } = new List<ObjectId>();
+            public ICollection<int> InfoIds { get; set; } = new List<int>();
         }
 
         public record Line(IReadOnlyList<Word> Words);

@@ -10,14 +10,14 @@ namespace Erabikata.Backend.Models.Database
 {
     public class WordInfo
     {
-        public WordInfo(ObjectId id, IEnumerable<string> kanji, IEnumerable<string> readings)
+        public WordInfo(int id, IEnumerable<string> kanji, IEnumerable<string> readings)
         {
             Id = id;
             Kanji = kanji;
             Readings = readings;
         }
 
-        [BsonId] [DataMember] public ObjectId Id { get; set; }
+        [BsonId] [DataMember] public int Id { get; set; }
 
         [DataMember] public IEnumerable<string> Kanji { get; set; }
 
