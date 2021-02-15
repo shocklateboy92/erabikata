@@ -89,7 +89,8 @@ namespace Erabikata.Backend.CollectionManagers
                             }
                         }
 
-                        return _mongoCollections[AnalyzerMode.SudachiC].InsertOneAsync(dialog);
+                        return _mongoCollections[AnalyzerMode.SudachiC]
+                            .ReplaceOneAsync(d => d.Id == dialog.Id, dialog);
                     }
                 );
         }
@@ -98,7 +99,13 @@ namespace Erabikata.Backend.CollectionManagers
             IReadOnlyList<string> input,
             IReadOnlyList<string> query)
         {
-            var startingIndexes = Enumerable.Range(0, input.Count - query.Count + 1);
+            var maxMatches = input.Count - query.Count + 1;
+            if (maxMatches < 0)
+            {
+                return Enumerable.Empty<int>();
+            }
+
+            var startingIndexes = Enumerable.Range(0, maxMatches);
             for (var i = 0; i < query.Count; i++)
             {
                 startingIndexes = startingIndexes.Where(start => input[start + i] == query[i])
@@ -219,11 +226,11 @@ namespace Erabikata.Backend.CollectionManagers
 
                 results.Add(
                     new Dialog.Word(
-                        baseForm: word.BaseForm,
-                        dictionaryForm: word.DictionaryForm,
-                        originalForm: word.Original,
-                        reading: word.Reading,
-                        isInParenthesis: bracketCount > 0
+                        BaseForm: word.BaseForm,
+                        DictionaryForm: word.DictionaryForm,
+                        OriginalForm: word.Original,
+                        Reading: word.Reading,
+                        IsInParenthesis: bracketCount > 0
                     ) {PartOfSpeech = word.PartOfSpeech}
                 );
             }

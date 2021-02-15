@@ -27,36 +27,18 @@ namespace Erabikata.Backend.Models.Database
         [DataMember] public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
 
         [DataContract]
-        public record Word
+        public record Word(
+            string BaseForm,
+            string DictionaryForm,
+            string OriginalForm,
+            string Reading,
+            bool IsInParenthesis = false)
         {
-            public Word(
-                string baseForm,
-                string dictionaryForm,
-                string originalForm,
-                string reading,
-                bool isInParenthesis = false)
-            {
-                BaseForm = baseForm;
-                DictionaryForm = dictionaryForm;
-                OriginalForm = originalForm;
-                Reading = reading;
-                IsInParenthesis = isInParenthesis;
-            }
-
-            [DataMember] public string BaseForm { get; set; }
-
-            [DataMember] public string DictionaryForm { get; set; }
-
-            [DataMember] public string Reading { get; set; }
-
-            [DataMember] public bool IsInParenthesis { get; set; }
-
             [DataMember]
             public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 
-            [DataMember] public string OriginalForm { get; set; }
-
-            [DataMember] public ICollection<ObjectId> InfoIds { get; set; } = new List<ObjectId>();
+            [DataMember]
+            public ICollection<ObjectId> InfoIds { get; set; } = new List<ObjectId>();
         }
 
         public record Line(IReadOnlyList<Word> Words);
