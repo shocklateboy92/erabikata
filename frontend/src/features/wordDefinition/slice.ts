@@ -1,17 +1,8 @@
-import { AsyncThunk, createEntityAdapter, createSlice } from '@reduxjs/toolkit';
+import { AsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
-import { WordClient, WordDefinition } from 'backend.generated';
+import { WordDefinition, WordsClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
-
-export interface IJishoWord {
-    isCommon: boolean;
-    slug: string;
-    japanese: { word: string; reading: string }[];
-    english: {
-        tags: string[];
-        senses: string[];
-    }[];
-}
+import { selectSelectedWords } from 'features/selectedWord';
 
 export interface IWordDefinition {
     baseForm: string;
@@ -19,36 +10,49 @@ export interface IWordDefinition {
     related: WordDefinition[];
 }
 
-const adapter = createEntityAdapter<WordDefinition>({
-    // selectId: (word) => word.id
-});
-const thunk: AsyncThunk<WordDefinition, string, {}> = createApiCallThunk(
-    WordClient,
-    'wordDefinitions',
-    (client, word) => client.definition(word),
+const thunk: AsyncThunk<WordDefinition[], number[], {}> = createApiCallThunk(
+    WordsClient,
+    'fetchDefinitions',
+    (client, words) => client.definition(words),
     {
-        condition: (baseForm, { getState }) => {
-            return !selectDefinitionById(getState(), baseForm);
+        condition: (wordIds, { getState }) => {
+            return (
+                selectDefinitionsById(getState(), wordIds).length !==
+                wordIds.length
+            );
         }
     }
 );
 
+interface IWordDefinitionState {
+    byId: { [key: number]: WordDefinition | undefined };
+}
+
+const initialState: IWordDefinitionState = { byId: {} };
+
 const slice = createSlice({
     name: 'wordDefinitions',
-    initialState: adapter.getInitialState(),
+    initialState,
     reducers: {},
     extraReducers: (builder) =>
         builder.addCase(
             thunk.fulfilled,
-            (state, { payload, meta: { arg: baseForm } }) => {
-                adapter.upsertOne(state, payload);
-            }
+            (state, { payload, meta: { arg: baseForm } }) => ({
+                byId: {
+                    ...state.byId,
+                    ...Object.fromEntries(payload.map((e) => [e.id, e]))
+                }
+            })
         )
 });
 
-export const {
-    selectById: selectDefinitionById
-} = adapter.getSelectors<RootState>((state) => state.wordDefinitions);
+export const selectDefinitionsById = (state: RootState, wordIds: number[]) =>
+    wordIds
+        .map((id) => state.wordDefinitions.byId[id])
+        .filter((def): def is WordDefinition => def !== undefined);
+
+export const selectSelectedWordDefinitions = (state: RootState) =>
+    selectDefinitionsById(state, selectSelectedWords(state));
 
 export const fetchDefinitionsIfNeeded = thunk;
 

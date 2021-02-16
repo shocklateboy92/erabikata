@@ -1,32 +1,31 @@
 import { mdiPageNextOutline } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useTypedSelector } from 'app/hooks';
+import { useAppSelector } from 'app/hooks';
 import { Drawer } from 'components/drawer';
 import { isKana } from 'features/furigana';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchDefinitionsIfNeeded, selectDefinitionById } from './slice';
+import { fetchDefinitionsIfNeeded, selectDefinitionsById } from './slice';
 import styles from './wordDefinition.module.scss';
 
 export const WordDefinition: FC<{
-    baseForm: string;
+    wordIds: number[];
     exact?: boolean;
     initiallyOpen: boolean;
     toggleDefinition?: boolean;
-}> = ({ baseForm, initiallyOpen, exact, toggleDefinition }) => {
+}> = ({ wordIds, initiallyOpen, exact, toggleDefinition }) => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(fetchDefinitionsIfNeeded(baseForm));
-    }, [baseForm, dispatch]);
+        dispatch(fetchDefinitionsIfNeeded(wordIds));
+    }, [wordIds, dispatch]);
 
-    const results = useTypedSelector((state) =>
-        exact ? selectDefinitionById(state, baseForm) : undefined
+    const results = useAppSelector((state) =>
+        selectDefinitionsById(state, wordIds)
     );
 
     const [showDefinition, setShowDefinition] = useState(true);
 
-    const definition = results ? [results] : [];
-
+    const definition = exact ? results.slice(0, 1) : results.slice(1);
     return (
         <Drawer
             summary={exact ? 'Definition' : 'Related Words'}

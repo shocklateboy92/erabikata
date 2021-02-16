@@ -90,13 +90,13 @@ export const SelectedWord: FC<{}> = () => {
                 <Separator />
                 <WordDefinition
                     exact
-                    baseForm={selectedWord.wordBaseForm}
+                    wordIds={selectedWord.wordIds}
                     initiallyOpen
                     toggleDefinition
                 />
                 <Separator />
                 <WordDefinition
-                    baseForm={selectedWord.wordBaseForm}
+                    wordIds={selectedWord.wordIds}
                     initiallyOpen={false}
                 />
                 {dialogUrl && (

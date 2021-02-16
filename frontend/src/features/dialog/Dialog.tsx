@@ -3,7 +3,10 @@ import classNames from 'classnames';
 import { InlineError } from 'components/inlineError';
 import { formatTime } from 'components/time';
 import { Ruby } from 'features/furigana';
-import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
+import {
+    dialogWordSelectionV2,
+    selectSelectedWord
+} from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './dialog.module.scss';
@@ -50,10 +53,11 @@ export const Dialog: FC<{
                                     }
 
                                     dispatch(
-                                        newWordSelected({
-                                            word: word.baseForm,
-                                            timestamp: dialog.startTime,
-                                            episode
+                                        dialogWordSelectionV2({
+                                            baseForm: word.baseForm,
+                                            time: dialog.startTime,
+                                            episodeId: episode,
+                                            wordIds: word.definitionIds
                                         })
                                     );
                                 }}

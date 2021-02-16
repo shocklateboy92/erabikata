@@ -12,6 +12,7 @@ interface ISelectedWordState {
     wordBaseForm?: string;
     sentenceTimestamp?: number;
     episode?: string;
+    wordIds: number[];
 }
 
 type Direction = 1 | -1;
@@ -24,7 +25,8 @@ const getInitialState = (): ISelectedWordState => {
     return {
         wordBaseForm: getParam(search, 'word'),
         sentenceTimestamp: parseFloat(search.get('time') ?? ''),
-        episode: getParam(search, 'episode')
+        episode: getParam(search, 'episode'),
+        wordIds: []
     };
 };
 
@@ -44,9 +46,10 @@ const slice = createSlice({
         ) => ({
             wordBaseForm: word,
             sentenceTimestamp: timestamp,
-            episode
+            episode,
+            wordIds: []
         }),
-        selectionClearRequested: (state) => ({}),
+        selectionClearRequested: (state) => ({ wordIds: [] }),
         dialogSelection: (
             state,
             { payload }: PayloadAction<{ time: number; episode?: string }>
@@ -178,7 +181,24 @@ const slice = createSlice({
                 episode: newOccurrence.episodeId,
                 sentenceTimestamp: newOccurrence.time
             };
-        }
+        },
+
+        dialogWordSelectionV2: (
+            state,
+            {
+                payload
+            }: PayloadAction<{
+                wordIds: number[];
+                episodeId: string;
+                time: number;
+                baseForm?: string;
+            }>
+        ) => ({
+            wordIds: payload.wordIds,
+            episode: payload.episodeId,
+            sentenceTimestamp: payload.time,
+            wordBaseForm: payload.baseForm
+        })
     }
 });
 
@@ -231,24 +251,8 @@ export const selectSelectedEnglishDialog = (state: RootState) => {
     return selectEnglishDialogContent(state, episode, nearest[0]);
 };
 
-export const selectedWordsRelatedToSelectedWord = (state: RootState) => {
-    const selectedWord = parseInt(selectSelectedWord(state).wordBaseForm ?? '');
-    if (!selectedWord) {
-        return;
-    }
-
-    const lines = selectSelectedDialog(state)?.words;
-    if (!lines) {
-        return;
-    }
-
-    for (const line of lines)
-        for (const word of line) {
-            if (word.definitionIds.includes(selectedWord)) {
-                return word.definitionIds;
-            }
-        }
-};
+export const selectSelectedWords = (state: RootState) =>
+    state.selectedWord.wordIds;
 
 export const {
     newWordSelected,
@@ -256,5 +260,6 @@ export const {
     dialogSelection,
     dialogWordShift,
     episodeDialogShift,
-    occurrenceShift
+    occurrenceShift,
+    dialogWordSelectionV2
 } = slice.actions;

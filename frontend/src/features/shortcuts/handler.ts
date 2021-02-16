@@ -16,7 +16,10 @@ import {
     selectSelectedWord,
     selectSelectedWordContext
 } from 'features/selectedWord';
-import { selectDefinitionById } from 'features/wordDefinition';
+import {
+    selectDefinitionsById,
+    selectSelectedWordDefinitions
+} from 'features/wordDefinition';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -69,12 +72,12 @@ const handlers: {
     {
         key: 'x',
         action: copyAction((state) => {
-            const word = selectSelectedWord(state).wordBaseForm;
+            const word = selectSelectedWord(state).wordIds;
             if (!word) {
                 return;
             }
 
-            return selectDefinitionById(state, word)?.japanese[0].reading;
+            return selectDefinitionsById(state, word)[0]?.japanese[0].reading;
         }, 'word reading')
     },
     {
@@ -155,9 +158,7 @@ const handlers: {
     {
         key: 's',
         action: copyAction((state) => {
-            const selectedWord = selectSelectedWord(state).wordBaseForm;
-            const definiton =
-                selectedWord && selectDefinitionById(state, selectedWord);
+            const definiton = selectSelectedWordDefinitions(state)[0];
             if (!definiton) {
                 return;
             }
@@ -170,9 +171,7 @@ const handlers: {
     {
         key: 'a',
         action: copyAction((state) => {
-            const selectedWord = selectSelectedWord(state).wordBaseForm;
-            const definiton =
-                selectedWord && selectDefinitionById(state, selectedWord);
+            const definiton = selectSelectedWordDefinitions(state)[0];
             if (!definiton) {
                 return;
             }
