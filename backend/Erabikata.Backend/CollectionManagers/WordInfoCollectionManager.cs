@@ -46,5 +46,10 @@ namespace Erabikata.Backend.CollectionManagers
                 )
                 .FirstOrDefaultAsync();
         }
+
+        public Task<List<WordInfo>> GetWords(int[] ids)
+        {
+            return _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
+        }
     }
 }

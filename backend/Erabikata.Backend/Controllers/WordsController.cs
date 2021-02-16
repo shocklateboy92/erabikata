@@ -4,8 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
+using Erabikata.Backend.Models.Output;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Erabikata.Backend.Controllers
@@ -16,13 +18,16 @@ namespace Erabikata.Backend.Controllers
     {
         private readonly DialogCollectionManager _dialogCollectionManager;
         private readonly PartOfSpeechFilterCollectionManager _partOfSpeechFilter;
+        private readonly WordInfoCollectionManager _wordInfo;
 
         public WordsController(
             DialogCollectionManager dialogCollectionManager,
-            PartOfSpeechFilterCollectionManager partOfSpeechFilter)
+            PartOfSpeechFilterCollectionManager partOfSpeechFilter,
+            WordInfoCollectionManager wordInfo)
         {
             _dialogCollectionManager = dialogCollectionManager;
             _partOfSpeechFilter = partOfSpeechFilter;
+            _wordInfo = wordInfo;
         }
 
         [HttpGet]
@@ -74,6 +79,14 @@ namespace Erabikata.Backend.Controllers
                 );
 
             return new {matches};
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IEnumerable<WordDefinition>> Definition(int[] ids)
+        {
+            var words = await _wordInfo.GetWords(ids);
+            return words.Adapt<IEnumerable<WordDefinition>>();
         }
     }
 }

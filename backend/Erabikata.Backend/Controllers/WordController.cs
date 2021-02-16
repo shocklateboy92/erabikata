@@ -110,30 +110,5 @@ namespace Erabikata.Backend.Controllers
                 )
                 .Distinct();
         }
-
-        [HttpGet]
-        [Route("{baseFormOrId}/definition")]
-        public async Task<WordDefinition> Definition(string baseFormOrId)
-        {
-            Models.Database.WordInfo? word;
-            if (int.TryParse(baseFormOrId, out var id))
-            {
-                word = await _wordInfo.GetWord(id);
-            }
-            else
-            {
-                word = await _wordInfo.SearchWord(baseFormOrId);
-            }
-
-            if (word == null)
-            {
-                return new WordDefinition(
-                    id: baseFormOrId,
-                    Enumerable.Empty<WordDefinition.JapaneseWord>()
-                );
-            }
-
-            return word.Adapt<WordDefinition>();
-        }
     }
 }

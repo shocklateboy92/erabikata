@@ -11,14 +11,14 @@ namespace Erabikata.Backend.Models.Output
 {
     public class WordDefinition
     {
-        public WordDefinition(string id, IEnumerable<JapaneseWord> japanese)
+        public WordDefinition(int id, IEnumerable<JapaneseWord> japanese)
         {
             Id = id;
             Japanese = japanese;
         }
 
         [JsonProperty(Required = Required.Always)]
-        public string Id { get; }
+        public int Id { get; }
 
         [JsonProperty(Required = Required.Always)]
         public IEnumerable<JapaneseWord> Japanese { get; }
