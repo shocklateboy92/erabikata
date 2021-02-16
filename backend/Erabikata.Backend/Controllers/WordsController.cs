@@ -83,7 +83,7 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<WordDefinition>> Definition(int[] ids)
+        public async Task<IEnumerable<WordDefinition>> Definition([FromQuery] int[] ids)
         {
             var words = await _wordInfo.GetWords(ids);
             return words.Adapt<IEnumerable<WordDefinition>>();
