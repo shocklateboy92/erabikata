@@ -120,8 +120,10 @@ namespace Erabikata.Backend.Controllers
             {
                 word = await _wordInfo.GetWord(id);
             }
-
-            word = await _wordInfo.SearchWord(baseFormOrId);
+            else
+            {
+                word = await _wordInfo.SearchWord(baseFormOrId);
+            }
 
             if (word == null)
             {

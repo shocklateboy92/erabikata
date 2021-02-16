@@ -103,7 +103,7 @@ namespace Erabikata.Backend.CollectionManagers
                             dialog
                         )
                     )
-                    .ToList();
+                    .ToArray();
                 await _mongoCollections[AnalyzerMode.SudachiC].BulkWriteAsync(replaceOneModels);
             }
         }

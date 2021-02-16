@@ -40,6 +40,7 @@ namespace Erabikata.Backend.Models.Output
             public void Register(TypeAdapterConfig config)
             {
                 config.ForType<WordInfo, WordDefinition>()
+                    .MapToConstructor(true)
                     .Map(
                         definition => definition.Japanese,
                         info => info.Kanji.ZipLongest(
