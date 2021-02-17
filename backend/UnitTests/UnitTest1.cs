@@ -119,18 +119,21 @@ namespace UnitTests
             var words = DictionaryProviderMiddleware.ProcessDictionary(doc);
             foreach (var batch in words.Batch(100).Batch(20))
             {
-                await Task.WhenAll(batch.Select(
+                await Task.WhenAll(
+                    batch.Select(
 #pragma warning disable 1998
-                    async (infos, count) =>
+                        async (infos, count) =>
 #pragma warning restore 1998
-                    {
-                        Console.WriteLine(
-                            $"making bulk request {count} with {infos.Count()} items"
-                        );
-                        return Array.Empty<object>();
-                    }
-                ));
+                        {
+                            Console.WriteLine(
+                                $"making bulk request {count} with {infos.Count()} items"
+                            );
+                            return Array.Empty<object>();
+                        }
+                    )
+                );
             }
+
             // Console.WriteLine(words.Batch(100).Batch(20).Count());
         }
 
@@ -151,6 +154,17 @@ namespace UnitTests
         {
             var rest = await EngManager.GetNearestSubs(1865, 47, 3, Array.Empty<string>());
             Console.WriteLine(rest.ToJson(new JsonWriterSettings {Indent = true}));
+        }
+
+        [Test]
+        public async Task TestFindNearestDialog()
+        {
+            var dialog = await Manager.GetNearestDialog(2056, 47, 6, AnalyzerMode.SudachiC);
+            Console.WriteLine(
+                dialog.Select(d => d.Time)
+                    .ToArray()
+                    .ToJson(new JsonWriterSettings {Indent = true})
+            );
         }
 
         [Test]

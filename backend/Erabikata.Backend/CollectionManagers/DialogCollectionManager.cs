@@ -204,13 +204,13 @@ namespace Erabikata.Backend.CollectionManagers
                 var analyzed = await analyzer.ResponseStream.ToListAsync();
                 await collection.InsertManyAsync(
                     analyzed.Select(
-                        response =>
-                            new Dialog(
-                                ObjectId.Empty,
-                                episodeId,
-                                time: response.Time,
-                                episodeTitle: $"{showTitle} Episode {info.index}"
-                            ) {Lines = response.Lines.Select(ProcessLine)}
+                        (response, index) => new Dialog(
+                            ObjectId.Empty,
+                            episodeId,
+                            index: index,
+                            time: response.Time,
+                            episodeTitle: $"{showTitle} Episode {info.index}"
+                        ) {Lines = response.Lines.Select(ProcessLine)}
                     ),
                     new InsertManyOptions {IsOrdered = false}
                 );
@@ -254,18 +254,27 @@ namespace Erabikata.Backend.CollectionManagers
 
         private const int TimeDelta = 10;
 
-        public Task<List<Dialog>> GetNearestDialog(
+        public async Task<IReadOnlyList<Dialog>> GetNearestDialog(
             int episodeId,
             double time,
             int count,
-            AnalyzerMode analyzerMode) =>
-            _mongoCollections[analyzerMode]
+            AnalyzerMode analyzerMode)
+        {
+            var closest = await _mongoCollections[analyzerMode]
+                .Aggregate()
+                .Match(dialog => dialog.EpisodeId == episodeId)
+                .Project(dialog => new {dialog.Index, Delta = Math.Abs(dialog.Time - time)})
+                .SortBy(d => d.Delta)
+                .FirstOrDefaultAsync();
+
+            return await _mongoCollections[analyzerMode]
                 .Find(
-                    dialog => dialog.EpisodeId == episodeId && dialog.Time > time - TimeDelta &&
-                              dialog.Time < time + TimeDelta
+                    dialog => dialog.EpisodeId == episodeId &&
+                              dialog.Index > closest.Index - count &&
+                              dialog.Index < closest.Index + count
                 )
-                .SortBy(dialog => dialog.Time)
                 .ToListAsync();
+        }
 
         public Task<List<Dialog>> GetMatches(
             string baseForm,

@@ -8,10 +8,11 @@ namespace Erabikata.Backend.Models.Database
 {
     public record Dialog
     {
-        public Dialog(ObjectId id, int episodeId, double time, string episodeTitle)
+        public Dialog(ObjectId id, int episodeId, int index, double time, string episodeTitle)
         {
             Id = id;
             EpisodeId = episodeId;
+            Index = index;
             Time = time;
             EpisodeTitle = episodeTitle;
         }
@@ -19,6 +20,8 @@ namespace Erabikata.Backend.Models.Database
         [BsonId] [DataMember] public ObjectId Id { get; set; }
 
         [DataMember] public int EpisodeId { get; set; }
+
+        [DataMember] public int Index { get; set; }
 
         [DataMember] public string EpisodeTitle { get; set; }
 
@@ -37,8 +40,7 @@ namespace Erabikata.Backend.Models.Database
             [DataMember]
             public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 
-            [DataMember]
-            public ICollection<int> InfoIds { get; set; } = new List<int>();
+            [DataMember] public ICollection<int> InfoIds { get; set; } = new List<int>();
         }
 
         public record Line(IReadOnlyList<Word> Words);

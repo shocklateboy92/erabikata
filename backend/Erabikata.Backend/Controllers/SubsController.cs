@@ -35,7 +35,7 @@ namespace Erabikata.Backend.Controllers
                 var dialog = await _dialogCollection.GetNearestDialog(
                     episodeId,
                     time,
-                    count * 2,
+                    count,
                     analyzer.ToAnalyzerMode()
                 );
 
