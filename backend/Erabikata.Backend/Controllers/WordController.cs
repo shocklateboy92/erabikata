@@ -65,6 +65,7 @@ namespace Erabikata.Backend.Controllers
                     EpisodeId = dialog.EpisodeId.ToString(),
                     EpisodeName = dialog.EpisodeTitle,
                     Text = new DialogInfo(
+                        dialog.Id.ToString(),
                         dialog.Time,
                         dialog.Lines.Select(
                                 list => list.Words.Select(

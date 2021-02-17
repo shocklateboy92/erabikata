@@ -44,6 +44,7 @@ namespace Erabikata.Backend.Controllers
                     time,
                     dialog.Select(
                         d => new DialogInfo(
+                            d.Id.ToString(),
                             d.Time,
                             d.Lines.Select(
                                     list => list.Words.Select(

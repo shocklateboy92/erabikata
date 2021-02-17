@@ -10,15 +10,19 @@ namespace Erabikata.Models.Output
     public class DialogInfo
     {
         [JsonProperty(Required = Required.Always)]
+        public string Id { get; set; }
+
+        [JsonProperty(Required = Required.Always)]
         public double StartTime { get; }
 
         [JsonProperty(Required = Required.Always)]
         public WordRef[][] Words { get; }
 
-        public DialogInfo(double startTime, WordRef[][] tokenized)
+        public DialogInfo(string id, double startTime, WordRef[][] tokenized)
         {
             StartTime = startTime;
             Words = tokenized;
+            Id = id;
         }
 
         public class WordRef
