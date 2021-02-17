@@ -9,6 +9,7 @@ using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -83,7 +84,8 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<WordDefinition>> Definition([FromQuery] int[] ids)
+        public async Task<IEnumerable<WordDefinition>> Definition(
+            [BindRequired] [FromQuery] int[] ids)
         {
             var words = await _wordInfo.GetWords(ids);
             return words.Adapt<IEnumerable<WordDefinition>>();
