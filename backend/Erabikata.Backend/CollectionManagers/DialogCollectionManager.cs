@@ -71,7 +71,7 @@ namespace Erabikata.Backend.CollectionManagers
         {
             var cursor = await _mongoCollections[AnalyzerMode.SudachiC]
                 .FindAsync(
-                    dialog => dialog.EpisodeId == 2953,
+                    dialog => dialog.EpisodeId == 2056,
                     new FindOptions<Dialog> {BatchSize = 1000}
                 );
             while (await cursor.MoveNextAsync())

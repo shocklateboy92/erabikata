@@ -11,10 +11,15 @@ namespace Erabikata.Backend.Models.Output
 {
     public class WordDefinition
     {
-        public WordDefinition(int id, IEnumerable<JapaneseWord> japanese)
+        public WordDefinition(
+            int id,
+            IEnumerable<JapaneseWord> japanese,
+            [AdaptMember(nameof(WordInfo.Meanings))]
+            IEnumerable<EnglishWord> english)
         {
             Id = id;
             Japanese = japanese;
+            English = english;
         }
 
         [JsonProperty(Required = Required.Always)]
@@ -24,7 +29,8 @@ namespace Erabikata.Backend.Models.Output
         public IEnumerable<JapaneseWord> Japanese { get; }
 
         [JsonProperty(Required = Required.Always)]
-        public IEnumerable<EnglishWord> English { get; } = Enumerable.Empty<EnglishWord>();
+
+        public IEnumerable<EnglishWord> English { get; }
 
         public record JapaneseWord(string? Kanji, string? Reading);
 

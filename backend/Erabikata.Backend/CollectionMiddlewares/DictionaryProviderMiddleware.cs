@@ -39,7 +39,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                 if (currentUrl != sourceUrl)
                 {
                     var dict = await FetchDictionary(sourceUrl);
-                    await next(new DictionaryIngestion(ProcessDictionary(dict).ToList()));
+                    await next(new DictionaryIngestion(ProcessDictionary(dict).ToArray()));
                 }
             }
 
@@ -67,8 +67,45 @@ namespace Erabikata.Backend.CollectionMiddlewares
                     entry => new WordInfo(
                         int.Parse(entry.Element("ent_seq")!.Value),
                         entry.Elements("k_ele").Select(ele => ele.Element("keb")!.Value),
-                        entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value)
+                        entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value),
+                        entry.Elements("sense")
+                            .GroupBy(
+                                sense => sense.Elements("pos")
+                                    .Concat(sense.Elements("field"))
+                                    .Concat(sense.Elements("misc"))
+                                    .Select(element => element.Value)
+                                    .ToArray(),
+                                (tags, senses) => new WordInfo.Meaning(
+                                    tags,
+                                    senses.Select(
+                                        sense => string.Join(
+                                            "; ",
+                                            sense.Elements("gloss").Select(gloss => gloss.Value)
+                                        )
+                                    )
+                                ),
+                                new EnumerableComparer<string, string[]>()
+                            )
                     )
                 );
+
+        private class EnumerableComparer<T, E> : IEqualityComparer<E> where E : IEnumerable<T>
+        {
+            public bool Equals(E? x, E? y)
+            {
+                return ReferenceEquals(x, y) || (x != null && y != null && x.SequenceEqual(y));
+            }
+
+            public int GetHashCode(E obj)
+            {
+                // Will not throw an OverflowException
+                unchecked
+                {
+                    return obj.Where(e => e != null)
+                        .Select(e => e!.GetHashCode())
+                        .Aggregate(17, (a, b) => 23 * a + b);
+                }
+            }
+        }
     }
 }
