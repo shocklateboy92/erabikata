@@ -45,7 +45,10 @@ namespace Erabikata.Backend.Models.Output
                         definition => definition.Japanese,
                         info => info.Kanji.ZipLongest(
                             info.Readings,
-                            (kanji, reading) => new JapaneseWord(kanji, reading)
+                            (kanji, reading) => new JapaneseWord(
+                                kanji ?? reading,
+                                kanji != null ? reading : null
+                            )
                         )
                     );
             }
