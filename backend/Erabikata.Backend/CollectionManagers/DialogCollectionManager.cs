@@ -1,21 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
-using Erabikata.Models.Input.V2;
-using Grpc.Core;
+using Erabikata.Backend.Stolen;
 using Grpc.Core.Utils;
-using Mapster;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
-using Activity = Erabikata.Backend.Models.Actions.Activity;
 
 namespace Erabikata.Backend.CollectionManagers
 {
@@ -67,8 +63,17 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public async Task ProcessWords(IReadOnlyList<WordInfo> words)
+        public async Task ProcessWords2(IEnumerable<WordInfo> words)
         {
+            var trie = new Trie<(int length, WordInfo word)>();
+            foreach (var word in words)
+            foreach (var form in word.Normalized)
+            {
+                trie.Add(form, (form.Count, word));
+            }
+
+            trie.Build();
+
             var cursor = await _mongoCollections[AnalyzerMode.SudachiC]
                 .FindAsync(
                     dialog => dialog.EpisodeId == 2056,
@@ -80,17 +85,16 @@ namespace Erabikata.Backend.CollectionManagers
                     .Select(
                         dialog =>
                         {
-                            foreach (var wordInfo in words)
                             foreach (var line in dialog.Lines)
                             {
-                                var normalized = wordInfo.Normalized[0];
-                                var startingIndexes = StartingIndex(line.Words, normalized);
-
-                                foreach (var startingIndex in startingIndexes)
-                                    for (var index = 0; index < normalized.Count; index++)
+                                var matches = trie.Find(line.Words);
+                                foreach (var (endIndex, (length, word)) in matches)
+                                {
+                                    for (var index = endIndex - length; index < endIndex; index++)
                                     {
-                                        line.Words[startingIndex + index].InfoIds.Add(wordInfo.Id);
+                                        line.Words[index].InfoIds.Add(word.Id);
                                     }
+                                }
                             }
 
                             return dialog;
@@ -106,27 +110,6 @@ namespace Erabikata.Backend.CollectionManagers
                     .ToArray();
                 await _mongoCollections[AnalyzerMode.SudachiC].BulkWriteAsync(replaceOneModels);
             }
-        }
-
-        private static IEnumerable<int> StartingIndex(
-            IReadOnlyList<Dialog.Word> input,
-            IReadOnlyList<string> query)
-        {
-            var maxMatches = input.Count - query.Count + 1;
-            if (maxMatches < 0)
-            {
-                return Enumerable.Empty<int>();
-            }
-
-            var startingIndexes = Enumerable.Range(0, maxMatches);
-            for (var i = 0; i < query.Count; i++)
-            {
-                startingIndexes = startingIndexes
-                    .Where(start => input[start + i].BaseForm == query[i])
-                    .ToArray();
-            }
-
-            return startingIndexes;
         }
 
         private async Task IngestDialog(

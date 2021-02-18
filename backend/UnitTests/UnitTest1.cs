@@ -145,7 +145,7 @@ namespace UnitTests
             var words = await wordCm.GetAllWords();
             Console.WriteLine($"Reading words took {stopwatch.ElapsedMilliseconds}ms");
             stopwatch.Restart();
-            await Manager.ProcessWords(words);
+            await Manager.ProcessWords2(words);
             Console.WriteLine($"Processing words took {stopwatch.ElapsedMilliseconds}ms");
         }
 
