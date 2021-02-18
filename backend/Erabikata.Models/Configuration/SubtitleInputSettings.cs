@@ -8,5 +8,7 @@ namespace Erabikata.Models.Configuration
         public SubtitleProcessingInputSettings Input { get; set; }
 
         public HashSet<string> IgnoredPartsOfSpeech { get; set; }
+
+        public bool AllowIngestionOfSameCommit { get; set; } = false;
     }
 }
