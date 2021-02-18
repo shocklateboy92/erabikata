@@ -55,8 +55,9 @@ namespace Erabikata.Backend.CollectionMiddlewares
                             await foreach (var response in client.ResponseStream.ReadAllAsync())
                             {
                                 batchWords[(int) response.Time].Normalized = response.Lines.Select(
-                                        line => line.Words.Select(word => word.BaseForm).ToList()
+                                        line => line.Words.Select(word => word.BaseForm).ToArray()
                                     )
+                                    .Distinct(new EnumerableComparer<string, string[]>())
                                     .ToList();
                             }
                         }
