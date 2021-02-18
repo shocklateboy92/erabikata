@@ -11,7 +11,6 @@ using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 
 namespace Erabikata.Backend.CollectionMiddlewares
 {
@@ -89,7 +88,15 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                     )
                                 ),
                                 new EnumerableComparer<string, string[]>()
+                            ),
+                        entry.Elements("k_ele")
+                            .SelectMany(kEle => kEle.Elements("ke_pri"))
+                            .Concat(
+                                entry.Elements("r_ele").SelectMany(rEle => rEle.Elements("re_pri"))
                             )
+                            .Select(ele => ele.Value)
+                            .Distinct()
+                            .ToHashSet()
                     )
                 );
 

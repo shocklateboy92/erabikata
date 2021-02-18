@@ -15,11 +15,13 @@ namespace Erabikata.Backend.Models.Output
             int id,
             IEnumerable<JapaneseWord> japanese,
             [AdaptMember(nameof(WordInfo.Meanings))]
-            IEnumerable<EnglishWord> english)
+            IEnumerable<EnglishWord> english,
+            PriorityInfo priorities)
         {
             Id = id;
             Japanese = japanese;
             English = english;
+            Priorities = priorities;
         }
 
         [JsonProperty(Required = Required.Always)]
@@ -31,6 +33,12 @@ namespace Erabikata.Backend.Models.Output
         [JsonProperty(Required = Required.Always)]
 
         public IEnumerable<EnglishWord> English { get; }
+
+        // ReSharper disable once IdentifierTypo
+        public record PriorityInfo(bool News, bool Ichi, bool Spec, bool Freq, bool Gai);
+
+        [JsonProperty(Required = Required.Always)]
+        public PriorityInfo Priorities { get; set; }
 
         public record JapaneseWord(string? Kanji, string? Reading);
 
@@ -55,6 +63,18 @@ namespace Erabikata.Backend.Models.Output
                                 kanji ?? reading,
                                 kanji != null ? reading : null
                             )
+                        )
+                    );
+
+                config.ForType<IReadOnlyCollection<string>, PriorityInfo>()
+                    .MapWith(
+                        src => new PriorityInfo(
+                            src.Contains("news1"),
+                            // ReSharper disable once StringLiteralTypo
+                            src.Contains("ichi1"),
+                            src.Contains("spec1") || src.Contains("spec2"),
+                            src.Contains("nf01") || src.Contains("nf02"),
+                            src.Contains("gai1")
                         )
                     );
             }

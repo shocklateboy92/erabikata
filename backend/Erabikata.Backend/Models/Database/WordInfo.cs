@@ -11,12 +11,14 @@ namespace Erabikata.Backend.Models.Database
             int id,
             IEnumerable<string> kanji,
             IEnumerable<string> readings,
-            IEnumerable<Meaning> meanings)
+            IEnumerable<Meaning> meanings,
+            HashSet<string> priorities)
         {
             Id = id;
             Kanji = kanji;
             Readings = readings;
             Meanings = meanings;
+            Priorities = priorities;
         }
 
         [BsonId] [DataMember] public int Id { get; set; }
@@ -30,6 +32,8 @@ namespace Erabikata.Backend.Models.Database
             new Collection<IReadOnlyList<string>>();
 
         [DataMember] public IEnumerable<Meaning> Meanings { get; set; }
+
+        [DataMember] public IReadOnlyCollection<string> Priorities { get; set; }
 
         public record Meaning(IReadOnlyCollection<string> Tags, IEnumerable<string> Senses);
     }
