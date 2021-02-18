@@ -142,7 +142,7 @@ namespace UnitTests
         {
             var wordCm = _serviceProvider.GetRequiredService<WordInfoCollectionManager>();
             var stopwatch = Stopwatch.StartNew();
-            var words = await wordCm.GetAllWords();
+            var words = await wordCm.GetAllNormalizedForms();
             Console.WriteLine($"Reading words took {stopwatch.ElapsedMilliseconds}ms");
             stopwatch.Restart();
             await Manager.ProcessWords2(words);

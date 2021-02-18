@@ -63,13 +63,12 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public async Task ProcessWords2(IEnumerable<WordInfo> words)
+        public async Task ProcessWords2(IEnumerable<WordInfoCollectionManager.NormalizedWord> words)
         {
-            var trie = new Trie<(int length, WordInfo word)>();
+            var trie = new Trie<(int length, int wordId)>();
             foreach (var word in words)
-            foreach (var form in word.Normalized)
             {
-                trie.Add(form, (form.Count, word));
+                trie.Add(word.Normalized, (word.Normalized.Count, word._id));
             }
 
             trie.Build();
@@ -88,11 +87,11 @@ namespace Erabikata.Backend.CollectionManagers
                             foreach (var line in dialog.Lines)
                             {
                                 var matches = trie.Find(line.Words);
-                                foreach (var (endIndex, (length, word)) in matches)
+                                foreach (var (endIndex, (length, wordId)) in matches)
                                 {
                                     for (var index = endIndex - length; index < endIndex; index++)
                                     {
-                                        line.Words[index].InfoIds.Add(word.Id);
+                                        line.Words[index].InfoIds.Add(wordId);
                                     }
                                 }
                             }

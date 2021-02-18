@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
@@ -31,13 +30,18 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public Task<List<WordInfo>> GetAllWords()
+        public Task<List<NormalizedWord>> GetAllNormalizedForms()
         {
-            return _mongoCollection.Find(FilterDefinition<WordInfo>.Empty).ToListAsync();
+            return _mongoCollection.Aggregate()
+                .Unwind<WordInfo, NormalizedWord>(word => word.Normalized)
+                .Project(doc => new NormalizedWord(doc._id, doc.Normalized))
+                .ToListAsync();
         }
 
-        public async Task<WordInfo?> GetWord(long id) =>
-            await _mongoCollection.Find(word => word.Id == id).FirstOrDefaultAsync();
+        // Mongo is ignoring the [BsonId] attribute for some reason, so I the only
+        // way I could get his to work is to name the field `_id`
+        // ReSharper disable once InconsistentNaming
+        public record NormalizedWord(int _id, IReadOnlyList<string> Normalized);
 
         public async Task<WordInfo?> SearchWord(string baseForm)
         {
