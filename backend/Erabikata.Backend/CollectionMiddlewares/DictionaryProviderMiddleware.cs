@@ -63,6 +63,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public static IEnumerable<WordInfo> ProcessDictionary(XContainer dictionaryIngestion) =>
             dictionaryIngestion.Elements("entry")
+                .AsParallel()
                 .Select(
                     entry => new WordInfo(
                         int.Parse(entry.Element("ent_seq")!.Value),
@@ -71,9 +72,12 @@ namespace Erabikata.Backend.CollectionMiddlewares
                         entry.Elements("sense")
                             .GroupBy(
                                 sense => sense.Elements("pos")
-                                    .Concat(sense.Elements("field"))
                                     .Concat(sense.Elements("misc"))
                                     .Select(element => element.Value)
+                                    .Concat(
+                                        sense.Elements("field")
+                                            .Select(field => $"{field.Value} term")
+                                    )
                                     .ToArray(),
                                 (tags, senses) => new WordInfo.Meaning(
                                     tags,
