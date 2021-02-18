@@ -188,16 +188,17 @@ namespace Erabikata.Backend.CollectionManagers
                 )
                 .ToList();
 
-            foreach (var (_, collection) in _mongoCollections)
+            foreach (var (mode, collection) in _mongoCollections)
             {
                 using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
                 await analyzer.RequestStream.WriteAllAsync(
                     toInclude.Select(
-                        responseDialog =>
+                        responseDialog => new AnalyzeDialogRequest
                         {
-                            var request = responseDialog.Adapt<AnalyzeDialogRequest>();
-                            request.Lines.AddRange(responseDialog.Lines);
-                            return request;
+                            Mode = mode,
+                            Style = responseDialog.Style,
+                            Time = responseDialog.Time,
+                            Lines = {responseDialog.Lines}
                         }
                     )
                 );
