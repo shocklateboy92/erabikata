@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
@@ -65,10 +66,10 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task ProcessWords2(IEnumerable<WordInfoCollectionManager.NormalizedWord> words)
         {
-            var trie = new Trie<(int length, int wordId)>();
+            var trie = new Trie<(int Count, WordInfoCollectionManager.NormalizedWord word)>();
             foreach (var word in words)
             {
-                trie.Add(word.Normalized, (word.Normalized.Count, word._id));
+                trie.Add(word.Normalized, (word.Normalized.Count, word));
             }
 
             trie.Build();
@@ -87,11 +88,12 @@ namespace Erabikata.Backend.CollectionManagers
                             foreach (var line in dialog.Lines)
                             {
                                 var matches = trie.Find(line.Words);
-                                foreach (var (endIndex, (length, wordId)) in matches)
+                                foreach (var (endIndex, (length, word)) in matches)
                                 {
                                     for (var index = endIndex - length; index < endIndex; index++)
                                     {
-                                        line.Words[index].InfoIds.Add(wordId);
+                                        line.Words[index].InfoIds.Add(word._id);
+                                        Interlocked.Increment(ref word.Count);
                                     }
                                 }
                             }

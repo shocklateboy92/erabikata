@@ -12,6 +12,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                 .AddSingleton<ICollectionMiddleware, RevisionControlMiddleware>()
                 .AddSingleton<ICollectionMiddleware, DictionaryProviderMiddleware>()
                 .AddSingleton<ICollectionMiddleware, WordInfoNormalizeMiddleware>()
+                .AddSingleton<ICollectionMiddleware, DialogPostprocessingMiddleware>()
                 .AddSingleton<ICollectionMiddleware, SeedDataMiddleware>();
         }
     }

@@ -41,7 +41,22 @@ namespace Erabikata.Backend.CollectionManagers
         // Mongo is ignoring the [BsonId] attribute for some reason, so I the only
         // way I could get his to work is to name the field `_id`
         // ReSharper disable once InconsistentNaming
-        public record NormalizedWord(int _id, IReadOnlyList<string> Normalized);
+        public record NormalizedWord(int _id, IReadOnlyList<string> Normalized)
+        {
+            public uint Count = 0;
+        };
+
+        public Task UpdateWordCounts(IEnumerable<NormalizedWord> words)
+        {
+            var models = words.Select(
+                word => new UpdateOneModel<WordInfo>(
+                    new ExpressionFilterDefinition<WordInfo>(w => w.Id == word._id),
+                    Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.Count)
+                )
+            ).ToArray();
+
+            return _mongoCollection.BulkWriteAsync(models);
+        }
 
         public async Task<WordInfo?> SearchWord(string baseForm)
         {
@@ -51,7 +66,7 @@ namespace Erabikata.Backend.CollectionManagers
                 .FirstOrDefaultAsync();
         }
 
-        public Task<List<WordInfo>> GetWords(int[] ids)
+        public Task<List<WordInfo>> GetWords(IEnumerable<int> ids)
         {
             return _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
         }
