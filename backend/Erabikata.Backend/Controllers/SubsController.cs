@@ -30,40 +30,41 @@ namespace Erabikata.Backend.Controllers
             [FromQuery] double time = 0.0,
             [FromQuery] int count = 3)
         {
-            if (int.TryParse(episode, out var episodeId))
+            if (!int.TryParse(episode, out var episodeId))
             {
-                var dialog = await _dialogCollection.GetNearestDialog(
-                    episodeId,
-                    time,
-                    count,
-                    analyzer.ToAnalyzerMode()
-                );
-
-                return new NowPlayingInfo(
-                    episodeId.ToString(),
-                    time,
-                    dialog.Select(
-                        d => new DialogInfo(
-                            d.Id.ToString(),
-                            d.Time,
-                            d.Lines.Select(
-                                    list => list.Words.Select(
-                                            word => new DialogInfo.WordRef(
-                                                word.OriginalForm,
-                                                word.BaseForm,
-                                                word.Reading,
-                                                word.InfoIds
-                                            )
-                                        )
-                                        .ToArray()
-                                )
-                                .ToArray()
-                        )
-                    )
-                ) {EpisodeTitle = dialog.FirstOrDefault()?.EpisodeTitle};
+                return BadRequest();
             }
 
-            return BadRequest();
+            var dialog = await _dialogCollection.GetNearestDialog(
+                episodeId,
+                time,
+                count,
+                analyzer.ToAnalyzerMode()
+            );
+
+            return new NowPlayingInfo(
+                episodeId.ToString(),
+                time,
+                dialog.Select(
+                    d => new DialogInfo(
+                        d.Id.ToString(),
+                        d.Time,
+                        d.Lines.Select(
+                                list => list.Words.Select(
+                                        word => new DialogInfo.WordRef(
+                                            word.OriginalForm,
+                                            word.BaseForm,
+                                            word.Reading,
+                                            word.InfoIds
+                                        )
+                                    )
+                                    .ToArray()
+                            )
+                            .ToArray()
+                    )
+                )
+            ) {EpisodeTitle = dialog.FirstOrDefault()?.EpisodeTitle};
+
         }
     }
 }
