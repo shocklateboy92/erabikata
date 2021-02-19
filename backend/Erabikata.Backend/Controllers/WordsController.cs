@@ -94,7 +94,7 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<Dictionary<int, long?>> EpisodeRank(
+        public async Task<IEnumerable<WordRank>> EpisodeRank(
             [BindRequired] Analyzer analyzer,
             [BindRequired] int episodeId,
             [BindRequired] [FromQuery] int[] wordId)
@@ -104,22 +104,25 @@ namespace Erabikata.Backend.Controllers
                 _dialogCollectionManager.GetWordRanks(analyzerMode, episodeId, wordId),
                 _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episodeId));
 
-            return wordId.ToDictionary(
-                id => id,
-                id => ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 / total.Count
+            return wordId.Select(
+                id => new WordRank(
+                    id,
+                    ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 / total.Count
+                )
             );
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<Dictionary<int, long?>> GlobalRank(
-            [BindRequired] [FromQuery] int[] wordId)
+        public async Task<IEnumerable<WordRank>> GlobalRank([BindRequired] [FromQuery] int[] wordId)
         {
             var (ranks, total) =
                 await (_wordInfo.GetWordRanks(wordId), _wordInfo.GetTotalWordCount());
-            return wordId.ToDictionary(
-                id => id,
-                id => ranks.FirstOrDefault(wr => wr.wordId == id)?.rank * 100 / total
+            return wordId.Select(
+                id => new WordRank(
+                    id,
+                    ranks.FirstOrDefault(wr => wr.wordId == id)?.rank * 100 / total
+                )
             );
         }
 
