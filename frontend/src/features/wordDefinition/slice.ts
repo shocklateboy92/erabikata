@@ -24,9 +24,20 @@ const thunk: AsyncThunk<WordDefinition[], number[], {}> = createApiCallThunk(
     }
 );
 
-export const fetchEpisodeRanksIfNeeded: AsyncThunk<WordRank[], [episodeId: number, wordIds: number[]], {}> =
-    createApiCallThunk(WordsClient, 'fetchEpisodeRanks', (client, args, analyzer) => client.episodeRank(analyzer, ...args),
-        { condition: ([episodeId, wordIds], { getState }) => selectEpisodeRanks(getState(), episodeId, wordIds).length !== wordIds.length });
+export const fetchEpisodeRanksIfNeeded: AsyncThunk<
+    WordRank[],
+    [episodeId: number, wordIds: number[]],
+    {}
+> = createApiCallThunk(
+    WordsClient,
+    'fetchEpisodeRanks',
+    (client, args, analyzer) => client.episodeRank(analyzer, ...args),
+    {
+        condition: ([episodeId, wordIds], { getState }) =>
+            selectEpisodeRanks(getState(), episodeId, wordIds).length !==
+            wordIds.length
+    }
+);
 
 interface IWordDefinitionState {
     byId: { [key: number]: WordDefinition | undefined };
@@ -39,14 +50,14 @@ const slice = createSlice({
     name: 'wordDefinitions',
     initialState,
     reducers: {},
-    extraReducers: builder =>
+    extraReducers: (builder) =>
         builder.addCase(
             thunk.fulfilled,
             (state, { payload, meta: { arg: baseForm } }) => ({
                 ...state,
                 byId: {
                     ...state.byId,
-                    ...Object.fromEntries(payload.map(e => [e.id, e]))
+                    ...Object.fromEntries(payload.map((e) => [e.id, e]))
                 }
             })
         )
@@ -54,12 +65,16 @@ const slice = createSlice({
 
 export const selectDefinitionsById = (state: RootState, wordIds: number[]) =>
     wordIds
-        .map(id => state.wordDefinitions.byId[id])
+        .map((id) => state.wordDefinitions.byId[id])
         .filter((def): def is WordDefinition => def !== undefined);
 
-export const selectEpisodeRanks = (state: RootState, episodeId: number, wordIds: number[]) => {
+export const selectEpisodeRanks = (
+    state: RootState,
+    episodeId: number,
+    wordIds: number[]
+) => {
     const episode = state.wordDefinitions.episodeRanks[episodeId] ?? {};
-    return wordIds.map(id => episode[id]);
+    return wordIds.map((id) => episode[id]);
 };
 
 export const selectSelectedWordDefinitions = (state: RootState) =>
