@@ -140,7 +140,7 @@ namespace UnitTests
         [Test]
         public async Task TestWordRank()
         {
-            var ranks = await Manager.GetWordRanks(AnalyzerMode.SudachiC, TODO, new[] {1315720, 1315730});
+            var ranks = await Manager.GetWordRanks(AnalyzerMode.SudachiC, 2056, new[] {1315720, 1315730});
             Console.WriteLine(string.Join(",", ranks));
         }
 
