@@ -49,11 +49,12 @@ namespace Erabikata.Backend.CollectionManagers
         public Task UpdateWordCounts(IEnumerable<NormalizedWord> words)
         {
             var models = words.Select(
-                word => new UpdateOneModel<WordInfo>(
-                    new ExpressionFilterDefinition<WordInfo>(w => w.Id == word._id),
-                    Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.Count)
+                    word => new UpdateOneModel<WordInfo>(
+                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word._id),
+                        Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.Count)
+                    )
                 )
-            ).ToArray();
+                .ToArray();
 
             return _mongoCollection.BulkWriteAsync(models);
         }
@@ -66,9 +67,21 @@ namespace Erabikata.Backend.CollectionManagers
                 .FirstOrDefaultAsync();
         }
 
-        public Task<List<WordInfo>> GetWords(IEnumerable<int> ids)
-        {
-            return _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
-        }
+        public Task<List<WordInfo>> GetWords(IEnumerable<int> ids) =>
+            _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
+
+        public Task<List<WordRank>> GetWordRanks(IEnumerable<int> ids) =>
+            _mongoCollection.Aggregate()
+                .Match(word => word.TotalOccurrences > 0)
+                .SortByDescending(word => word.TotalOccurrences)
+                .Group(word => string.Empty, infos => new {wordId = infos.Select(i => i.Id)})
+                .Unwind(
+                    group => @group.wordId,
+                    new AggregateUnwindOptions<WordRank> {IncludeArrayIndex = "rank"}
+                )
+                .Match(wr => ids.Contains(wr.wordId))
+                .ToListAsync();
+
+        public record WordRank(object _id, int wordId, int rank);
     }
 }
