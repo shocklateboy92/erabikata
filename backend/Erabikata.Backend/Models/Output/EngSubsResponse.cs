@@ -13,26 +13,9 @@ namespace Erabikata.Backend.Models.Output
         public IEnumerable<Sentence> Dialog { get; init; } = System.Array.Empty<Sentence>();
 
         [DataContract]
-        public class Sentence
-        {
-            public Sentence(
-                string id,
-                double time,
-                [AdaptMember(nameof(EngSub.Lines))] IReadOnlyList<string> text)
-            {
-                Id = id;
-                Time = time;
-                Text = text;
-            }
-
-            [DataMember] [Required] public string Id { get; }
-
-            [DataMember] [Required] public double Time { get; }
-
-            [DataMember]
-            [Required]
-            [AdaptMember(nameof(EngSub.Lines))]
-            public IReadOnlyList<string> Text { get; }
-        }
+        public record Sentence(
+            string Id,
+            double Time,
+            [AdaptMember(nameof(EngSub.Lines))] IReadOnlyList<string> Text);
     }
 }

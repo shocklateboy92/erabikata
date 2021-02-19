@@ -8,6 +8,7 @@ using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
 using Erabikata.Backend.DataProviders;
+using Erabikata.Backend.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -78,6 +79,10 @@ namespace Erabikata.Backend
                     settings.GenerateKnownTypes = true;
                     settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
                     settings.RequireParametersWithoutDefault = true;
+                    settings.SerializerSettings = new JsonSerializerSettings
+                    {
+                        ContractResolver = new JsonContractResolver(settings)
+                    };
                 }
             );
         }
