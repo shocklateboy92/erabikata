@@ -138,6 +138,13 @@ namespace UnitTests
         }
 
         [Test]
+        public async Task TestWordRank()
+        {
+            var ranks = await Manager.GetWordRanks(AnalyzerMode.SudachiC, new[] {1315720, 1315730});
+            Console.WriteLine(string.Join(",", ranks));
+        }
+
+        [Test]
         public async Task TestWordMatching()
         {
             var wordCm = _serviceProvider.GetRequiredService<WordInfoCollectionManager>();
@@ -161,9 +168,7 @@ namespace UnitTests
         {
             var dialog = await Manager.GetNearestDialog(2056, 47, 6, AnalyzerMode.SudachiC);
             Console.WriteLine(
-                dialog.Select(d => d.Time)
-                    .ToArray()
-                    .ToJson(new JsonWriterSettings {Indent = true})
+                dialog.Select(d => d.Time).ToArray().ToJson(new JsonWriterSettings {Indent = true})
             );
         }
 

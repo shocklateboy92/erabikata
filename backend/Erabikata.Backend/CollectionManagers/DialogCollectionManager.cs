@@ -282,6 +282,43 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
             Find(baseForm, mode).CountDocumentsAsync();
 
+        public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
+            AnalyzerMode mode,
+            IEnumerable<int> wordIds)
+        {
+            var cursor = await _mongoCollections[mode]
+                .AggregateAsync(
+                    PipelineDefinition<Dialog, UnwoundRank>.Create(
+                        new BsonDocument("$unwind", "$WordsToRank"),
+                        new BsonDocument("$sortByCount", "$WordsToRank"),
+                        new BsonDocument(
+                            "$group",
+                            new BsonDocument
+                            {
+                                {"_id", BsonNull.Value},
+                                {"counts", new BsonDocument("$push", "$$ROOT")}
+                            }
+                        ),
+                        new BsonDocument(
+                            "$unwind",
+                            new BsonDocument {{"path", "$counts"}, {"includeArrayIndex", "rank"}}
+                        ),
+                        new BsonDocument(
+                            "$match",
+                            new BsonDocument(
+                                "counts._id",
+                                new BsonDocument("$in", new BsonArray(wordIds))
+                            )
+                        )
+                    )
+                );
+            return await cursor.ToListAsync();
+        }
+
+        public record UnwoundRank(object? _id, int rank, UnwoundWordCount counts);
+
+        public record UnwoundWordCount(int _id, int count);
+
         public Task<List<AggregateSortByCountResult<string>>> GetSortedWordCounts(
             AnalyzerMode mode,
             IEnumerable<string> ignoredPartsOfSpeech,

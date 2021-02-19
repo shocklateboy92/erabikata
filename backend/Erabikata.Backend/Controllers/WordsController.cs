@@ -90,5 +90,18 @@ namespace Erabikata.Backend.Controllers
             var words = await _wordInfo.GetWords(ids);
             return words.Adapt<IEnumerable<WordDefinition>>();
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IEnumerable<WordRanks>> Ranks(
+            [BindRequired] Analyzer analyzer,
+            [BindRequired] [FromQuery] int[] wordIds)
+        {
+            var ranks = await _dialogCollectionManager.GetWordRanks(
+                analyzer.ToAnalyzerMode(),
+                wordIds
+            );
+            return ranks.Select(rank => new WordRanks(rank.counts._id, rank.rank));
+        }
     }
 }
