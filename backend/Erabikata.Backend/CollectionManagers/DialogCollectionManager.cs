@@ -284,11 +284,13 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
             AnalyzerMode mode,
+            int episodeId,
             IEnumerable<int> wordIds)
         {
             var cursor = await _mongoCollections[mode]
                 .AggregateAsync(
                     PipelineDefinition<Dialog, UnwoundRank>.Create(
+                        new BsonDocument("$match", new BsonDocument("EpisodeId", episodeId)),
                         new BsonDocument("$unwind", "$WordsToRank"),
                         new BsonDocument("$sortByCount", "$WordsToRank"),
                         new BsonDocument(

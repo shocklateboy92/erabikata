@@ -93,15 +93,21 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<WordRanks>> Ranks(
+        public async Task<Dictionary<int, int?>> EpisodeRank(
             [BindRequired] Analyzer analyzer,
+            [BindRequired] int episodeId,
             [BindRequired] [FromQuery] int[] wordIds)
         {
             var ranks = await _dialogCollectionManager.GetWordRanks(
                 analyzer.ToAnalyzerMode(),
+                episodeId,
                 wordIds
             );
-            return ranks.Select(rank => new WordRanks(rank.counts._id, rank.rank));
+
+            return wordIds.ToDictionary(
+                id => id,
+                id => ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank
+            );
         }
     }
 }
