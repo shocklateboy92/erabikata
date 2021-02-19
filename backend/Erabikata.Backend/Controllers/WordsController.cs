@@ -10,6 +10,7 @@ using Erabikata.Models.Output;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -93,32 +94,47 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<Dictionary<int, int?>> EpisodeRank(
+        public async Task<Dictionary<int, long?>> EpisodeRank(
             [BindRequired] Analyzer analyzer,
             [BindRequired] int episodeId,
             [BindRequired] [FromQuery] int[] wordId)
         {
-            var ranks = await _dialogCollectionManager.GetWordRanks(
-                analyzer.ToAnalyzerMode(),
-                episodeId,
-                wordId
-            );
+            var analyzerMode = analyzer.ToAnalyzerMode();
+            var (ranks, total) = await (
+                _dialogCollectionManager.GetWordRanks(analyzerMode, episodeId, wordId),
+                _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episodeId));
 
             return wordId.ToDictionary(
                 id => id,
-                id => ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank
+                id => ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 / total.Count
             );
         }
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<Dictionary<int, int?>> GlobalRank([BindRequired] [FromQuery] int[] wordId)
+        public async Task<Dictionary<int, long?>> GlobalRank(
+            [BindRequired] [FromQuery] int[] wordId)
         {
-            var ranks = await _wordInfo.GetWordRanks(wordId);
+            var (ranks, total) =
+                await (_wordInfo.GetWordRanks(wordId), _wordInfo.GetTotalWordCount());
             return wordId.ToDictionary(
                 id => id,
-                id => ranks.FirstOrDefault(wr => wr.wordId == id)?.rank
+                id => ranks.FirstOrDefault(wr => wr.wordId == id)?.rank * 100 / total
             );
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<object> EpisodeTotal(
+            [BindRequired] Analyzer analyzer,
+            [BindRequired] int episodeId)
+        {
+            var results = await _dialogCollectionManager.GetEpisodeWordCount(
+                analyzer.ToAnalyzerMode(),
+                episodeId
+            );
+
+            return results;
         }
     }
 }

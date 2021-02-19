@@ -360,5 +360,20 @@ namespace Erabikata.Backend.CollectionManagers
                         line => line.Words.Any(word => word.BaseForm == baseForm)
                     )
                 );
+
+        public Task<AggregateCountResult> GetEpisodeWordCount(AnalyzerMode analyzerMode, int episodeId) =>
+            _mongoCollections[analyzerMode]
+                .Aggregate()
+                .Match(dialog => dialog.EpisodeId == episodeId)
+                .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
+                .Group(
+                    doc => string.Empty,
+                    grouping => new {uniqueWordIds = grouping.Select(i => i.WordsToRank).Distinct()}
+                )
+                .Unwind(group => group.uniqueWordIds)
+                .Count()
+                .FirstAsync();
+
+        private record UnwoundDialog(int WordsToRank);
     }
 }

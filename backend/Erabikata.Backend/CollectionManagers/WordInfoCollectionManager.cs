@@ -67,6 +67,9 @@ namespace Erabikata.Backend.CollectionManagers
                 .FirstOrDefaultAsync();
         }
 
+        public Task<long> GetTotalWordCount() =>
+            _mongoCollection.CountDocumentsAsync(word => word.TotalOccurrences > 0);
+
         public Task<List<WordInfo>> GetWords(IEnumerable<int> ids) =>
             _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
 
