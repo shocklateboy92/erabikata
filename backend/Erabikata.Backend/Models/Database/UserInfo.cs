@@ -1,8 +1,7 @@
 using System.Runtime.Serialization;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Erabikata.Backend.Controllers
+namespace Erabikata.Backend.Models.Database
 {
     [DataContract]
     public record UserInfo([property: BsonId]string Id)

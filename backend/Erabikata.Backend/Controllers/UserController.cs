@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Erabikata.Backend.Models.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web;
