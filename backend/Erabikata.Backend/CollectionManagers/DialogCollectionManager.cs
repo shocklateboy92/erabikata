@@ -54,13 +54,6 @@ namespace Erabikata.Backend.CollectionManagers
                     );
                     await IngestDialog(ingestShows.ShowsToIngest);
                     break;
-                case DictionaryIngestion ({ } words):
-                    // Parallel.ForEachAsync(words,
-                    //     async (info, token) =>
-                    //     {
-                    //         
-                    //     })
-                    break;
             }
         }
 
@@ -76,7 +69,7 @@ namespace Erabikata.Backend.CollectionManagers
 
             var cursor = await _mongoCollections[AnalyzerMode.SudachiC]
                 .FindAsync(
-                    dialog => dialog.EpisodeId == 2056,
+                    FilterDefinition<Dialog>.Empty,
                     new FindOptions<Dialog> {BatchSize = 1000}
                 );
             while (await cursor.MoveNextAsync())
