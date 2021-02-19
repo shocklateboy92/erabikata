@@ -86,10 +86,19 @@ namespace Erabikata.Backend.Controllers
         [HttpGet]
         [Route("[action]")]
         public async Task<IEnumerable<WordDefinition>> Definition(
-            [BindRequired] [FromQuery] int[] ids)
+            [BindRequired] [FromQuery] int[] wordId)
         {
-            var words = await _wordInfo.GetWords(ids);
-            return words.Adapt<IEnumerable<WordDefinition>>();
+            var (infos, ranks, totalCount) = await (_wordInfo.GetWords(wordId),
+                _wordInfo.GetWordRanks(wordId), _wordInfo.GetTotalWordCount());
+            var definitions = infos.Adapt<List<WordDefinition>>();
+            foreach (var definition in definitions)
+            {
+                definition.GlobalRank =
+                    ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank * 100 /
+                    totalCount;
+            }
+
+            return definitions;
         }
 
         [HttpGet]
@@ -108,20 +117,6 @@ namespace Erabikata.Backend.Controllers
                 id => new WordRank(
                     id,
                     ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 / total.Count
-                )
-            );
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IEnumerable<WordRank>> GlobalRank([BindRequired] [FromQuery] int[] wordId)
-        {
-            var (ranks, total) =
-                await (_wordInfo.GetWordRanks(wordId), _wordInfo.GetTotalWordCount());
-            return wordId.Select(
-                id => new WordRank(
-                    id,
-                    ranks.FirstOrDefault(wr => wr.wordId == id)?.rank * 100 / total
                 )
             );
         }

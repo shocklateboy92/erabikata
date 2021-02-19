@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Mapster;
 using MongoDB.Driver;
 
 namespace Erabikata.Backend.CollectionManagers
@@ -77,14 +78,14 @@ namespace Erabikata.Backend.CollectionManagers
             _mongoCollection.Aggregate()
                 .Match(word => word.TotalOccurrences > 0)
                 .SortByDescending(word => word.TotalOccurrences)
-                .Group(word => string.Empty, infos => new {wordId = infos.Select(i => i.Id)})
+                .Group(word => string.Empty, infos => new {WordId = infos.Select(i => i.Id)})
                 .Unwind(
-                    group => @group.wordId,
-                    new AggregateUnwindOptions<WordRank> {IncludeArrayIndex = "rank"}
+                    group => group.WordId,
+                    new AggregateUnwindOptions<WordRank> {IncludeArrayIndex = nameof(WordRank.GlobalRank)}
                 )
-                .Match(wr => ids.Contains(wr.wordId))
+                .Match(wr => ids.Contains(wr.WordId))
                 .ToListAsync();
 
-        public record WordRank(object _id, int wordId, int rank);
+        public record WordRank([property: AdaptIgnore]object _id, int WordId, int GlobalRank);
     }
 }

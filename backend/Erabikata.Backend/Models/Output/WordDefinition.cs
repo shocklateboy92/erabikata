@@ -13,6 +13,8 @@ namespace Erabikata.Backend.Models.Output
         IEnumerable<WordDefinition.EnglishWord> English,
         WordDefinition.PriorityInfo Priorities)
     {
+        public long? GlobalRank { get; set; }
+
         // ReSharper disable once IdentifierTypo
         public record PriorityInfo(bool News, bool Ichi, bool Spec, bool Freq, bool Gai);
 
