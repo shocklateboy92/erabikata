@@ -44,5 +44,7 @@ namespace Erabikata.Backend.Models.Database
         }
 
         public record Line(IReadOnlyList<Word> Words);
+
+        [DataMember] public ICollection<int> WordsToRank { get; set; } = new List<int>();
     }
 }

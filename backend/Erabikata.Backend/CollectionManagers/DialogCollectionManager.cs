@@ -86,7 +86,12 @@ namespace Erabikata.Backend.CollectionManagers
                                     for (var index = endIndex - length; index < endIndex; index++)
                                     {
                                         line.Words[index].InfoIds.Add(word._id);
-                                        Interlocked.Increment(ref word.Count);
+                                    }
+
+                                    Interlocked.Increment(ref word.Count);
+                                    if (!line.Words[endIndex - 1].IsInParenthesis)
+                                    {
+                                        dialog.WordsToRank.Add(word._id);
                                     }
                                 }
                             }
