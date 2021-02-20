@@ -3,6 +3,7 @@ import Icon from '@mdi/react';
 import { InlineButton } from 'components/button';
 import React, { FC, ReactNode, useState } from 'react';
 import styles from './drawer.module.scss';
+import { Row } from '../layout';
 
 interface IDrawerProps {
     summary: string;
@@ -38,7 +39,7 @@ export const Drawer: FC<IDrawerProps> = ({
             </InlineButton>
             {props.extraActions && (
                 <div className={styles.actions}>
-                    {props.extraActions('2em')}
+                    <Row>{props.extraActions('2em')}</Row>
                 </div>
             )}
             {isOpen && <div className={styles.content}>{children}</div>}

@@ -1,10 +1,9 @@
-import { mdiClose, mdiShare, mdiShareVariant } from '@mdi/js';
+import { mdiClose, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { InlineButton } from 'components/button';
 import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
-import { DialogList } from 'features/dialog/dialogList';
 import { EngDialogList } from 'features/engDialog/engDialogList';
 import { HassPlayButton } from 'features/hass';
 import { ImageContext } from 'features/imageContext/component';
@@ -17,17 +16,9 @@ import { Link } from 'react-router-dom';
 import styles from './selectedWord.module.scss';
 import { selectionClearRequested, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
-import { encodeSelectionParams } from './api';
 import { DialogDrawer } from '../dialog/DialogDrawer';
 
 const ICON_SIZE = 1;
-
-// `share()` isn't in the spec
-declare global {
-    interface Navigator {
-        share(args: { text: string }): Promise<void>;
-    }
-}
 
 export const SelectedWord: FC<{}> = () => {
     const dispatch = useDispatch();
@@ -54,18 +45,6 @@ export const SelectedWord: FC<{}> = () => {
                 <div className={styles.content}>
                     <WordContext word={selectedWord.wordBaseForm} />
                     <div className={styles.actions}>
-                        <InlineButton
-                            onClick={async () => {
-                                const text = `[${selectedWord.wordBaseForm}](${dialogUrl}) #Japanese`;
-
-                                console.log(`Sharing '${text}'...`);
-                                await navigator.share({
-                                    text
-                                });
-                            }}
-                        >
-                            <Icon path={mdiShareVariant} size={ICON_SIZE} />
-                        </InlineButton>
                         <WordLink
                             word={selectedWord.wordBaseForm}
                             includeEpisode={episodeId}

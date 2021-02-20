@@ -1,0 +1,9 @@
+.layout {
+    &.row {
+        display: flex;
+
+        > * {
+            margin-left: 1vw;
+        }
+    }
+}
