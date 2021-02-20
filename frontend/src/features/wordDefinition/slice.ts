@@ -1,4 +1,4 @@
-import { AsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { WordDefinition, WordRank, WordsClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
@@ -33,10 +33,10 @@ export const fetchEpisodeRanksIfNeeded: AsyncThunk<
     'fetchEpisodeRanks',
     (client, args, analyzer) => client.episodeRank(analyzer, ...args),
     {
-        condition: ([episodeId, wordIds], { getState }) =>
-            episodeId !== undefined &&
-            selectEpisodeRanks(getState(), episodeId, wordIds).length !==
-                wordIds.length
+        condition: ([episodeId, wordIds], { getState }) => {
+            const episode = getState().wordDefinitions.episodeRanks[episodeId];
+            return !episode || !!wordIds.find((word) => !episode[word]);
+        }
     }
 );
 
@@ -92,15 +92,6 @@ export const selectDefinitionsById = (state: RootState, wordIds: number[]) =>
     wordIds
         .map((id) => state.wordDefinitions.byId[id])
         .filter((def): def is WordDefinition => def !== undefined);
-
-export const selectEpisodeRanks = (
-    state: RootState,
-    episodeId: string,
-    wordIds: number[]
-) => {
-    const episode = state.wordDefinitions.episodeRanks[episodeId] ?? {};
-    return wordIds.map((id) => episode[id]);
-};
 
 export const selectSelectedWordDefinitions = (state: RootState) =>
     selectDefinitionsById(state, selectSelectedWords(state));

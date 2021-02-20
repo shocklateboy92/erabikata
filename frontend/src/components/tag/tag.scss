@@ -1,0 +1,22 @@
+$pill-radius: 5px;
+
+.tag {
+  font-size: small;
+
+  > * {
+    border: white 1px solid;
+
+    &:last-child {
+      background: white;
+      color: black;
+
+      padding: 0 $pill-radius;
+      border-radius: 0 $pill-radius $pill-radius 0;
+    }
+
+    &:first-child {
+      padding-left: $pill-radius;
+      border-radius: $pill-radius 0 0 $pill-radius;
+    }
+  }
+}

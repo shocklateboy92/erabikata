@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Erabikata.Backend.Models.Database;
 using Mapster;
 using MoreLinq;
@@ -13,6 +14,7 @@ namespace Erabikata.Backend.Models.Output
         IEnumerable<WordDefinition.EnglishWord> English,
         WordDefinition.PriorityInfo Priorities)
     {
+        [DataMember]
         public long? GlobalRank { get; set; }
 
         // ReSharper disable once IdentifierTypo

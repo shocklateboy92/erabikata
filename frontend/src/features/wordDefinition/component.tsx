@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import { fetchDefinitionsIfNeeded, fetchEpisodeRanksIfNeeded } from './slice';
 import styles from './wordDefinition.module.scss';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
+import { Tag } from '../../components/tag';
 
 const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     wordId,
@@ -35,6 +36,8 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
                     </ruby>
                 ))}
             </div>
+            {definition.globalRank && <Tag>Global {definition.globalRank}</Tag>}
+            {episodeRank && <Tag>Episode {episodeRank}</Tag>}
             {/* TODO: Implement definition hiding */}
             {definition.english.map((english, index) => (
                 <div key={index} className={styles.sense}>
@@ -87,7 +90,11 @@ export const WordDefinition: FC<{
             startOpen={initiallyOpen}
         >
             {definition.map((word) => (
-                <Definition wordId={word} key={word} />
+                <Definition
+                    key={word}
+                    wordId={word}
+                    episodeId={selectedEpisode}
+                />
             ))}
         </Drawer>
     );
