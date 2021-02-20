@@ -18,6 +18,7 @@ import styles from './selectedWord.module.scss';
 import { selectionClearRequested, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
 import { encodeSelectionParams } from './api';
+import { DialogDrawer } from '../dialog/DialogDrawer';
 
 const ICON_SIZE = 1;
 
@@ -103,31 +104,7 @@ export const SelectedWord: FC<{}> = () => {
                 {episodeId && dialogId && (
                     <>
                         <Separator />
-                        <Drawer
-                            summary="Dialog Context"
-                            extraActions={(iconSize) => (
-                                <Link
-                                    to={{
-                                        pathname: '/dialog',
-                                        search: encodeSelectionParams(
-                                            episodeId,
-                                            dialogId,
-                                            selectedWord.wordIds
-                                        )
-                                    }}
-                                >
-                                    <Icon path={mdiShare} size={iconSize} />
-                                </Link>
-                            )}
-                        >
-                            {
-                                <DialogList
-                                    episode={episodeId!}
-                                    time={dialogId!}
-                                    count={2}
-                                />
-                            }
-                        </Drawer>
+                        <DialogDrawer />
                     </>
                 )}
                 {episodeId && dialogId && !isNaN(parseInt(episodeId)) && (
@@ -143,7 +120,7 @@ export const SelectedWord: FC<{}> = () => {
                             <EngDialogList
                                 episodeId={episodeId}
                                 time={dialogId}
-                            ></EngDialogList>
+                            />
                         </Drawer>
                     </>
                 )}
