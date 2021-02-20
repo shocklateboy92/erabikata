@@ -95,7 +95,7 @@ namespace Erabikata.Backend.Controllers
             {
                 definition.GlobalRank =
                     ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank * 100 /
-                    totalCount;
+                    totalCount + 1;
             }
 
             return definitions;
@@ -123,7 +123,7 @@ namespace Erabikata.Backend.Controllers
                     id => new WordRank(
                         id,
                         ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 /
-                        total.Count
+                        total.Count + 1
                     )
                 )
             );
