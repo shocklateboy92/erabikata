@@ -26,7 +26,10 @@ const getInitialState = (): ISelectedWordState => {
         wordBaseForm: getParam(search, 'word'),
         sentenceTimestamp: parseFloat(search.get('time') ?? ''),
         episode: getParam(search, 'episode'),
-        wordIds: []
+        wordIds: search
+            .getAll('word')
+            .map(str => parseInt(str))
+            .filter((id) => !isNaN(id))
     };
 };
 

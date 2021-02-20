@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import styles from './selectedWord.module.scss';
 import { selectionClearRequested, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
+import { encodeSelectionParams } from './api';
 
 const ICON_SIZE = 1;
 
@@ -99,7 +100,7 @@ export const SelectedWord: FC<{}> = () => {
                     wordIds={selectedWord.wordIds}
                     initiallyOpen={false}
                 />
-                {dialogUrl && (
+                {episodeId && dialogId && (
                     <>
                         <Separator />
                         <Drawer
@@ -108,7 +109,11 @@ export const SelectedWord: FC<{}> = () => {
                                 <Link
                                     to={{
                                         pathname: '/dialog',
-                                        search: dialogUrl!.search
+                                        search: encodeSelectionParams(
+                                            episodeId,
+                                            dialogId,
+                                            selectedWord.wordIds
+                                        )
                                     }}
                                 >
                                     <Icon path={mdiShare} size={iconSize} />
