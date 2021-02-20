@@ -5,7 +5,11 @@ import { Drawer } from 'components/drawer';
 import { isKana } from 'features/furigana';
 import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchDefinitionsIfNeeded, fetchEpisodeRanksIfNeeded } from './slice';
+import {
+    fetchDefinitionsIfNeeded,
+    fetchEpisodeRanksIfNeeded,
+    readingsOnlyModeToggle
+} from './slice';
 import styles from './wordDefinition.module.scss';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { Tag } from '../../components/tag';
@@ -20,6 +24,9 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     const episodeRank = useTypedSelector(
         (state) =>
             (state.wordDefinitions.episodeRanks[episodeId!] ?? {})[wordId]
+    );
+    const readingsOnly = useTypedSelector(
+        (state) => state.wordDefinitions.readingsOnly
     );
 
     if (!definition) {
@@ -38,21 +45,21 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
             </div>
             {definition.globalRank && <Tag>Global {definition.globalRank}</Tag>}
             {episodeRank && <Tag>Episode {episodeRank}</Tag>}
-            {/* TODO: Implement definition hiding */}
-            {definition.english.map((english, index) => (
-                <div key={index} className={styles.sense}>
-                    {english.tags.length > 0 && (
-                        <div className={styles.tags}>
-                            {english.tags.join(', ')}
-                        </div>
-                    )}
-                    {english.senses.map((sense, index) => (
-                        <div key={index} className={styles.content}>
-                            {sense}
-                        </div>
-                    ))}
-                </div>
-            ))}
+            {!readingsOnly &&
+                definition.english.map((english, index) => (
+                    <div key={index} className={styles.sense}>
+                        {english.tags.length > 0 && (
+                            <div className={styles.tags}>
+                                {english.tags.join(', ')}
+                            </div>
+                        )}
+                        {english.senses.map((sense, index) => (
+                            <div key={index} className={styles.content}>
+                                {sense}
+                            </div>
+                        ))}
+                    </div>
+                ))}
         </div>
     );
 };
@@ -74,15 +81,13 @@ export const WordDefinition: FC<{
 
     const results = useTypedSelector(selectSelectedWords);
 
-    const [showDefinition, setShowDefinition] = useState(true);
-
     const definition = exact ? results.slice(0, 1) : results.slice(1);
     return (
         <Drawer
             summary={exact ? 'Definition' : 'Related Words'}
             extraActions={(iconSize) =>
                 toggleDefinition && (
-                    <button onClick={() => setShowDefinition(!showDefinition)}>
+                    <button onClick={() => dispatch(readingsOnlyModeToggle())}>
                         <Icon path={mdiPageNextOutline} size={iconSize} />
                     </button>
                 )

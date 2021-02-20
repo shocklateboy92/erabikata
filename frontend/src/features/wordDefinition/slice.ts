@@ -43,14 +43,24 @@ export const fetchEpisodeRanksIfNeeded: AsyncThunk<
 interface IWordDefinitionState {
     byId: { [key: number]: WordDefinition | undefined };
     episodeRanks: { [key: string]: { [key: number]: number | undefined } };
+    readingsOnly: boolean;
 }
 
-const initialState: IWordDefinitionState = { byId: {}, episodeRanks: {} };
+const initialState: IWordDefinitionState = {
+    byId: {},
+    episodeRanks: {},
+    readingsOnly: false
+};
 
 const slice = createSlice({
     name: 'wordDefinitions',
     initialState,
-    reducers: {},
+    reducers: {
+        readingsOnlyModeToggle: (state) => ({
+            ...state,
+            readingsOnly: !state.readingsOnly
+        })
+    },
     extraReducers: (builder) =>
         builder
             .addCase(
@@ -98,4 +108,5 @@ export const selectSelectedWordDefinitions = (state: RootState) =>
 
 export const fetchDefinitionsIfNeeded = thunk;
 
+export const { readingsOnlyModeToggle } = slice.actions;
 export const wordDefinitionReducer = slice.reducer;
