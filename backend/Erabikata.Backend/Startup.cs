@@ -159,15 +159,21 @@ namespace Erabikata.Backend
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseStaticFiles();
-            app.UseSpa(
-                builder =>
-                {
-                    builder.Options.DefaultPage = "/index.html";
-                    if (env.IsDevelopment())
+            app.UseWhen(
+                context => !context.Request.Path.Value?.StartsWith(
+                    "/api",
+                    StringComparison.OrdinalIgnoreCase
+                ) ?? false,
+                appBuilder => appBuilder.UseSpa(
+                    builder =>
                     {
-                        builder.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                        builder.Options.DefaultPage = "/index.html";
+                        if (env.IsDevelopment())
+                        {
+                            builder.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                        }
                     }
-                }
+                )
             );
         }
     }
