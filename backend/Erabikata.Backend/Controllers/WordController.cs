@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Managers;
+using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Models.Output;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
-using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TaskTupleAwaiter;
+using WordInfo = Erabikata.Models.Output.WordInfo;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -53,12 +54,14 @@ namespace Erabikata.Backend.Controllers
             }
 
             var (matches, count) = await (
-                _dialogCollectionManager.GetMatches(
-                    text,
-                    analyzer.ToAnalyzerMode(),
-                    pagingInfo.Skip,
-                    pagingInfo.Max
-                ), _dialogCollectionManager.CountMatches(text, analyzer.ToAnalyzerMode()));
+                pagingInfo.Max == 0
+                    ? Task.FromResult(new List<Dialog>())
+                    : _dialogCollectionManager.GetMatches(
+                        text,
+                        analyzer.ToAnalyzerMode(),
+                        pagingInfo.Skip,
+                        pagingInfo.Max
+                    ), _dialogCollectionManager.CountMatches(text, analyzer.ToAnalyzerMode()));
             var occurrences = matches.Select(
                 dialog => new WordInfo.Occurence
                 {
