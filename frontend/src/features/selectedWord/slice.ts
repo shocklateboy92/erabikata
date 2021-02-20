@@ -1,12 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from 'app/rootReducer';
 import { DialogInfo } from 'backend.generated';
-import { selectDialogContent } from 'features/dialog/slice';
-import {
-    selectEnglishDialogContent,
-    selectNearbyEnglishDialog
-} from 'features/engDialog/slice';
 import { IWordInfoState } from 'features/wordContext';
+import { selectionClearRequest } from './actions';
 
 interface ISelectedWordState {
     wordBaseForm?: string;
@@ -52,7 +47,6 @@ const slice = createSlice({
             episode,
             wordIds: []
         }),
-        selectionClearRequest: (state) => ({ wordIds: [] }),
         dialogSelection: (
             state,
             { payload }: PayloadAction<{ time: number; episode?: string }>
@@ -202,67 +196,15 @@ const slice = createSlice({
             sentenceTimestamp: payload.time,
             wordBaseForm: payload.baseForm
         })
-    }
+    },
+    extraReducers: (builder) =>
+        builder.addCase(selectionClearRequest, (state) => ({ wordIds: [] }))
 });
 
 export const selectedWordReducer = slice.reducer;
 
-export const selectIsCurrentlySelected = (
-    state: RootState,
-    episodeId: string,
-    time: number
-) =>
-    state.selectedWord.episode === episodeId &&
-    state.selectedWord.sentenceTimestamp === time;
-
-export const selectSelectedEpisodeContent = (state: RootState) =>
-    state.dialog.order[state.selectedWord.episode!];
-export const selectSelectedWord = (state: RootState) => state.selectedWord;
-export const selectSelectedWordContext = (state: RootState) =>
-    (state.selectedWord?.wordBaseForm &&
-        state.wordContexts.byId[state.selectedWord.wordBaseForm]) ||
-    null;
-export const selectSelectedDialog = (state: RootState) => {
-    const { episode, sentenceTimestamp } = state.selectedWord;
-    if (!(episode && sentenceTimestamp)) {
-        return;
-    }
-
-    // const dialog = selectNearbyDialog(episode, sentenceTimestamp, 1, state);
-    // if (dialog.length < 1) {
-    //     return;
-    // }
-
-    return selectDialogContent(episode, sentenceTimestamp, state);
-};
-export const selectSelectedEnglishDialog = (state: RootState) => {
-    const { episode, sentenceTimestamp } = state.selectedWord;
-    if (!episode || !sentenceTimestamp) {
-        return;
-    }
-
-    const nearest = selectNearbyEnglishDialog(
-        state,
-        episode,
-        sentenceTimestamp,
-        1
-    );
-    if (nearest.length < 1) {
-        return;
-    }
-
-    return selectEnglishDialogContent(state, episode, nearest[0]);
-};
-
-export const selectSelectedEpisodeId = (state: RootState) =>
-    state.selectedWord.episode;
-
-export const selectSelectedWords = (state: RootState) =>
-    state.selectedWord.wordIds;
-
 export const {
     newWordSelected,
-    selectionClearRequest,
     dialogSelection,
     dialogWordShift,
     episodeDialogShift,

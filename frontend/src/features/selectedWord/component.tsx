@@ -13,9 +13,10 @@ import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styles from './selectedWord.module.scss';
-import { selectionClearRequest, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
 import { DialogDrawer } from '../dialog/DialogDrawer';
+import { selectSelectedWord } from './selectors';
+import { selectionClearRequest } from './actions';
 
 const ICON_SIZE = 1;
 

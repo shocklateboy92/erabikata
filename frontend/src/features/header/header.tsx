@@ -11,6 +11,7 @@ import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { HeaderItem } from '.';
 import styles from './header.module.scss';
+import { CloseButton } from './ts';
 
 export const AppHeader: FC = ({ children }) => (
     <header className={styles.container}>
@@ -29,5 +30,6 @@ export const AppHeader: FC = ({ children }) => (
             <HeaderItem icon={mdiInformationOutline}>App Info</HeaderItem>
         </NavLink>
         <FuriganaOption />
+        <CloseButton />
     </header>
 );

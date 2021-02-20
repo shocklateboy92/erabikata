@@ -7,6 +7,7 @@ export interface IToolButtonProps {
     active?: boolean;
     onClick: React.ComponentProps<'button'>['onClick'];
 }
+
 export const HeaderButton: FC<IToolButtonProps> = ({ active, ...props }) => (
     <button
         className={classNames({ active })}
