@@ -3,7 +3,7 @@ import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { Drawer } from 'components/drawer';
 import { isKana } from 'features/furigana';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import {
     fetchDefinitionsIfNeeded,
