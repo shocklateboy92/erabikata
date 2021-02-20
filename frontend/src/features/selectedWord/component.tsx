@@ -14,7 +14,7 @@ import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styles from './selectedWord.module.scss';
-import { selectionClearRequested, selectSelectedWord } from './slice';
+import { selectionClearRequest, selectSelectedWord } from './slice';
 import { WordLink } from './wordLink';
 import { DialogDrawer } from '../dialog/DialogDrawer';
 
@@ -54,7 +54,7 @@ export const SelectedWord: FC<{}> = () => {
                         <InlineButton
                             hideOnMobile
                             onClick={() => {
-                                dispatch(selectionClearRequested());
+                                dispatch(selectionClearRequest());
                             }}
                         >
                             <Icon path={mdiClose} size={ICON_SIZE} />

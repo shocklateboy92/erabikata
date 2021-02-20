@@ -28,7 +28,7 @@ const getInitialState = (): ISelectedWordState => {
         episode: getParam(search, 'episode'),
         wordIds: search
             .getAll('word')
-            .map(str => parseInt(str))
+            .map((str) => parseInt(str))
             .filter((id) => !isNaN(id))
     };
 };
@@ -52,7 +52,7 @@ const slice = createSlice({
             episode,
             wordIds: []
         }),
-        selectionClearRequested: (state) => ({ wordIds: [] }),
+        selectionClearRequest: (state) => ({ wordIds: [] }),
         dialogSelection: (
             state,
             { payload }: PayloadAction<{ time: number; episode?: string }>
@@ -262,7 +262,7 @@ export const selectSelectedWords = (state: RootState) =>
 
 export const {
     newWordSelected,
-    selectionClearRequested,
+    selectionClearRequest,
     dialogSelection,
     dialogWordShift,
     episodeDialogShift,

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
-import { selectionClearRequested } from 'features/selectedWord';
+import { selectionClearRequest } from 'features/selectedWord';
 import 'features/shortcuts';
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -62,7 +62,7 @@ export const Page: FC<IPageProps> = (props) => {
                     onTouchEnd={() => {
                         if (touchState?.shouldClose) {
                             setTouchState(undefined);
-                            dispatch(selectionClearRequested());
+                            dispatch(selectionClearRequest());
                         }
                     }}
                 >
