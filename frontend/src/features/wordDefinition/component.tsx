@@ -12,7 +12,7 @@ import {
 } from './slice';
 import styles from './wordDefinition.module.scss';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
-import { Tag } from '../../components/tag';
+import { Pill } from '../../components/pill';
 
 const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     wordId,
@@ -43,8 +43,10 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
                     </ruby>
                 ))}
             </div>
-            {definition.globalRank && <Tag>Global {definition.globalRank}</Tag>}
-            {episodeRank && <Tag>Episode {episodeRank}</Tag>}
+            {definition.globalRank && (
+                <Pill>Global {definition.globalRank}</Pill>
+            )}
+            {episodeRank && <Pill>Episode {episodeRank}</Pill>}
             {!readingsOnly &&
                 definition.english.map((english, index) => (
                     <div key={index} className={styles.sense}>
