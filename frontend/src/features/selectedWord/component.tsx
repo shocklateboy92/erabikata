@@ -5,7 +5,6 @@ import { InlineButton } from 'components/button';
 import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
 import { EngDialogList } from 'features/engDialog/engDialogList';
-import { HassPlayButton } from 'features/hass';
 import { ImageContext } from 'features/imageContext/component';
 import { WordContext } from 'features/wordContext';
 import { WordOccurrences } from 'features/wordContext/occurrences';
@@ -59,11 +58,6 @@ export const SelectedWord: FC<{}> = () => {
                         >
                             <Icon path={mdiClose} size={ICON_SIZE} />
                         </InlineButton>
-                        <HassPlayButton
-                            dialogId={dialogId}
-                            episodeId={episodeId}
-                            iconSize={ICON_SIZE}
-                        />
                     </div>
                 </div>
             </div>

@@ -9,6 +9,7 @@ import { useTypedSelector } from '../../app/hooks';
 import { InlineButton } from '../../components/button';
 import { shareSelectedWordDialog } from '../selectedWord/api';
 import { useDispatch } from 'react-redux';
+import { HassPlayButton } from '../hass';
 
 export const DialogDrawer: FC = () => {
     const dispatch = useDispatch();
@@ -23,14 +24,11 @@ export const DialogDrawer: FC = () => {
         <Drawer
             summary="Dialog Context"
             extraActions={(iconSize) => [
-                <InlineButton
-                    key="share"
-                    onClick={() => {
-                        dispatch(shareSelectedWordDialog());
-                    }}
-                >
-                    <Icon path={mdiShareVariant} size={iconSize} />
-                </InlineButton>,
+                <HassPlayButton
+                    dialogId={time}
+                    episodeId={episode}
+                    iconSize={iconSize}
+                />,
                 <Link
                     key="link"
                     to={{
@@ -39,7 +37,15 @@ export const DialogDrawer: FC = () => {
                     }}
                 >
                     <Icon path={mdiShare} size={iconSize} />
-                </Link>
+                </Link>,
+                <InlineButton
+                    key="share"
+                    onClick={() => {
+                        dispatch(shareSelectedWordDialog());
+                    }}
+                >
+                    <Icon path={mdiShareVariant} size={iconSize} />
+                </InlineButton>
             ]}
         >
             {<DialogList episode={episode} time={time} count={2} />}

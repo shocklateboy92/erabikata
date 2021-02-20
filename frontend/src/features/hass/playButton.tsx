@@ -9,7 +9,7 @@ import { playFrom, useHass } from './api';
 export const HassPlayButton: FC<{
     episodeId?: string;
     dialogId?: number;
-    iconSize?: number;
+    iconSize?: string;
 }> = (props) => {
     const [dispatch, context] = [useDispatch(), useHass()];
     const shouldShow =
