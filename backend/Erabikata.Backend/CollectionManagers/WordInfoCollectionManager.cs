@@ -81,11 +81,14 @@ namespace Erabikata.Backend.CollectionManagers
                 .Group(word => string.Empty, infos => new {WordId = infos.Select(i => i.Id)})
                 .Unwind(
                     group => group.WordId,
-                    new AggregateUnwindOptions<WordRank> {IncludeArrayIndex = nameof(WordRank.GlobalRank)}
+                    new AggregateUnwindOptions<WordRank>
+                    {
+                        IncludeArrayIndex = nameof(WordRank.GlobalRank)
+                    }
                 )
                 .Match(wr => ids.Contains(wr.WordId))
                 .ToListAsync();
 
-        public record WordRank([property: AdaptIgnore]object _id, int WordId, int GlobalRank);
+        public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
     }
 }
