@@ -251,6 +251,9 @@ export const selectSelectedEnglishDialog = (state: RootState) => {
     return selectEnglishDialogContent(state, episode, nearest[0]);
 };
 
+export const selectSelectedEpisodeId = (state: RootState) =>
+    state.selectedWord.episode;
+
 export const selectSelectedWords = (state: RootState) =>
     state.selectedWord.wordIds;
 

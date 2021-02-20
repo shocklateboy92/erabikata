@@ -1,4 +1,4 @@
-import { AsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { AsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { WordDefinition, WordRank, WordsClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
@@ -26,7 +26,7 @@ const thunk: AsyncThunk<WordDefinition[], number[], {}> = createApiCallThunk(
 
 export const fetchEpisodeRanksIfNeeded: AsyncThunk<
     WordRank[],
-    [episodeId: number, wordIds: number[]],
+    [episodeId: string, wordIds: number[]],
     {}
 > = createApiCallThunk(
     WordsClient,
@@ -34,14 +34,15 @@ export const fetchEpisodeRanksIfNeeded: AsyncThunk<
     (client, args, analyzer) => client.episodeRank(analyzer, ...args),
     {
         condition: ([episodeId, wordIds], { getState }) =>
+            episodeId !== undefined &&
             selectEpisodeRanks(getState(), episodeId, wordIds).length !==
-            wordIds.length
+                wordIds.length
     }
 );
 
 interface IWordDefinitionState {
     byId: { [key: number]: WordDefinition | undefined };
-    episodeRanks: { [key: number]: { [key: number]: number | undefined } };
+    episodeRanks: { [key: string]: { [key: number]: number | undefined } };
 }
 
 const initialState: IWordDefinitionState = { byId: {}, episodeRanks: {} };
@@ -51,16 +52,40 @@ const slice = createSlice({
     initialState,
     reducers: {},
     extraReducers: (builder) =>
-        builder.addCase(
-            thunk.fulfilled,
-            (state, { payload, meta: { arg: baseForm } }) => ({
-                ...state,
-                byId: {
-                    ...state.byId,
-                    ...Object.fromEntries(payload.map((e) => [e.id, e]))
-                }
-            })
-        )
+        builder
+            .addCase(
+                thunk.fulfilled,
+                (state, { payload, meta: { arg: baseForm } }) => ({
+                    ...state,
+                    byId: {
+                        ...state.byId,
+                        ...Object.fromEntries(payload.map((e) => [e.id, e]))
+                    }
+                })
+            )
+            .addCase(
+                fetchEpisodeRanksIfNeeded.fulfilled,
+                (
+                    state,
+                    {
+                        payload,
+                        meta: {
+                            arg: [episodeId]
+                        }
+                    }
+                ) => ({
+                    ...state,
+                    episodeRanks: {
+                        ...state.episodeRanks,
+                        [episodeId]: {
+                            ...state.episodeRanks[episodeId],
+                            ...Object.fromEntries(
+                                payload.map((rank) => [rank.id, rank.rank])
+                            )
+                        }
+                    }
+                })
+            )
 });
 
 export const selectDefinitionsById = (state: RootState, wordIds: number[]) =>
@@ -70,7 +95,7 @@ export const selectDefinitionsById = (state: RootState, wordIds: number[]) =>
 
 export const selectEpisodeRanks = (
     state: RootState,
-    episodeId: number,
+    episodeId: string,
     wordIds: number[]
 ) => {
     const episode = state.wordDefinitions.episodeRanks[episodeId] ?? {};
