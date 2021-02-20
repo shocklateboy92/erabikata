@@ -103,20 +103,28 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<IEnumerable<WordRank>> EpisodeRank(
+        public async Task<ActionResult<IEnumerable<WordRank>>> EpisodeRank(
             [BindRequired] Analyzer analyzer,
-            [BindRequired] int episodeId,
+            [BindRequired] string episodeId,
             [BindRequired] [FromQuery] int[] wordId)
         {
+            if (!int.TryParse(episodeId, out var episode))
+            {
+                return BadRequest($"{nameof(episodeId)} must be a number");
+            }
+
             var analyzerMode = analyzer.ToAnalyzerMode();
             var (ranks, total) = await (
-                _dialogCollectionManager.GetWordRanks(analyzerMode, episodeId, wordId),
-                _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episodeId));
+                _dialogCollectionManager.GetWordRanks(analyzerMode, episode, wordId),
+                _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episode));
 
-            return wordId.Select(
-                id => new WordRank(
-                    id,
-                    ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 / total.Count
+            return Ok(
+                wordId.Select(
+                    id => new WordRank(
+                        id,
+                        ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 /
+                        total.Count
+                    )
                 )
             );
         }
