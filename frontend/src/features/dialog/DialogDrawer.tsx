@@ -25,6 +25,7 @@ export const DialogDrawer: FC = () => {
             summary="Dialog Context"
             extraActions={(iconSize) => [
                 <HassPlayButton
+                    key="hass"
                     dialogId={time}
                     episodeId={episode}
                     iconSize={iconSize}
