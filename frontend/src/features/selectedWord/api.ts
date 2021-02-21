@@ -5,11 +5,17 @@ import { notification } from 'features/notifications';
 export const encodeSelectionParams = (
     episode: string,
     time: number,
-    words: number[]
+    words: number[],
+    baseForm?: string
 ) => {
     const params = new URLSearchParams();
     params.set('episode', episode);
     params.set('time', time.toString());
+
+    // Base form must be first, or will be ignored by slice
+    if (baseForm) {
+        params.append('word', baseForm);
+    }
     for (const word of words) {
         params.append('word', word.toString());
     }
@@ -25,7 +31,7 @@ export const shareSelectedWordDialog: AsyncThunk<
     'shareSelectedWordDialog',
     async (_, { getState, dispatch }) => {
         const {
-            selectedWord: { episode, sentenceTimestamp, wordIds },
+            selectedWord: { episode, sentenceTimestamp, wordIds, wordBaseForm },
             wordDefinitions
         } = getState();
         if (!(episode && sentenceTimestamp && wordIds)) {
@@ -45,7 +51,8 @@ export const shareSelectedWordDialog: AsyncThunk<
         const params = encodeSelectionParams(
             episode,
             sentenceTimestamp,
-            wordIds
+            wordIds,
+            wordBaseForm
         );
         const text = `[${word}](${document.baseURI}/dialog?${params}) #Japanese`;
 
