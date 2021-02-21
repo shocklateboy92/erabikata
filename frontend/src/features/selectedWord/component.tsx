@@ -108,7 +108,7 @@ export const SelectedWord: FC<{}> = () => {
                         </Link>
                     )}
                 >
-                    <WordOccurrences word={selectedWord.wordBaseForm} />
+                    <WordOccurrences wordId={selectedWord.wordIds[0]} />
                 </Drawer>
                 <Separator />
             </div>

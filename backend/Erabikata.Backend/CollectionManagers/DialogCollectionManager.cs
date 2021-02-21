@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Erabikata.Backend.Models.Output;
 using Erabikata.Backend.Stolen;
 using Grpc.Core.Utils;
 using Microsoft.Extensions.Logging;
@@ -382,19 +383,18 @@ namespace Erabikata.Backend.CollectionManagers
 
         private record UnwoundDialog(int WordsToRank);
 
-        public Task<List<string>[]> GetOccurrences(AnalyzerMode mode, IEnumerable<int> wordId) =>
-            Task.WhenAll(
-                wordId.Select(
-                    id => _mongoCollections[mode]
-                        .Find(
-                            dialog => dialog.Lines.Any(
-                                line => line.Words.Any(word => word.InfoIds.Contains(id))
-                            )
-                        )
-                        .Project(dialog => dialog.Id.ToString())
-                        .ToListAsync()
+        public Task<List<string>>
+            GetOccurrences(AnalyzerMode mode, int wordId, PagingInfo pagingInfo) =>
+            _mongoCollections[mode]
+                .Find(
+                    dialog => dialog.Lines.Any(
+                        line => line.Words.Any(word => word.InfoIds.Contains(wordId))
+                    )
                 )
-            );
+                .Project(dialog => dialog.Id.ToString())
+                .Skip(pagingInfo.Skip)
+                .Limit(pagingInfo.Max)
+                .ToListAsync();
 
         public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
         {

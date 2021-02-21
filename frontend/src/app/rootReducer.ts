@@ -13,6 +13,7 @@ import { todoistReducer } from 'features/todoist/slice';
 import { wakeLockReducer } from 'features/wakeLock';
 import { wordDefinitionReducer } from 'features/wordDefinition';
 import { wordContextsReducer } from '../features/wordContext';
+import { apiReducer } from '../backend';
 
 const rootReducer = combineReducers({
     wordContexts: wordContextsReducer,
@@ -28,6 +29,7 @@ const rootReducer = combineReducers({
     wakeLock: wakeLockReducer,
     auth: authReducer,
     notifications: notificationReducer,
+    api: apiReducer,
     hass: hassReducer
 });
 

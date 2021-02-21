@@ -4,27 +4,50 @@ import { useTypedSelector } from 'app/hooks';
 import { Dialog } from 'features/dialog/Dialog';
 import { dialogSelection } from 'features/selectedWord';
 import { WordLink } from 'features/selectedWord/wordLink';
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { fetchWordIfNeeded } from './api';
 import { selectWordInfo } from './slice';
 import styles from './wordContext.module.scss';
+import { useSubsByIdQuery, useWordsOccurrencesQuery } from 'backend';
+import { selectAnalyzer } from '../backendSelection';
 
+const max = 50;
 const ICON_SIZE = '2em';
-export const WordOccurrences: FC<{ word: string }> = (props) => {
-    const context = useTypedSelector((state) =>
-        selectWordInfo(props.word, state)
-    );
+export const WordOccurrences: FC<{ wordId: number }> = ({ wordId }) => {
+    const [skip, setSkip] = useState(0);
     const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(
-            fetchWordIfNeeded({ baseForm: props.word, pagingInfo: { max: 40 } })
-        );
+    const analyzer = useTypedSelector(selectAnalyzer);
+    const occurrences = useWordsOccurrencesQuery({
+        analyzer,
+        wordId,
+        skip,
+        max
     });
+
+    const dialog = useSubsByIdQuery(
+        {
+            analyzer,
+            dialogId: occurrences.data?.dialogIds ?? []
+        },
+        { skip: !occurrences.data?.dialogIds.length }
+    );
+
+    if (occurrences.isLoading || dialog.isLoading) {
+        return <>Now Loading...</>;
+    }
+
+    if (!dialog.data) {
+        return (
+            <pre>
+                {JSON.stringify(occurrences.error ?? dialog.error, null, 2)}
+            </pre>
+        );
+    }
 
     return (
         <>
-            {context?.occurrences.map((con) => (
+            {dialog.data.map((con) => (
                 <div className={styles.dialog} key={con.episodeName + con.time}>
                     <Dialog
                         readOnly
@@ -32,12 +55,6 @@ export const WordOccurrences: FC<{ word: string }> = (props) => {
                         time={con.time}
                         title={con.episodeName}
                     >
-                        <WordLink
-                            word={props.word}
-                            includeEpisode={con.episodeId}
-                            includeTime={con.time}
-                            iconSize={ICON_SIZE}
-                        />
                         <span
                             role="button"
                             onClick={() => {
