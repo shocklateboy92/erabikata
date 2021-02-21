@@ -16,7 +16,7 @@ function App() {
     return (
         <BrowserRouter>
             <Switch>
-                <Route path="/ui/word/:dictionaryForm">
+                <Route path="/ui/word/:wordId">
                     <WordPage />
                 </Route>
                 <Route path="/ui/word">

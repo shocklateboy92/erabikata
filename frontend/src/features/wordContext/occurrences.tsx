@@ -14,7 +14,10 @@ import { selectAnalyzer } from '../backendSelection';
 
 const max = 50;
 const ICON_SIZE = '2em';
-export const WordOccurrences: FC<{ wordId: number }> = ({ wordId }) => {
+export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
+    wordId,
+    readOnly
+}) => {
     const [skip, setSkip] = useState(0);
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
@@ -49,23 +52,22 @@ export const WordOccurrences: FC<{ wordId: number }> = ({ wordId }) => {
         <>
             {dialog.data.map((con) => (
                 <div className={styles.dialog} key={con.episodeName + con.time}>
-                    <Dialog
-                        readOnly
-                        content={con}
-                    >
-                        <span
-                            role="button"
-                            onClick={() => {
-                                dispatch(
-                                    dialogSelection({
-                                        time: con.time,
-                                        episode: con.episodeId
-                                    })
-                                );
-                            }}
-                        >
-                            <Icon path={mdiImport} size={ICON_SIZE} />
-                        </span>
+                    <Dialog readOnly={readOnly} content={con}>
+                        {readOnly && (
+                            <span
+                                role="button"
+                                onClick={() => {
+                                    dispatch(
+                                        dialogSelection({
+                                            time: con.time,
+                                            episode: con.episodeId
+                                        })
+                                    );
+                                }}
+                            >
+                                <Icon path={mdiImport} size={ICON_SIZE} />
+                            </span>
+                        )}
                     </Dialog>
                 </div>
             ))}

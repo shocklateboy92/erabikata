@@ -1,44 +1,23 @@
-import React, { FC, useEffect } from 'react';
-import { Redirect, useLocation, useParams } from 'react-router-dom';
+import React, { FC } from 'react';
+import { Redirect, useParams } from 'react-router-dom';
 import { Page } from 'components/page';
-import { fetchFullWordIfNeeded, selectWordInfo } from 'features/wordContext';
-import { useDispatch } from 'react-redux';
-import { useAppSelector } from 'app/hooks';
-import { Dialog } from 'features/dialog/Dialog';
 import { SelectedWord } from 'features/selectedWord';
 import { FullPageError } from 'components/fullPageError';
-import { FullWidthText } from 'components/fullWidth';
+import { WordOccurrences } from '../features/wordContext/occurrences';
 
 export const WordPage: FC = () => {
-    const { dictionaryForm } = useParams<{
-        dictionaryForm: string;
+    const { wordId } = useParams<{
+        wordId: string;
     }>();
-    const location = useLocation();
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(fetchFullWordIfNeeded(dictionaryForm, location));
-    }, [dispatch, dictionaryForm, location]);
 
-    const context = useAppSelector(selectWordInfo.bind(null, dictionaryForm));
-    if (context === undefined) {
-        return <FullWidthText>少々お待ちください</FullWidthText>;
-    }
-
-    if (context === null) {
-        return (
-            <FullPageError>
-                「{dictionaryForm}」という言葉が存在してないみたいです
-            </FullPageError>
-        );
+    const parsedId = parseInt(wordId);
+    if (!parsedId) {
+        return <FullPageError>Error: Invalid word id: {wordId}</FullPageError>;
     }
 
     return (
-        <Page title={dictionaryForm} secondaryChildren={() => <SelectedWord />}>
-            {context.occurrences.map((con) => (
-                <div key={con.episodeName + con.time}>
-                    {/*<Dialog content={con} />*/}
-                </div>
-            ))}
+        <Page title={wordId} secondaryChildren={() => <SelectedWord />}>
+            <WordOccurrences wordId={parsedId} />
         </Page>
     );
 };

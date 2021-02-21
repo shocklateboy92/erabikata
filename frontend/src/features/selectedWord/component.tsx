@@ -1,4 +1,4 @@
-import { mdiClose, mdiShare } from '@mdi/js';
+import { mdiClose } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { InlineButton } from 'components/button';
@@ -6,12 +6,10 @@ import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
 import { EngDialogList } from 'features/engDialog/engDialogList';
 import { ImageContext } from 'features/imageContext/component';
-import { WordContext } from 'features/wordContext';
-import { WordOccurrences } from 'features/wordContext/occurrences';
+import { OccurrencesDrawer, WordContext } from 'features/wordContext';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
 import styles from './selectedWord.module.scss';
 import { WordLink } from './wordLink';
 import { DialogDrawer } from '../dialog/DialogDrawer';
@@ -99,17 +97,7 @@ export const SelectedWord: FC<{}> = () => {
                     </>
                 )}
                 <Separator />
-
-                <Drawer
-                    summary="Occurrences"
-                    extraActions={(iconSize) => (
-                        <Link to={`/ui/word/${selectedWord.wordBaseForm}`}>
-                            <Icon path={mdiShare} size={iconSize} />
-                        </Link>
-                    )}
-                >
-                    <WordOccurrences wordId={selectedWord.wordIds[0]} />
-                </Drawer>
+                <OccurrencesDrawer />
                 <Separator />
             </div>
         </div>
