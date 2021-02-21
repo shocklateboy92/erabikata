@@ -41,6 +41,12 @@ registerRoute(
             return false;
         }
 
+        // All frontend routes have now been prefixed with `/ui` to make lif
+        // much more sane, especially when dealing with service workers.
+        if (!url.pathname.startsWith('/ui')) {
+            return false;
+        }
+
         // If this looks like a URL for a resource, because it contains
         // a file extension, skip.
         if (url.pathname.match(fileExtensionRegexp)) {
