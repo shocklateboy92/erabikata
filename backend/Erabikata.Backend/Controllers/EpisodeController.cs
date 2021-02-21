@@ -19,17 +19,17 @@ namespace Erabikata.Backend.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public async Task<ActionResult<Episode>> Index(Analyzer analyzer, string id)
+        [Route("{episodeId}")]
+        public async Task<ActionResult<Episode>> Index(Analyzer analyzer, string episodeId)
         {
-            if (!int.TryParse(id, out var episodeId))
+            if (!int.TryParse(episodeId, out var parsedId))
             {
-                return BadRequest($"'{id}' is not a valid episode Id");
+                return BadRequest($"'{episodeId}' is not a valid episode Id");
             }
 
             return new Episode(
-                id,
-                await _dialog.GetEpisodeDialog(analyzer.ToAnalyzerMode(), episodeId)
+                episodeId,
+                await _dialog.GetEpisodeDialog(analyzer.ToAnalyzerMode(), parsedId)
             );
         }
     }

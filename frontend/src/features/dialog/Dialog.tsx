@@ -22,7 +22,7 @@ export const Dialog: FC<{
     const analyzer = useTypedSelector(selectAnalyzer);
     const result = useSubsByIdQuery({ id: dialogId, analyzer });
     if (!result.data) {
-        return <QueryPlaceholder result={result} />;
+        return <QueryPlaceholder result={result} quiet />;
     }
     const { text, episodeName, episodeId } = result.data;
 

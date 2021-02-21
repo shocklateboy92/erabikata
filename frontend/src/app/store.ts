@@ -2,11 +2,12 @@ import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
 
 import rootReducer, { RootState } from './rootReducer';
+import { apiMiddleware } from '../backend';
 
 const store = configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({ immutableCheck: false })
+        getDefaultMiddleware({immutableCheck: false, serializableCheck: false}).concat(apiMiddleware)
 });
 
 // TODO: figure out how CRA deals with HMR

@@ -30,3 +30,4 @@ export const {
     useEpisodeIndexQuery
 } = api;
 export const apiReducer = api.reducer;
+export const apiMiddleware = api.middleware;

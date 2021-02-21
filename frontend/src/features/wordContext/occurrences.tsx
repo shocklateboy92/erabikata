@@ -8,6 +8,7 @@ import { useDispatch } from 'react-redux';
 import styles from './wordContext.module.scss';
 import { useSubsByIdStringQuery, useWordsOccurrencesQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
+import { QueryPlaceholder } from "../../components/placeholder/queryPlaceholder";
 
 const max = 50;
 const ICON_SIZE = '2em';
@@ -25,46 +26,30 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
         max
     });
 
-    const dialog = useSubsByIdStringQuery(
-        {
-            analyzer,
-            dialogIds: occurrences.data?.dialogIds.join(',') ?? ''
-        },
-        { skip: !occurrences.data?.dialogIds.length }
-    );
 
-    if (occurrences.isLoading || dialog.isLoading) {
-        return <>Now Loading...</>;
-    }
-
-    if (!dialog.data) {
-        return (
-            <pre>
-                {JSON.stringify(occurrences.error ?? dialog.error, null, 2)}
-            </pre>
-        );
+    if (!occurrences.data) {
+        return <QueryPlaceholder result={occurrences} />;
     }
 
     return (
         <>
-            {dialog.data.map((con) => (
-                <div className={styles.dialog} key={con.text.id}>
+            {occurrences.data.dialogIds.map((con) => (
+                <div className={styles.dialog} key={con}>
                     <Dialog
+                        dialogId={con}
+                        showTitle
                         readOnly={readOnly}
-                        content={con.text}
-                        episodeId={con.episodeId}
-                        episodeName={con.episodeName}
                     >
                         {readOnly && (
                             <span
                                 role="button"
                                 onClick={() => {
-                                    dispatch(
-                                        dialogSelection({
-                                            time: con.time,
-                                            episode: con.episodeId
-                                        })
-                                    );
+                                    // dispatch(
+                                        // dialogSelection({
+                                        //     time: con.time,
+                                        //     episode: con.episodeId
+                                        // })
+                                    // );
                                 }}
                             >
                                 <Icon path={mdiImport} size={ICON_SIZE} />

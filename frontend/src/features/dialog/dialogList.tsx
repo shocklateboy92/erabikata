@@ -20,48 +20,35 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
     const [timeOverride, setTimeOverride] = useState(time);
 
     const analyzer = useTypedSelector(selectAnalyzer);
-    const response = useEpisodeIndexQuery(
-        {
-            analyzer,
-            id: episode
-        },
-        {
-            selectFromResult: (result) => {
-                result?.data?.entries.slice(0, 20);
-            }
-        }
-    );
+    const response = useEpisodeIndexQuery({
+        analyzer,
+        episodeId: episode
+    });
     useEffect(() => {
         setTimeOverride(time);
     }, [time]);
 
-    // if (!response.data) {
-    //     return <QueryPlaceholder result={response} />;
-    // }
-    const dialog = response;
+    if (!response.data) {
+        return <QueryPlaceholder result={response} />;
+    }
+    const dialog = response.data.entries;
 
     return (
         <>
             <BeginScrollButton
-                onClick={() => setTimeOverride(dialog[0].startTime)}
+                onClick={() => setTimeOverride(dialog[0].time)}
                 isLoading={response.isFetching}
             >
                 <Icon path={mdiChevronLeft} size="1.5em" />
                 Load Previous
             </BeginScrollButton>
 
-            {dialog.map((dialog) => (
-                <Dialog
-                    key={dialog.id}
-                    content={dialog}
-                    episodeId={episodeId}
-                />
+            {dialog.map(({ dialogId }) => (
+                <Dialog key={dialogId} dialogId={dialogId} />
             ))}
 
             <BeginScrollButton
-                onClick={() =>
-                    setTimeOverride(dialog[dialog.length - 1].startTime)
-                }
+                onClick={() => setTimeOverride(dialog[dialog.length - 1].time)}
                 isLoading={response.isFetching}
             >
                 Load Next
