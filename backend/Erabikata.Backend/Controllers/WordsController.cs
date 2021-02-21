@@ -57,6 +57,7 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<object> Search(string query, Analyzer analyzer = Analyzer.SudachiC)
         {
             var matchingDialog =
