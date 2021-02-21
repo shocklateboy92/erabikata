@@ -15,7 +15,7 @@ const scopes = ['api://cb9157f3-50fe-47bf-af0b-77c976a2a698/Data.Store'];
 const userManager = new PublicClientApplication({
     auth: {
         clientId: 'cb9157f3-50fe-47bf-af0b-77c976a2a698',
-        redirectUri: window.location.origin + '/settings',
+        redirectUri: window.location.origin + '/ui/settings',
         authority: 'https://login.microsoftonline.com/consumers'
     }
 });

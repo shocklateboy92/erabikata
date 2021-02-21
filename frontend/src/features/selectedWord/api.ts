@@ -54,7 +54,7 @@ export const shareSelectedWordDialog: AsyncThunk<
             wordIds,
             wordBaseForm
         );
-        const text = `[${word}](${document.baseURI}/dialog?${params}) #Japanese`;
+        const text = `[${word}](${document.baseURI}/ui/dialog?${params}) #Japanese`;
 
         await navigator.share({ text });
         return text;

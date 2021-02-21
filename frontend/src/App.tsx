@@ -12,26 +12,26 @@ function App() {
     return (
         <BrowserRouter>
             <Switch>
-                <Route path="/word/:dictionaryForm">
+                <Route path="/ui/word/:dictionaryForm">
                     <WordPage />
                 </Route>
-                <Route path="/word">
+                <Route path="/ui/word">
                     <SearchWordPage />
                 </Route>
-                <Route path="/dialog">
+                <Route path="/ui/dialog">
                     <DialogPage />
                 </Route>
-                <Route path="/rankedWords/:pageNum?">
+                <Route path="/ui/rankedWords/:pageNum?">
                     <RankedWordsPage />
                 </Route>
-                <Route path="/settings">
+                <Route path="/ui/settings">
                     <InfoPage />
                 </Route>
-                <Route path="/nowPlaying">
+                <Route path="/ui/nowPlaying">
                     <NowPlaying />
                 </Route>
                 <Route>
-                    <Redirect to="/nowPlaying" />
+                    <Redirect to="/ui/nowPlaying" />
                 </Route>
             </Switch>
         </BrowserRouter>

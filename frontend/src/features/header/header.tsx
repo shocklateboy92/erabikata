@@ -19,14 +19,14 @@ export const AppHeader: FC = ({ children }) => (
         <Separator navBar />
         <div className={styles.title}>{children}</div>
         <Separator navBar />
-        <NavLink to="/rankedWords">
+        <NavLink to="/ui/rankedWords">
             <HeaderItem icon={mdiSortAscending}>Ranked Words</HeaderItem>
         </NavLink>
         <Separator navBar />
-        <NavLink to="/nowPlaying">
+        <NavLink to="/ui/nowPlaying">
             <HeaderItem icon={mdiTelevisionPlay}>Now Playing</HeaderItem>
         </NavLink>
-        <NavLink to="/settings">
+        <NavLink to="/ui/settings">
             <HeaderItem icon={mdiInformationOutline}>App Info</HeaderItem>
         </NavLink>
         <FuriganaOption />

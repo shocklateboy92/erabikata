@@ -25,7 +25,7 @@ const SelectableDiv: FC<{ word: string }> = ({ word }) => {
         >
             <ruby>{word}</ruby>
             <WordContext word={word} />
-            <Link to={`/word/${word}`}>
+            <Link to={`/ui/word/${word}`}>
                 <Icon path={mdiShare} size="2em" />
             </Link>
         </div>
@@ -34,7 +34,7 @@ const SelectableDiv: FC<{ word: string }> = ({ word }) => {
 
 const ChangePageLink: FC<{ pageNum: number }> = ({ pageNum, children }) => (
     <div className={styles.pageLink}>
-        <Link to={`/rankedWords/${pageNum}`}>{children}</Link>
+        <Link to={`/ui/rankedWords/${pageNum}`}>{children}</Link>
     </div>
 );
 

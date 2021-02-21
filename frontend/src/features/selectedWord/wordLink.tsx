@@ -28,7 +28,7 @@ export const WordLink: FC<IWordLinkParams> = ({
     return (
         <Link
             to={{
-                pathname: '/word/' + word,
+                pathname: '/ui/word/' + word,
                 search: search
             }}
         >

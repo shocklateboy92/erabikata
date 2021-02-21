@@ -55,5 +55,5 @@ export const SearchWordPage: FC = () => {
         return <FullPageError>Invalid Word '{word}'</FullPageError>;
     }
 
-    return <Redirect to={`/word/${word}`} />;
+    return <Redirect to={`/ui/word/${word}`} />;
 };

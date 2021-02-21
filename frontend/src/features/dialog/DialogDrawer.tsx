@@ -36,7 +36,7 @@ export const DialogDrawer: FC = () => {
                 <Link
                     key="link"
                     to={{
-                        pathname: '/dialog',
+                        pathname: '/ui/dialog',
                         search: encodeSelectionParams(
                             episode,
                             time,

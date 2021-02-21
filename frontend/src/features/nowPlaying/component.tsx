@@ -16,7 +16,7 @@ export const NowPlaying: FC = () => {
         return (
             <Page>
                 <FullWidthText>
-                    <Link to="/settings">プレイヤーをセレクトしてね！</Link>
+                    <Link to="/ui/settings">プレイヤーをセレクトしてね！</Link>
                 </FullWidthText>
             </Page>
         );

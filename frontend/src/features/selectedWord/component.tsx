@@ -32,7 +32,7 @@ export const SelectedWord: FC<{}> = () => {
 
     let dialogUrl: URL | null = null;
     if (episodeId && dialogId) {
-        dialogUrl = new URL('/dialog', document.baseURI);
+        dialogUrl = new URL('/ui/dialog', document.baseURI);
         dialogUrl.searchParams.set('episode', episodeId);
         dialogUrl.searchParams.set('time', dialogId.toString());
         dialogUrl.searchParams.set('word', selectedWord.wordBaseForm);
@@ -103,7 +103,7 @@ export const SelectedWord: FC<{}> = () => {
                 <Drawer
                     summary="Occurrences"
                     extraActions={(iconSize) => (
-                        <Link to={`/word/${selectedWord.wordBaseForm}`}>
+                        <Link to={`/ui/word/${selectedWord.wordBaseForm}`}>
                             <Icon path={mdiShare} size={iconSize} />
                         </Link>
                     )}
