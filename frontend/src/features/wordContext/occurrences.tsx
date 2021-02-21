@@ -2,13 +2,12 @@ import { mdiImport } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { Dialog } from 'features/dialog/Dialog';
-import { dialogSelection } from 'features/selectedWord';
 import React, { FC, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './wordContext.module.scss';
-import { useSubsByIdStringQuery, useWordsOccurrencesQuery } from 'backend';
+import { useWordsOccurrencesQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
-import { QueryPlaceholder } from "../../components/placeholder/queryPlaceholder";
+import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 
 const max = 50;
 const ICON_SIZE = '2em';
