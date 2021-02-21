@@ -402,5 +402,13 @@ namespace Erabikata.Backend.CollectionManagers
                 .Find(dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id))
                 .ToListAsync();
         }
+
+        public Task<List<Episode.Entry>> GetEpisodeDialog(AnalyzerMode mode, int id)
+        {
+            return _mongoCollections[mode]
+                .Find(dialog => dialog.EpisodeId == id)
+                .Project(dialog => new Episode.Entry(dialog.Time, dialog.Id.ToString()))
+                .ToListAsync();
+        }
     }
 }

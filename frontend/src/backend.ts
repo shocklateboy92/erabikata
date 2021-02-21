@@ -25,6 +25,8 @@ const api = generatedApi.enhanceEndpoints({
 export const {
     useWordsOccurrencesQuery,
     useSubsByIdStringQuery,
-    useSubsIndexQuery
+    useSubsIndexQuery,
+    useSubsByIdQuery,
+    useEpisodeIndexQuery
 } = api;
 export const apiReducer = api.reducer;

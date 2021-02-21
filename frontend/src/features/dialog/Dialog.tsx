@@ -9,24 +9,30 @@ import {
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './dialog.module.scss';
-import { DialogInfo } from '../../backend-rtk.generated';
+import { useSubsByIdQuery } from 'backend';
+import { selectAnalyzer } from '../backendSelection';
+import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 
 export const Dialog: FC<{
-    content: DialogInfo;
-    episodeId: string;
-    episodeName?: string | null;
+    dialogId: string;
+    showTitle?: boolean;
     readOnly?: boolean;
-}> = ({ content, readOnly, episodeId, episodeName, children }) => {
+}> = ({ readOnly, dialogId, children, showTitle }) => {
     const dispatch = useDispatch();
-    const dialog = content;
+    const analyzer = useTypedSelector(selectAnalyzer);
+    const result = useSubsByIdQuery({ id: dialogId, analyzer });
+    if (!result.data) {
+        return <QueryPlaceholder result={result} />;
+    }
+    const { text, episodeName, episodeId } = result.data;
 
     return (
         <div className={styles.container}>
             <div className={styles.metadata}>
-                {formatTime(dialog.startTime)} {episodeName}
+                {formatTime(text.startTime)} {showTitle && episodeName}
             </div>
             <div className={styles.lines}>
-                {dialog.words.map((line, lineIndex) => (
+                {text.words.map((line, lineIndex) => (
                     <Fragment key={lineIndex}>
                         {lineIndex > 0 && <br />}
                         {line.map((word, index) => (
@@ -34,7 +40,7 @@ export const Dialog: FC<{
                                 key={index}
                                 episode={episodeId}
                                 alwaysHighlightSelectedWord={readOnly}
-                                time={dialog.startTime}
+                                time={text.startTime}
                                 baseForm={word.baseForm}
                                 onClick={() => {
                                     if (readOnly) {
@@ -44,7 +50,7 @@ export const Dialog: FC<{
                                     dispatch(
                                         dialogWordSelectionV2({
                                             baseForm: word.baseForm,
-                                            time: dialog.startTime,
+                                            time: text.startTime,
                                             episodeId,
                                             wordIds: word.definitionIds
                                         })

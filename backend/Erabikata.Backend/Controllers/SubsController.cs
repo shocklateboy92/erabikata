@@ -67,6 +67,42 @@ namespace Erabikata.Backend.Controllers
             ) {EpisodeTitle = dialog.FirstOrDefault()?.EpisodeTitle};
         }
 
+        [Route("[action]/{id}")]
+        public async Task<ActionResult<WordInfo.Occurence>> ById(
+            [BindRequired] Analyzer analyzer,
+            string id)
+        {
+            var dialogs = await _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] {id});
+            var dialog = dialogs.FirstOrDefault();
+            if (dialog == null)
+            {
+                return NotFound($"Unable to find dialog with id '{id}'.");
+            }
+
+            return new WordInfo.Occurence
+            {
+                EpisodeId = dialog.EpisodeId.ToString(),
+                EpisodeName = dialog.EpisodeTitle,
+                Time = dialog.Time,
+                Text = new DialogInfo(
+                    dialog.Id.ToString(),
+                    dialog.Time,
+                    dialog.Lines.Select(
+                            list => list.Words.Select(
+                                    word => new DialogInfo.WordRef(
+                                        word.OriginalForm,
+                                        word.BaseForm,
+                                        word.Reading,
+                                        word.InfoIds
+                                    )
+                                )
+                                .ToArray()
+                        )
+                        .ToArray()
+                )
+            };
+        }
+
         [Route("[action]")]
         public async Task<IEnumerable<WordInfo.Occurence>> ByIdString(
             [BindRequired] Analyzer analyzer,
