@@ -9,6 +9,7 @@ using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using WordInfo = Erabikata.Models.Output.WordInfo;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -64,7 +65,39 @@ namespace Erabikata.Backend.Controllers
                     )
                 )
             ) {EpisodeTitle = dialog.FirstOrDefault()?.EpisodeTitle};
+        }
 
+        [Route("[action]")]
+        [HttpGet]
+        public async Task<IEnumerable<WordInfo.Occurence>> ById(
+            [BindRequired] Analyzer analyzer,
+            [FromQuery] string[] dialogId)
+        {
+            var dialogs = await _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), dialogId);
+            return dialogs.Select(
+                dialog => new WordInfo.Occurence
+                {
+                    EpisodeId = dialog.EpisodeId.ToString(),
+                    EpisodeName = dialog.EpisodeTitle,
+                    Text = new DialogInfo(
+                        dialog.Id.ToString(),
+                        dialog.Time,
+                        dialog.Lines.Select(
+                                list => list.Words.Select(
+                                        word => new DialogInfo.WordRef(
+                                            word.OriginalForm,
+                                            word.BaseForm,
+                                            word.Reading,
+                                            word.InfoIds
+                                        )
+                                    )
+                                    .ToArray()
+                            )
+                            .ToArray()
+                    ),
+                    Time = dialog.Time,
+                }
+            );
         }
     }
 }

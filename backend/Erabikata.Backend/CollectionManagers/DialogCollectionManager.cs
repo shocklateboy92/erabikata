@@ -250,6 +250,11 @@ namespace Erabikata.Backend.CollectionManagers
                 .SortBy(d => d.Delta)
                 .FirstOrDefaultAsync();
 
+            if (closest == null)
+            {
+                return Array.Empty<Dialog>();
+            }
+
             return await _mongoCollections[analyzerMode]
                 .Find(
                     dialog => dialog.EpisodeId == episodeId &&
@@ -361,7 +366,8 @@ namespace Erabikata.Backend.CollectionManagers
                     )
                 );
 
-        public Task<AggregateCountResult> GetEpisodeWordCount(AnalyzerMode analyzerMode, int episodeId) =>
+        public Task<AggregateCountResult>
+            GetEpisodeWordCount(AnalyzerMode analyzerMode, int episodeId) =>
             _mongoCollections[analyzerMode]
                 .Aggregate()
                 .Match(dialog => dialog.EpisodeId == episodeId)
@@ -375,5 +381,26 @@ namespace Erabikata.Backend.CollectionManagers
                 .FirstAsync();
 
         private record UnwoundDialog(int WordsToRank);
+
+        public Task<List<string>[]> GetOccurrences(AnalyzerMode mode, IEnumerable<int> wordId) =>
+            Task.WhenAll(
+                wordId.Select(
+                    id => _mongoCollections[mode]
+                        .Find(
+                            dialog => dialog.Lines.Any(
+                                line => line.Words.Any(word => word.InfoIds.Contains(id))
+                            )
+                        )
+                        .Project(dialog => dialog.Id.ToString())
+                        .ToListAsync()
+                )
+            );
+
+        public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
+        {
+            return _mongoCollections[mode]
+                .Find(dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id))
+                .ToListAsync();
+        }
     }
 }

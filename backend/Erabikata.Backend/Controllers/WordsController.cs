@@ -142,5 +142,16 @@ namespace Erabikata.Backend.Controllers
 
             return results;
         }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IEnumerable<WordOccurrences>> Occurrences(
+            Analyzer analyzer,
+            [FromQuery] int[] wordId)
+        {
+            var occurrences =
+                await _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId);
+            return occurrences.Select((list, index) => new WordOccurrences(wordId[index], list));
+        }
     }
 }
