@@ -6,6 +6,7 @@
     "@mdi/js": "^5.9.55",
     "@mdi/react": "^1.4.0",
     "@reduxjs/toolkit": "^1.5.0",
+    "@rtk-incubator/rtk-query": "^0.2.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.3",
     "@testing-library/user-event": "^12.6.2",
@@ -39,7 +40,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "postinstall": "nswag run /runtime:Net50"
+    "postinstall": "nswag run /runtime:Net50",
+    "rtk": "rtk-query-codegen-openapi ../backend/Erabikata.Backend/obj/swagger.json > src/backend-rtk.generated.ts"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -58,6 +60,7 @@
   },
   "devDependencies": {
     "@azure/msal-browser": "^2.10.0",
+    "@rtk-incubator/rtk-query-codegen-openapi": "^0.2.4",
     "@types/classnames": "^2.2.11",
     "@types/preval.macro": "^3.0.0",
     "@types/react": "^17.0.0",
