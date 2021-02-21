@@ -31,7 +31,7 @@ namespace Erabikata.Models.Output
                 string displayText,
                 string baseForm,
                 string reading,
-                ICollection<int> wordInfoIds)
+                IEnumerable<int> wordInfoIds)
             {
                 DisplayText = displayText;
                 BaseForm = baseForm;
@@ -39,7 +39,7 @@ namespace Erabikata.Models.Output
                     string.Empty,
                     reading.Select(c => c >= 'ァ' && c <= 'ヴ' ? (char) (c - 0x0060) : c)
                 );
-                DefinitionIds = wordInfoIds;
+                DefinitionIds = wordInfoIds.Distinct();
             }
 
             [JsonProperty(Required = Required.Always)]
