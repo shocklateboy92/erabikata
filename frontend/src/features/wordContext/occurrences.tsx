@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { fetchWordIfNeeded } from './api';
 import { selectWordInfo } from './slice';
 import styles from './wordContext.module.scss';
-import { useSubsByIdQuery, useWordsOccurrencesQuery } from 'backend';
+import { useSubsByIdStringQuery, useWordsOccurrencesQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
 
 const max = 50;
@@ -25,10 +25,10 @@ export const WordOccurrences: FC<{ wordId: number }> = ({ wordId }) => {
         max
     });
 
-    const dialog = useSubsByIdQuery(
+    const dialog = useSubsByIdStringQuery(
         {
             analyzer,
-            dialogId: occurrences.data?.dialogIds ?? []
+            dialogIds: occurrences.data?.dialogIds.join(',') ?? ''
         },
         { skip: !occurrences.data?.dialogIds.length }
     );
@@ -51,9 +51,7 @@ export const WordOccurrences: FC<{ wordId: number }> = ({ wordId }) => {
                 <div className={styles.dialog} key={con.episodeName + con.time}>
                     <Dialog
                         readOnly
-                        episode={con.episodeId}
-                        time={con.time}
-                        title={con.episodeName}
+                        content={con}
                     >
                         <span
                             role="button"

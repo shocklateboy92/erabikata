@@ -42,7 +42,8 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
                 Load Previous
             </BeginScrollButton>
             {dialog.map((d) => (
-                <Dialog key={d} episode={episode} time={d} />
+                // <Dialog key={d} episode={episode} time={d} />
+              <></>
             ))}
             <BeginScrollButton
                 time={dialog[dialog.length - 1]}

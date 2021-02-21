@@ -36,11 +36,7 @@ export const WordPage: FC = () => {
         <Page title={dictionaryForm} secondaryChildren={() => <SelectedWord />}>
             {context.occurrences.map((con) => (
                 <div key={con.episodeName + con.time}>
-                    <Dialog
-                        episode={con.episodeId}
-                        time={con.time}
-                        title={con.episodeName}
-                    ></Dialog>
+                    {/*<Dialog content={con} />*/}
                 </div>
             ))}
         </Page>

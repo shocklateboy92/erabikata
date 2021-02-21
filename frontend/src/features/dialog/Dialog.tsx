@@ -11,30 +11,19 @@ import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './dialog.module.scss';
 import { selectDialogContent } from './slice';
+import { Occurence } from '../../backend-rtk.generated';
 
 export const Dialog: FC<{
-    episode: string;
-    time: number;
-    title?: string;
+    content: Occurence;
     readOnly?: boolean;
-}> = ({ time, episode, title, readOnly, children }) => {
+}> = ({ content, readOnly, children }) => {
     const dispatch = useDispatch();
-    const dialog = useTypedSelector(
-        selectDialogContent.bind(null, episode, time)
-    );
-
-    if (!dialog) {
-        return (
-            <InlineError>
-                Trying to display a dialog that has not been fetched.
-            </InlineError>
-        );
-    }
+    const dialog = content.text;
 
     return (
         <div className={styles.container}>
             <div className={styles.metadata}>
-                {formatTime(dialog.startTime)} {title}
+                {formatTime(dialog.startTime)} {content.episodeName}
             </div>
             <div className={styles.lines}>
                 {dialog.words.map((line, lineIndex) => (
@@ -43,7 +32,7 @@ export const Dialog: FC<{
                         {line.map((word, index) => (
                             <SelectableRuby
                                 key={index}
-                                episode={episode}
+                                episode={content.episodeId}
                                 alwaysHighlightSelectedWord={readOnly}
                                 time={dialog.startTime}
                                 baseForm={word.baseForm}
@@ -56,7 +45,7 @@ export const Dialog: FC<{
                                         dialogWordSelectionV2({
                                             baseForm: word.baseForm,
                                             time: dialog.startTime,
-                                            episodeId: episode,
+                                            episodeId: content.episodeId,
                                             wordIds: word.definitionIds
                                         })
                                     );

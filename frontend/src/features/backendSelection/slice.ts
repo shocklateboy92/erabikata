@@ -1,21 +1,16 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { Analyzer } from 'backend.generated';
+import { getInitialBaseUrl } from './api';
 
 interface IBackendSelection {
     baseUrl: string;
     analyzer: Analyzer;
 }
 
-const params = new URLSearchParams(window.location.search);
 const initialState: IBackendSelection = {
     analyzer: 'SudachiC',
-    baseUrl:
-        params.get('env') ??
-        // Convenience override for frontend-only local dev
-        (window.location.origin === 'http://localhost:3000'
-            ? 'https://erabikata3.apps.lasath.org'
-            : window.location.origin)
+    baseUrl: getInitialBaseUrl()
 };
 
 const slice = createSlice({
@@ -25,10 +20,7 @@ const slice = createSlice({
         analyzerChangeRequest: (
             state,
             { payload }: PayloadAction<Analyzer>
-        ) => ({
-            ...state,
-            analyzer: payload
-        })
+        ) => ({ ...state, analyzer: payload })
     }
 });
 

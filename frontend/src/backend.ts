@@ -11,12 +11,12 @@ const api = generatedApi.enhanceEndpoints({
                 }
             ]
         },
-        subsById: {
+        subsByIdString: {
             provides: (response) =>
                 response.map((d) => ({ type: 'Dialog', id: d.text.id }))
         }
     }
 });
 
-export const { useWordsOccurrencesQuery, useSubsByIdQuery } = api;
+export const { useWordsOccurrencesQuery, useSubsByIdStringQuery } = api;
 export const apiReducer = api.reducer;

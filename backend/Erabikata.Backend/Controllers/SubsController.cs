@@ -68,12 +68,14 @@ namespace Erabikata.Backend.Controllers
         }
 
         [Route("[action]")]
-        [HttpGet]
-        public async Task<IEnumerable<WordInfo.Occurence>> ById(
+        public async Task<IEnumerable<WordInfo.Occurence>> ByIdString(
             [BindRequired] Analyzer analyzer,
-            [FromQuery] string[] dialogId)
+            [BindRequired] string dialogIds)
         {
-            var dialogs = await _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), dialogId);
+            var dialogs = await _dialogCollection.GetByIds(
+                analyzer.ToAnalyzerMode(),
+                dialogIds.Split(',')
+            );
             return dialogs.Select(
                 dialog => new WordInfo.Occurence
                 {
