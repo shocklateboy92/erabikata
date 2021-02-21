@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Erabikata.Models.Output
@@ -15,7 +16,7 @@ namespace Erabikata.Models.Output
         [JsonProperty(Required = Required.Always)]
         public IEnumerable<DialogInfo> Dialog { get; }
 
-        [JsonProperty(Required = Required.Default)]
+        [DataMember]
         public string? EpisodeTitle { get; set; }
 
         public NowPlayingInfo(string episodeId, double time, IEnumerable<DialogInfo> dialog)

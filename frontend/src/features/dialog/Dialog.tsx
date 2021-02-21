@@ -1,6 +1,5 @@
 import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
-import { InlineError } from 'components/inlineError';
 import { formatTime } from 'components/time';
 import { Ruby } from 'features/furigana';
 import {
@@ -10,20 +9,21 @@ import {
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './dialog.module.scss';
-import { selectDialogContent } from './slice';
-import { Occurence } from '../../backend-rtk.generated';
+import { DialogInfo } from '../../backend-rtk.generated';
 
 export const Dialog: FC<{
-    content: Occurence;
+    content: DialogInfo;
+    episodeId: string;
+    episodeName?: string | null;
     readOnly?: boolean;
-}> = ({ content, readOnly, children }) => {
+}> = ({ content, readOnly, episodeId, episodeName, children }) => {
     const dispatch = useDispatch();
-    const dialog = content.text;
+    const dialog = content;
 
     return (
         <div className={styles.container}>
             <div className={styles.metadata}>
-                {formatTime(dialog.startTime)} {content.episodeName}
+                {formatTime(dialog.startTime)} {episodeName}
             </div>
             <div className={styles.lines}>
                 {dialog.words.map((line, lineIndex) => (
@@ -32,7 +32,7 @@ export const Dialog: FC<{
                         {line.map((word, index) => (
                             <SelectableRuby
                                 key={index}
-                                episode={content.episodeId}
+                                episode={episodeId}
                                 alwaysHighlightSelectedWord={readOnly}
                                 time={dialog.startTime}
                                 baseForm={word.baseForm}
@@ -45,7 +45,7 @@ export const Dialog: FC<{
                                         dialogWordSelectionV2({
                                             baseForm: word.baseForm,
                                             time: dialog.startTime,
-                                            episodeId: content.episodeId,
+                                            episodeId,
                                             wordIds: word.definitionIds
                                         })
                                     );

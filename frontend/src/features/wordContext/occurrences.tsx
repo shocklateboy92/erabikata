@@ -3,11 +3,8 @@ import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { Dialog } from 'features/dialog/Dialog';
 import { dialogSelection } from 'features/selectedWord';
-import { WordLink } from 'features/selectedWord/wordLink';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { fetchWordIfNeeded } from './api';
-import { selectWordInfo } from './slice';
 import styles from './wordContext.module.scss';
 import { useSubsByIdStringQuery, useWordsOccurrencesQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
@@ -51,8 +48,13 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
     return (
         <>
             {dialog.data.map((con) => (
-                <div className={styles.dialog} key={con.episodeName + con.time}>
-                    <Dialog readOnly={readOnly} content={con}>
+                <div className={styles.dialog} key={con.text.id}>
+                    <Dialog
+                        readOnly={readOnly}
+                        content={con.text}
+                        episodeId={con.episodeId}
+                        episodeName={con.episodeName}
+                    >
                         {readOnly && (
                             <span
                                 role="button"

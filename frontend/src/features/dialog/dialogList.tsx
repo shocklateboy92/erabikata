@@ -1,17 +1,15 @@
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useAppSelector } from 'app/hooks';
-import { useAppDispatch } from 'app/store';
+import { useTypedSelector } from 'app/hooks';
+import { useSubsIndexQuery } from 'backend';
 import classNames from 'classnames';
 import { InlineButton } from 'components/button';
 import { Dialog } from 'features/dialog/Dialog';
-import {
-    fetchDialogById,
-    IDialogId,
-    selectNearbyDialog
-} from 'features/dialog/slice';
+import { IDialogId } from 'features/dialog/slice';
 import React, { FC, useEffect, useState } from 'react';
 import styles from './dialog.module.scss';
+import { selectAnalyzer } from '../backendSelection';
+import { FullWidthText } from '../../components/fullWidth';
 
 export interface IDialogListProps extends IDialogId {
     count: number;
@@ -20,36 +18,48 @@ export interface IDialogListProps extends IDialogId {
 export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
     const [timeOverride, setTimeOverride] = useState(time);
 
-    const dispatch = useAppDispatch();
+    const analyzer = useTypedSelector(selectAnalyzer);
+    const response = useSubsIndexQuery({
+        analyzer,
+        count,
+        episode,
+        time: timeOverride
+    });
     useEffect(() => {
         setTimeOverride(time);
-        dispatch(fetchDialogById({ episode, time, count }));
-    }, [count, dispatch, episode, time]);
+    }, [time]);
 
-    const dialog = useAppSelector(
-        selectNearbyDialog.bind(null, episode, timeOverride, count)
-    );
+    if (!response.data) {
+        if (response.isLoading) {
+            return <FullWidthText>Now Loading...</FullWidthText>;
+        }
+        return <pre>{JSON.stringify(response.error, null, 2)}</pre>;
+    }
+    const { dialog, episodeId } = response.data;
 
     return (
         <>
             <BeginScrollButton
-                count={count}
-                episode={episode}
-                setTimeOverride={setTimeOverride}
-                time={dialog[0]}
+                onClick={() => setTimeOverride(dialog[0].startTime)}
+                isLoading={response.isFetching}
             >
                 <Icon path={mdiChevronLeft} size="1.5em" />
                 Load Previous
             </BeginScrollButton>
-            {dialog.map((d) => (
-                // <Dialog key={d} episode={episode} time={d} />
-              <></>
+
+            {dialog.map((dialog) => (
+                <Dialog
+                    key={dialog.id}
+                    content={dialog}
+                    episodeId={episodeId}
+                />
             ))}
+
             <BeginScrollButton
-                time={dialog[dialog.length - 1]}
-                setTimeOverride={setTimeOverride}
-                episode={episode}
-                count={count}
+                onClick={() =>
+                    setTimeOverride(dialog[dialog.length - 1].startTime)
+                }
+                isLoading={response.isFetching}
             >
                 Load Next
                 <Icon path={mdiChevronRight} size="1.5em" />
@@ -59,21 +69,15 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
 };
 
 interface IScrollButtonProps {
-    time: number;
-    episode: string;
-    setTimeOverride: (time: number) => void;
-    count: number;
+    isLoading: boolean;
+    onClick: () => void;
 }
+
 const BeginScrollButton: FC<IScrollButtonProps> = ({
-    episode,
-    setTimeOverride,
-    count,
-    time,
+    onClick,
+    isLoading,
     children
 }) => {
-    const dispatch = useAppDispatch();
-    const [isLoading, setIsLoading] = useState(false);
-
     return (
         <InlineButton
             className={classNames(styles.scrollButton, {
@@ -81,12 +85,7 @@ const BeginScrollButton: FC<IScrollButtonProps> = ({
             })}
             complex
             small
-            onClick={async () => {
-                setIsLoading(true);
-                await dispatch(fetchDialogById({ episode, time, count }));
-                setIsLoading(false);
-                setTimeOverride(time);
-            }}
+            onClick={onClick}
         >
             {children}
         </InlineButton>
