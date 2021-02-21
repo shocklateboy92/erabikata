@@ -2,11 +2,15 @@ import { DialogPage } from 'pages/dialogPage';
 import { InfoPage } from 'pages/infoPage';
 import { RankedWordsPage } from 'pages/rankedWordsPage';
 import { SearchWordPage, WordPage } from 'pages/wordPage';
-import React from 'react';
+import React, { FC } from 'react';
 import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './App.css';
 import './app.scss';
 import { NowPlaying } from './features/nowPlaying';
+
+const UiRedirect: FC = () => (
+    <Redirect to={'/ui' + window.location.pathname + window.location.search} />
+);
 
 function App() {
     return (
@@ -30,9 +34,10 @@ function App() {
                 <Route path="/ui/nowPlaying">
                     <NowPlaying />
                 </Route>
-                <Route>
+                <Route path="/ui/*">
                     <Redirect to="/ui/nowPlaying" />
                 </Route>
+                <UiRedirect />
             </Switch>
         </BrowserRouter>
     );
