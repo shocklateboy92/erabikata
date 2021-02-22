@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -52,6 +53,35 @@ namespace Erabikata.Backend.Controllers
                 {
                     Text = result.Id, Rank = skip + index, TotalOccurrences = result.Count
                 }
+            );
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<IEnumerable<WordRankInfo>> Ranked2(
+            Analyzer analyzer,
+            [FromQuery] PagingInfo pagingInfo)
+        {
+            if (analyzer != Analyzer.SudachiC)
+            {
+                return Array.Empty<WordRankInfo>();
+            }
+
+            var (ignoredPartsOfSpeech, totalCount) = await (
+                _partOfSpeechFilter.GetIgnoredPartOfSpeech(), _wordInfo.GetTotalWordCount());
+            var ranks = await _wordInfo.GetSortedWordCounts(
+                ignoredPartsOfSpeech,
+                pagingInfo.Max,
+                pagingInfo.Skip
+            );
+
+            return ranks.Select(
+                (word, index) => new WordRankInfo(
+                    word.Id,
+                    index + pagingInfo.Skip,
+                    word.TotalOccurrences,
+                    word.Kanji.FirstOrDefault() ?? word.Readings.First()
+                )
             );
         }
 

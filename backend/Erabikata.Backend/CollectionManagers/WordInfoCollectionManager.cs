@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Erabikata.Backend.Models.Output;
 using Mapster;
 using MongoDB.Driver;
 
@@ -90,5 +91,22 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
 
         public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
+
+        public Task<List<WordInfo>> GetSortedWordCounts(
+            IEnumerable<string> ignoredPartsOfSpeech,
+            int pagingInfoMax,
+            int pagingInfoSkip)
+        {
+            return _mongoCollection.Aggregate()
+                .Match(
+                    word => word.TotalOccurrences > 0 && !word.Meanings.Any(
+                        meaning => meaning.Tags.Any(s => ignoredPartsOfSpeech.Contains(s))
+                    )
+                )
+                .SortByDescending(info => info.TotalOccurrences)
+                .Skip(pagingInfoSkip)
+                .Limit(pagingInfoMax)
+                .ToListAsync();
+        }
     }
 }
