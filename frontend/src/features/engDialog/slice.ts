@@ -7,7 +7,7 @@ import {
 import { RootState } from 'app/rootReducer';
 import { EngSubsClient, EngSubsResponse, Sentence } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
-import { selectNearbyValues } from 'features/dialog/slice';
+import { selectNearbyValues } from 'features/dialog/selectors';
 
 interface IEnglishEpisode {
     id: string;

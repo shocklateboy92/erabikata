@@ -5,15 +5,16 @@ import { useEpisodeIndexQuery } from 'backend';
 import classNames from 'classnames';
 import { InlineButton } from 'components/button';
 import { Dialog } from 'features/dialog/Dialog';
-import { IDialogId } from 'features/dialog/slice';
 import React, { FC, useEffect, useState } from 'react';
 import styles from './dialog.module.scss';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { findNearbyDialog } from '../selectedWord';
 
-export interface IDialogListProps extends IDialogId {
+export interface IDialogListProps {
     count: number;
+    episode: string;
+    time: number;
 }
 
 export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
