@@ -4,7 +4,6 @@ import { selectionClearRequest } from './actions';
 import { Entry, Occurence } from '../../backend-rtk.generated';
 
 interface ISelectedWordState {
-    wordBaseForm?: string;
     sentenceTimestamp?: number;
     episode?: string;
     wordIds: number[];
@@ -18,7 +17,6 @@ const getParam = (search: URLSearchParams, param: string): string | undefined =>
 const getInitialState = (): ISelectedWordState => {
     const search = new URLSearchParams(window.location.search);
     return {
-        wordBaseForm: getParam(search, 'word'),
         sentenceTimestamp: parseFloat(search.get('time') ?? ''),
         episode: getParam(search, 'episode'),
         wordIds: search
@@ -89,7 +87,7 @@ const slice = createSlice({
                 payload: { direction, dialog }
             }: PayloadAction<{ dialog?: DialogInfo; direction: Direction }>
         ) => {
-            const word = state.wordBaseForm;
+            const word = state.wordIds[0];
             if (!(dialog && word)) {
                 return state;
             }
@@ -97,7 +95,7 @@ const slice = createSlice({
             for (let lineIdx = 0; lineIdx < dialog.words.length; lineIdx++) {
                 const line = dialog.words[lineIdx];
                 for (let wordIdx = 0; wordIdx < line.length; wordIdx++) {
-                    if (line[wordIdx].baseForm === word) {
+                    if (line[wordIdx].definitionIds[0] === word) {
                         lastIndex = [lineIdx, wordIdx];
                     }
                 }
@@ -120,13 +118,15 @@ const slice = createSlice({
                     }
                     shiftedCol = dialog.words[shiftedRow].length - 1;
                 }
-            } while (dialog.words[shiftedRow][shiftedCol].baseForm === ' ');
+            } while (
+                !(dialog.words[shiftedRow][shiftedCol].definitionIds.length > 0)
+            );
 
-            const wordBaseForm = dialog.words[shiftedRow][shiftedCol].baseForm;
+            const wordIds = dialog.words[shiftedRow][shiftedCol].definitionIds;
 
             return {
                 ...state,
-                wordBaseForm
+                wordIds
             };
         },
 

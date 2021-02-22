@@ -13,12 +13,9 @@ import { HassPlayButton } from '../hass';
 
 export const DialogDrawer: FC = () => {
     const dispatch = useDispatch();
-    const {
-        wordIds,
-        sentenceTimestamp: time,
-        episode,
-        wordBaseForm
-    } = useTypedSelector(selectSelectedWord);
+    const { wordIds, sentenceTimestamp: time, episode } = useTypedSelector(
+        selectSelectedWord
+    );
     if (!(time && episode)) {
         return null;
     }
@@ -37,12 +34,7 @@ export const DialogDrawer: FC = () => {
                     key="link"
                     to={{
                         pathname: '/ui/dialog',
-                        search: encodeSelectionParams(
-                            episode,
-                            time,
-                            wordIds,
-                            wordBaseForm
-                        )
+                        search: encodeSelectionParams(episode, time, wordIds)
                     }}
                 >
                     <Icon path={mdiShare} size={iconSize} />
