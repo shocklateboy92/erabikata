@@ -5,7 +5,6 @@ import { engDialogReducer } from 'features/engDialog/slice';
 import { furiganaReducer } from 'features/furigana/slice';
 import { hassReducer } from 'features/hass';
 import { notificationReducer } from 'features/notifications';
-import { wordRanksReducer } from 'features/rankedWords/slice';
 import { selectedWordReducer } from 'features/selectedWord/slice';
 import { spinnerTopReducer } from 'features/spinnerTop';
 import { todoistReducer } from 'features/todoist/slice';
@@ -18,7 +17,6 @@ const rootReducer = combineReducers({
     selectedWord: selectedWordReducer,
     wordDefinitions: wordDefinitionReducer,
     furigana: furiganaReducer,
-    wordRanks: wordRanksReducer,
     engDialog: engDialogReducer,
     backend: backendReducer,
     todoist: todoistReducer,
