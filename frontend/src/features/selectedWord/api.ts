@@ -31,7 +31,7 @@ export const shareSelectedWordDialog: AsyncThunk<
     'shareSelectedWordDialog',
     async (_, { getState, dispatch }) => {
         const {
-            selectedWord: { episode, sentenceTimestamp, wordIds, wordBaseForm },
+            selectedWord: { episode, sentenceTimestamp, wordIds },
             wordDefinitions
         } = getState();
         if (!(episode && sentenceTimestamp && wordIds)) {
@@ -51,8 +51,7 @@ export const shareSelectedWordDialog: AsyncThunk<
         const params = encodeSelectionParams(
             episode,
             sentenceTimestamp,
-            wordIds,
-            wordBaseForm
+            wordIds
         );
         const text = `[${word}](${document.baseURI}/ui/dialog?${params}) #Japanese`;
 
