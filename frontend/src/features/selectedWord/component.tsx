@@ -6,7 +6,7 @@ import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
 import { EngDialogList } from 'features/engDialog/engDialogList';
 import { ImageContext } from 'features/imageContext/component';
-import { OccurrencesDrawer, WordContext } from 'features/wordContext';
+import { OccurrencesDrawer } from 'features/wordContext';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
@@ -41,7 +41,6 @@ export const SelectedWord: FC<{}> = () => {
             <div className={styles.summary}>
                 <div className={styles.title}>{selectedWord.wordBaseForm}</div>
                 <div className={styles.content}>
-                    <WordContext word={selectedWord.wordBaseForm} />
                     <div className={styles.actions}>
                         <WordLink
                             word={selectedWord.wordBaseForm}

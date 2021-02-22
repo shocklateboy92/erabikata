@@ -49,9 +49,6 @@ const transformWord = (word: WordInfo) => ({
     occurrences: word.occurrences.map(({ text, ...rest }) => rest)
 });
 
-export const selectWordInfo = (
-    baseForm: string | undefined,
-    state: RootState
-) => state.wordContexts.byId[baseForm!]; // JS is fine with `undefined` as indexer
+// JS is fine with `undefined` as indexer
 
 export const wordContextsReducer = slice.reducer;
