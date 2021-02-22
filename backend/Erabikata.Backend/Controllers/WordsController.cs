@@ -81,8 +81,9 @@ namespace Erabikata.Backend.Controllers
                         baseForm = group.Key,
                         link =
                             $"{Request.Scheme}://{Request.Host}/word/{group.Key}?word={group.Key}",
-                        dictionaryForms = group.Select(analyzed => analyzed.DictionaryForm)
-                            .Distinct()
+                        dictionaryForms =
+                            group.Select(analyzed => analyzed.DictionaryForm).Distinct(),
+                        ids = group.SelectMany(analyzed => analyzed.InfoIds).Distinct()
                     }
                 );
 
