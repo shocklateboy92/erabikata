@@ -9,17 +9,19 @@ import { notification } from 'features/notifications';
 import {
     dialogWordShift,
     episodeDialogShift,
-    occurrenceShift,
+    occurrenceShift, selectNearestSelectedDialog,
     selectSelectedDialog,
     selectSelectedEnglishDialog,
     selectSelectedEpisodeContent,
     selectSelectedWord,
-    selectSelectedWordContext
-} from 'features/selectedWord';
+    selectSelectedWordContext, selectSelectedWords
+} from "features/selectedWord";
 import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
+import { apiEndpoints } from "../../backend";
+import { selectAnalyzer } from "../backendSelection";
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -41,12 +43,12 @@ const handlers: {
     {
         key: 'c',
         action: copyAction((state) => {
-            const currentWord = selectSelectedWord(state);
-            return selectSelectedDialog(state)
-                ?.words.map((line) =>
+            const selectedWords = selectSelectedWords(state);
+            const selectedDialog = selectNearestSelectedDialog(state)
+                return selectedDialog?.words.map((line) =>
                     line
                         .map((word) =>
-                            word.baseForm === currentWord.wordBaseForm ||
+                            word.definitionIds === selectedWords ||
                             isKana(word.displayText) ||
                             selectIsFuriganaHiddenForWord(
                                 state,

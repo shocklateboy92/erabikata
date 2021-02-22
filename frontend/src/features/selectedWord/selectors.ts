@@ -1,4 +1,8 @@
 import { RootState } from 'app/rootReducer';
+import { apiEndpoints } from '../../backend';
+import { selectAnalyzer } from '../backendSelection';
+import { Entry } from '../../backend-rtk.generated';
+import { selectNearbyDialog } from '../dialog/slice';
 
 export const selectIsCurrentlySelected = (
     state: RootState,
@@ -22,3 +26,58 @@ export const selectSelectedWords = (state: RootState) =>
 export const shouldShowPanel = ({ selectedWord }: RootState) =>
     selectedWord.wordIds.length > 0 ||
     (selectedWord.episode && selectedWord.sentenceTimestamp);
+
+export const selectNearestSelectedDialog = (state: RootState) => {
+    const { episode, sentenceTimestamp } = state.selectedWord;
+    if (!episode || !sentenceTimestamp) {
+        return;
+    }
+
+    const analyzer = selectAnalyzer(state);
+    const { data } = apiEndpoints.episodeIndex.select({
+        analyzer,
+        episodeId: episode
+    })(state);
+    if (!data) {
+        return;
+    }
+
+    const [{dialogId}] = findNearbyDialog(data.entries, sentenceTimestamp, 1);
+    return apiEndpoints.subsById.select({ analyzer, id: dialogId })(state).data?.text;
+};
+
+export function findNearbyDialog(
+    dialog: Entry[],
+    timeOverride: number,
+    count: number
+) {
+    const match = binarySearch(dialog, timeOverride);
+    const index = Math.max(0, match - count + 1);
+    return dialog.slice(index, index + count * 2 - 1);
+}
+
+function binarySearch(
+    arr: Entry[],
+    target: number,
+    lo = 0,
+    hi = arr.length - 1
+): number {
+    if (target < arr[lo].time) {
+        return 0;
+    }
+    if (target > arr[hi].time) {
+        return hi;
+    }
+
+    const mid = Math.floor((hi + lo) / 2);
+
+    if (hi - lo < 2) {
+        return target - arr[lo].time < arr[hi].time - target ? lo : hi;
+    } else {
+        return target < arr[mid].time
+            ? binarySearch(arr, target, lo, mid)
+            : target > arr[mid].time
+            ? binarySearch(arr, target, mid, hi)
+            : mid;
+    }
+}

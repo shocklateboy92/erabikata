@@ -10,7 +10,7 @@ import React, { FC, useEffect, useState } from 'react';
 import styles from './dialog.module.scss';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { Entry } from '../../backend-rtk.generated';
+import { findNearbyDialog } from '../selectedWord';
 
 export interface IDialogListProps extends IDialogId {
     count: number;
@@ -31,9 +31,7 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
     if (!response.data) {
         return <QueryPlaceholder result={response} />;
     }
-    const match = binarySearch(response.data.entries, timeOverride);
-    const index = Math.max(0, match - count + 1);
-    const dialog = response.data.entries.slice(index, index + count * 2 - 1);
+    const dialog = findNearbyDialog(response.data.entries, timeOverride, count);
 
     return (
         <>
@@ -83,29 +81,3 @@ const BeginScrollButton: FC<IScrollButtonProps> = ({
         </InlineButton>
     );
 };
-
-function binarySearch(
-    arr: Entry[],
-    target: number,
-    lo = 0,
-    hi = arr.length - 1
-): number {
-    if (target < arr[lo].time) {
-        return 0;
-    }
-    if (target > arr[hi].time) {
-        return hi;
-    }
-
-    const mid = Math.floor((hi + lo) / 2);
-
-    if (hi - lo < 2) {
-        return target - arr[lo].time < arr[hi].time - target ? lo : hi;
-    } else {
-        return target < arr[mid].time
-            ? binarySearch(arr, target, lo, mid)
-            : target > arr[mid].time
-            ? binarySearch(arr, target, mid, hi)
-            : mid;
-    }
-}

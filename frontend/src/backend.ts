@@ -30,5 +30,7 @@ export const {
     useWordsRanked2Query,
     useEpisodeIndexQuery,
 } = api;
+
+export const apiEndpoints = api.endpoints;
 export const apiReducer = api.reducer;
 export const apiMiddleware = api.middleware;
