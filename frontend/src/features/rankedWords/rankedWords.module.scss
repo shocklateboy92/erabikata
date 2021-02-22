@@ -24,6 +24,10 @@
         }
     }
 
+    .rank {
+        flex-grow: 1;
+    }
+
     ruby {
         font-size: 4em;
     }
@@ -39,6 +43,7 @@
 
 .pageLink {
     text-align: center;
+
     a {
         margin: 1em;
         display: inline-flex;

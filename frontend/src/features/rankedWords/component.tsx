@@ -2,18 +2,27 @@ import { mdiChevronLeft, mdiChevronRight, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { RootState } from 'app/rootReducer';
+import { useWordsRanked2Query } from 'backend';
 import classNames from 'classnames';
-import { newWordSelected, selectSelectedWord } from 'features/selectedWord';
+import {
+    newWordSelected,
+    selectSelectedWord,
+    selectSelectedWords,
+    wordSelectionV2
+} from 'features/selectedWord';
 import { WordContext } from 'features/wordContext';
 import React, { FC, useEffect } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
 import { fetchRankedWords, selectRankedWordsArray } from './slice';
+import { selectAnalyzer } from '../backendSelection';
+import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
+import { WordRankInfo } from '../../backend-rtk.generated';
 
-const SelectableDiv: FC<{ word: string }> = ({ word }) => {
-    const isActive = useTypedSelector(
-        (state) => selectSelectedWord(state).wordBaseForm === word
+const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
+    const isActive = useTypedSelector((state) =>
+        selectSelectedWords(state).includes(id)
     );
     const dispatch = useDispatch();
     return (
@@ -21,11 +30,15 @@ const SelectableDiv: FC<{ word: string }> = ({ word }) => {
             className={classNames(styles.word, {
                 [styles.active]: isActive
             })}
-            onClick={() => dispatch(newWordSelected({ word }))}
+            onClick={() => dispatch(wordSelectionV2([id]))}
         >
-            <ruby>{word}</ruby>
-            <WordContext word={word} />
-            <Link to={`/ui/word/${word}`}>
+            <ruby>{text}</ruby>
+            <div className={styles.rank}>
+                Rank: {rank ?? '????'}
+                <br />
+                Occurrences: {count ?? '????'}
+            </div>
+            <Link to={`/ui/word/${id}`}>
                 <Icon path={mdiShare} size="2em" />
             </Link>
         </div>
@@ -42,19 +55,18 @@ const ChangePageIcon: FC<{ path: string }> = ({ path }) => (
     <Icon path={path} size={'1.5em'} />
 );
 
+const max = 100;
 export const RankedWords: FC = () => {
     const pageParam = parseInt(useParams<{ pageNum: string }>().pageNum);
     const pageNum = isNaN(pageParam) ? 0 : pageParam;
+    const skip = pageNum * max;
 
-    const words = useSelector(
-        (state: RootState) => selectRankedWordsArray(state, pageNum),
-        shallowEqual
-    );
-
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(fetchRankedWords({ pageNum }));
-    }, [dispatch, pageNum]);
+    const analyzer = useTypedSelector(selectAnalyzer);
+    const response = useWordsRanked2Query({ analyzer, skip, max });
+    if (!response.data) {
+        return <QueryPlaceholder result={response} />;
+    }
+    const words = response.data;
 
     return (
         <div className={styles.outer}>
@@ -66,7 +78,7 @@ export const RankedWords: FC = () => {
             )}
             <div className={styles.container}>
                 {words.map((word) => (
-                    <SelectableDiv key={word.rank} word={word.word} />
+                    <SelectableDiv key={word.id} {...word} />
                 ))}
             </div>
             <ChangePageLink pageNum={pageNum + 1}>

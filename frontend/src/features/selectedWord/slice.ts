@@ -180,6 +180,10 @@ const slice = createSlice({
             };
         },
 
+        wordSelectionV2: (state, { payload }: PayloadAction<number[]>) => ({
+            ...state,
+            wordIds: payload
+        }),
         dialogWordSelectionV2: (
             state,
             {
@@ -209,5 +213,6 @@ export const {
     dialogWordShift,
     episodeDialogShift,
     occurrenceShift,
+    wordSelectionV2,
     dialogWordSelectionV2
 } = slice.actions;
