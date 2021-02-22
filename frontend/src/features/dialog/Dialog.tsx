@@ -118,6 +118,7 @@ const SelectableRuby: FC<
             ((selectedWord?.episode === episode &&
                 selectedWord.sentenceTimestamp === time) ||
                 alwaysHighlightSelectedWord) &&
+            selectedWord.wordIds.length > 0 &&
             selectedWord.wordIds.every((a, index) => wordIds[index] === a)
         );
     });

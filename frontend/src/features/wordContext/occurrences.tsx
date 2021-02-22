@@ -31,7 +31,7 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
                     <Dialog
                         dialogId={con}
                         showTitle
-                        forWord={readOnly ? undefined : wordId}
+                        forWord={readOnly ? wordId : undefined}
                     />
                 </div>
             ))}
