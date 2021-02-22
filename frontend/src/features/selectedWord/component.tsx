@@ -1,13 +1,12 @@
 import { useTypedSelector } from 'app/hooks';
-import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
-import { EngDialogList } from 'features/engDialog/engDialogList';
-import { ImageContext } from 'features/imageContext/component';
 import { OccurrencesDrawer } from 'features/wordContext';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { DialogDrawer } from '../dialog/DialogDrawer';
-import { selectSelectedWord, shouldShowPanel } from "./selectors";
+import { selectSelectedWord, shouldShowPanel } from './selectors';
+import { ImageContextDrawer } from '../imageContext/drawer';
+import { EngDialogDrawer } from '../engDialog/drawer';
 
 export const SelectedWord: FC = () => {
     const {
@@ -29,26 +28,12 @@ export const SelectedWord: FC = () => {
             />
             <Separator />
             <WordDefinition wordIds={wordIds} initiallyOpen={false} />
-            {episodeId && dialogId && (
-                <>
-                    <Separator />
-                    <DialogDrawer />
-                </>
-            )}
-            {episodeId && dialogId && !isNaN(parseInt(episodeId)) && (
-                <>
-                    <Separator />
-                    <ImageContext episodeId={episodeId} time={dialogId} />
-                </>
-            )}
-            {episodeId && dialogId && (
-                <>
-                    <Separator />
-                    <Drawer summary="English Context">
-                        <EngDialogList episodeId={episodeId} time={dialogId} />
-                    </Drawer>
-                </>
-            )}
+            <Separator />
+            <DialogDrawer />
+            <Separator />
+            <ImageContextDrawer />
+            <Separator />
+            <EngDialogDrawer />
             <Separator />
             <OccurrencesDrawer />
             <Separator />

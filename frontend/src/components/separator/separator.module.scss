@@ -23,4 +23,7 @@ $highlight-color-light: rgb(160, 160, 160);
             display: none;
         }
     }
+    & + .separator {
+        display: none;
+    }
 }
