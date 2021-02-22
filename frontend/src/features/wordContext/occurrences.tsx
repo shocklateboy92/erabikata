@@ -32,23 +32,7 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
         <>
             {dialogIds.map((con) => (
                 <div className={styles.dialog} key={con}>
-                    <Dialog dialogId={con} showTitle readOnly={readOnly}>
-                        {readOnly && (
-                            <span
-                                role="button"
-                                onClick={() => {
-                                    // dispatch(
-                                    // dialogSelection({
-                                    //     time: con.time,
-                                    //     episode: con.episodeId
-                                    // })
-                                    // );
-                                }}
-                            >
-                                <Icon path={mdiImport} size={ICON_SIZE} />
-                            </span>
-                        )}
-                    </Dialog>
+                    <Dialog dialogId={con} showTitle forWord={wordId} />
                 </div>
             ))}
         </>

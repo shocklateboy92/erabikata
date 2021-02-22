@@ -3,7 +3,9 @@ import classNames from 'classnames';
 import { formatTime } from 'components/time';
 import { Ruby } from 'features/furigana';
 import {
+    dialogSelection,
     dialogWordSelectionV2,
+    encodeSelectionParams,
     selectSelectedWord
 } from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
@@ -12,19 +14,23 @@ import styles from './dialog.module.scss';
 import { useSubsByIdQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
+import Icon from '@mdi/react';
+import { mdiImport, mdiShare } from '@mdi/js';
+import { Link } from 'react-router-dom';
 
+const ICON_SIZE = '2em';
 export const Dialog: FC<{
     dialogId: string;
     showTitle?: boolean;
-    readOnly?: boolean;
-}> = ({ readOnly, dialogId, children, showTitle }) => {
+    forWord?: number;
+}> = ({ forWord, dialogId, showTitle }) => {
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const result = useSubsByIdQuery({ id: dialogId, analyzer });
     if (!result.data) {
         return <QueryPlaceholder result={result} quiet />;
     }
-    const { text, episodeName, episodeId } = result.data;
+    const { text, episodeName, episodeId, time } = result.data;
 
     return (
         <div className={styles.container}>
@@ -39,11 +45,11 @@ export const Dialog: FC<{
                             <SelectableRuby
                                 key={index}
                                 episode={episodeId}
-                                alwaysHighlightSelectedWord={readOnly}
+                                alwaysHighlightSelectedWord={!!forWord}
                                 time={text.startTime}
                                 wordIds={word.definitionIds}
                                 onClick={() => {
-                                    if (readOnly) {
+                                    if (forWord) {
                                         return;
                                     }
 
@@ -66,7 +72,33 @@ export const Dialog: FC<{
                         ))}
                     </Fragment>
                 ))}
-                {children}
+                {forWord && (
+                    <>
+                        <Link
+                            to={{
+                                pathname: '/ui/dialog',
+                                search: encodeSelectionParams(episodeId, time, [
+                                    forWord
+                                ])
+                            }}
+                        >
+                            <Icon path={mdiShare} size={ICON_SIZE} />
+                        </Link>
+                        <span
+                            role="button"
+                            onClick={() => {
+                                dispatch(
+                                    dialogSelection({
+                                        time,
+                                        episode: episodeId
+                                    })
+                                );
+                            }}
+                        >
+                            <Icon path={mdiImport} size={ICON_SIZE} />
+                        </span>
+                    </>
+                )}
             </div>
         </div>
     );
@@ -86,7 +118,7 @@ const SelectableRuby: FC<
             ((selectedWord?.episode === episode &&
                 selectedWord.sentenceTimestamp === time) ||
                 alwaysHighlightSelectedWord) &&
-            selectedWord.wordIds.every((a, index) => wordIds[index] == a)
+            selectedWord.wordIds.every((a, index) => wordIds[index] === a)
         );
     });
 
