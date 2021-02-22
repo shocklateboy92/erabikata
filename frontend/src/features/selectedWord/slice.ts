@@ -136,7 +136,7 @@ const slice = createSlice({
                 payload: { direction, context }
             }: PayloadAction<{ context?: Occurence[]; direction: Direction }>
         ) => {
-            if (!context) {
+            if (!context?.length) {
                 return state;
             }
 
@@ -169,7 +169,7 @@ const slice = createSlice({
 
             const newIndex = index + direction;
             const newOccurrence =
-                context[Math.max(0, Math.min(context.length, newIndex))];
+                context[Math.max(0, Math.min(context.length - 1, newIndex))];
 
             return {
                 ...state,
