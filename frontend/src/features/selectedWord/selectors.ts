@@ -3,6 +3,7 @@ import { apiEndpoints } from '../../backend';
 import { selectAnalyzer } from '../backendSelection';
 import { Entry } from '../../backend-rtk.generated';
 import { selectNearbyDialog } from '../dialog/slice';
+import { notUndefined } from '../../typeUtils';
 
 export const selectIsCurrentlySelected = (
     state: RootState,
@@ -34,6 +35,27 @@ export const selectSelectedWords = (state: RootState) =>
 export const shouldShowPanel = ({ selectedWord }: RootState) =>
     selectedWord.wordIds.length > 0 ||
     (selectedWord.episode && selectedWord.sentenceTimestamp);
+
+export const selectSelectedWordOccurrences = (state: RootState) => {
+    const {
+        wordIds: [wordId]
+    } = state.selectedWord;
+    if (!wordId) {
+        return;
+    }
+    const analyzer = selectAnalyzer(state);
+    const dialogIds = apiEndpoints.wordsOccurrences.select({
+        analyzer,
+        wordId
+    })(state).data?.dialogIds;
+    if (!dialogIds?.length) {
+        return;
+    }
+
+    return dialogIds
+        .map((id) => apiEndpoints.subsById.select({ analyzer, id })(state).data)
+        .filter(notUndefined);
+};
 
 export const selectNearestSelectedDialog = (state: RootState) => {
     const { episode, sentenceTimestamp } = state.selectedWord;

@@ -176,19 +176,10 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<WordOccurrences> Occurrences(
-            Analyzer analyzer,
-            int wordId,
-            [FromQuery] PagingInfo pagingInfo)
-        {
-            return new WordOccurrences(
+        public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId) =>
+            new(
                 wordId,
-                await _dialogCollectionManager.GetOccurrences(
-                    analyzer.ToAnalyzerMode(),
-                    wordId,
-                    pagingInfo
-                )
+                await _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId)
             );
-        }
     }
 }

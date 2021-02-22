@@ -20,34 +20,28 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
     const analyzer = useTypedSelector(selectAnalyzer);
     const occurrences = useWordsOccurrencesQuery({
         analyzer,
-        wordId,
-        skip,
-        max
+        wordId
     });
-
 
     if (!occurrences.data) {
         return <QueryPlaceholder result={occurrences} />;
     }
 
+    const dialogIds = occurrences.data.dialogIds.slice(skip, skip + max);
     return (
         <>
-            {occurrences.data.dialogIds.map((con) => (
+            {dialogIds.map((con) => (
                 <div className={styles.dialog} key={con}>
-                    <Dialog
-                        dialogId={con}
-                        showTitle
-                        readOnly={readOnly}
-                    >
+                    <Dialog dialogId={con} showTitle readOnly={readOnly}>
                         {readOnly && (
                             <span
                                 role="button"
                                 onClick={() => {
                                     // dispatch(
-                                        // dialogSelection({
-                                        //     time: con.time,
-                                        //     episode: con.episodeId
-                                        // })
+                                    // dialogSelection({
+                                    //     time: con.time,
+                                    //     episode: con.episodeId
+                                    // })
                                     // );
                                 }}
                             >

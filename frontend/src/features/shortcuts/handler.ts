@@ -9,19 +9,22 @@ import { notification } from 'features/notifications';
 import {
     dialogWordShift,
     episodeDialogShift,
-    occurrenceShift, selectNearestSelectedDialog,
+    occurrenceShift,
+    selectNearestSelectedDialog,
     selectSelectedDialog,
     selectSelectedEnglishDialog,
     selectSelectedEpisodeContent,
     selectSelectedWord,
-    selectSelectedWordContext, selectSelectedWords
-} from "features/selectedWord";
+    selectSelectedWordContext,
+    selectSelectedWordOccurrences,
+    selectSelectedWords
+} from 'features/selectedWord';
 import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
-import { apiEndpoints } from "../../backend";
-import { selectAnalyzer } from "../backendSelection";
+import { apiEndpoints } from '../../backend';
+import { selectAnalyzer } from '../backendSelection';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -44,8 +47,9 @@ const handlers: {
         key: 'c',
         action: copyAction((state) => {
             const selectedWords = selectSelectedWords(state);
-            const selectedDialog = selectNearestSelectedDialog(state)
-                return selectedDialog?.words.map((line) =>
+            const selectedDialog = selectNearestSelectedDialog(state);
+            return selectedDialog?.words
+                .map((line) =>
                     line
                         .map((word) =>
                             word.definitionIds === selectedWords ||
@@ -140,7 +144,7 @@ const handlers: {
             dispatch(
                 occurrenceShift({
                     direction: 1,
-                    context: selectSelectedWordContext(getState())
+                    context: selectSelectedWordOccurrences(getState())
                 })
             );
         }
@@ -152,7 +156,7 @@ const handlers: {
             dispatch(
                 occurrenceShift({
                     direction: -1,
-                    context: selectSelectedWordContext(getState())
+                    context: selectSelectedWordOccurrences(getState())
                 })
             );
         }

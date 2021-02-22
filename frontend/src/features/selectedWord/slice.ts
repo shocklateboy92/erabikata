@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DialogInfo } from 'backend.generated';
 import { IWordInfoState } from 'features/wordContext';
 import { selectionClearRequest } from './actions';
-import { Entry } from '../../backend-rtk.generated';
+import { Entry, Occurence } from '../../backend-rtk.generated';
 
 interface ISelectedWordState {
     wordBaseForm?: string;
@@ -135,13 +135,13 @@ const slice = createSlice({
             state,
             {
                 payload: { direction, context }
-            }: PayloadAction<{ context?: IWordInfoState; direction: Direction }>
+            }: PayloadAction<{ context?: Occurence[]; direction: Direction }>
         ) => {
             if (!context) {
                 return state;
             }
 
-            let index = context.occurrences.findIndex(
+            let index = context.findIndex(
                 (a) =>
                     a.time === state.sentenceTimestamp &&
                     a.episodeId === state.episode
@@ -150,7 +150,7 @@ const slice = createSlice({
             if (index < 0) {
                 // No occurrence is explicitly selected.
                 // Try finding closest one in current episode
-                const epOcs = context.occurrences.filter(
+                const epOcs = context.filter(
                     (o) => o.episodeId === state.episode
                 );
 
@@ -165,14 +165,12 @@ const slice = createSlice({
                         Math.abs(a.time - (state.sentenceTimestamp ?? 0)) -
                         Math.abs(b.time - (state.sentenceTimestamp ?? 0))
                 );
-                index = context.occurrences.indexOf(epOcs[0]);
+                index = context.indexOf(epOcs[0]);
             }
 
             const newIndex = index + direction;
             const newOccurrence =
-                context.occurrences[
-                    Math.max(0, Math.min(context.occurrences.length, newIndex))
-                ];
+                context[Math.max(0, Math.min(context.length, newIndex))];
 
             return {
                 ...state,

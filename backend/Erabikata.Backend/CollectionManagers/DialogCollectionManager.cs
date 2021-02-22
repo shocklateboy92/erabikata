@@ -383,8 +383,7 @@ namespace Erabikata.Backend.CollectionManagers
 
         private record UnwoundDialog(int WordsToRank);
 
-        public Task<List<string>>
-            GetOccurrences(AnalyzerMode mode, int wordId, PagingInfo pagingInfo) =>
+        public Task<List<string>> GetOccurrences(AnalyzerMode mode, int wordId) =>
             _mongoCollections[mode]
                 .Find(
                     dialog => dialog.Lines.Any(
@@ -392,8 +391,6 @@ namespace Erabikata.Backend.CollectionManagers
                     )
                 )
                 .Project(dialog => dialog.Id.ToString())
-                .Skip(pagingInfo.Skip)
-                .Limit(pagingInfo.Max)
                 .ToListAsync();
 
         public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
