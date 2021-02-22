@@ -2,7 +2,7 @@ import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
 import {
     isKana,
-    selectIsFuriganaHiddenForWord,
+    selectIsFuriganaHiddenForWords,
     toggleWordFurigana
 } from 'features/furigana';
 import { notification } from 'features/notifications';
@@ -50,9 +50,9 @@ const handlers: {
                         .map((word) =>
                             word.definitionIds === selectedWords ||
                             isKana(word.displayText) ||
-                            selectIsFuriganaHiddenForWord(
+                            selectIsFuriganaHiddenForWords(
                                 state,
-                                word.baseForm
+                                word.definitionIds
                             ) ||
                             word.displayText === word.reading ||
                             !word.reading
@@ -85,10 +85,7 @@ const handlers: {
     {
         key: 't',
         action: (dispatch, getState) => {
-            const word = selectSelectedWord(getState()).wordBaseForm;
-            if (word) {
-                dispatch(toggleWordFurigana(word));
-            }
+            dispatch(toggleWordFurigana(selectSelectedWords(getState())));
         }
     },
     {

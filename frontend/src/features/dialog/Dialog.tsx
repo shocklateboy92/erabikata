@@ -41,7 +41,7 @@ export const Dialog: FC<{
                                 episode={episodeId}
                                 alwaysHighlightSelectedWord={readOnly}
                                 time={text.startTime}
-                                baseForm={word.baseForm}
+                                wordIds={word.definitionIds}
                                 onClick={() => {
                                     if (readOnly) {
                                         return;
@@ -76,30 +76,24 @@ const SelectableRuby: FC<
     {
         episode: string;
         time: number;
-        baseForm: string;
+        wordIds: number[];
         alwaysHighlightSelectedWord?: boolean;
     } & React.ComponentProps<typeof Ruby>
-> = ({
-    episode,
-    time,
-    baseForm: word,
-    alwaysHighlightSelectedWord,
-    ...restProps
-}) => {
+> = ({ episode, time, wordIds, alwaysHighlightSelectedWord, ...restProps }) => {
     const isActive = useTypedSelector((state) => {
         const selectedWord = selectSelectedWord(state);
         return (
             ((selectedWord?.episode === episode &&
                 selectedWord.sentenceTimestamp === time) ||
                 alwaysHighlightSelectedWord) &&
-            selectedWord.wordBaseForm === word
+            selectedWord.wordIds.every((a, index) => wordIds[index] == a)
         );
     });
 
     return (
         <Ruby
             className={classNames({ [styles.active]: isActive })}
-            baseForm={word}
+            wordIds={wordIds}
             {...restProps}
         />
     );

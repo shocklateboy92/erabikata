@@ -3,23 +3,23 @@ import React, { FC } from 'react';
 import { isKana } from './kana';
 import {
     selectIsFuriganaEnabled,
-    selectIsFuriganaHiddenForWord
+    selectIsFuriganaHiddenForWords
 } from './slice';
 
 interface IRubyProps extends React.ComponentProps<'ruby'> {
     reading?: string;
-    baseForm: string;
+    wordIds: number[];
 }
 
 export const Ruby: FC<IRubyProps> = ({
     children,
     reading,
-    baseForm,
+    wordIds,
     ...rest
 }) => {
     const hideReading = useTypedSelector(
         (state) =>
-            selectIsFuriganaHiddenForWord(state, baseForm) ||
+            selectIsFuriganaHiddenForWords(state, wordIds) ||
             !selectIsFuriganaEnabled(state)
     );
 
