@@ -9,11 +9,7 @@ import { ImageContextDrawer } from '../imageContext/drawer';
 import { EngDialogDrawer } from '../engDialog/drawer';
 
 export const SelectedWord: FC = () => {
-    const {
-        wordIds,
-        episode: episodeId,
-        sentenceTimestamp: dialogId
-    } = useTypedSelector(selectSelectedWord);
+    const { wordIds } = useTypedSelector(selectSelectedWord);
     if (!useTypedSelector(shouldShowPanel)) {
         return null;
     }

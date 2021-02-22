@@ -15,8 +15,8 @@ const slice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        authenticationError: (state) => ({ isSignedIn: false }),
-        authenticationSuccess: (state) => ({ isSignedIn: true })
+        authenticationError: () => ({ isSignedIn: false }),
+        authenticationSuccess: () => ({ isSignedIn: true })
     }
     // NOTE: There are no extra reducers from './api.ts' because
     // that file depends on this, creating a circular reference.

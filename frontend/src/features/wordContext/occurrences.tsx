@@ -1,5 +1,3 @@
-import { mdiImport } from '@mdi/js';
-import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { Dialog } from 'features/dialog/Dialog';
 import React, { FC, useState } from 'react';
@@ -10,13 +8,11 @@ import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 
 const max = 50;
-const ICON_SIZE = '2em';
 export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
     wordId,
     readOnly
 }) => {
     const [skip, setSkip] = useState(0);
-    const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const occurrences = useWordsOccurrencesQuery({
         analyzer,
@@ -32,7 +28,11 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
         <>
             {dialogIds.map((con) => (
                 <div className={styles.dialog} key={con}>
-                    <Dialog dialogId={con} showTitle forWord={wordId} />
+                    <Dialog
+                        dialogId={con}
+                        showTitle
+                        forWord={readOnly ? undefined : wordId}
+                    />
                 </div>
             ))}
         </>

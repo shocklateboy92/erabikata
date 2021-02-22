@@ -41,6 +41,7 @@ export const WakeLock: FC = () => {
 
 // wakeLock is an experimental api
 declare global {
+    // noinspection JSUnusedGlobalSymbols
     interface Navigator {
         wakeLock?: any;
     }

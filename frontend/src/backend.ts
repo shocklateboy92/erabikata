@@ -24,7 +24,6 @@ const api = generatedApi.enhanceEndpoints({
 
 export const {
     useWordsOccurrencesQuery,
-    useSubsByIdStringQuery,
     useSubsIndexQuery,
     useSubsByIdQuery,
     useWordsRanked2Query,

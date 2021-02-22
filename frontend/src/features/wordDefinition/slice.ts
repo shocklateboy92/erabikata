@@ -59,7 +59,7 @@ const slice = createSlice({
         builder
             .addCase(
                 thunk.fulfilled,
-                (state, { payload, meta: { arg: baseForm } }) => ({
+                (state, { payload}) => ({
                     ...state,
                     byId: {
                         ...state.byId,

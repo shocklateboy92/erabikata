@@ -200,7 +200,7 @@ const slice = createSlice({
         })
     },
     extraReducers: (builder) =>
-        builder.addCase(selectionClearRequest, (state) => ({ wordIds: [] }))
+        builder.addCase(selectionClearRequest, () => ({ wordIds: [] }))
 });
 
 export const selectedWordReducer = slice.reducer;
