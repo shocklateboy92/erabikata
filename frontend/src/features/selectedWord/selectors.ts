@@ -12,8 +12,16 @@ export const selectIsCurrentlySelected = (
     state.selectedWord.episode === episodeId &&
     state.selectedWord.sentenceTimestamp === time;
 
-export const selectSelectedEpisodeContent = (state: RootState) =>
-    state.dialog.order[state.selectedWord.episode!];
+export const selectSelectedEpisodeContent = (state: RootState) => {
+    const { episode } = state.selectedWord;
+    if (!episode) {
+        return;
+    }
+    const analyzer = selectAnalyzer(state);
+    return apiEndpoints.episodeIndex.select({ analyzer, episodeId: episode })(
+        state
+    ).data?.entries;
+};
 
 export const selectSelectedWord = (state: RootState) => state.selectedWord;
 
@@ -42,8 +50,9 @@ export const selectNearestSelectedDialog = (state: RootState) => {
         return;
     }
 
-    const [{dialogId}] = findNearbyDialog(data.entries, sentenceTimestamp, 1);
-    return apiEndpoints.subsById.select({ analyzer, id: dialogId })(state).data?.text;
+    const [{ dialogId }] = findNearbyDialog(data.entries, sentenceTimestamp, 1);
+    return apiEndpoints.subsById.select({ analyzer, id: dialogId })(state).data
+        ?.text;
 };
 
 export function findNearbyDialog(

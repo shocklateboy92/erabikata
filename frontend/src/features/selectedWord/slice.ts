@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DialogInfo } from 'backend.generated';
 import { IWordInfoState } from 'features/wordContext';
 import { selectionClearRequest } from './actions';
+import { Entry } from '../../backend-rtk.generated';
 
 interface ISelectedWordState {
     wordBaseForm?: string;
@@ -60,14 +61,14 @@ const slice = createSlice({
             state,
             {
                 payload: { direction, episodeDialog }
-            }: PayloadAction<{ direction: Direction; episodeDialog?: number[] }>
+            }: PayloadAction<{ direction: Direction; episodeDialog?: Entry[] }>
         ) => {
             if (!(state.sentenceTimestamp && episodeDialog)) {
                 return state;
             }
 
             const index = episodeDialog.findIndex(
-                (d) => d >= state.sentenceTimestamp! // null checked above
+                (d) => d.time >= state.sentenceTimestamp! // null checked above
             );
             const sentenceTimestamp =
                 episodeDialog[
@@ -75,7 +76,7 @@ const slice = createSlice({
                         0,
                         Math.min(episodeDialog.length, index + direction)
                     )
-                ];
+                ].time;
 
             return {
                 ...state,

@@ -97,7 +97,7 @@ const handlers: {
             dispatch(
                 dialogWordShift({
                     direction: 1,
-                    dialog: selectSelectedDialog(getState())
+                    dialog: selectNearestSelectedDialog(getState())
                 })
             )
     },
@@ -107,7 +107,7 @@ const handlers: {
             dispatch(
                 dialogWordShift({
                     direction: -1,
-                    dialog: selectSelectedDialog(getState())
+                    dialog: selectNearestSelectedDialog(getState())
                 })
             )
     },
