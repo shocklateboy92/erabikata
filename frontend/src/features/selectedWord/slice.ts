@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DialogInfo } from 'backend.generated';
-import { IWordInfoState } from 'features/wordContext';
 import { selectionClearRequest } from './actions';
 import { Entry, Occurence } from '../../backend-rtk.generated';
 

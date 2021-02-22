@@ -11,11 +11,9 @@ import {
     episodeDialogShift,
     occurrenceShift,
     selectNearestSelectedDialog,
-    selectSelectedDialog,
     selectSelectedEnglishDialog,
     selectSelectedEpisodeContent,
     selectSelectedWord,
-    selectSelectedWordContext,
     selectSelectedWordOccurrences,
     selectSelectedWords
 } from 'features/selectedWord';
@@ -23,8 +21,6 @@ import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
-import { apiEndpoints } from '../../backend';
-import { selectAnalyzer } from '../backendSelection';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,

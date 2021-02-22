@@ -1,21 +1,13 @@
 import { mdiChevronLeft, mdiChevronRight, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
-import { RootState } from 'app/rootReducer';
 import { useWordsRanked2Query } from 'backend';
 import classNames from 'classnames';
-import {
-    newWordSelected,
-    selectSelectedWord,
-    selectSelectedWords,
-    wordSelectionV2
-} from 'features/selectedWord';
-import { WordContext } from 'features/wordContext';
-import React, { FC, useEffect } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
+import React, { FC } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
-import { fetchRankedWords, selectRankedWordsArray } from './slice';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { WordRankInfo } from '../../backend-rtk.generated';

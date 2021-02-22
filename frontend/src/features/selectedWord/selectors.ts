@@ -2,7 +2,6 @@ import { RootState } from 'app/rootReducer';
 import { apiEndpoints } from '../../backend';
 import { selectAnalyzer } from '../backendSelection';
 import { Entry } from '../../backend-rtk.generated';
-import { selectNearbyDialog } from '../dialog/slice';
 import { notUndefined } from '../../typeUtils';
 
 export const selectIsCurrentlySelected = (

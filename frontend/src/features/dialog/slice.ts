@@ -3,7 +3,6 @@ import { RootState } from 'app/rootReducer';
 import { DialogInfo, NowPlayingInfo, SubsClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
 import { analyzerChangeRequest } from 'features/backendSelection';
-import { fetchWordIfNeeded } from 'features/wordContext';
 
 interface IDialogState {
     order: {
@@ -68,21 +67,6 @@ const dialogSlice = createSlice({
                     },
                     titles: { [episodeId]: episodeTitle }
                 })
-            )
-            .addCase(
-                fetchWordIfNeeded.fulfilled,
-                (state, { payload: { occurrences } }) => {
-                    for (const occurence of occurrences) {
-                        if (!state.content[occurence.episodeId]) {
-                            state.content[occurence.episodeId] = {};
-                        }
-                        state.content[occurence.episodeId]![
-                            occurence.text.startTime
-                        ] = occurence.text;
-
-                        // TODO: Add times to the orders arrays
-                    }
-                }
             )
             // Not going to try keeping different dialog for diferent
             // analyzers. Just ditch old data and fetch new stuff

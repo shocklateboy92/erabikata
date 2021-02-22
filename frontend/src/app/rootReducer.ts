@@ -12,11 +12,9 @@ import { spinnerTopReducer } from 'features/spinnerTop';
 import { todoistReducer } from 'features/todoist/slice';
 import { wakeLockReducer } from 'features/wakeLock';
 import { wordDefinitionReducer } from 'features/wordDefinition';
-import { wordContextsReducer } from '../features/wordContext';
 import { apiReducer } from '../backend';
 
 const rootReducer = combineReducers({
-    wordContexts: wordContextsReducer,
     spinnerTop: spinnerTopReducer,
     selectedWord: selectedWordReducer,
     wordDefinitions: wordDefinitionReducer,

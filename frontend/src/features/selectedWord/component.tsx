@@ -1,7 +1,4 @@
-import { mdiClose } from '@mdi/js';
-import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
-import { InlineButton } from 'components/button';
 import { Drawer } from 'components/drawer';
 import { Separator } from 'components/separator';
 import { EngDialogList } from 'features/engDialog/engDialogList';
@@ -9,96 +6,52 @@ import { ImageContext } from 'features/imageContext/component';
 import { OccurrencesDrawer } from 'features/wordContext';
 import { WordDefinition } from 'features/wordDefinition';
 import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
-import styles from './selectedWord.module.scss';
-import { WordLink } from './wordLink';
 import { DialogDrawer } from '../dialog/DialogDrawer';
-import { selectSelectedWord } from './selectors';
-import { selectionClearRequest } from './actions';
+import { selectSelectedWord, shouldShowPanel } from "./selectors";
 
-const ICON_SIZE = 1;
-
-export const SelectedWord: FC<{}> = () => {
-    const dispatch = useDispatch();
-    const selectedWord = useTypedSelector(selectSelectedWord);
-    if (!selectedWord?.wordBaseForm) {
+export const SelectedWord: FC = () => {
+    const {
+        wordIds,
+        episode: episodeId,
+        sentenceTimestamp: dialogId
+    } = useTypedSelector(selectSelectedWord);
+    if (!useTypedSelector(shouldShowPanel)) {
         return null;
-    }
-
-    const episodeId = selectedWord.episode;
-    const dialogId = selectedWord.sentenceTimestamp;
-
-    let dialogUrl: URL | null = null;
-    if (episodeId && dialogId) {
-        dialogUrl = new URL('/ui/dialog', document.baseURI);
-        dialogUrl.searchParams.set('episode', episodeId);
-        dialogUrl.searchParams.set('time', dialogId.toString());
-        dialogUrl.searchParams.set('word', selectedWord.wordBaseForm);
     }
 
     return (
         <div>
-            <div className={styles.summary}>
-                <div className={styles.title}>{selectedWord.wordBaseForm}</div>
-                <div className={styles.content}>
-                    <div className={styles.actions}>
-                        <WordLink
-                            word={selectedWord.wordBaseForm}
-                            includeEpisode={episodeId}
-                            includeTime={dialogId}
-                            iconSize={ICON_SIZE}
-                        />
-                        <InlineButton
-                            hideOnMobile
-                            onClick={() => {
-                                dispatch(selectionClearRequest());
-                            }}
-                        >
-                            <Icon path={mdiClose} size={ICON_SIZE} />
-                        </InlineButton>
-                    </div>
-                </div>
-            </div>
-            <div className={styles.content}>
-                <Separator />
-                <WordDefinition
-                    exact
-                    wordIds={selectedWord.wordIds}
-                    initiallyOpen
-                    toggleDefinition
-                />
-                <Separator />
-                <WordDefinition
-                    wordIds={selectedWord.wordIds}
-                    initiallyOpen={false}
-                />
-                {episodeId && dialogId && (
-                    <>
-                        <Separator />
-                        <DialogDrawer />
-                    </>
-                )}
-                {episodeId && dialogId && !isNaN(parseInt(episodeId)) && (
-                    <>
-                        <Separator />
-                        <ImageContext episodeId={episodeId} time={dialogId} />
-                    </>
-                )}
-                {episodeId && dialogId && (
-                    <>
-                        <Separator />
-                        <Drawer summary="English Context">
-                            <EngDialogList
-                                episodeId={episodeId}
-                                time={dialogId}
-                            />
-                        </Drawer>
-                    </>
-                )}
-                <Separator />
-                <OccurrencesDrawer />
-                <Separator />
-            </div>
+            <WordDefinition
+                exact
+                wordIds={wordIds}
+                initiallyOpen
+                toggleDefinition
+            />
+            <Separator />
+            <WordDefinition wordIds={wordIds} initiallyOpen={false} />
+            {episodeId && dialogId && (
+                <>
+                    <Separator />
+                    <DialogDrawer />
+                </>
+            )}
+            {episodeId && dialogId && !isNaN(parseInt(episodeId)) && (
+                <>
+                    <Separator />
+                    <ImageContext episodeId={episodeId} time={dialogId} />
+                </>
+            )}
+            {episodeId && dialogId && (
+                <>
+                    <Separator />
+                    <Drawer summary="English Context">
+                        <EngDialogList episodeId={episodeId} time={dialogId} />
+                    </Drawer>
+                </>
+            )}
+            <Separator />
+            <OccurrencesDrawer />
+            <Separator />
         </div>
     );
 };
