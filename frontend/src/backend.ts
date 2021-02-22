@@ -10,21 +10,12 @@ const api = generatedApi.enhanceEndpoints({
                     id: response.wordId
                 }
             ]
-        },
-        subsByIdString: {
-            provides: (response) =>
-                response.map((d) => ({ type: 'Dialog', id: d.text.id }))
-        },
-        subsIndex: {
-            provides: (response) =>
-                response.dialog.map(({ id }) => ({ type: 'Dialog', id }))
         }
     }
 });
 
 export const {
     useWordsOccurrencesQuery,
-    useSubsIndexQuery,
     useSubsByIdQuery,
     useWordsRanked2Query,
     useEpisodeIndexQuery,

@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Output;
 using Erabikata.Models.Input;
-using Erabikata.Models.Output;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -31,29 +29,6 @@ namespace Erabikata.Backend.Controllers
             _dialogCollectionManager = dialogCollectionManager;
             _partOfSpeechFilter = partOfSpeechFilter;
             _wordInfo = wordInfo;
-        }
-
-        [HttpGet]
-        [Route("[action]")]
-        public async Task<IEnumerable<WordInfo>> Ranked(
-            [Required] Analyzer analyzer,
-            [FromQuery] int max = 100,
-            [FromQuery] int skip = 0)
-        {
-            var ignoredPartsOfSpeech = await _partOfSpeechFilter.GetIgnoredPartOfSpeech();
-            var ranks = await _dialogCollectionManager.GetSortedWordCounts(
-                analyzer.ToAnalyzerMode(),
-                ignoredPartsOfSpeech,
-                max,
-                skip
-            );
-
-            return ranks.Select(
-                (result, index) => new WordInfo
-                {
-                    Text = result.Id, Rank = skip + index, TotalOccurrences = result.Count
-                }
-            );
         }
 
         [HttpGet]

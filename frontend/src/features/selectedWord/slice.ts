@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DialogInfo } from 'backend.generated';
 import { selectionClearRequest } from './actions';
-import { Entry, Occurence } from '../../backend-rtk.generated';
+import { Entry, WordOccurrence } from "../../backend-rtk.generated";
 
 interface ISelectedWordState {
     sentenceTimestamp?: number;
@@ -134,7 +134,7 @@ const slice = createSlice({
             state,
             {
                 payload: { direction, context }
-            }: PayloadAction<{ context?: Occurence[]; direction: Direction }>
+            }: PayloadAction<{ context?: WordOccurrence[]; direction: Direction }>
         ) => {
             if (!context?.length) {
                 return state;

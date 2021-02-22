@@ -2,7 +2,6 @@ using System;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
 using Erabikata.Backend.DataProviders;
-using Erabikata.Backend.Managers;
 using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
@@ -40,7 +39,6 @@ namespace Erabikata.Backend
             services.AddCollectionManagers();
             services.AddCollectionMiddlewares();
 
-            services.AddSingleton<WordCountsManager>();
 
             services.AddSingleton<SeedDataProvider>();
 
