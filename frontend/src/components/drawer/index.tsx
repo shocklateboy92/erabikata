@@ -21,6 +21,10 @@ export const Drawer: FC<IDrawerProps> = ({
 }) => {
     const [isOpen, setIsOpen] = useState(startOpen);
 
+    if (React.Children.count(children) === 0) {
+        return null;
+    }
+
     return (
         <div className={styles.container}>
             <Icon
