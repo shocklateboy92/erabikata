@@ -18,8 +18,8 @@ namespace Erabikata.Backend.CollectionManagers
     public class EngSubCollectionManager : ICollectionManager
     {
         private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
-        private readonly IMongoCollection<EngSub> _mongoCollection;
         private readonly ILogger<EngSubCollectionManager> _logger;
+        private readonly IMongoCollection<EngSub> _mongoCollection;
 
         public EngSubCollectionManager(
             IMongoDatabase mongoDatabase,
@@ -45,7 +45,6 @@ namespace Erabikata.Backend.CollectionManagers
         private async Task IngestEngSubs(IEnumerable<IngestShows.ShowToIngest> showsToIngest)
         {
             foreach (var (files, showInfo) in showsToIngest)
-            {
                 await Task.WhenAll(
                     showInfo.Episodes[0]
                         .Select(
@@ -77,7 +76,6 @@ namespace Erabikata.Backend.CollectionManagers
                             }
                         )
                 );
-            }
         }
 
         private async Task IngestEpisode(string filePath, int id)
@@ -109,7 +107,6 @@ namespace Erabikata.Backend.CollectionManagers
             using var buffer = MemoryPool<byte>.Shared.Rent(4096);
             int lastReadBytesCount;
             while ((lastReadBytesCount = await showFileStream.ReadAsync(buffer.Memory)) > 0)
-            {
                 await client.RequestStream.WriteAsync(
                     new ParseAssRequestChunk
                     {
@@ -120,7 +117,6 @@ namespace Erabikata.Backend.CollectionManagers
                         )
                     }
                 );
-            }
 
             await client.RequestStream.CompleteAsync();
         }
@@ -129,8 +125,9 @@ namespace Erabikata.Backend.CollectionManagers
             int episodeId,
             double time,
             int count,
-            IEnumerable<string> styleFilter) =>
-            _mongoCollection.Aggregate()
+            IEnumerable<string> styleFilter)
+        {
+            return _mongoCollection.Aggregate()
                 .Match(sub => sub.EpisodeId == episodeId && styleFilter.Contains(sub.Style))
                 // Turns out, we can't do this using LINQ until Mongo Linq V3 gets released
                 // Don't know when that will be.
@@ -143,5 +140,6 @@ namespace Erabikata.Backend.CollectionManagers
                 .AppendStage<EngSub>("{ $unset: 'delta' }")
                 .SortBy(sub => sub.Time)
                 .ToListAsync();
+        }
     }
 }

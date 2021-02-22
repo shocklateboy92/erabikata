@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
@@ -27,13 +26,16 @@ namespace Erabikata.Backend.CollectionMiddlewares
                         filesInSeed.Where(path => path.EndsWith("show-metadata.json"))
                             .Select(
                                 async showPath => new IngestShows.ShowToIngest(
-                                    Files: filesInSeed.Where(
+                                    filesInSeed.Where(
                                             path => path.StartsWith(
-                                                showPath.Replace("/show-metadata.json", string.Empty)
+                                                showPath.Replace(
+                                                    "/show-metadata.json",
+                                                    string.Empty
+                                                )
                                             )
                                         )
                                         .ToList(),
-                                    Info: await SeedDataProvider.DeserializeFile<ShowInfo>(showPath)
+                                    await SeedDataProvider.DeserializeFile<ShowInfo>(showPath)
                                 )
                             )
                     );

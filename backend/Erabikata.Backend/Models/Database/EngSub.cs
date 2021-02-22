@@ -7,8 +7,6 @@ namespace Erabikata.Backend.Models.Database
     [DataContract]
     public record EngSub
     {
-        [DataMember] public ObjectId Id { get; set; }
-
         public EngSub(
             ObjectId id,
             int episodeId,
@@ -24,6 +22,8 @@ namespace Erabikata.Backend.Models.Database
             IsComment = isComment;
             Style = style;
         }
+
+        [DataMember] public ObjectId Id { get; set; }
 
         [DataMember] public int EpisodeId { get; set; }
 

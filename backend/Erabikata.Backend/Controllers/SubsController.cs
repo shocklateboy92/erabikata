@@ -1,15 +1,12 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
-using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using WordInfo = Erabikata.Models.Output.WordInfo;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -133,7 +130,7 @@ namespace Erabikata.Backend.Controllers
                             )
                             .ToArray()
                     ),
-                    Time = dialog.Time,
+                    Time = dialog.Time
                 }
             );
         }

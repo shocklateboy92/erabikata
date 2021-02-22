@@ -1,26 +1,18 @@
 using System;
-using System.Linq;
-using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
-using Erabikata.Backend.Controllers;
+using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Managers;
+using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
-using Erabikata.Backend.DataProviders;
-using Erabikata.Backend.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Identity.Web;
-using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Driver;
-using MongoDB.Driver.Core.Events;
 using Newtonsoft.Json;
 using NJsonSchema.Generation;
 
@@ -88,8 +80,9 @@ namespace Erabikata.Backend
         }
 
         private IHttpClientBuilder AddGrpcClient<TServicer>(IServiceCollection services)
-            where TServicer : class =>
-            services.AddGrpcClient<TServicer>(
+            where TServicer : class
+        {
+            return services.AddGrpcClient<TServicer>(
                 options =>
                 {
                     options.Address = new Uri(
@@ -97,6 +90,7 @@ namespace Erabikata.Backend
                     );
                 }
             );
+        }
 
         private void ConfigureDatabase(IServiceCollection services)
         {

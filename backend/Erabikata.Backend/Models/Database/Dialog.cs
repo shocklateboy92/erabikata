@@ -29,6 +29,8 @@ namespace Erabikata.Backend.Models.Database
 
         [DataMember] public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
 
+        [DataMember] public ICollection<int> WordsToRank { get; set; } = new List<int>();
+
         [DataContract]
         public record Word(
             string BaseForm,
@@ -44,7 +46,5 @@ namespace Erabikata.Backend.Models.Database
         }
 
         public record Line(IReadOnlyList<Word> Words);
-
-        [DataMember] public ICollection<int> WordsToRank { get; set; } = new List<int>();
     }
 }

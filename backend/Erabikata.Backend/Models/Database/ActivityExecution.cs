@@ -13,10 +13,8 @@ namespace Erabikata.Backend.Models.Database
             Activity = activity;
         }
 
-        [DataMember]
-        public ObjectId Id { get; set; }
+        [DataMember] public ObjectId Id { get; set; }
 
-        [DataMember]
-        public Activity Activity { get; set; }
+        [DataMember] public Activity Activity { get; set; }
     }
 }

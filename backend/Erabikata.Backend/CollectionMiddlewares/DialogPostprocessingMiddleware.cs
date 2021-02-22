@@ -7,8 +7,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
 {
     public class DialogPostprocessingMiddleware : ICollectionMiddleware
     {
-        private readonly WordInfoCollectionManager _wordInfo;
         private readonly DialogCollectionManager _dialog;
+        private readonly WordInfoCollectionManager _wordInfo;
 
         public DialogPostprocessingMiddleware(
             WordInfoCollectionManager wordInfo,

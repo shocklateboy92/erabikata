@@ -4,7 +4,6 @@ using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Output;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using MoreLinq.Extensions;
 
 namespace Erabikata.Backend.Controllers
 {

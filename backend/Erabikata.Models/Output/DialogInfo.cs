@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Erabikata.Models.Input;
 using Newtonsoft.Json;
 
 namespace Erabikata.Models.Output
@@ -9,6 +7,13 @@ namespace Erabikata.Models.Output
 #nullable enable
     public class DialogInfo
     {
+        public DialogInfo(string id, double startTime, WordRef[][] tokenized)
+        {
+            StartTime = startTime;
+            Words = tokenized;
+            Id = id;
+        }
+
         [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
@@ -17,13 +22,6 @@ namespace Erabikata.Models.Output
 
         [JsonProperty(Required = Required.Always)]
         public WordRef[][] Words { get; }
-
-        public DialogInfo(string id, double startTime, WordRef[][] tokenized)
-        {
-            StartTime = startTime;
-            Words = tokenized;
-            Id = id;
-        }
 
         public class WordRef
         {

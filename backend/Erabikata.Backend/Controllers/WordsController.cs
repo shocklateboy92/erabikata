@@ -107,7 +107,7 @@ namespace Erabikata.Backend.Controllers
                         link =
                             $"{Request.Scheme}://{Request.Host}/word/{group.Key}?word={group.Key}",
                         dictionaryForms = group.Select(analyzed => analyzed.DictionaryForm)
-                            .Distinct(),
+                            .Distinct()
                     }
                 );
 
@@ -123,11 +123,9 @@ namespace Erabikata.Backend.Controllers
                 _wordInfo.GetWordRanks(wordId), _wordInfo.GetTotalWordCount());
             var definitions = infos.Adapt<List<WordDefinition>>();
             foreach (var definition in definitions)
-            {
                 definition.GlobalRank =
                     ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank * 100 /
                     totalCount + 1;
-            }
 
             return definitions;
         }
@@ -176,10 +174,12 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId) =>
-            new(
+        public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId)
+        {
+            return new(
                 wordId,
                 await _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId)
             );
+        }
     }
 }

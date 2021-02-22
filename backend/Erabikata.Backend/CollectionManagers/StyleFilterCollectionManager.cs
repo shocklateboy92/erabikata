@@ -60,9 +60,11 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public Task<IEnumerable<string>> GetActiveStylesFor(int episode) =>
-            _mongoCollection.Find(filter => filter.ForEpisodes.Contains(episode))
+        public Task<IEnumerable<string>> GetActiveStylesFor(int episode)
+        {
+            return _mongoCollection.Find(filter => filter.ForEpisodes.Contains(episode))
                 .Project(filter => filter.EnabledStyles)
                 .FirstOrDefaultAsync();
+        }
     }
 }

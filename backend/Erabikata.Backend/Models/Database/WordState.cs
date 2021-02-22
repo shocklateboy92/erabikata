@@ -11,11 +11,8 @@ namespace Erabikata.Backend.Models.Database
             BaseForm = baseForm;
         }
 
-        [DataMember]
-        [BsonId]
-        public string BaseForm { get; set; }
+        [DataMember] [BsonId] public string BaseForm { get; set; }
 
-        [DataMember]
-        public bool IsKnown { get; set; }
+        [DataMember] public bool IsKnown { get; set; }
     }
 }

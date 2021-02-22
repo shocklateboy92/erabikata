@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Erabikata.Backend.Models.Database
@@ -17,13 +16,10 @@ namespace Erabikata.Backend.Models.Database
             ForEpisodes = forEpisodes;
         }
 
-        [BsonId]
-        public int ShowId { get; set; }
+        [BsonId] public int ShowId { get; set; }
 
-        [DataMember]
-        public IEnumerable<string> EnabledStyles { get; set; }
+        [DataMember] public IEnumerable<string> EnabledStyles { get; set; }
 
-        [DataMember]
-        public IEnumerable<int> ForEpisodes { get; set; }
+        [DataMember] public IEnumerable<int> ForEpisodes { get; set; }
     }
 }

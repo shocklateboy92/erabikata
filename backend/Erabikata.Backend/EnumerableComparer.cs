@@ -7,7 +7,7 @@ namespace Erabikata.Backend
     {
         public bool Equals(E? x, E? y)
         {
-            return ReferenceEquals(x, y) || (x != null && y != null && x.SequenceEqual(y));
+            return ReferenceEquals(x, y) || x != null && y != null && x.SequenceEqual(y);
         }
 
         public int GetHashCode(E obj)

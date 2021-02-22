@@ -8,8 +8,7 @@ namespace Erabikata.Backend.Models.Output
 {
     public record EngSubsResponse
     {
-        [DataMember]
-        public IEnumerable<Sentence> Dialog { get; init; } = Array.Empty<Sentence>();
+        [DataMember] public IEnumerable<Sentence> Dialog { get; init; } = Array.Empty<Sentence>();
 
         public record Sentence(
             string Id,

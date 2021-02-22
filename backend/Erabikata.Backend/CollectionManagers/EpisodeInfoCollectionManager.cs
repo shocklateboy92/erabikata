@@ -2,7 +2,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
-using Mapster;
 using MongoDB.Driver;
 
 namespace Erabikata.Backend.CollectionManagers
@@ -37,9 +36,11 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public Task<string?> GetFilePathOfEpisode(int episodeId) =>
-            _mongoCollection.Find(info => info.Id == episodeId)
+        public Task<string?> GetFilePathOfEpisode(int episodeId)
+        {
+            return _mongoCollection.Find(info => info.Id == episodeId)
                 .Project(info => info.File)
                 .FirstOrDefaultAsync()!;
+        }
     }
 }

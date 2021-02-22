@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -19,10 +18,10 @@ namespace Erabikata.Backend.Controllers
     [Route("api/[controller]")]
     public class ActionsController : ControllerBase
     {
-        private readonly IMongoCollection<ActivityExecution> _mongo;
-        private readonly ILogger<ActionsController> _logger;
         private readonly IReadOnlyCollection<ICollectionManager> _collectionManagers;
         private readonly IEnumerable<ICollectionMiddleware> _collectionMiddlewares;
+        private readonly ILogger<ActionsController> _logger;
+        private readonly IMongoCollection<ActivityExecution> _mongo;
 
         public ActionsController(
             IMongoCollection<ActivityExecution> mongo,

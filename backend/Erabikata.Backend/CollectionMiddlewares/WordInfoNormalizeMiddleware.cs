@@ -33,7 +33,6 @@ namespace Erabikata.Backend.CollectionMiddlewares
         private async Task AddNormalizedForms(IEnumerable<WordInfo> inputWords)
         {
             foreach (var batch in inputWords.Batch(100).Batch(20))
-            {
                 await Task.WhenAll(
                     batch.Select(
                         async batchWordsInput =>
@@ -53,17 +52,14 @@ namespace Erabikata.Backend.CollectionMiddlewares
                             );
 
                             await foreach (var response in client.ResponseStream.ReadAllAsync())
-                            {
                                 batchWords[(int) response.Time].Normalized = response.Lines.Select(
                                         line => line.Words.Select(word => word.BaseForm).ToArray()
                                     )
                                     .Distinct(new EnumerableComparer<string, string[]>())
                                     .ToList();
-                            }
                         }
                     )
                 );
-            }
         }
     }
 }

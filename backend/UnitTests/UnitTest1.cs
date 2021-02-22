@@ -26,12 +26,16 @@ namespace UnitTests
 {
     public class Tests
     {
-        private static readonly Channel LocalChannel = new Channel(
+        private static readonly Channel LocalChannel = new(
             "127.0.0.1:5001",
             ChannelCredentials.Insecure
         );
 
         private IServiceProvider _serviceProvider = null!;
+
+        public EngSubCollectionManager EngManager { get; set; } = null!;
+
+        private DialogCollectionManager Manager { get; set; } = null!;
 
         [SetUp]
         public void Setup()
@@ -49,10 +53,6 @@ namespace UnitTests
             EngManager = _serviceProvider.GetRequiredService<EngSubCollectionManager>();
         }
 
-        public EngSubCollectionManager EngManager { get; set; } = null!;
-
-        private DialogCollectionManager Manager { get; set; } = null!;
-
         [Test]
         public async Task Test1()
         {
@@ -62,7 +62,7 @@ namespace UnitTests
         [Test]
         public async Task Test2()
         {
-            var res = await Manager.GetSortedWordCounts(AnalyzerMode.SudachiC, new string[] { });
+            var res = await Manager.GetSortedWordCounts(AnalyzerMode.SudachiC, Array.Empty<string>());
             Console.WriteLine(res.Take(3).ToJson());
         }
 
@@ -77,21 +77,17 @@ namespace UnitTests
             int count;
             using var memory = MemoryPool<byte>.Shared.Rent(4096);
             while ((count = await stream.ReadAsync(memory.Memory)) > 0)
-            {
                 await request.RequestStream.WriteAsync(
                     new ParseAssRequestChunk
                     {
                         Content = ByteString.CopyFrom(memory.Memory.ToArray(), 0, count)
                     }
                 );
-            }
 
             await request.RequestStream.CompleteAsync();
 
             await foreach (var response in request.ResponseStream.ReadAllAsync())
-            {
                 Console.WriteLine(response.Lines.Aggregate(0, (i, s) => s.Length + i));
-            }
         }
 
         [Test]
@@ -118,7 +114,6 @@ namespace UnitTests
             var doc = await XElement.LoadAsync(file, LoadOptions.None, CancellationToken.None);
             var words = DictionaryProviderMiddleware.ProcessDictionary(doc);
             foreach (var batch in words.Batch(100).Batch(20))
-            {
                 await Task.WhenAll(
                     batch.Select(
 #pragma warning disable 1998
@@ -132,7 +127,6 @@ namespace UnitTests
                         }
                     )
                 );
-            }
 
             // Console.WriteLine(words.Batch(100).Batch(20).Count());
         }
@@ -140,7 +134,11 @@ namespace UnitTests
         [Test]
         public async Task TestWordRank()
         {
-            var ranks = await Manager.GetWordRanks(AnalyzerMode.SudachiC, 2056, new[] {1315720, 1315730});
+            var ranks = await Manager.GetWordRanks(
+                AnalyzerMode.SudachiC,
+                2056,
+                new[] {1315720, 1315730}
+            );
             Console.WriteLine(string.Join(",", ranks));
         }
 
@@ -198,9 +196,7 @@ namespace UnitTests
             );
 
             await foreach (var response in bulk.ResponseStream.ReadAllAsync())
-            {
                 Console.WriteLine(response.Lines);
-            }
         }
     }
 }

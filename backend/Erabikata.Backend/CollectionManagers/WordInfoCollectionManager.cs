@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
-using Erabikata.Backend.Models.Output;
 using Mapster;
 using MongoDB.Driver;
 
@@ -40,14 +39,6 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
-        // Mongo is ignoring the [BsonId] attribute for some reason, so I the only
-        // way I could get his to work is to name the field `_id`
-        // ReSharper disable once InconsistentNaming
-        public record NormalizedWord(int _id, IReadOnlyList<string> Normalized)
-        {
-            public uint Count = 0;
-        };
-
         public Task UpdateWordCounts(IEnumerable<NormalizedWord> words)
         {
             var models = words.Select(
@@ -61,22 +52,19 @@ namespace Erabikata.Backend.CollectionManagers
             return _mongoCollection.BulkWriteAsync(models);
         }
 
-        public async Task<WordInfo?> SearchWord(string baseForm)
+        public Task<long> GetTotalWordCount()
         {
-            return await _mongoCollection.Find(
-                    word => word.Kanji.Contains(baseForm) || word.Readings.Contains(baseForm)
-                )
-                .FirstOrDefaultAsync();
+            return _mongoCollection.CountDocumentsAsync(word => word.TotalOccurrences > 0);
         }
 
-        public Task<long> GetTotalWordCount() =>
-            _mongoCollection.CountDocumentsAsync(word => word.TotalOccurrences > 0);
+        public Task<List<WordInfo>> GetWords(IEnumerable<int> ids)
+        {
+            return _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
+        }
 
-        public Task<List<WordInfo>> GetWords(IEnumerable<int> ids) =>
-            _mongoCollection.Find(word => ids.Contains(word.Id)).ToListAsync();
-
-        public Task<List<WordRank>> GetWordRanks(IEnumerable<int> ids) =>
-            _mongoCollection.Aggregate()
+        public Task<List<WordRank>> GetWordRanks(IEnumerable<int> ids)
+        {
+            return _mongoCollection.Aggregate()
                 .Match(word => word.TotalOccurrences > 0)
                 .SortByDescending(word => word.TotalOccurrences)
                 .Group(word => string.Empty, infos => new {WordId = infos.Select(i => i.Id)})
@@ -89,8 +77,7 @@ namespace Erabikata.Backend.CollectionManagers
                 )
                 .Match(wr => ids.Contains(wr.WordId))
                 .ToListAsync();
-
-        public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
+        }
 
         public Task<List<WordInfo>> GetSortedWordCounts(
             IEnumerable<string> ignoredPartsOfSpeech,
@@ -108,5 +95,15 @@ namespace Erabikata.Backend.CollectionManagers
                 .Limit(pagingInfoMax)
                 .ToListAsync();
         }
+
+        // Mongo is ignoring the [BsonId] attribute for some reason, so I the only
+        // way I could get his to work is to name the field `_id`
+        // ReSharper disable once InconsistentNaming
+        public record NormalizedWord(int _id, IReadOnlyList<string> Normalized)
+        {
+            public uint Count = 0;
+        }
+
+        public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
     }
 }

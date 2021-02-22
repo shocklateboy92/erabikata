@@ -19,12 +19,14 @@ namespace Erabikata.Backend.CollectionManagers
 {
     public class DialogCollectionManager : ICollectionManager
     {
-        private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>>
-            _mongoCollections;
+        private const int TimeDelta = 10;
+        private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
+        private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
 
         private readonly ILogger<DialogCollectionManager> _logger;
-        private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
-        private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
+
+        private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>>
+            _mongoCollections;
 
         public DialogCollectionManager(
             IMongoDatabase database,
@@ -61,10 +63,7 @@ namespace Erabikata.Backend.CollectionManagers
         public async Task ProcessWords2(IEnumerable<WordInfoCollectionManager.NormalizedWord> words)
         {
             var trie = new Trie<(int Count, WordInfoCollectionManager.NormalizedWord word)>();
-            foreach (var word in words)
-            {
-                trie.Add(word.Normalized, (word.Normalized.Count, word));
-            }
+            foreach (var word in words) trie.Add(word.Normalized, (word.Normalized.Count, word));
 
             trie.Build();
 
@@ -85,9 +84,7 @@ namespace Erabikata.Backend.CollectionManagers
                                 foreach (var (endIndex, (length, word)) in matches)
                                 {
                                     for (var index = endIndex - length; index < endIndex; index++)
-                                    {
                                         line.Words[index].InfoIds.Add(word._id);
-                                    }
 
                                     Interlocked.Increment(ref word.Count);
                                     if (!line.Words[endIndex - 1].IsInParenthesis)
@@ -191,9 +188,9 @@ namespace Erabikata.Backend.CollectionManagers
                         (response, index) => new Dialog(
                             ObjectId.Empty,
                             episodeId,
-                            index: index,
-                            time: response.Time,
-                            episodeTitle: $"{showTitle} Episode {info.index}"
+                            index,
+                            response.Time,
+                            $"{showTitle} Episode {info.index}"
                         ) {Lines = response.Lines.Select(ProcessLine)}
                     ),
                     new InsertManyOptions {IsOrdered = false}
@@ -208,7 +205,6 @@ namespace Erabikata.Backend.CollectionManagers
             {
                 var bracketCount = 0;
                 foreach (var c in word.Original)
-                {
                     switch (c)
                     {
                         case '(':
@@ -220,23 +216,20 @@ namespace Erabikata.Backend.CollectionManagers
                             bracketCount--;
                             break;
                     }
-                }
 
                 results.Add(
                     new Dialog.Word(
-                        BaseForm: word.BaseForm,
-                        DictionaryForm: word.DictionaryForm,
-                        OriginalForm: word.Original,
-                        Reading: word.Reading,
-                        IsInParenthesis: bracketCount > 0
+                        word.BaseForm,
+                        word.DictionaryForm,
+                        word.Original,
+                        word.Reading,
+                        bracketCount > 0
                     ) {PartOfSpeech = word.PartOfSpeech}
                 );
             }
 
             return new Dialog.Line(results);
         }
-
-        private const int TimeDelta = 10;
 
         public async Task<IReadOnlyList<Dialog>> GetNearestDialog(
             int episodeId,
@@ -265,16 +258,11 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
-        public Task<List<Dialog>> GetMatches(
-            string baseForm,
-            AnalyzerMode analyzerMode,
-            int skip = 0,
-            int take = int.MaxValue) =>
-            Find(baseForm, analyzerMode).Skip(skip).Limit(take).ToListAsync();
-
-        public Task<List<Dialog>>
-            GetFuzzyMatches(string baseOrDictionaryForm, AnalyzerMode analyzerMode) =>
-            _mongoCollections[analyzerMode]
+        public Task<List<Dialog>> GetFuzzyMatches(
+            string baseOrDictionaryForm,
+            AnalyzerMode analyzerMode)
+        {
+            return _mongoCollections[analyzerMode]
                 .Find(
                     dialog => dialog.Lines.Any(
                         line => line.Words.Any(
@@ -284,9 +272,7 @@ namespace Erabikata.Backend.CollectionManagers
                     )
                 )
                 .ToListAsync();
-
-        public Task<long> CountMatches(string baseForm, AnalyzerMode mode) =>
-            Find(baseForm, mode).CountDocumentsAsync();
+        }
 
         public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
             AnalyzerMode mode,
@@ -323,16 +309,13 @@ namespace Erabikata.Backend.CollectionManagers
             return await cursor.ToListAsync();
         }
 
-        public record UnwoundRank(object? _id, int rank, UnwoundWordCount counts);
-
-        public record UnwoundWordCount(int _id, int count);
-
         public Task<List<AggregateSortByCountResult<string>>> GetSortedWordCounts(
             AnalyzerMode mode,
             IEnumerable<string> ignoredPartsOfSpeech,
             int max = int.MaxValue,
-            int skip = 0) =>
-            _mongoCollections[mode]
+            int skip = 0)
+        {
+            return _mongoCollections[mode]
                 .Aggregate()
                 .Unwind(dialog => dialog.Lines)
                 .Unwind<IntermediateDialog>($"{nameof(Dialog.Lines)}.{nameof(Dialog.Line.Words)}")
@@ -350,26 +333,23 @@ namespace Erabikata.Backend.CollectionManagers
                 .Skip(skip)
                 .Limit(max)
                 .ToListAsync();
+        }
 
-        private record IntermediateLine(Dialog.Word Words);
-
-        private record IntermediateDialog(IntermediateLine Lines);
-
-        public record WordRank(
-            [property: BsonId] string BaseForm,
-            [property: BsonElement("count")] long Count);
-
-        private IFindFluent<Dialog, Dialog> Find(string baseForm, AnalyzerMode analyzerMode) =>
-            _mongoCollections[analyzerMode]
+        private IFindFluent<Dialog, Dialog> Find(string baseForm, AnalyzerMode analyzerMode)
+        {
+            return _mongoCollections[analyzerMode]
                 .Find(
                     dialog => dialog.Lines.Any(
                         line => line.Words.Any(word => word.BaseForm == baseForm)
                     )
                 );
+        }
 
-        public Task<AggregateCountResult>
-            GetEpisodeWordCount(AnalyzerMode analyzerMode, int episodeId) =>
-            _mongoCollections[analyzerMode]
+        public Task<AggregateCountResult> GetEpisodeWordCount(
+            AnalyzerMode analyzerMode,
+            int episodeId)
+        {
+            return _mongoCollections[analyzerMode]
                 .Aggregate()
                 .Match(dialog => dialog.EpisodeId == episodeId)
                 .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
@@ -380,11 +360,11 @@ namespace Erabikata.Backend.CollectionManagers
                 .Unwind(group => group.uniqueWordIds)
                 .Count()
                 .FirstAsync();
+        }
 
-        private record UnwoundDialog(int WordsToRank);
-
-        public Task<List<string>> GetOccurrences(AnalyzerMode mode, int wordId) =>
-            _mongoCollections[mode]
+        public Task<List<string>> GetOccurrences(AnalyzerMode mode, int wordId)
+        {
+            return _mongoCollections[mode]
                 .Find(
                     dialog => dialog.Lines.Any(
                         line => line.Words.Any(word => word.InfoIds.Contains(wordId))
@@ -392,6 +372,7 @@ namespace Erabikata.Backend.CollectionManagers
                 )
                 .Project(dialog => dialog.Id.ToString())
                 .ToListAsync();
+        }
 
         public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
         {
@@ -400,11 +381,13 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
-        public Task<string> GetEpisodeTitle(AnalyzerMode mode, int episodeId) =>
-            _mongoCollections[mode]
+        public Task<string> GetEpisodeTitle(AnalyzerMode mode, int episodeId)
+        {
+            return _mongoCollections[mode]
                 .Find(dialog => dialog.EpisodeId == episodeId)
                 .Project(dialog => dialog.EpisodeTitle)
                 .FirstOrDefaultAsync();
+        }
 
         public Task<List<Episode.Entry>> GetEpisodeDialog(AnalyzerMode mode, int episodeId)
         {
@@ -414,5 +397,19 @@ namespace Erabikata.Backend.CollectionManagers
                 .SortBy(entry => entry.Time)
                 .ToListAsync();
         }
+
+        public record UnwoundRank(object? _id, int rank, UnwoundWordCount counts);
+
+        public record UnwoundWordCount(int _id, int count);
+
+        private record IntermediateLine(Dialog.Word Words);
+
+        private record IntermediateDialog(IntermediateLine Lines);
+
+        public record WordRank(
+            [property: BsonId] string BaseForm,
+            [property: BsonElement("count")] long Count);
+
+        private record UnwoundDialog(int WordsToRank);
     }
 }

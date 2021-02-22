@@ -121,7 +121,7 @@ namespace Erabikata.Backend.Stolen
             foreach (var c in text)
             {
                 index++;
-                
+
                 while (node[c.BaseForm] == null && node != _root)
                     node = node.Fail;
 
@@ -156,8 +156,8 @@ namespace Erabikata.Backend.Stolen
             /// <param name="parent"></param>
             public Node(TNode word, Node<TNode, TNodeValue> parent)
             {
-                this.Word = word;
-                this.Parent = parent;
+                Word = word;
+                Parent = parent;
             }
 
             /// <summary>

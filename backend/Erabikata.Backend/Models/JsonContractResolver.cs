@@ -7,7 +7,7 @@ using NJsonSchema.Generation;
 namespace Erabikata.Backend.Models
 {
     /// <summary>
-    /// Contract resolver that (essentially) adds <code>[JsonProperty(Required = Required.Always]</code>
+    ///     Contract resolver that (essentially) adds <code>[JsonProperty(Required = Required.Always]</code>
     /// </summary>
     public class JsonContractResolver : CamelCasePropertyNamesContractResolver
     {
@@ -22,7 +22,6 @@ namespace Erabikata.Backend.Models
         {
             var contract = base.CreateObjectContract(objectType);
             foreach (var property in contract.Properties)
-            {
                 if (!property.HasMemberAttribute && property.UnderlyingName != null)
                 {
                     var contextualMember = objectType.GetMember(property.UnderlyingName)[0]
@@ -34,7 +33,6 @@ namespace Erabikata.Backend.Models
                     property.Required =
                         description.IsNullable ? Required.AllowNull : Required.Always;
                 }
-            }
 
             return contract;
         }

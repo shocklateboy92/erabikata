@@ -10,24 +10,18 @@ using System.Xml.Linq;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
-using Microsoft.Extensions.Logging;
 
 namespace Erabikata.Backend.CollectionMiddlewares
 {
     public class DictionaryProviderMiddleware : ICollectionMiddleware
     {
-        private readonly HttpClient _httpClient;
         private readonly DatabaseInfoManager _databaseInfo;
-        private readonly ILogger<DictionaryProviderMiddleware> _logger;
+        private readonly HttpClient _httpClient;
 
-        public DictionaryProviderMiddleware(
-            HttpClient httpClient,
-            DatabaseInfoManager databaseInfo,
-            ILogger<DictionaryProviderMiddleware> logger)
+        public DictionaryProviderMiddleware(HttpClient httpClient, DatabaseInfoManager databaseInfo)
         {
             _httpClient = httpClient;
             _databaseInfo = databaseInfo;
-            _logger = logger;
         }
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
@@ -60,8 +54,9 @@ namespace Erabikata.Backend.CollectionMiddlewares
             return await XElement.LoadAsync(stream, LoadOptions.None, CancellationToken.None);
         }
 
-        public static IEnumerable<WordInfo> ProcessDictionary(XContainer dictionaryIngestion) =>
-            dictionaryIngestion.Elements("entry")
+        public static IEnumerable<WordInfo> ProcessDictionary(XContainer dictionaryIngestion)
+        {
+            return dictionaryIngestion.Elements("entry")
                 .AsParallel()
                 .Select(
                     entry => new WordInfo(
@@ -99,5 +94,6 @@ namespace Erabikata.Backend.CollectionMiddlewares
                             .ToHashSet()
                     )
                 );
+        }
     }
 }
