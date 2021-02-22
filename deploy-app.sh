@@ -15,7 +15,7 @@ rm -rf $frontend_build_dir
 dotnet publish --configuration=Release $backend_dir/*.csproj
 
 MAKEFLAGS="-j13" yarn --cwd frontend install
-[[ "$@" =~ 'full' ]] && yarn --cwd frontend dev
+MAKEFLAGS="-j13" yarn --cwd frontend rtk
 yarn --cwd frontend build
 cp -rvf "$frontend_build_dir" "$www_dir"
 
