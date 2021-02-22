@@ -73,12 +73,6 @@ const dialogSlice = createSlice({
             .addCase(analyzerChangeRequest, (state) => initialState)
 });
 
-export const selectDialogContent = (
-    episodeId: string,
-    time: number,
-    state: RootState
-) => state.dialog.content[episodeId]?.[time];
-
 export const selectEpisodeTitle = (
     state: RootState,
     episodeId: string | null

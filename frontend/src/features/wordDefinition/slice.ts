@@ -4,12 +4,6 @@ import { WordDefinition, WordRank, WordsClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
 import { selectSelectedWords } from 'features/selectedWord';
 
-export interface IWordDefinition {
-    baseForm: string;
-    exact: WordDefinition[];
-    related: WordDefinition[];
-}
-
 const thunk: AsyncThunk<WordDefinition[], number[], {}> = createApiCallThunk(
     WordsClient,
     'fetchDefinitions',
