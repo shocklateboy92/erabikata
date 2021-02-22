@@ -27,9 +27,12 @@ namespace Erabikata.Backend.Controllers
                 return BadRequest($"'{episodeId}' is not a valid episode Id");
             }
 
+            var analyzerMode = analyzer.ToAnalyzerMode();
+
             return new Episode(
                 episodeId,
-                await _dialog.GetEpisodeDialog(analyzer.ToAnalyzerMode(), parsedId)
+                await _dialog.GetEpisodeTitle(analyzerMode, parsedId),
+                await _dialog.GetEpisodeDialog(analyzerMode, parsedId)
             );
         }
     }

@@ -2,7 +2,11 @@ import { AsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { DialogInfo, NowPlayingInfo, SubsClient } from 'backend.generated';
 import { createApiCallThunk } from 'features/auth/api';
-import { analyzerChangeRequest } from 'features/backendSelection';
+import {
+    analyzerChangeRequest,
+    selectAnalyzer
+} from 'features/backendSelection';
+import { apiEndpoints } from '../../backend';
 
 interface IDialogState {
     order: {
@@ -76,7 +80,14 @@ const dialogSlice = createSlice({
 export const selectEpisodeTitle = (
     state: RootState,
     episodeId: string | null
-) => state.dialog.titles[episodeId!];
+) => {
+    if (!episodeId) {
+        return;
+    }
+    const analyzer = selectAnalyzer(state);
+    return apiEndpoints.episodeIndex.select({ analyzer, episodeId })(state).data
+        ?.title;
+};
 
 export const selectNearbyDialog = (
     episodeId: string,
