@@ -33,6 +33,8 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
         return null;
     }
 
+    const priorities = definition.priorities;
+
     return (
         <div className={styles.definition}>
             <div className={styles.title}>
@@ -47,6 +49,11 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
                 <Pill>Global {definition.globalRank}</Pill>
             )}
             {episodeRank && <Pill>Episode {episodeRank}</Pill>}
+            {priorities.news && <Pill>News</Pill>}
+            {priorities.ichi && <Pill>Ichimango</Pill>}
+            {priorities.gai && <Pill>Loanword</Pill>}
+            {priorities.spec && <Pill>Special</Pill>}
+            {priorities.freq && <Pill>General</Pill>}
             {!readingsOnly &&
                 definition.english.map((english, index) => (
                     <div key={index} className={styles.sense}>

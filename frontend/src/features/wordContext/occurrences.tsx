@@ -1,7 +1,6 @@
 import { useTypedSelector } from 'app/hooks';
 import { Dialog } from 'features/dialog/Dialog';
 import React, { FC, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import styles from './wordContext.module.scss';
 import { useWordsOccurrencesQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';

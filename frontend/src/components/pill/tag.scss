@@ -1,23 +1,30 @@
 $pill-radius: 5px;
 
 .pill {
-  font-size: small;
-  margin-right: 1vh;
+    font-size: small;
+    margin-right: $pill-radius;
 
-  > * {
-    border: white 1px solid;
+    > * {
+        border: white 1px solid;
+        display: inline-block;
 
-    &:last-child {
-      background: white;
-      color: black;
+        &:last-child {
+            &:not(&:first-child) {
+                background: white;
+                color: black;
+            }
 
-      padding: 0 $pill-radius;
-      border-radius: 0 $pill-radius $pill-radius 0;
+            padding: 0 $pill-radius;
+            border-radius: 0 $pill-radius $pill-radius 0;
+        }
+
+        &:first-child {
+            padding: 0 $pill-radius;
+            border-radius: $pill-radius 0 0 $pill-radius;
+        }
+
+        &:only-child {
+            border-radius: $pill-radius;
+        }
     }
-
-    &:first-child {
-      padding-left: $pill-radius;
-      border-radius: $pill-radius 0 0 $pill-radius;
-    }
-  }
 }
