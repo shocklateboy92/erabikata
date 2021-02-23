@@ -13,6 +13,8 @@ import {
     selectNearestSelectedDialog,
     selectSelectedEnglishDialog,
     selectSelectedEpisodeContent,
+    selectedWordCycleRequest,
+    selectedWordReverseCycleRequest,
     selectSelectedWord,
     selectSelectedWordOccurrences,
     selectSelectedWords
@@ -152,6 +154,20 @@ const handlers: {
                     context: selectSelectedWordOccurrences(getState())
                 })
             );
+        }
+    },
+    {
+        key: 'h',
+        alt: true,
+        action: (dispatch) => {
+            dispatch(selectedWordCycleRequest());
+        }
+    },
+    {
+        key: 'l',
+        alt: true,
+        action: (dispatch) => {
+            dispatch(selectedWordReverseCycleRequest());
         }
     },
     {

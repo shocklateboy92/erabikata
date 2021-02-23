@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DialogInfo } from 'backend.generated';
 import { selectionClearRequest } from './actions';
-import { Entry, WordOccurrence } from "../../backend-rtk.generated";
+import { Entry, WordOccurrence } from '../../backend-rtk.generated';
 
 interface ISelectedWordState {
     sentenceTimestamp?: number;
@@ -134,7 +134,10 @@ const slice = createSlice({
             state,
             {
                 payload: { direction, context }
-            }: PayloadAction<{ context?: WordOccurrence[]; direction: Direction }>
+            }: PayloadAction<{
+                context?: WordOccurrence[];
+                direction: Direction;
+            }>
         ) => {
             if (!context?.length) {
                 return state;
@@ -178,6 +181,22 @@ const slice = createSlice({
             };
         },
 
+        selectedWordCycleRequest: ({
+            wordIds: [first, ...rest],
+            ...state
+        }) => ({ ...state, wordIds: first ? [...rest, first] : [] }),
+
+        selectedWordReverseCycleRequest: ({ wordIds, ...state }) => ({
+            ...state,
+            wordIds:
+                wordIds.length > 1
+                    ? [
+                          wordIds[wordIds.length - 1],
+                          ...wordIds.slice(0, wordIds.length - 1)
+                      ]
+                    : wordIds
+        }),
+
         wordSelectionV2: (state, { payload }: PayloadAction<number[]>) => ({
             ...state,
             wordIds: payload
@@ -210,6 +229,8 @@ export const {
     dialogSelection,
     dialogWordShift,
     episodeDialogShift,
+    selectedWordCycleRequest,
+    selectedWordReverseCycleRequest,
     occurrenceShift,
     wordSelectionV2,
     dialogWordSelectionV2
