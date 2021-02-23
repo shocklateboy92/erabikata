@@ -13,6 +13,7 @@ import {
 import styles from './wordDefinition.module.scss';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { Pill } from '../../components/pill';
+import { Link } from 'react-router-dom';
 
 const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     wordId,
@@ -46,7 +47,9 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
                 ))}
             </div>
             {definition.globalRank && (
-                <Pill>Global {definition.globalRank}</Pill>
+                <Link to={`/ui/word/${wordId}?word=${wordId}`}>
+                    <Pill>Global {definition.globalRank}</Pill>
+                </Link>
             )}
             {episodeRank && <Pill>Episode {episodeRank}</Pill>}
             {priorities.news && <Pill>News</Pill>}
