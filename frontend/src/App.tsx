@@ -7,6 +7,7 @@ import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import './App.css';
 import './app.scss';
 import { NowPlaying } from './features/nowPlaying';
+import { StylesPageRoute } from "./features/engDialog";
 
 const UiRedirect: FC = () => (
     <Redirect to={'/ui' + window.location.pathname + window.location.search} />
@@ -34,6 +35,7 @@ function App() {
                 <Route path="/ui/nowPlaying">
                     <NowPlaying />
                 </Route>
+                <StylesPageRoute />
                 <Route path="/ui/*">
                     <Redirect to="/ui/nowPlaying" />
                 </Route>
