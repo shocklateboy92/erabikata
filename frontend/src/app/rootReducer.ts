@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { authReducer } from 'features/auth/slice';
 import { backendReducer } from 'features/backendSelection';
-import { engDialogReducer } from 'features/engDialog/slice';
 import { furiganaReducer } from 'features/furigana/slice';
 import { hassReducer } from 'features/hass';
 import { notificationReducer } from 'features/notifications';
@@ -17,7 +16,6 @@ const rootReducer = combineReducers({
     selectedWord: selectedWordReducer,
     wordDefinitions: wordDefinitionReducer,
     furigana: furiganaReducer,
-    engDialog: engDialogReducer,
     backend: backendReducer,
     todoist: todoistReducer,
     wakeLock: wakeLockReducer,

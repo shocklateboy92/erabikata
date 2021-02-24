@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import { EngDialog } from './engDialog';
-import './slice';
 import { useEngSubsIndexQuery } from 'backend';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 
