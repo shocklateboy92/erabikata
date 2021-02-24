@@ -15,6 +15,7 @@ export const CloseButton: FC = () => {
 
     return (
         <HeaderButton
+            hideOnMobile
             icon={mdiClose}
             onClick={() => {
                 dispatch(selectionClearRequest());
