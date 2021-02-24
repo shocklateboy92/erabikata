@@ -22,7 +22,7 @@ const StyleView: FC<{ styleName: string }> = ({ styleName }) => {
     return (
         <>
             {response.data.dialog.map((sub) => (
-                <EngDialog content={sub} />
+                <EngDialog key={sub.id} content={sub} />
             ))}
         </>
     );

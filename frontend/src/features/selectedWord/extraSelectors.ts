@@ -1,24 +1,20 @@
 import { RootState } from '../../app/rootReducer';
-import {
-    selectEnglishDialogContent,
-    selectNearbyEnglishDialog
-} from '../engDialog/slice';
+import { apiEndpoints } from '../../backend';
 
 export const selectSelectedEnglishDialog = (state: RootState) => {
-    const { episode, sentenceTimestamp } = state.selectedWord;
-    if (!episode || !sentenceTimestamp) {
+    const { episode: episodeId, sentenceTimestamp: time } = state.selectedWord;
+    if (!episodeId || !time) {
         return;
     }
 
-    const nearest = selectNearbyEnglishDialog(
-        state,
-        episode,
-        sentenceTimestamp,
-        1
-    );
-    if (nearest.length < 1) {
+    const { data } = apiEndpoints.engSubsIndex.select({
+        episodeId,
+        time,
+        count: 3
+    })(state);
+    if (!data) {
         return;
     }
 
-    return selectEnglishDialogContent(state, episode, nearest[0]);
+    return data.dialog[Math.floor(data.dialog.length / 2)];
 };
