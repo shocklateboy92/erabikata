@@ -26,7 +26,7 @@ namespace Erabikata.Backend.Controllers
 
         public async Task<ActionResult<EngSubsResponse>> Index(
             string episodeId,
-            double timeStamp,
+            double time,
             int count = 3)
         {
             if (!int.TryParse(episodeId, out var episode))
@@ -37,7 +37,7 @@ namespace Erabikata.Backend.Controllers
             var styles = await _styleFilterCollection.GetActiveStylesFor(episode);
             var subs = await _engSubCollectionManager.GetNearestSubs(
                 episode,
-                timeStamp,
+                time,
                 count,
                 styles
             );
@@ -67,9 +67,16 @@ namespace Erabikata.Backend.Controllers
             );
         }
 
-        public record StylesOfResponse(
-            int ShowId,
-            IEnumerable<AggregateSortByCountResult<string>> AllStyles,
-            IEnumerable<string> EnabledStyles);
+        [Route("[action]")]
+        public async Task<EngSubsResponse> ByStyleName(
+            string styleName,
+            [FromQuery] PagingInfo pagingInfo)
+        {
+            var subs = await _engSubCollectionManager.GetByStyleName(styleName, pagingInfo);
+            return new EngSubsResponse
+            {
+                Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
+            };
+        }
     }
 }

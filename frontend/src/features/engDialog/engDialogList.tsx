@@ -1,33 +1,24 @@
-import { useAppSelector } from 'app/hooks';
-import React from 'react';
-import { FC, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { FC } from 'react';
 import { EngDialog } from './engDialog';
 import './slice';
-import { fetchEnglishDialog, selectNearbyEnglishDialog } from './slice';
+import { useEngSubsIndexQuery } from 'backend';
+import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 
 export interface IEngDialogProps {
     time: number;
     episodeId: string;
 }
-export const EngDialogList: FC<IEngDialogProps> = ({ episodeId, time }) => {
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(fetchEnglishDialog([episodeId, time]));
-    }, [dispatch, episodeId, time]);
 
-    const dialog = useAppSelector((state) =>
-        selectNearbyEnglishDialog(state, episodeId, time)
-    );
+export const EngDialogList: FC<IEngDialogProps> = ({ episodeId, time }) => {
+    const response = useEngSubsIndexQuery({ episodeId, time, count: 3 });
+    if (!response.data) {
+        return <QueryPlaceholder result={response} />;
+    }
 
     return (
         <>
-            {dialog.map((dialogTime) => (
-                <EngDialog
-                    key={dialogTime}
-                    episodeId={episodeId}
-                    time={dialogTime}
-                />
+            {response.data.dialog.map((content) => (
+                <EngDialog key={content.id} content={content} />
             ))}
         </>
     );

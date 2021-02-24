@@ -1,14 +1,31 @@
-import { useEngSubsStylesOfQuery } from 'backend';
-import { FC } from 'react';
+import { useEngSubsByStyleNameQuery, useEngSubsStylesOfQuery } from 'backend';
+import { FC, Fragment } from 'react';
 import { Page } from '../../components/page';
 import { useParams } from 'react-router-dom';
 import { FullPageError } from '../../components/fullPageError';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { Drawer } from '../../components/drawer';
 import { Separator } from '../../components/separator';
+import { EngDialog } from './engDialog';
+import { SelectedWord } from '../selectedWord';
 
-const StyleView: FC<{ style: string }> = ({ style }) => {
-    return <Drawer summary={style}>yolo?</Drawer>;
+const StyleView: FC<{ styleName: string }> = ({ styleName }) => {
+    const response = useEngSubsByStyleNameQuery({
+        styleName,
+        skip: 0,
+        max: 30
+    });
+    if (!response.data) {
+        return <QueryPlaceholder result={response} />;
+    }
+
+    return (
+        <>
+            {response.data.dialog.map((sub) => (
+                <EngDialog content={sub} />
+            ))}
+        </>
+    );
 };
 
 export const StylesPage: FC = () => {
@@ -32,12 +49,14 @@ export const StylesPage: FC = () => {
     }
 
     return (
-        <Page title="Style Filter">
+        <Page title="Style Filter" secondaryChildren={() => <SelectedWord />}>
             {response.data.allStyles.map((style, index) => (
-                <>
+                <Fragment key={style.id}>
                     {index > 0 && <Separator />}
-                    <StyleView key={style.id} style={style.id} />
-                </>
+                    <Drawer summary={style.id}>
+                        <StyleView styleName={style.id} />
+                    </Drawer>
+                </Fragment>
             ))}
         </Page>
     );

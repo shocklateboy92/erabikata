@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Erabikata.Backend.Models.Output;
 using Google.Protobuf;
 using Grpc.Core;
 using Grpc.Core.Utils;
@@ -150,6 +151,14 @@ namespace Erabikata.Backend.CollectionManagers
                 .SortByCount(sub => sub.Style);
 
             return await cursor.ToListAsync();
+        }
+
+        public Task<List<EngSub>> GetByStyleName(string styleName, PagingInfo pagingInfo)
+        {
+            return _mongoCollection.Find(sub => sub.Style == styleName)
+                .Skip(pagingInfo.Skip)
+                .Limit(pagingInfo.Max)
+                .ToListAsync();
         }
     }
 }

@@ -1,6 +1,5 @@
-import { useAppSelector, useTypedSelector } from 'app/hooks';
+import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
-import { InlineError } from 'components/inlineError';
 import { formatTime } from 'components/time';
 import {
     dialogSelection,
@@ -8,36 +7,26 @@ import {
 } from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
-import { IEngDialogProps } from './engDialogList';
-import { selectEnglishDialogContent } from './slice';
+import { Sentence } from '../../backend-rtk.generated';
 
-export const EngDialog: FC<IEngDialogProps> = ({ episodeId, time }) => {
-    const content = useAppSelector((state) =>
-        selectEnglishDialogContent(state, episodeId, time)
-    );
+export const EngDialog: FC<{ content: Sentence }> = ({
+    content: { episodeId, text, time }
+}) => {
     const highlightColor = useTypedSelector((state) =>
         selectIsCurrentlySelected(state, episodeId, time)
     );
     const dispatch = useDispatch();
 
-    if (!content) {
-        return (
-            <InlineError>
-                Trying to display an english dialog that has not been fetched
-            </InlineError>
-        );
-    }
-
     return (
         <p
             className={classNames({ highlightColor })}
             onClick={() => {
-                dispatch(dialogSelection({ time: content.time }));
+                dispatch(dialogSelection({ time: time, episode: episodeId }));
             }}
         >
-            {formatTime(content.time)}
+            {formatTime(time)}
             <br />
-            {content.text?.map((text, index) => (
+            {text.map((text, index) => (
                 <Fragment key={index}>
                     {index > 0 && <br />}
                     {text}

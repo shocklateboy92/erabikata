@@ -19,6 +19,8 @@ export const {
     useSubsByIdQuery,
     useWordsRanked2Query,
     useEpisodeIndexQuery,
+    useEngSubsIndexQuery,
+    useEngSubsByStyleNameQuery,
     useEngSubsStylesOfQuery
 } = api;
 
