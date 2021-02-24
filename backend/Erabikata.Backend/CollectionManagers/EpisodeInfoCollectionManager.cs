@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using MongoDB.Driver;
@@ -26,7 +27,7 @@ namespace Erabikata.Backend.CollectionManagers
                             ingest => ingest.Info.Episodes[0]
                                 .Select(
                                     info => new EpisodeInfo(
-                                        int.Parse(info.Key.Split('/').Last()),
+                                        info.Key.ParseId(),
                                         info.File
                                     )
                                 )

@@ -1,9 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Output;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -44,5 +46,30 @@ namespace Erabikata.Backend.Controllers
                 Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
             };
         }
+
+        [Route("[action]/{showId}")]
+        public async Task<StylesOfResponse> StylesOf(int showId)
+        {
+            var showInfo = await _styleFilterCollection.GetByShowId(showId);
+            if (showInfo == null)
+            {
+                return new StylesOfResponse(
+                    showId,
+                    Array.Empty<AggregateSortByCountResult<string>>(),
+                    Array.Empty<string>()
+                );
+            }
+
+            return new StylesOfResponse(
+                showId,
+                await _engSubCollectionManager.GetAllStylesOf(showInfo.ForEpisodes),
+                showInfo.EnabledStyles
+            );
+        }
+
+        public record StylesOfResponse(
+            int ShowId,
+            IEnumerable<AggregateSortByCountResult<string>> AllStyles,
+            IEnumerable<string> EnabledStyles);
     }
 }

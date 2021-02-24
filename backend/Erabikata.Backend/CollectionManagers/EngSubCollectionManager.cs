@@ -141,5 +141,15 @@ namespace Erabikata.Backend.CollectionManagers
                 .SortBy(sub => sub.Time)
                 .ToListAsync();
         }
+
+        public async Task<List<AggregateSortByCountResult<string>>> GetAllStylesOf(
+            IEnumerable<int> episodeIds)
+        {
+            var cursor = _mongoCollection.Aggregate()
+                .Match(sub => episodeIds.Contains(sub.EpisodeId))
+                .SortByCount(sub => sub.Style);
+
+            return await cursor.ToListAsync();
+        }
     }
 }

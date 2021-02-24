@@ -66,5 +66,8 @@ namespace Erabikata.Backend.CollectionManagers
                 .Project(filter => filter.EnabledStyles)
                 .FirstOrDefaultAsync();
         }
+
+        public async Task<StyleFilter?> GetByShowId(int showId) =>
+            await _mongoCollection.Find(filter => filter.ShowId == showId).FirstOrDefaultAsync();
     }
 }
