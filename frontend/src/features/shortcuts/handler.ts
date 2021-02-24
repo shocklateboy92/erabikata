@@ -11,7 +11,6 @@ import {
     episodeDialogShift,
     occurrenceShift,
     selectNearestSelectedDialog,
-    selectSelectedEnglishDialog,
     selectSelectedEpisodeContent,
     selectedWordCycleRequest,
     selectedWordReverseCycleRequest,
@@ -23,6 +22,7 @@ import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
+import { selectSelectedEnglishDialog } from '../engDialog';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,

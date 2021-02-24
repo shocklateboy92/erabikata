@@ -1,8 +1,11 @@
-import { RootState } from '../../app/rootReducer';
-import { apiEndpoints } from '../../backend';
+import { RootState } from 'app/rootReducer';
+import { apiEndpoints } from 'backend';
+import { selectSelectedWord } from 'features/selectedWord';
 
 export const selectSelectedEnglishDialog = (state: RootState) => {
-    const { episode: episodeId, sentenceTimestamp: time } = state.selectedWord;
+    const { episode: episodeId, sentenceTimestamp: time } = selectSelectedWord(
+        state
+    );
     if (!episodeId || !time) {
         return;
     }
