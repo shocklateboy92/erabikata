@@ -48,7 +48,7 @@ export const NowPlaying: FC = () => {
             title={session.media.title}
         >
             <DialogList
-                count={3}
+                count={5}
                 episode={session.media.id.toString()}
                 time={session.media.position}
             />
