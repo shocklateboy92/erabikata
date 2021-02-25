@@ -1,4 +1,10 @@
-import { useEngSubsByStyleNameQuery, useEngSubsStylesOfQuery } from 'backend';
+import {
+    useActionsExecuteMutation,
+    useEngSubsActiveStylesForQuery,
+    useEngSubsByStyleNameQuery,
+    useEngSubsStylesOfQuery,
+    useExecuteActionMutation
+} from 'backend';
 import { FC, Fragment } from 'react';
 import { Page } from '../../components/page';
 import { useParams } from 'react-router-dom';
@@ -8,6 +14,8 @@ import { Drawer } from '../../components/drawer';
 import { Separator } from '../../components/separator';
 import { EngDialog } from './engDialog';
 import { SelectedWord } from '../selectedWord';
+import { ActionButton } from '../../components/button/actionButton';
+import { mdiToggleSwitchOffOutline, mdiToggleSwitchOutline } from '@mdi/js';
 
 const StyleView: FC<{ styleName: string }> = ({ styleName }) => {
     const response = useEngSubsByStyleNameQuery({
@@ -25,6 +33,39 @@ const StyleView: FC<{ styleName: string }> = ({ styleName }) => {
                 <EngDialog key={sub.id} content={sub} />
             ))}
         </>
+    );
+};
+
+const ToggleStyleAction: FC<{ showId: number; styleName: string }> = ({
+    showId,
+    styleName
+}) => {
+    const { enabled } = useEngSubsActiveStylesForQuery(
+        { showId },
+        {
+            selectFromResult: (response) => ({
+                enabled: response.data?.includes(styleName)
+            })
+        }
+    );
+
+    const [executeAction, { isLoading }] = useExecuteActionMutation();
+
+    if (enabled === undefined || isLoading) {
+        return null;
+    }
+
+    return (
+        <ActionButton
+            icon={enabled ? mdiToggleSwitchOutline : mdiToggleSwitchOffOutline}
+            onClick={() =>
+                executeAction({
+                    activityType: enabled ? 'DisableStyle' : 'EnableStyle',
+                    showId,
+                    styleName
+                })
+            }
+        />
     );
 };
 
@@ -53,7 +94,15 @@ export const StylesPage: FC = () => {
             {response.data.allStyles.map((style, index) => (
                 <Fragment key={style.id}>
                     {index > 0 && <Separator />}
-                    <Drawer summary={style.id}>
+                    <Drawer
+                        summary={style.id}
+                        extraActions={() => (
+                            <ToggleStyleAction
+                                showId={showId}
+                                styleName={style.id}
+                            />
+                        )}
+                    >
                         <StyleView styleName={style.id} />
                     </Drawer>
                 </Fragment>

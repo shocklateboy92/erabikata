@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -56,6 +57,24 @@ namespace Erabikata.Backend.CollectionManagers
                         await _mongoCollection.InsertManyAsync(toInsert);
                     }
 
+                    break;
+                case EnableStyle toEnable:
+                    await _mongoCollection.UpdateOneAsync(
+                        filter => filter.ShowId == toEnable.ShowId,
+                        Builders<StyleFilter>.Update.AddToSet(
+                            filter => filter.EnabledStyles,
+                            toEnable.StyleName
+                        )
+                    );
+                    break;
+                case DisableStyle toDisable:
+                    await _mongoCollection.UpdateOneAsync(
+                        filter => filter.ShowId == toDisable.ShowId,
+                        Builders<StyleFilter>.Update.Pull(
+                            filter => filter.EnabledStyles,
+                            toDisable.StyleName
+                        )
+                    );
                     break;
             }
         }

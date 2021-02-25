@@ -80,10 +80,11 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("list")]
-        public async Task<List<ActivityExecution>> List()
+        public Task<List<ActivityExecution>> List()
         {
-            using var cursor = await _mongo.FindAsync(FilterDefinition<ActivityExecution>.Empty);
-            return await cursor.ToListAsync();
+            return _mongo.Find(FilterDefinition<ActivityExecution>.Empty)
+                .SortByDescending(execution => execution.Id)
+                .ToListAsync();
         }
     }
 }

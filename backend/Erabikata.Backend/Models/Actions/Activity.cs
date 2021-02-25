@@ -12,6 +12,8 @@ namespace Erabikata.Backend.Models.Actions
         typeof(DictionaryUpdate),
         typeof(IncludePartOfSpeech),
         typeof(ExcludePartOfSpeech),
+        typeof(EnableStyle),
+        typeof(DisableStyle),
         typeof(BeginIngestion),
         typeof(EndIngestion)
     )]
@@ -21,6 +23,8 @@ namespace Erabikata.Backend.Models.Actions
     [KnownType(typeof(DictionaryUpdate))]
     [KnownType(typeof(IncludePartOfSpeech))]
     [KnownType(typeof(ExcludePartOfSpeech))]
+    [KnownType(typeof(EnableStyle))]
+    [KnownType(typeof(DisableStyle))]
     [KnownType(typeof(BeginIngestion))]
     [KnownType(typeof(EndIngestion))]
     public record Activity

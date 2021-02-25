@@ -1,18 +1,69 @@
-import { api as generatedApi } from './backend-rtk.generated';
+import {
+    ActionsExecuteApiArg,
+    ActionsExecuteApiResponse,
+    api as generatedApi
+} from './backend-rtk.generated';
+import { Activity, DisableStyle, EnableStyle } from './backend.generated';
 
-const api = generatedApi.enhanceEndpoints({
-    addEntityTypes: ['WordOccurrences', 'Dialog'],
-    endpoints: {
-        wordsOccurrences: {
-            provides: (response) => [
-                {
-                    type: 'WordOccurrences',
-                    id: response.wordId
+const api = generatedApi
+    .enhanceEndpoints({
+        addEntityTypes: [
+            'WordOccurrences',
+            'Dialog',
+            'EngDialog',
+            'ActiveStyle'
+        ],
+        endpoints: {
+            actionsExecute: {
+                invalidates: (_, { activity }) => {
+                    switch (activity.activityType) {
+                        case 'EnableStyle':
+                        case 'DisableStyle':
+                            return ['EngDialog', 'ActiveStyle'];
+                        default:
+                            return [];
+                    }
                 }
-            ]
+            },
+            engSubsActiveStylesFor: {
+                provides: ['ActiveStyle']
+            },
+            engSubsIndex: {
+                provides: ['EngDialog']
+            },
+            wordsOccurrences: {
+                provides: (response) => [
+                    {
+                        type: 'WordOccurrences',
+                        id: response.wordId
+                    }
+                ]
+            }
         }
-    }
-});
+    })
+    .injectEndpoints({
+        endpoints: (build) => ({
+            executeAction: build.mutation<
+                ActionsExecuteApiResponse,
+                EnableStyle | DisableStyle
+            >({
+                query: (queryArg) => ({
+                    url: `/api/Actions/execute`,
+                    method: 'POST',
+                    body: queryArg
+                }),
+                invalidates: (_, { activityType }) => {
+                    switch (activityType) {
+                        case 'EnableStyle':
+                        case 'DisableStyle':
+                            return ['EngDialog', 'ActiveStyle'];
+                        default:
+                            return [];
+                    }
+                }
+            })
+        })
+    });
 
 export const {
     useWordsOccurrencesQuery,
@@ -20,6 +71,9 @@ export const {
     useWordsRanked2Query,
     useEpisodeIndexQuery,
     useEngSubsIndexQuery,
+    useActionsExecuteMutation,
+    useExecuteActionMutation,
+    useEngSubsActiveStylesForQuery,
     useEngSubsByStyleNameQuery,
     useEngSubsStylesOfQuery
 } = api;

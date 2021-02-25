@@ -35,12 +35,7 @@ namespace Erabikata.Backend.Controllers
             }
 
             var styles = await _styleFilterCollection.GetActiveStylesFor(episode);
-            var subs = await _engSubCollectionManager.GetNearestSubs(
-                episode,
-                time,
-                count,
-                styles
-            );
+            var subs = await _engSubCollectionManager.GetNearestSubs(episode, time, count, styles);
             return new EngSubsResponse
             {
                 Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
@@ -65,6 +60,13 @@ namespace Erabikata.Backend.Controllers
                 await _engSubCollectionManager.GetAllStylesOf(showInfo.ForEpisodes),
                 showInfo.EnabledStyles
             );
+        }
+
+        [Route("[action]/{showId}")]
+        public async Task<IEnumerable<string>> ActiveStylesFor(int showId)
+        {
+            var show = await _styleFilterCollection.GetByShowId(showId);
+            return show?.EnabledStyles ?? Array.Empty<string>();
         }
 
         [Route("[action]")]
