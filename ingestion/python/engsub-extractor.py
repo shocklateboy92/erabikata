@@ -9,7 +9,7 @@ import ffmpeg
 import pprint
 
 MEDIA_ROOT = "/mnt/net/media"
-TRACKS_FILE_NAME = 'include_tracks.txt'
+TRACKS_FILE_NAME = "include_tracks.txt"
 
 input_root = argv[1] if len(argv) > 1 else "../../anime-subs"
 show_paths = [
@@ -48,10 +48,16 @@ def do_extract(input: str, output: Path):
         if len(subs) > 1:
             tracks_file = output.with_name(TRACKS_FILE_NAME)
             if not tracks_file.exists():
-                raise NotImplementedError(f"File has more than one subtitle but no `{TRACKS_FILE_NAME}` file:\n{pprint.pformat(subs)}")
+                raise NotImplementedError(
+                    f"File has more than one subtitle but no `{TRACKS_FILE_NAME}` file:\n{pprint.pformat(subs)}"
+                )
 
             include_tracks = [s.strip() for s in tracks_file.read_text().splitlines()]
-            track_arg = next({'map': f"0:{f['index']}"} for f in subs if f['tags']['title'] in include_tracks)
+            track_arg = next(
+                {"map": f"0:{f['index']}"}
+                for f in subs
+                if f["tags"]["title"] in include_tracks
+            )
 
         job = ffmpeg.input(input).output(str(output), **track_arg)
         ffmpeg.run(job, quiet=True)
