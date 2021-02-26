@@ -41,6 +41,8 @@ def do_extract(input: str, output: Path):
 
         info = ffmpeg.probe(input)
         subs = [s for s in info["streams"] if s["codec_type"] == "subtitle"]
+        if len(subs) > 1:
+            subs = [s for s in subs if s["tags"]["language"] == "eng"]
 
         track_arg = {}
         if len(subs) > 1:
