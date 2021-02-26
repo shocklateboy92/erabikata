@@ -62,32 +62,9 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public async Task<object> Search(string query, Analyzer analyzer = Analyzer.SudachiC)
+        public async Task<IEnumerable<int>> Search(string query)
         {
-            var matchingDialog =
-                await _dialogCollectionManager.GetFuzzyMatches(query, analyzer.ToAnalyzerMode());
-            var matches = matchingDialog.SelectMany(sentenceV2 => sentenceV2.Lines)
-                .SelectMany(
-                    line => line.Words.Where(
-                        analyzed => analyzed.DictionaryForm.Contains(query) ||
-                                    analyzed.BaseForm.Contains(query)
-                    )
-                )
-                .GroupBy(analyzed => analyzed.BaseForm)
-                .Select(
-                    group => new
-                    {
-                        baseForm = group.Key,
-                        link =
-                            $"{Request.Scheme}://{Request.Host}/word/{group.Key}?word={group.Key}",
-                        dictionaryForms =
-                            group.Select(analyzed => analyzed.DictionaryForm).Distinct(),
-                        ids = group.SelectMany(analyzed => analyzed.InfoIds).Distinct()
-                    }
-                );
-
-            return new {matches};
+            return await _wordInfo.SearchWords(query);
         }
 
         [HttpGet]

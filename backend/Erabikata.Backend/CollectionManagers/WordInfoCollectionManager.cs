@@ -105,5 +105,13 @@ namespace Erabikata.Backend.CollectionManagers
         }
 
         public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
+
+        public Task<List<int>> SearchWords(string query) =>
+            _mongoCollection.Find(
+                    word => word.Kanji.Any(kanji => kanji.Contains(query)) ||
+                            word.Readings.Any(reading => reading.Contains(query))
+                )
+                .Project(word => word.Id)
+                .ToListAsync();
     }
 }

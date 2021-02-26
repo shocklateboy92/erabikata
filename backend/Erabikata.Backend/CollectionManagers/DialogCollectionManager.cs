@@ -258,22 +258,6 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
-        public Task<List<Dialog>> GetFuzzyMatches(
-            string baseOrDictionaryForm,
-            AnalyzerMode analyzerMode)
-        {
-            return _mongoCollections[analyzerMode]
-                .Find(
-                    dialog => dialog.Lines.Any(
-                        line => line.Words.Any(
-                            word => word.BaseForm.Contains(baseOrDictionaryForm) ||
-                                    word.DictionaryForm.Contains(baseOrDictionaryForm)
-                        )
-                    )
-                )
-                .ToListAsync();
-        }
-
         public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
             AnalyzerMode mode,
             int episodeId,
