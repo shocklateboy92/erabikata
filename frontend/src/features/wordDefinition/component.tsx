@@ -1,21 +1,11 @@
-import { mdiPageNextOutline } from '@mdi/js';
-import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
-import { Drawer } from 'components/drawer';
 import { isKana } from 'features/furigana';
-import React, { FC, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import {
-    fetchDefinitionsIfNeeded,
-    fetchEpisodeRanksIfNeeded,
-    readingsOnlyModeToggle
-} from './slice';
+import React, { FC } from 'react';
 import styles from './wordDefinition.module.scss';
-import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { Pill } from '../../components/pill';
 import { Link } from 'react-router-dom';
 
-const Definition: FC<{ wordId: number; episodeId?: string }> = ({
+export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     wordId,
     episodeId
 }) => {
@@ -73,46 +63,5 @@ const Definition: FC<{ wordId: number; episodeId?: string }> = ({
                     </div>
                 ))}
         </div>
-    );
-};
-
-export const WordDefinition: FC<{
-    wordIds: number[];
-    exact?: boolean;
-    initiallyOpen: boolean;
-    toggleDefinition?: boolean;
-}> = ({ wordIds, initiallyOpen, exact, toggleDefinition }) => {
-    const selectedEpisode = useTypedSelector(selectSelectedEpisodeId);
-
-    const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(fetchDefinitionsIfNeeded(wordIds));
-        selectedEpisode &&
-            dispatch(fetchEpisodeRanksIfNeeded([selectedEpisode, wordIds]));
-    }, [wordIds, selectedEpisode, dispatch]);
-
-    const results = useTypedSelector(selectSelectedWords);
-
-    const definition = exact ? results.slice(0, 1) : results.slice(1);
-    return (
-        <Drawer
-            summary={exact ? 'Definition' : 'Related Words'}
-            extraActions={(iconSize) =>
-                toggleDefinition && (
-                    <button onClick={() => dispatch(readingsOnlyModeToggle())}>
-                        <Icon path={mdiPageNextOutline} size={iconSize} />
-                    </button>
-                )
-            }
-            startOpen={initiallyOpen}
-        >
-            {definition.map((word) => (
-                <Definition
-                    key={word}
-                    wordId={word}
-                    episodeId={selectedEpisode}
-                />
-            ))}
-        </Drawer>
     );
 };

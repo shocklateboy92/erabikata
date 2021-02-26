@@ -1,29 +1,23 @@
 import { useTypedSelector } from 'app/hooks';
 import { Separator } from 'components/separator';
 import { OccurrencesDrawer } from 'features/wordContext';
-import { WordDefinition } from 'features/wordDefinition';
+import { WordDefinitionDrawer } from 'features/wordDefinition';
 import React, { FC } from 'react';
 import { DialogDrawer } from '../dialog/DialogDrawer';
-import { selectSelectedWord, shouldShowPanel } from './selectors';
+import { shouldShowPanel } from './selectors';
 import { ImageContextDrawer } from '../imageContext/drawer';
 import { EngDialogDrawer } from '../engDialog/drawer';
 
 export const SelectedWord: FC = () => {
-    const { wordIds } = useTypedSelector(selectSelectedWord);
     if (!useTypedSelector(shouldShowPanel)) {
         return null;
     }
 
     return (
         <div>
-            <WordDefinition
-                exact
-                wordIds={wordIds}
-                initiallyOpen
-                toggleDefinition
-            />
+            <WordDefinitionDrawer exact initiallyOpen toggleDefinition />
             <Separator />
-            <WordDefinition wordIds={wordIds} initiallyOpen={false} />
+            <WordDefinitionDrawer initiallyOpen={false} />
             <Separator />
             <DialogDrawer />
             <Separator />
