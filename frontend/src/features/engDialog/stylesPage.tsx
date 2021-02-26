@@ -1,5 +1,4 @@
 import {
-    useActionsExecuteMutation,
     useEngSubsActiveStylesForQuery,
     useEngSubsByStyleNameQuery,
     useEngSubsStylesOfQuery,
@@ -17,8 +16,12 @@ import { SelectedWord } from '../selectedWord';
 import { ActionButton } from '../../components/button/actionButton';
 import { mdiToggleSwitchOffOutline, mdiToggleSwitchOutline } from '@mdi/js';
 
-const StyleView: FC<{ styleName: string }> = ({ styleName }) => {
+const StyleView: FC<{ showId: number; styleName: string }> = ({
+    showId,
+    styleName
+}) => {
     const response = useEngSubsByStyleNameQuery({
+        showId,
         styleName,
         skip: 0,
         max: 30
@@ -103,7 +106,7 @@ export const StylesPage: FC = () => {
                             />
                         )}
                     >
-                        <StyleView styleName={style.id} />
+                        <StyleView styleName={style.id} showId={showId} />
                     </Drawer>
                 </Fragment>
             ))}

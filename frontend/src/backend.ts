@@ -1,9 +1,8 @@
 import {
-    ActionsExecuteApiArg,
     ActionsExecuteApiResponse,
     api as generatedApi
 } from './backend-rtk.generated';
-import { Activity, DisableStyle, EnableStyle } from './backend.generated';
+import { DisableStyle, EnableStyle } from './backend.generated';
 
 const api = generatedApi
     .enhanceEndpoints({

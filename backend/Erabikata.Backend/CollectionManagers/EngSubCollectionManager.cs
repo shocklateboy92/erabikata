@@ -153,9 +153,13 @@ namespace Erabikata.Backend.CollectionManagers
             return await cursor.ToListAsync();
         }
 
-        public Task<List<EngSub>> GetByStyleName(string styleName, PagingInfo pagingInfo)
+        public Task<List<EngSub>> GetByStyleName(
+            IEnumerable<int> episodeIds,
+            string styleName,
+            PagingInfo pagingInfo)
         {
-            return _mongoCollection.Find(sub => sub.Style == styleName)
+            return _mongoCollection
+                .Find(sub => episodeIds.Contains(sub.EpisodeId) && sub.Style == styleName)
                 .Skip(pagingInfo.Skip)
                 .Limit(pagingInfo.Max)
                 .ToListAsync();

@@ -71,10 +71,21 @@ namespace Erabikata.Backend.Controllers
 
         [Route("[action]")]
         public async Task<EngSubsResponse> ByStyleName(
+            int showId,
             string styleName,
             [FromQuery] PagingInfo pagingInfo)
         {
-            var subs = await _engSubCollectionManager.GetByStyleName(styleName, pagingInfo);
+            var filter = await _styleFilterCollection.GetByShowId(showId);
+            if (filter == null)
+            {
+                return new EngSubsResponse();
+            }
+
+            var subs = await _engSubCollectionManager.GetByStyleName(
+                filter.ForEpisodes,
+                styleName,
+                pagingInfo
+            );
             return new EngSubsResponse
             {
                 Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
