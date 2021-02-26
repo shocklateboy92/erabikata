@@ -6,6 +6,7 @@ import { RankedWordsPage } from '../../pages/rankedWordsPage';
 import { InfoPage } from '../../pages/infoPage';
 import { NowPlaying } from '../nowPlaying';
 import { StylesPage } from '../engDialog/stylesPage';
+import { WordSearchPage } from 'features/wordDefinition';
 
 const UiRedirect: FC = () => (
     <Redirect to={'/ui' + window.location.pathname + window.location.search} />
@@ -13,6 +14,9 @@ const UiRedirect: FC = () => (
 
 export const AppSwitch: FC = () => (
     <Switch>
+        <Route path="/ui/word/search">
+            <WordSearchPage />
+        </Route>
         <Route path="/ui/word/:wordId">
             <WordPage />
         </Route>

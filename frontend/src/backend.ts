@@ -68,6 +68,7 @@ export const {
     useWordsOccurrencesQuery,
     useSubsByIdQuery,
     useWordsRanked2Query,
+    useWordsSearchQuery,
     useEpisodeIndexQuery,
     useEngSubsIndexQuery,
     useActionsExecuteMutation,
