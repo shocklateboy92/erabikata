@@ -14,6 +14,7 @@ using Microsoft.Identity.Web;
 using MongoDB.Driver;
 using Newtonsoft.Json;
 using NJsonSchema.Generation;
+using Refit;
 
 namespace Erabikata.Backend
 {
@@ -102,6 +103,7 @@ namespace Erabikata.Backend
 
             var url = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+
             // var dbLogger = services.BuildServiceProvider()
             //     .GetRequiredService<ILogger<MongoClient>>();
             // clientSettings.ClusterConfigurator = cb =>
@@ -117,11 +119,20 @@ namespace Erabikata.Backend
             //         }
             //     );
             // };
+
             var mongoDatabase = new MongoClient(clientSettings).GetDatabase(url.DatabaseName);
             services.AddSingleton(mongoDatabase);
             AddCollection<ActivityExecution>(services, mongoDatabase);
             AddCollection<WordState>(services, mongoDatabase);
             AddCollection<UserInfo>(services, mongoDatabase);
+
+            services.AddRefitClient<IAnkiSyncClient>()
+                .ConfigureHttpClient(
+                    client =>
+                    {
+                        client.BaseAddress = new Uri("http://localhost:8765");
+                    }
+                );
         }
 
         private static void AddCollection<TDataType>(

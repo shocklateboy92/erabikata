@@ -10,6 +10,7 @@ namespace Erabikata.Backend.CollectionManagers
             AddCollectionManager<WordStateManager>(serviceCollection);
             AddCollectionManager<DummyCollectionManager>(serviceCollection);
             AddCollectionManager<StyleFilterCollectionManager>(serviceCollection);
+            AddCollectionManager<AnkiWordCollectionManager>(serviceCollection);
             AddCollectionManager<DialogCollectionManager>(serviceCollection);
             AddCollectionManager<PartOfSpeechFilterCollectionManager>(serviceCollection);
             AddCollectionManager<EngSubCollectionManager>(serviceCollection);
