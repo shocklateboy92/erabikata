@@ -1,17 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import './App.css';
+import './app.scss';
 import * as serviceWorker from './serviceWorkerRegistration';
 import { Provider } from 'react-redux';
 import store from './app/store';
 import { HassContext } from 'features/hass';
+import { BrowserRouter } from 'react-router-dom';
+import { AppSwitch } from './features/routing/switch';
 
 ReactDOM.render(
     <React.StrictMode>
         <HassContext.Provider value={{}}>
             <Provider store={store}>
-                <App />
+                <BrowserRouter>
+                    <AppSwitch />
+                </BrowserRouter>
             </Provider>
         </HassContext.Provider>
     </React.StrictMode>,
