@@ -111,6 +111,7 @@ namespace Erabikata.Backend.CollectionManagers
                     word => word.Kanji.Any(kanji => kanji.Contains(query)) ||
                             word.Readings.Any(reading => reading.Contains(query))
                 )
+                .SortByDescending(word => word.TotalOccurrences)
                 .Project(word => word.Id)
                 .ToListAsync();
     }
