@@ -48,10 +48,6 @@
     </Content>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Managers" />
-  </ItemGroup>
-
   <Target Name="NSwag" AfterTargets="Build">
     <Exec EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net50) aspnetcore2openapi /assembly:$(TargetDir)$(AssemblyName).dll /output:$(BaseIntermediateOutputPath)swagger.json" />
   </Target>
