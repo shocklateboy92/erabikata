@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Actions;
@@ -24,7 +25,7 @@ namespace Erabikata.Backend.CollectionManagers
                 case SyncAnki:
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiWord>.Empty);
                     var response = await _ankiSyncClient.FindNotes(
-                        new IAnkiSyncClient.FindNotesAction("\"note:Jap Sentences 2\"")
+                        new FindNotes("\"note:Jap Sentences 2\"")
                     );
                     break;
             }
