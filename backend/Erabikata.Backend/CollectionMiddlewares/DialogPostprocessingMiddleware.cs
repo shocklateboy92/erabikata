@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
+using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.CollectionMiddlewares
 {
@@ -23,8 +24,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
             await next(activity);
             if (activity is BeginIngestion)
             {
-                var words = await _wordInfo.GetAllNormalizedForms();
-                await _dialog.ProcessWords2(words);
+                var (words, readings) = await (_wordInfo.GetAllNormalizedForms(), _wordInfo.GetAllReadings());
+                await _dialog.ProcessWords2(words, readings);
                 await _wordInfo.UpdateWordCounts(words);
             }
         }

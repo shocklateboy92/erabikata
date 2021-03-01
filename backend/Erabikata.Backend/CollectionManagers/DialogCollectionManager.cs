@@ -60,10 +60,28 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public async Task ProcessWords2(IEnumerable<WordInfoCollectionManager.NormalizedWord> words)
+        public async Task ProcessWords2(
+            IEnumerable<WordInfoCollectionManager.NormalizedWord> words,
+            List<WordInfoCollectionManager.WordReading> wordReadings)
         {
             var trie = new Trie<(int Count, WordInfoCollectionManager.NormalizedWord word)>();
             foreach (var word in words) trie.Add(word.Normalized, (word.Normalized.Count, word));
+
+            // These are added afterwards, in the hope that matching normalized forms will
+            // take priority.
+            foreach (var (id, readings) in wordReadings)
+            foreach (var reading in readings)
+            {
+                var normalized = new[] {reading};
+                trie.Add(
+                    normalized,
+                    // Constructing a new set of normalized words here, whose counts
+                    // will be incremented but not written back to the database. For
+                    // future investigation: is that incrementing expensive?
+                    (1, new WordInfoCollectionManager.NormalizedWord(id, normalized))
+                );
+            }
+
 
             trie.Build();
 

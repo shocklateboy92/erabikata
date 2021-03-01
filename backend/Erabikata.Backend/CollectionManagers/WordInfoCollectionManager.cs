@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Mapster;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
 namespace Erabikata.Backend.CollectionManagers
@@ -38,6 +39,15 @@ namespace Erabikata.Backend.CollectionManagers
                 .Project(doc => new NormalizedWord(doc._id, doc.Normalized))
                 .ToListAsync();
         }
+
+        public Task<List<WordReading>> GetAllReadings()
+        {
+            return _mongoCollection.Find(FilterDefinition<WordInfo>.Empty)
+                .Project(word => new WordReading(word.Id, word.Readings))
+                .ToListAsync();
+        }
+
+        public record WordReading([property: BsonId] int Id, IEnumerable<string> Readings);
 
         public Task UpdateWordCounts(IEnumerable<NormalizedWord> words)
         {
