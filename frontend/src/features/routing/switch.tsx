@@ -32,6 +32,10 @@ export const AppSwitch: FC = () => (
         <Route path="/ui/settings">
             <InfoPage />
         </Route>
+        <Route path="/ui/nowPlaying/ui/dialog">
+            {/* Workaround for earlier bug in share code */}
+            <Redirect to={'/ui/dialog' + window.location.search} />
+        </Route>
         <Route path="/ui/nowPlaying">
             <NowPlaying />
         </Route>

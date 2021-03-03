@@ -53,7 +53,7 @@ export const shareSelectedWordDialog: AsyncThunk<
             sentenceTimestamp,
             wordIds
         );
-        const text = `[${word}](${document.baseURI}/ui/dialog?${params}) #Japanese`;
+        const text = `[${word}](${window.location.origin}/ui/dialog?${params}) #Japanese`;
 
         await navigator.share({ text });
         return text;
