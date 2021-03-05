@@ -15,7 +15,7 @@ export const spinnerTopReducer = (
         unknown,
         string,
         // They don't export this type anywhere out of redux toolkit
-        { requestId: string } | null,
+        { requestId: string; requestStatus: string } | null,
         never
     >
 ): ISpinnerTopState => {
@@ -24,7 +24,7 @@ export const spinnerTopReducer = (
             [action.meta.requestId]: request,
             ...otherRequests
         } = state.requests;
-        if (request) {
+        if (action.meta.requestStatus !== 'pending') {
             return { ...state, requests: otherRequests };
         } else {
             return {
