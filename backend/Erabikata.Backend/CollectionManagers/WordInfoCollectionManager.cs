@@ -59,7 +59,10 @@ namespace Erabikata.Backend.CollectionManagers
                 )
                 .ToArray();
 
-            return _mongoCollection.BulkWriteAsync(models);
+            return _mongoCollection.BulkWriteAsync(
+                models,
+                new BulkWriteOptions {IsOrdered = false}
+            );
         }
 
         public Task<long> GetTotalWordCount()

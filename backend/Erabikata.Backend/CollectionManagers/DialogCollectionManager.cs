@@ -123,7 +123,8 @@ namespace Erabikata.Backend.CollectionManagers
                         )
                     )
                     .ToArray();
-                await _mongoCollections[AnalyzerMode.SudachiC].BulkWriteAsync(replaceOneModels);
+                await _mongoCollections[AnalyzerMode.SudachiC]
+                    .BulkWriteAsync(replaceOneModels, new BulkWriteOptions {IsOrdered = false});
             }
         }
 
