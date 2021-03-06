@@ -9,7 +9,7 @@ export interface IEngDialogProps {
 }
 
 export const EngDialogList: FC<IEngDialogProps> = ({ episodeId, time }) => {
-    const response = useEngSubsIndexQuery({ episodeId, time, count: 3 });
+    const response = useEngSubsIndexQuery({ episodeId, time, count: 1 });
     if (!response.data) {
         return <QueryPlaceholder result={response} />;
     }
