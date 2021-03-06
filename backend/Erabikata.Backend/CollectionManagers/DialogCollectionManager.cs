@@ -62,10 +62,14 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task ProcessWords2(
             IEnumerable<WordInfoCollectionManager.NormalizedWord> words,
-            List<WordInfoCollectionManager.WordReading> wordReadings)
+            IEnumerable<WordInfoCollectionManager.WordReading> wordReadings)
         {
             var trie = new Trie<(int Count, WordInfoCollectionManager.NormalizedWord word)>();
-            foreach (var word in words) trie.Add(word.Normalized, (word.Normalized.Count, word));
+            foreach (var word in words)
+            foreach (var normalized in word.Normalized)
+            {
+                trie.Add(normalized, (normalized.Count, word));
+            }
 
             // These are added afterwards, in the hope that matching normalized forms will
             // take priority.
@@ -78,7 +82,7 @@ namespace Erabikata.Backend.CollectionManagers
                     // Constructing a new set of normalized words here, whose counts
                     // will be incremented but not written back to the database. For
                     // future investigation: is that incrementing expensive?
-                    (1, new WordInfoCollectionManager.NormalizedWord(id, normalized))
+                    (1, new WordInfoCollectionManager.NormalizedWord(id, new[] {normalized}))
                 );
             }
 
@@ -102,12 +106,12 @@ namespace Erabikata.Backend.CollectionManagers
                                 foreach (var (endIndex, (length, word)) in matches)
                                 {
                                     for (var index = endIndex - length; index < endIndex; index++)
-                                        line.Words[index].InfoIds.Add(word._id);
+                                        line.Words[index].InfoIds.Add(word.Id);
 
                                     Interlocked.Increment(ref word.Count);
                                     if (!line.Words[endIndex - 1].IsInParenthesis)
                                     {
-                                        dialog.WordsToRank.Add(word._id);
+                                        dialog.WordsToRank.Add(word.Id);
                                     }
                                 }
                             }

@@ -35,8 +35,7 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<List<NormalizedWord>> GetAllNormalizedForms()
         {
             return _mongoCollection.Aggregate()
-                .Unwind<WordInfo, NormalizedWord>(word => word.Normalized)
-                .Project(doc => new NormalizedWord(doc._id, doc.Normalized))
+                .Project(doc => new NormalizedWord(doc.Id, doc.Normalized))
                 .ToListAsync();
         }
 
@@ -53,7 +52,7 @@ namespace Erabikata.Backend.CollectionManagers
         {
             var models = words.Select(
                     word => new UpdateOneModel<WordInfo>(
-                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word._id),
+                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.Id),
                         Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.Count)
                     )
                 )
@@ -63,6 +62,13 @@ namespace Erabikata.Backend.CollectionManagers
                 models,
                 new BulkWriteOptions {IsOrdered = false}
             );
+        }
+
+        public record NormalizedWord(
+            [property: BsonId] int Id,
+            IReadOnlyList<IReadOnlyList<string>> Normalized)
+        {
+            public uint Count = 0;
         }
 
         public Task<long> GetTotalWordCount()
@@ -107,14 +113,6 @@ namespace Erabikata.Backend.CollectionManagers
                 .Skip(pagingInfoSkip)
                 .Limit(pagingInfoMax)
                 .ToListAsync();
-        }
-
-        // Mongo is ignoring the [BsonId] attribute for some reason, so I the only
-        // way I could get his to work is to name the field `_id`
-        // ReSharper disable once InconsistentNaming
-        public record NormalizedWord(int _id, IReadOnlyList<string> Normalized)
-        {
-            public uint Count = 0;
         }
 
         public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
