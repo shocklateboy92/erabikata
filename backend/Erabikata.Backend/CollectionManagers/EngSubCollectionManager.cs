@@ -13,6 +13,7 @@ using Grpc.Core.Utils;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.CollectionManagers
 {
@@ -122,25 +123,32 @@ namespace Erabikata.Backend.CollectionManagers
             await client.RequestStream.CompleteAsync();
         }
 
-        public Task<List<EngSub>> GetNearestSubs(
+        public async Task<IEnumerable<EngSub>> GetNearestSubs(
             int episodeId,
             double time,
             int count,
             IEnumerable<string> styleFilter)
         {
-            return _mongoCollection.Aggregate()
-                .Match(sub => sub.EpisodeId == episodeId && styleFilter.Contains(sub.Style))
-                // Turns out, we can't do this using LINQ until Mongo Linq V3 gets released
-                // Don't know when that will be.
-                .AppendStage<EngSub>(
-                    $"{{ $addFields: {{ delta: {{ $abs: {{ $subtract: ['$Time', {time}] }} }} }} }}"
-                )
-                .Sort("{ delta: 1 }")
-                .Limit(count)
-                // Undo the previous `AppendStage` so LINQ doesn't find out about it
-                .AppendStage<EngSub>("{ $unset: 'delta' }")
-                .SortBy(sub => sub.Time)
-                .ToListAsync();
+            var (matchAndBefore, afterMatch) = await (
+                _mongoCollection
+                    .Find(
+                        sub => sub.EpisodeId == episodeId && !sub.IsComment &&
+                               styleFilter.Contains(sub.Style) && sub.Time <= time
+                    )
+                    .SortByDescending(sub => sub.Time)
+                    .Limit(count + 1)
+                    .ToListAsync(),
+                _mongoCollection
+                    .Find(
+                        sub => sub.EpisodeId == episodeId && !sub.IsComment &&
+                               styleFilter.Contains(sub.Style) && sub.Time > time
+                    )
+                    .SortBy(sub => sub.Time)
+                    .Limit(count)
+                    .ToListAsync());
+
+            matchAndBefore.Reverse();
+            return matchAndBefore.Concat(afterMatch);
         }
 
         public async Task<List<AggregateSortByCountResult<string>>> GetAllStylesOf(
