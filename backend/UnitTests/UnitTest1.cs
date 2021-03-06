@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -150,7 +151,7 @@ namespace UnitTests
             var words = await wordCm.GetAllNormalizedForms();
             Console.WriteLine($"Reading words took {stopwatch.ElapsedMilliseconds}ms");
             stopwatch.Restart();
-            await Manager.ProcessWords2(words);
+            await Manager.ProcessWords2(words, new List<WordInfoCollectionManager.WordReading>());
             Console.WriteLine($"Processing words took {stopwatch.ElapsedMilliseconds}ms");
         }
 
