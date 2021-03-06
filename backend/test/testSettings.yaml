@@ -1,0 +1,6 @@
+Db:
+  ConnectionString: mongodb://localhost/testErabikata
+
+SubtitleProcessing:
+  Input:
+    RootDirectory: data
