@@ -100,6 +100,7 @@ namespace Erabikata.Backend
                 );
             }
 
+            var url = new MongoUrl(connectionString);
             var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
             // var dbLogger = services.BuildServiceProvider()
             //     .GetRequiredService<ILogger<MongoClient>>();
@@ -116,7 +117,7 @@ namespace Erabikata.Backend
             //         }
             //     );
             // };
-            var mongoDatabase = new MongoClient(clientSettings).GetDatabase("erabikata");
+            var mongoDatabase = new MongoClient(clientSettings).GetDatabase(url.DatabaseName);
             services.AddSingleton(mongoDatabase);
             AddCollection<ActivityExecution>(services, mongoDatabase);
             AddCollection<WordState>(services, mongoDatabase);
