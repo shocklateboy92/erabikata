@@ -1,0 +1,336 @@
+[Script Info]
+Title: HorribleSubs
+ScriptType: v4.00+
+Collisions: Normal
+PlayResX: 848
+PlayResY: 480
+WrapStyle: 0
+PlayDepth: 0
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Open Sans Semibold,36,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,0,0,0,100,100,0,0,1,1.7,0,2,0,0,28,0
+Style: OS,Open Sans Semibold,33,&H00FFFFFF,&H0000FFFF,&H00000000,&H7F404040,-1,0,0,0,100.0,100.0,0.0,0.0,1,2.0,1.0,8,1,1,20,0
+Style: Italics,Open Sans Semibold,36,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,-1,0,0,100,100,0,0,1,1.7,0,2,0,0,28,0
+Style: On Top,Open Sans Semibold,36,&H00FFFFFF,&H0000FFFF,&H00000000,&H7F404040,-1,0,0,0,100.0,100.0,0.0,0.0,1,2.0,1.0,8,27,27,29,0
+Style: DefaultLow,Open Sans Semibold,36,&H00FFFFFF,&H000000FF,&H00020713,&H00000000,-1,0,0,0,100,100,0,0,1,1.7,0,2,0,0,28,0
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:06.33,0:00:11.08,Default,,0,0,0,,Hikigaya... you still have \None more request left.
+Dialogue: 0,0:00:19.29,0:00:23.13,Default,,0,0,0,,Will you... listen to my request?
+Dialogue: 0,0:00:27.21,0:00:29.21,Default,,0,0,0,,Okay. Let's hear it.
+Dialogue: 0,0:00:31.92,0:00:33.75,Default,,0,0,0,,There was a long silence.
+Dialogue: 0,0:00:34.38,0:00:38.38,Default,,0,0,0,,Someone said that it was because\Nit seemed like it'd be a long story.
+Dialogue: 0,0:00:38.92,0:00:41.92,Default,,0,0,0,,It may have been me who said that.
+Dialogue: 0,0:00:42.67,0:00:47.08,Default,,0,0,0,,Even if it was a short amount of time,\Nthe glimmer of hope never strengthened.
+Dialogue: 0,0:00:47.92,0:00:53.29,Default,,0,0,0,,I just knew that a definite answer\Nwould spell a disasterous end.
+Dialogue: 0,0:00:54.75,0:00:58.29,Default,,0,0,0,,If it isn't said out \Nloud, no one will get it.
+Dialogue: 0,0:00:58.58,0:01:01.46,Default,,0,0,0,,Even if it's said, it won't be understood.
+Dialogue: 0,0:01:01.92,0:01:05.33,Default,,0,0,0,,That's why it must be said out loud.
+Dialogue: 0,0:01:07.29,0:01:10.50,Default,,0,0,0,,Even if you know that choice \Nwill surely cause regret.
+Dialogue: 0,0:01:10.88,0:01:14.96,Default,,0,0,0,,Because honestly, the only aunthenticity\NI don't want is one that is cold, cruel, and sad.
+Dialogue: 0,0:03:14.67,0:03:16.54,Default,,0,0,0,,That's very pretty.
+Dialogue: 0,0:03:17.21,0:03:18.29,Default,,0,0,0,,Oh, yeah!
+Dialogue: 0,0:03:18.29,0:03:21.50,Default,,0,0,0,,I searched for lots of different kinds of bags\Nand colorful masking tape!
+Dialogue: 0,0:03:21.83,0:03:24.50,Default,,0,0,0,,Colorful "Namaste?" Isn't that\Nsome sort of greeting in India?
+Dialogue: 0,0:03:24.50,0:03:27.79,Default,,0,0,0,,Are you even listening? She \Nclearly said masking tape.
+Dialogue: 0,0:03:28.25,0:03:31.67,Default,,0,0,0,,That's some particularly useless knowledge\Nfor someone who doesn't even give a proper greeting.
+Dialogue: 0,0:03:31.67,0:03:35.67,Default,,0,0,0,,Don't be dumb. A simple greeting\Ncan create an atmosphere for conversation, right?
+Dialogue: 0,0:03:36.13,0:03:38.88,Default,,0,0,0,,The standards of greeting \Nare essential knowledge.
+Dialogue: 0,0:03:38.88,0:03:41.92,Default,,0,0,0,,A greeting counts as a conversation \Nto you, doesn't it?
+Dialogue: 0,0:03:42.13,0:03:45.04,Default,,0,0,0,,Yes. That's why I try to do \Nit as little as possible.
+Dialogue: 0,0:03:45.04,0:03:46.96,Default,,0,0,0,,Hikki, that's really bad.
+Dialogue: 0,0:03:52.13,0:03:56.92,Default,,0,0,0,,I have no confidence in how it tastes,\Nbut since I did do my best...
+Dialogue: 0,0:03:57.38,0:03:59.75,Default,,0,0,0,,Yeah, I can understand that.
+Dialogue: 0,0:03:59.88,0:04:04.75,Default,,0,0,0,,Right? That's what you told \Nme. I'm showing that I tried!
+Dialogue: 0,0:04:08.92,0:04:11.29,Default,,0,0,0,,It's totally different from Yukino's.
+Dialogue: 0,0:04:11.29,0:04:13.50,Default,,0,0,0,,How am I supposed to make you understand?
+Dialogue: 0,0:04:13.50,0:04:16.33,Default,,0,0,0,,You know, I've been wondering \Nabout something...
+Dialogue: 0,0:04:16.96,0:04:19.79,Default,,0,0,0,,Why are you two trying to \Nmake cookies that taste good?
+Dialogue: 0,0:04:20.92,0:04:25.42,Default,,0,0,0,,Well, you know. Guys are simple.
+Dialogue: 0,0:04:25.42,0:04:27.83,Default,,0,0,0,,They'll get the wrong idea if \Nyou so much as talk to them,
+Dialogue: 0,0:04:27.83,0:04:30.38,Default,,0,0,0,,and they'll be happy just to get\Nhomemade cookies from you.
+Dialogue: 0,0:04:30.88,0:04:32.50,Default,,0,0,0,,That's why it's fine!
+Dialogue: 0,0:04:33.08,0:04:37.38,Default,,0,0,0,,As long as he knows you tried your best,\Nwouldn't that make him like you?
+Dialogue: 0,0:04:39.92,0:04:41.83,Default,,0,0,0,,Would it work on you too, Hikki?
+Dialogue: 0,0:04:45.04,0:04:46.13,Default,,0,0,0,,You remember that?
+Dialogue: 0,0:04:46.63,0:04:51.38,Default,,0,0,0,,W-well, maybe. Not sure if I remembered,\Nor if I just couldn't forget.
+Dialogue: 0,0:04:51.67,0:04:53.67,Default,,0,0,0,,I was kinda surprised at first.
+Dialogue: 0,0:04:57.54,0:05:01.79,Default,,0,0,0,,B-but, you've always been like that, Hikki,\Nso I'm used to it.
+Dialogue: 0,0:05:01.79,0:05:04.50,Default,,0,0,0,,Right, you're constantly \Nfalling short of expectations.
+Dialogue: 0,0:05:04.75,0:05:05.42,Default,,0,0,0,,That's true!
+Dialogue: 0,0:05:05.67,0:05:08.17,Default,,0,0,0,,Uh, I don't think that only \Napplies to me, though.
+Dialogue: 0,0:05:08.46,0:05:10.42,Default,,0,0,0,,Same goes for you, right, \NMiss I'll-Do-Without?
+Dialogue: 0,0:05:10.42,0:05:12.88,Default,,0,0,0,,What do you mean by that \Nquestionable nickname?
+Dialogue: 0,0:05:13.42,0:05:17.29,Default,,0,0,0,,W-well, I mean, you do have\Na sort of clueless side, Yukinon.
+Dialogue: 0,0:05:17.29,0:05:18.58,Default,,0,0,0,,Aren't you the clueless one?
+Dialogue: 0,0:05:18.58,0:05:20.04,Default,,0,0,0,,That isn't true!
+Dialogue: 0,0:05:20.13,0:05:21.54,Default,,0,0,0,,I am not!
+Dialogue: 0,0:05:21.54,0:05:22.83,Default,,0,0,0,,Yes, you are.
+Dialogue: 0,0:05:23.00,0:05:24.33,Default,,0,0,0,,No, I'm not!
+Dialogue: 0,0:05:24.46,0:05:25.92,Default,,0,0,0,,Yes, you are.
+Dialogue: 0,0:05:27.50,0:05:29.17,Default,,0,0,0,,It stopped snowing.
+Dialogue: 0,0:05:30.63,0:05:33.83,Default,,0,0,0,,I heard it was snowing on the day I was born.
+Dialogue: 0,0:05:34.38,0:05:37.29,Default,,0,0,0,,That's why my name is Yukino. Simple, right?
+Dialogue: 0,0:05:37.58,0:05:40.13,Default,,0,0,0,,But it's a wonderful, beautiful name.
+Dialogue: 0,0:05:40.46,0:05:42.21,Default,,0,0,0,,Yeah... It's a nice name.
+Dialogue: 0,0:05:45.00,0:05:46.04,Default,,0,0,0,,Thanks.
+Dialogue: 0,0:05:48.42,0:05:50.08,Default,,0,0,0,,My mom chose it.
+Dialogue: 0,0:05:50.83,0:05:54.63,Default,,0,0,0,,Though, that's just what \NI heard from my sister.
+Dialogue: 0,0:06:00.25,0:06:04.50,Default,,0,0,0,,Yukinoshita, will you tell us about yourself?
+Dialogue: 0,0:06:13.67,0:06:15.67,Default,,0,0,0,,I don't mind if you ask.
+Dialogue: 0,0:06:21.25,0:06:25.79,Default,,0,0,0,,I always thought it'd be better to just wait.
+Dialogue: 0,0:06:26.46,0:06:30.08,Default,,0,0,0,,Up to now, you've told us \Nstuff, little by little.
+Dialogue: 0,0:06:35.25,0:06:43.13,Default,,0,0,0,,Yuigahama. You asked me what I wanted to do,\Ndidn't you? But I don't really know.
+Dialogue: 0,0:06:44.33,0:06:50.17,Default,,0,0,0,,A long time ago, there were things\NI want to do, and things I wanted to do.
+Dialogue: 0,0:06:50.33,0:06:52.50,Default,,0,0,0,,Huh? Things you wanted to do?
+Dialogue: 0,0:06:52.96,0:06:54.63,Default,,0,0,0,,My dad's job.
+Dialogue: 0,0:06:55.13,0:06:56.25,Default,,0,0,0,,But that's...
+Dialogue: 0,0:06:56.63,0:07:01.13,Default,,0,0,0,,Right. Since I have an older sister,\NI don't get to decide that.
+Dialogue: 0,0:07:02.04,0:07:04.08,Default,,0,0,0,,My mother has always made the decisions.
+Dialogue: 0,0:07:05.08,0:07:07.29,Default,,0,0,0,,For a long time now,\Nmy mother has decided everything...
+Dialogue: 0,0:07:08.00,0:07:13.04,Default,,0,0,0,,She tied my sister down,\Nand only told me to do what I wanted.
+Dialogue: 0,0:07:13.88,0:07:16.25,Default,,0,0,0,,That's why I didn't know \Nhow to conduct myself.
+Dialogue: 0,0:07:21.04,0:07:23.21,Default,,0,0,0,,I still don't know, even now.
+Dialogue: 0,0:07:23.63,0:07:26.08,Default,,0,0,0,,Yukino, do you have your own identity?
+Dialogue: 0,0:07:26.96,0:07:30.38,Default,,0,0,0,,It's truly just like my sister said.
+Dialogue: 0,0:07:38.83,0:07:42.08,Default,,0,0,0,,This is the first time\Nanyone's listened to me talk about this.
+Dialogue: 0,0:07:42.71,0:07:43.79,Default,,0,0,0,,I see.
+Dialogue: 0,0:07:44.17,0:07:47.25,Default,,0,0,0,,My mom and dad have hinted \Nat it before, I think.
+Dialogue: 0,0:07:47.88,0:07:53.13,Default,,0,0,0,,I don't remember them addressing \Nit directly, though.
+Dialogue: 0,0:07:53.71,0:07:57.46,Default,,0,0,0,,It may have been because my sister\Nwas going to succeed my parents.
+Dialogue: 0,0:07:58.92,0:08:00.58,Default,,0,0,0,,Haruno?
+Dialogue: 0,0:08:00.83,0:08:02.58,Default,,0,0,0,,I don't think they ever said it.
+Dialogue: 0,0:08:02.92,0:08:04.63,Default,,0,0,0,,You know what her personality is like.
+Dialogue: 0,0:08:05.38,0:08:07.17,Default,,0,0,0,,Oh, I get it.
+Dialogue: 0,0:08:07.88,0:08:12.75,Default,,0,0,0,,But they should have just told her that.\NEven if that's not what she wants...
+Dialogue: 0,0:08:13.58,0:08:18.88,Default,,0,0,0,,Maybe they were afraid to hear a proper answer\Nsince they didn't check with her.
+Dialogue: 0,0:08:19.38,0:08:22.42,Default,,0,0,0,,That's why I have to start by \Nverifying things with her...
+Dialogue: 0,0:08:23.04,0:08:25.88,Default,,0,0,0,,...then the next time, I'll \Ndecide on my own accord.
+Dialogue: 0,0:08:33.25,0:08:35.71,Default,,0,0,0,,I won't do it because someone told me to,
+Dialogue: 0,0:08:36.25,0:08:41.29,Default,,0,0,0,,but because I thought about it carefully,\Naccepted it, and decided to give up.
+Dialogue: 0,0:08:42.83,0:08:44.92,Default,,0,0,0,,I have only one request.
+Dialogue: 0,0:08:45.46,0:08:48.33,Default,,0,0,0,,I want the two of you\Nto see this through until very end.
+Dialogue: 0,0:08:49.38,0:08:50.96,Default,,0,0,0,,That's all I want.
+Dialogue: 0,0:09:00.00,0:09:03.79,Default,,0,0,0,,I guess that was your answer then, Yukinon...
+Dialogue: 0,0:09:07.42,0:09:09.42,Default,,0,0,0,,I may be wrong about that...
+Dialogue: 0,0:09:09.63,0:09:10.92,Default,,0,0,0,,Then in that case...
+Dialogue: 0,0:09:13.04,0:09:14.54,Default,,0,0,0,,But, I...
+Dialogue: 0,0:09:16.33,0:09:19.67,Default,,0,0,0,,I want to prove that I can do well on my own.
+Dialogue: 0,0:09:20.46,0:09:23.13,Default,,0,0,0,,If I can do that, then I can truly start.
+Dialogue: 0,0:09:23.63,0:09:25.88,Default,,0,0,0,,You can... truly start...
+Dialogue: 0,0:09:25.88,0:09:30.79,Default,,0,0,0,,Yes. I'm going to go back home for a little while\Nand start talking about this from scratch.
+Dialogue: 0,0:09:31.08,0:09:33.21,Default,,0,0,0,,We can consider that your answer, right?
+Dialogue: 0,0:09:36.17,0:09:38.58,Default,,0,0,0,,I don't think you're wrong about that, but...
+Dialogue: 0,0:09:39.38,0:09:41.33,Default,,0,0,0,,It doesn't hurt to give it a try, right?
+Dialogue: 0,0:09:42.46,0:09:46.38,Default,,0,0,0,,Yeah, I get it. That would \Ncount as an answer, too.
+Dialogue: 0,0:09:47.04,0:09:47.96,Default,,0,0,0,,Thanks.
+Dialogue: 0,0:09:50.21,0:09:51.79,Default,,0,0,0,,Let's get going.
+Dialogue: 0,0:09:56.75,0:09:58.17,Default,,0,0,0,,Is You-know-who still there?
+Dialogue: 0,0:09:58.71,0:09:59.63,Default,,0,0,0,,She might be.
+Dialogue: 0,0:09:59.79,0:10:02.21,Default,,0,0,0,,Oh look, it's Yukino.
+Dialogue: 0,0:10:05.58,0:10:06.63,Default,,0,0,0,,Sis...
+Dialogue: 0,0:10:07.54,0:10:08.92,Default,,0,0,0,,Welcome home!
+Dialogue: 0,0:10:11.50,0:10:12.83,Default,,0,0,0,,Were you drinking?
+Dialogue: 0,0:10:12.83,0:10:15.58,Default,,0,0,0,,Well, kind of. Just a bit.
+Dialogue: 0,0:10:17.83,0:10:20.67,Default,,0,0,0,,More importantly, does this mean you're back?
+Dialogue: 0,0:10:21.71,0:10:22.33,Default,,0,0,0,,Yes.
+Dialogue: 0,0:10:28.25,0:10:30.04,Default,,0,0,0,,There's something I need \Nto talk to you about.
+Dialogue: 0,0:10:56.58,0:10:57.50,Default,,0,0,0,,Mornin'.
+Dialogue: 0,0:10:57.71,0:10:58.42,Default,,0,0,0,,Hey.
+Dialogue: 0,0:11:04.63,0:11:05.33,Default,,0,0,0,,Okay...
+Dialogue: 0,0:11:12.29,0:11:13.33,Default,,0,0,0,,How's it looking?
+Dialogue: 0,0:11:13.33,0:11:15.21,Default,,0,0,0,,Umm... It could look worse.
+Dialogue: 0,0:11:15.21,0:11:17.79,Default,,0,0,0,,At this point in time, I'm going to have to do it\Neven if I'm kicking and screaming.
+Dialogue: 0,0:11:18.00,0:11:20.67,Default,,0,0,0,,It's all basically decided \Nby yesterday's test, anyway.
+Dialogue: 0,0:11:20.67,0:11:23.04,Default,,0,0,0,,Want to get something to eat together\Nafter your interview?
+Dialogue: 0,0:11:23.21,0:11:24.50,Default,,0,0,0,,Oh, that sounds good.
+Dialogue: 0,0:11:24.50,0:11:25.04,Default,,0,0,0,,It does, right?
+Dialogue: 0,0:11:25.04,0:11:26.00,Default,,0,0,0,,Yeah, yeah!
+Dialogue: 0,0:11:26.17,0:11:30.33,Default,,0,0,0,,I can keep on pushing if I get rewarded\Nwith a meal paid for by my brother, tee-hee-hee!
+Dialogue: 0,0:11:30.50,0:11:33.04,Default,,0,0,0,,That line's gonna get me so \Nmany points, tee-hee-hee!
+Dialogue: 0,0:11:33.13,0:11:35.79,Default,,0,0,0,,I'm not treating you\Nand that didn't score you many points at all.
+Dialogue: 0,0:11:36.13,0:11:40.33,Default,,0,0,0,,Well, it would be a date with my sister.\NI can manage to at least pay for the meal.
+Dialogue: 0,0:11:40.67,0:11:45.13,Default,,0,0,0,,Hm. Actually, if you're gonna call it a date,\Nthen I definitely don't wanna go,
+Dialogue: 0,0:11:45.13,0:11:46.79,Default,,0,0,0,,but if you're paying for both the meal\Nand transportation, then I can deal with it.
+Dialogue: 0,0:11:46.79,0:11:48.25,Default,,0,0,0,,Oh man, stop with the serious face!
+Dialogue: 0,0:11:48.71,0:11:51.17,Default,,0,0,0,,What do you mean "deal with it"?\NThat means you'd really hate to do it right?
+Dialogue: 0,0:11:51.33,0:11:54.17,Default,,0,0,0,,You're the only one I say this sort of thing to\Nso it's fine, right? Do you not like it?
+Dialogue: 0,0:11:54.17,0:11:57.25,Default,,0,0,0,,Ew, there's that creepy thing you do again.
+Dialogue: 0,0:12:00.17,0:12:02.25,Default,,0,0,0,,Well, I'm heading out now.
+Dialogue: 0,0:12:02.46,0:12:04.08,Default,,0,0,0,,All right, see you later.
+Dialogue: 0,0:12:23.83,0:12:25.83,Default,,0,0,0,,Miraiya Bookstore
+Dialogue: 0,0:12:37.63,0:12:41.08,Default,,0,0,0,,When I think of familiar young girls,\NI think of Keika Kawasaki.
+Dialogue: 0,0:12:41.42,0:12:44.24,Default,,0,0,0,,And, when I think of someone \Ncompletely coddling her,
+Dialogue: 0,0:12:44.24,0:12:46.49,Default,,0,0,0,,I think of... that's \Nright, that Kawa-whoever!
+Dialogue: 0,0:12:50.46,0:12:52.75,Default,,0,0,0,,Oh man, what the heck?! She's too cute!
+Dialogue: 0,0:13:17.79,0:13:18.58,Default,,0,0,0,,Want a bite?
+Dialogue: 0,0:13:18.58,0:13:19.58,Default,,0,0,0,,Yeah!
+Dialogue: 0,0:13:19.58,0:13:21.00,Default,,0,0,0,,This is why I like you, Hachiman!
+Dialogue: 0,0:13:21.50,0:13:22.63,Default,,0,0,0,,Yes, yes, I know you do.
+Dialogue: 0,0:13:22.63,0:13:26.46,Default,,0,0,0,,But boys are going to immediately misunderstand\Nthat sort of nonchalant touching,
+Dialogue: 0,0:13:26.46,0:13:28.25,Default,,0,0,0,,so don't do that to anyone else, okay?
+Dialogue: 0,0:13:28.25,0:13:30.71,Default,,0,0,0,,Okay! I'll only do that to you, Hachiman!
+Dialogue: 0,0:13:30.71,0:13:32.58,Default,,0,0,0,,Oh man, if she used her girlish \Ncharms as a terrorist,
+Dialogue: 0,0:13:32.58,0:13:35.50,Default,,0,0,0,,she would already know the powerful words\Nthat capture a man's heart!
+Dialogue: 0,0:13:35.50,0:13:36.46,Default,,0,0,0,,This child is to be feared!
+Dialogue: 0,0:13:36.96,0:13:39.13,Default,,0,0,0,,Whoa, what are you teaching her?
+Dialogue: 0,0:13:41.08,0:13:43.79,Default,,0,0,0,,And that's kind of a problem.
+Dialogue: 0,0:13:43.79,0:13:44.42,Default,,0,0,0,,Huh?
+Dialogue: 0,0:13:44.42,0:13:45.54,Default,,0,0,0,,We haven't even had lunch yet.
+Dialogue: 0,0:13:45.54,0:13:46.29,Default,,0,0,0,,Oh.
+Dialogue: 0,0:13:46.63,0:13:47.63,Default,,0,0,0,,Uhh...
+Dialogue: 0,0:13:50.54,0:13:54.42,Default,,0,0,0,,Okay, let's split it. But keep it a secret\Nfrom your sister.  Shhh...
+Dialogue: 0,0:13:54.42,0:13:56.38,Default,,0,0,0,,Right! It's a secret! Shhh!
+Dialogue: 0,0:13:56.38,0:13:57.67,Default,,0,0,0,,I'm looking right at you two.
+Dialogue: 0,0:14:06.21,0:14:08.29,Default,,0,0,0,,Don't go spoiling her, though.
+Dialogue: 0,0:14:08.88,0:14:10.96,Default,,0,0,0,,I-I don't, this is fine once in a while.
+Dialogue: 0,0:14:10.96,0:14:13.25,Default,,0,0,0,,Once in a while is all \Nthe time for you, right?
+Dialogue: 0,0:14:13.25,0:14:17.21,Default,,0,0,0,,I don't think I do this all of the time.\NI do this especially for Keika.
+Dialogue: 0,0:14:17.50,0:14:18.46,Default,,0,0,0,,And for Komachi, too.
+Dialogue: 0,0:14:19.29,0:14:20.67,Default,,0,0,0,,You have no loyalty, huh?
+Dialogue: 0,0:14:20.67,0:14:22.67,Default,,0,0,0,,Yikes! I seriously just do not get girls!
+Dialogue: 0,0:14:22.67,0:14:25.33,Default,,0,0,0,,Just a "Do you know why I'm mad?"\Ncompletely stumps me.
+Dialogue: 0,0:14:27.13,0:14:28.67,Default,,0,0,0,,Don't fight.
+Dialogue: 0,0:14:29.46,0:14:33.00,Default,,0,0,0,,We're not fighting. Turn this way, Keika.
+Dialogue: 0,0:14:41.00,0:14:43.92,Default,,0,0,0,,Your brother is taking the entrance exam, too, right?\NHow was he doing?
+Dialogue: 0,0:14:44.21,0:14:47.38,Default,,0,0,0,,I don't know. He'd always get\Nsuch an attitude when I'd ask about it.
+Dialogue: 0,0:14:47.71,0:14:49.58,Default,,0,0,0,,Oh. He's at about that age, isn't he?
+Dialogue: 0,0:14:49.71,0:14:53.54,Default,,0,0,0,,I personally wouldn't mind if he went to\Na private school... I mean, if that's what he wants.
+Dialogue: 0,0:14:54.00,0:14:55.21,Default,,0,0,0,,I see...
+Dialogue: 0,0:14:55.33,0:14:58.71,Default,,0,0,0,,Considering next year,\Nyou want to get into a public school, right?
+Dialogue: 0,0:14:58.71,0:14:59.38,Default,,0,0,0,,Huh?
+Dialogue: 0,0:14:59.38,0:15:01.25,Default,,0,0,0,,Your first choice for schools\Nis a national public school, right?
+Dialogue: 0,0:15:01.25,0:15:03.29,Default,,0,0,0,,Just guessing, but you're probably\Nfeeling some pressure from that.
+Dialogue: 0,0:15:03.29,0:15:04.50,Default,,0,0,0,,You're talking about me?
+Dialogue: 0,0:15:05.13,0:15:08.25,Default,,0,0,0,,No, no. Well, not far from \Nwhat I mean, but still wrong.
+Dialogue: 0,0:15:08.79,0:15:09.38,Default,,0,0,0,,What is it then?
+Dialogue: 0,0:15:09.38,0:15:11.71,Default,,0,0,0,,Uh, er, look... If your brother can go
+Dialogue: 0,0:15:11.71,0:15:14.54,Default,,0,0,0,,to a public school, wouldn't that broaden \Nyour choices, even if only a little?
+Dialogue: 0,0:15:14.54,0:15:16.13,Default,,0,0,0,,Just guessing, though.
+Dialogue: 0,0:15:20.63,0:15:23.33,Default,,0,0,0,,Tuition is completely different\Nfor high school and university.
+Dialogue: 0,0:15:25.04,0:15:28.79,Default,,0,0,0,,But... that seems like something he'd say.
+Dialogue: 0,0:15:29.50,0:15:30.54,Default,,0,0,0,,Isn't it?
+Dialogue: 0,0:15:30.67,0:15:33.08,Default,,0,0,0,,I'd understand having a sister complex\Nbetter than anyone, after all!
+Dialogue: 0,0:15:33.08,0:15:35.04,Default,,0,0,0,,What are you talking about? That's creepy.
+Dialogue: 0,0:15:35.04,0:15:37.33,Default,,0,0,0,,Creepy! Creepy!
+Dialogue: 0,0:15:38.88,0:15:41.00,Default,,0,0,0,,Well, that's completely true...
+Dialogue: 0,0:15:41.42,0:15:43.17,Default,,0,0,0,,It is really creepy.
+Dialogue: 0,0:15:46.88,0:15:48.67,Default,,0,0,0,,I'm done! Yay!
+Dialogue: 0,0:15:48.67,0:15:49.71,Default,,0,0,0,,Yay!
+Dialogue: 0,0:15:49.71,0:15:53.00,Default,,0,0,0,,Saki and Keika, too! Hello, yay!
+Dialogue: 0,0:15:53.00,0:15:54.38,Default,,0,0,0,,Yay!
+Dialogue: 0,0:15:54.50,0:15:55.67,Default,,0,0,0,,Yay!
+Dialogue: 0,0:15:56.00,0:15:57.17,Default,,0,0,0,,Y-yay...
+Dialogue: 0,0:15:57.25,0:16:01.25,Default,,0,0,0,,Oh wow, I could barely hear that, Saki!\NLet's try it again, yay!
+Dialogue: 0,0:16:01.33,0:16:03.13,Default,,0,0,0,,Y-yay!
+Dialogue: 0,0:16:04.21,0:16:05.83,Default,,0,0,0,,What is up with your sister?
+Dialogue: 0,0:16:06.04,0:16:08.58,Default,,0,0,0,,Sorry about that. She seems \Npretty hyper right now.
+Dialogue: 0,0:16:08.83,0:16:11.29,Default,,0,0,0,,Komachi, have some water. \NDrink this and calm down.
+Dialogue: 0,0:16:11.29,0:16:16.13,Default,,0,0,0,,Thanks! But drinking from your cup\Nis kinda gross so I'm gonna go buy something.
+Dialogue: 0,0:16:16.13,0:16:17.67,Default,,0,0,0,,Huh? Komachi?!
+Dialogue: 0,0:16:18.17,0:16:19.75,Default,,0,0,0,,Just as close as ever, eh?
+Dialogue: 0,0:16:19.88,0:16:21.79,Default,,0,0,0,,Uh, that's pretty much seriously untrue.
+Dialogue: 0,0:16:21.79,0:16:23.96,Default,,0,0,0,,Komachi... Can you stop sounding so serious\Nwhen you're denying it?
+Dialogue: 0,0:16:23.96,0:16:25.71,Default,,0,0,0,,To tell the truth, he's \Nsuper annoying sometimes!
+Dialogue: 0,0:16:26.13,0:16:28.25,Default,,0,0,0,,K-Komachi.... Komachi!
+Dialogue: 0,0:16:28.25,0:16:29.42,Default,,0,0,0,,Fine, just kidding, I totally love you.
+Dialogue: 0,0:16:29.42,0:16:32.17,Default,,0,0,0,,What? That was a lie. A \Ncomplete and utter one.
+Dialogue: 0,0:16:32.17,0:16:33.29,Default,,0,0,0,,I mean, I love you, too, though.
+Dialogue: 0,0:16:33.29,0:16:35.71,Default,,0,0,0,,Ugh, gross. Gross. So gross.
+Dialogue: 0,0:16:44.08,0:16:44.96,Default,,0,0,0,,Kawasaki!
+Dialogue: 0,0:16:47.33,0:16:49.29,Default,,0,0,0,,Why are you breathing like that?
+Dialogue: 0,0:16:49.29,0:16:51.71,Default,,0,0,0,,You were on the roof before, weren't you?
+Dialogue: 0,0:16:51.71,0:16:52.96,Default,,0,0,0,,How did you get there?
+Dialogue: 0,0:16:53.46,0:16:55.25,Default,,0,0,0,,You've got a good memory, huh...?
+Dialogue: 0,0:16:55.88,0:16:59.38,Default,,0,0,0,,From the entrance at the central staircase.\NThe lock there is broken.
+Dialogue: 0,0:16:59.38,0:17:02.63,Default,,0,0,0,,It's pretty well-known amongst the girls.\NWhy do you need to know that?
+Dialogue: 0,0:17:02.63,0:17:03.38,Default,,0,0,0,,Thank you!
+Dialogue: 0,0:17:04.29,0:17:06.04,Default,,0,0,0,,I love you, Kawasaki!
+Dialogue: 0,0:17:15.75,0:17:18.54,Default,,0,0,0,,Ew, he's here, gross. So creepy!\NBlushing like that towards your sister is gross!
+Dialogue: 0,0:17:18.54,0:17:20.79,Default,,0,0,0,,Even though you're hopeless \Nand can only say that to
+Dialogue: 0,0:17:18.88,0:17:20.29,On Top,,0,0,0,,Wait, hey... Whoa, wait \Ny-you're going too far,
+Dialogue: 0,0:17:20.29,0:17:21.54,On Top,,0,0,0,,you're saying way too much.
+Dialogue: 0,0:17:20.79,0:17:22.79,Default,,0,0,0,,your sister that facial expression \Nis creepy! So creepy!
+Dialogue: 0,0:17:22.79,0:17:24.08,Default,,0,0,0,,Your verbal attacks are downright vulgar now.
+Dialogue: 0,0:17:24.08,0:17:26.75,Default,,0,0,0,,Big Bro, that type of thing is for real gross.\NYou are truly talented in your grossness.
+Dialogue: 0,0:17:24.75,0:17:26.75,Default,,0,0,0,,Aren't you even a little flattered?
+Dialogue: 0,0:17:31.33,0:17:34.38,Default,,0,0,0,,I'm going to leave now. I \Nhave to head home and cook.
+Dialogue: 0,0:17:42.58,0:17:45.63,Default,,0,0,0,,Wanna go eat, too?\NDid you think about what you wanted?
+Dialogue: 0,0:17:46.04,0:17:48.46,Default,,0,0,0,,Yeah. I came up with a lot of stuff, but...
+Dialogue: 0,0:17:51.38,0:17:53.58,Default,,0,0,0,,I wanna go home and do some chores!
+Dialogue: 0,0:17:53.58,0:17:55.21,Default,,0,0,0,,Huh? What do you mean?
+Dialogue: 0,0:17:56.08,0:17:58.83,Default,,0,0,0,,So now... Let's go shopping then go home!
+Dialogue: 0,0:18:21.75,0:18:24.29,Default,,0,0,0,,Games\NBatting Cages\NPool\NKaraoke
+Dialogue: 0,0:18:47.50,0:18:49.08,Default,,0,0,0,,Do you need a hand?
+Dialogue: 0,0:18:49.08,0:18:52.67,Default,,0,0,0,,Nah, don't bother. Stay right where you are.\NYou'd just get in the way.
+Dialogue: 0,0:18:52.67,0:18:53.29,Default,,0,0,0,,Ouch.
+Dialogue: 0,0:18:53.29,0:18:57.08,Default,,0,0,0,,I mean, you're sloppy when you do things,\Nand you don't clean up when you cook.
+Dialogue: 0,0:18:57.08,0:19:00.67,Default,,0,0,0,,Oh, yeah, you're right. I \Nsure don't, it's a pain.
+Dialogue: 0,0:19:00.92,0:19:02.46,Default,,0,0,0,,Sorry, little maid girl.
+Dialogue: 0,0:19:02.46,0:19:05.79,Default,,0,0,0,,Who's a maid? I'm just Komachi.
+Dialogue: 0,0:19:06.46,0:19:10.54,Default,,0,0,0,,Besides, I want to do this, so it's fine.\NI wasn't able to at all while studying for exams.
+Dialogue: 0,0:19:13.96,0:19:14.71,Default,,0,0,0,,Here.
+Dialogue: 0,0:19:14.71,0:19:18.58,Default,,0,0,0,,Thanks. I wanted to do \Nsomething, too, you know?
+Dialogue: 0,0:19:18.58,0:19:20.79,Default,,0,0,0,,No, it's fine. This is my hobby.
+Dialogue: 0,0:19:20.79,0:19:21.75,Default,,0,0,0,,What, chores?
+Dialogue: 0,0:19:21.75,0:19:24.13,Default,,0,0,0,,Hm... Well, it's more like...
+Dialogue: 0,0:19:24.13,0:19:26.08,Default,,0,0,0,,Pampering you is my hobby?
+Dialogue: 0,0:19:26.08,0:19:28.04,Default,,0,0,0,,Oh no, what are you saying? \NAre you my mom now?
+Dialogue: 0,0:19:28.04,0:19:28.79,Default,,0,0,0,,Ko-mom-chi...
+Dialogue: 0,0:19:28.79,0:19:31.29,Default,,0,0,0,,Ew, gross! Big Bro, are you sick?
+Dialogue: 0,0:19:31.29,0:19:32.33,Default,,0,0,0,,Shut up, get off my back.
+Dialogue: 0,0:19:32.88,0:19:35.79,Default,,0,0,0,,But you know, I could ask you the same thing.\NYou've got a pretty nice hobby.
+Dialogue: 0,0:19:35.79,0:19:38.33,Default,,0,0,0,,I know, right? I get lots \Nof points for it, huh?
+Dialogue: 0,0:19:38.33,0:19:42.63,Default,,0,0,0,,It's the greatest feeling to think about\Nhow I can ruin someone with my own two hands...
+Dialogue: 0,0:19:42.63,0:19:44.25,Default,,0,0,0,,You're sick, too, huh?
+Dialogue: 0,0:19:44.42,0:19:45.42,Default,,0,0,0,,Tee-hee-hee!
+Dialogue: 0,0:19:46.83,0:19:49.33,Default,,0,0,0,,But I really do like doing chores.
+Dialogue: 0,0:19:49.71,0:19:50.75,Default,,0,0,0,,Oh?
+Dialogue: 0,0:19:51.75,0:19:53.44,Default,,0,0,0,,How can I say this?
+Dialogue: 0,0:19:53.44,0:19:57.38,Default,,0,0,0,,Unlike all those times when you\Nlooked after me,
+Dialogue: 0,0:19:57.38,0:20:00.38,Default,,0,0,0,,I'm able to do so many things now.
+Dialogue: 0,0:20:00.67,0:20:05.38,Default,,0,0,0,,Maybe it's that there are things that even I can do,\Nor that I'm definitely being useful...
+Dialogue: 0,0:20:05.67,0:20:07.67,Default,,0,0,0,,That sort of thing's not bad.
+Dialogue: 0,0:20:09.13,0:20:12.79,Default,,0,0,0,,It's not a question of being not too bad...\NIf anything you're way too capable now.
+Dialogue: 0,0:20:12.96,0:20:14.83,Default,,0,0,0,,Well, that's because I worked hard for this!
+Dialogue: 0,0:20:14.83,0:20:16.34,Default,,0,0,0,,The sense of impending \Ndoom you feel when you
+Dialogue: 0,0:20:16.34,0:20:18.17,Default,,0,0,0,,have a useless older brother \Nmakes you grow up really fast!
+Dialogue: 0,0:20:18.17,0:20:20.92,Default,,0,0,0,,I know! I'm the ultimate example\Nof how not to live, aren't I?
+Dialogue: 0,0:20:21.25,0:20:24.33,Default,,0,0,0,,And you've grown even more!\NYou should be grateful to me for that.
+Dialogue: 0,0:20:24.83,0:20:26.67,Default,,0,0,0,,Right, I am grateful.
+Dialogue: 0,0:20:26.75,0:20:27.46,Default,,0,0,0,,Huh?
+Dialogue: 0,0:20:38.29,0:20:42.38,Default,,0,0,0,,This is probably something I should do\Nafter I've actually passed the exam.
+Dialogue: 0,0:20:42.92,0:20:46.41,Default,,0,0,0,,It'd be embarrassing to say it \Nagain if I pass, and if I fail then
+Dialogue: 0,0:20:46.41,0:20:48.97,Default,,0,0,0,,it won't feel like the right time for it.
+Dialogue: 0,0:20:49.17,0:20:51.25,Default,,0,0,0,,Now is the only time I can say this, so...
+Dialogue: 0,0:20:52.71,0:20:56.75,Default,,0,0,0,,Thanks, Big Brother.\NThank you for doing so much for me.
+Dialogue: 0,0:20:58.00,0:21:00.71,Default,,0,0,0,,You dummy, what are you talking about?\NThis is embarassing, stop it.
+Dialogue: 0,0:21:01.83,0:21:05.13,Default,,0,0,0,,I just wanted to try saying it.\NI thought I could get a lot of points for this.
+Dialogue: 0,0:21:05.33,0:21:08.67,Default,,0,0,0,,You won't get a lot of points, and besides,\Nit looks like you're off to become someone's bride.
+Dialogue: 0,0:21:08.67,0:21:11.42,Default,,0,0,0,,Nope. I'd never allow you\Nto get married or anything, and...
+Dialogue: 0,0:21:11.67,0:21:14.63,Default,,0,0,0,,And also... What? For real, stop...
+Dialogue: 0,0:21:15.88,0:21:17.46,Default,,0,0,0,,There's like, water coming from my eyes...
+Dialogue: 0,0:21:17.67,0:21:19.96,Default,,0,0,0,,What is this? What? Why is this happening?
+Dialogue: 0,0:21:19.96,0:21:24.96,Default,,0,0,0,,Those are tears. Big Bro, you're like a robot\Nunderstanding emotions for the first time.
+Dialogue: 0,0:21:25.29,0:21:28.79,Default,,0,0,0,,These are... tears. These are... emotions.
+Dialogue: 0,0:21:28.79,0:21:30.67,Default,,0,0,0,,Why are you talking like \Nthat all of a sudden?
+Dialogue: 0,0:21:33.33,0:21:37.13,Default,,0,0,0,,I'm going to go warm the \Nbath and then hop in.
+Dialogue: 0,0:21:51.71,0:21:53.33,Default,,0,0,0,,Big Bro!
+Dialogue: 0,0:21:57.29,0:22:00.92,Default,,0,0,0,,She's distancing herself from me now, huh?\NWhat do you think about this, Kamakura?
+Dialogue: 0,0:22:07.04,0:22:11.04,On Top,,0,0,0,,In Due Time, the Seasons Change\Nand the Snow Melts.
+Dialogue: 0,0:22:07.50,0:22:09.63,Default,,0,0,0,,It's a bit too early to graduate, huh?
+Dialogue: 0,0:23:41.63,0:23:44.58,Default,,0,0,0,,Komachi! Koma...chi...
+Dialogue: 0,0:23:45.04,0:23:50.08,Default,,0,0,0,,Komachi was quite the handful\Nwhen she was little, too!  And it was... just so...
+Dialogue: 0,0:23:50.08,0:23:52.83,Default,,0,0,0,,Big Bro the bath is re-\NWhoa, why are you crying so much?
+Dialogue: 0,0:23:52.83,0:23:55.33,Default,,0,0,0,,No, you dummy, I'm not crying! \NThis is sweat, just sweat.
+Dialogue: 0,0:23:55.33,0:23:57.13,Default,,0,0,0,,Talking to people makes me sweaty.
+Dialogue: 0,0:23:57.13,0:24:01.00,Default,,0,0,0,,But you were talking to a cat.\NAre you okay? Do you want to go to therapy?
+Dialogue: 0,0:24:01.17,0:24:02.75,Default,,0,0,0,,Therapy makes me sweaty, too, so no.
+Dialogue: 0,0:24:02.83,0:24:04.13,Default,,0,0,0,,I'm gonna go take a bath!
+Dialogue: 0,0:24:04.92,0:24:06.75,Default,,0,0,0,,And this is why you're trash.
+Dialogue: 0,0:24:07.04,0:24:10.67,Default,,0,0,0,,Oh, well. Guess I have to take care of him\Nfor a while longer!
+Dialogue: 0,0:24:08.00,0:24:11.08,OS,,0,0,0,,That Key\NWas Never Handled\NUntil Today.
+

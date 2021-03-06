@@ -1,0 +1,5 @@
+Default
+DefaultLow
+Italics
+On
+OS
