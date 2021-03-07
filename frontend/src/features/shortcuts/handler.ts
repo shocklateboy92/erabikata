@@ -14,15 +14,17 @@ import {
     selectSelectedEpisodeContent,
     selectedWordCycleRequest,
     selectedWordReverseCycleRequest,
-    selectSelectedWord,
     selectSelectedWordOccurrences,
-    selectSelectedWords
+    selectSelectedWords,
+    selectSelectedWord
 } from 'features/selectedWord';
 import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
 import { selectSelectedEnglishDialog } from '../engDialog';
+import history from 'appHistory';
+import {generateDialogLink} from 'routing/linkGen';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -65,6 +67,16 @@ const handlers: {
                 )
                 .join('\n');
         }, 'Japanese text')
+    },
+    {
+	    key: 'C',
+	    action: (_, getState) => {
+		    const {wordIds, episode, sentenceTimestamp} = selectSelectedWord(getState());
+		    if (!episode || sentenceTimestamp === undefined) {
+			    return;
+		    }
+		    history.push(generateDialogLink(episode, sentenceTimestamp, wordIds));
+	    }
     },
     {
         key: 'd',
