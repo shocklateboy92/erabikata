@@ -92,7 +92,7 @@ namespace Erabikata.Backend.CollectionManagers
             var cursor = await _mongoCollections[AnalyzerMode.SudachiC]
                 .FindAsync(
                     FilterDefinition<Dialog>.Empty,
-                    new FindOptions<Dialog> {BatchSize = 1000}
+                    new FindOptions<Dialog> {BatchSize = 10000}
                 );
             while (await cursor.MoveNextAsync())
             {
