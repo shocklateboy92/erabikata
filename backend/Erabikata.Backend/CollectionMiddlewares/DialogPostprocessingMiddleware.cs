@@ -22,9 +22,10 @@ namespace Erabikata.Backend.CollectionMiddlewares
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
             await next(activity);
-            if (activity is BeginIngestion)
+            if (activity is BeginIngestion or DictionaryUpdate)
             {
-                var (words, readings) = await (_wordInfo.GetAllNormalizedForms(), _wordInfo.GetAllReadings());
+                var (words, readings) = await (_wordInfo.GetAllNormalizedForms(),
+                    _wordInfo.GetAllReadings());
                 await _dialog.ProcessWords2(words, readings);
                 await _wordInfo.UpdateWordCounts(words);
             }
