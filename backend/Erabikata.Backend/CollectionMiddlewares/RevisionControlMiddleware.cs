@@ -26,7 +26,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
             {
                 case BeginIngestion beginIngestion:
                     var previousComment = await _databaseInfoManager.GetCurrentCommit();
-                    if (previousComment == beginIngestion.StartCommit &&
+                    if (beginIngestion.ForceFullIngestion ||
+                        previousComment == beginIngestion.StartCommit &&
                         (beginIngestion.StartCommit != beginIngestion.EndCommit ||
                          _settings.AllowIngestionOfSameCommit))
                     {
