@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
@@ -17,7 +16,7 @@ using Xunit.Priority;
 
 namespace Erabikata.Tests
 {
-    public class UnitTest1 : IClassFixture<WebApplicationFactory<Erabikata.Backend.Startup>>
+    public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
     {
         private readonly WebApplicationFactory<Backend.Startup> _factory;
         private readonly DatabaseInfoManager _databaseInfoManager;
@@ -26,7 +25,7 @@ namespace Erabikata.Tests
         private readonly ActionsController _actionsController;
 
         public UnitTest1(
-            WebApplicationFactory<Erabikata.Backend.Startup> factory,
+            WebApplicationFactory<Backend.Startup> factory,
             DatabaseInfoManager databaseInfoManager,
             DialogCollectionManager dialogCollectionManager,
             WordInfoCollectionManager wordInfoCollectionManager,
@@ -93,6 +92,22 @@ namespace Erabikata.Tests
                     );
                 ;
             }
+        }
+
+        [Theory, InlineData(2270030, "乃")]
+        public async Task TestProcessWords2(int wordId, string text)
+        {
+            var middleware = new DialogPostprocessingMiddleware(
+                _wordInfoCollectionManager,
+                _dialogCollectionManager
+            );
+            await middleware.Execute(
+                new BeginIngestion(string.Empty, string.Empty),
+                activity => Task.CompletedTask
+            );
+
+            var words = await _wordInfoCollectionManager.GetWords(new[] {wordId});
+            words.Single().TotalOccurrences.Should().Be(487);
         }
     }
 }
