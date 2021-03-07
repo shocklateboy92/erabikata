@@ -16,6 +16,7 @@ using Xunit.Priority;
 
 namespace Erabikata.Tests
 {
+    [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
     public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
     {
         private readonly WebApplicationFactory<Backend.Startup> _factory;
@@ -71,43 +72,30 @@ namespace Erabikata.Tests
             endCommit.Should().Be("yolo");
         }
 
-        [Fact, Priority(3)]
-        public async Task TestWordCounts()
+        [Theory]
+        [InlineData(2270030, "乃", 487)]
+        [InlineData(1249960, "兄弟", 1)]
+        [InlineData(1598360, "手作り", 4)]
+        [InlineData(1247250, "君", 19)]
+        [InlineData(1599420, "中々", 3)]
+        [InlineData(1625780, "初めまして", 12)]
+        [InlineData(1602440, "増える", 2)]
+        [InlineData(1591330, "気づく", 3)]
+        public async Task TestProcessWords2(int wordId, string text, uint count)
         {
-            foreach (var sortedWordCount in await _wordInfoCollectionManager.GetSortedWordCounts(
-                Enumerable.Empty<string>(),
-                1000,
-                0
-            ))
-            {
-                var occurrences = await _dialogCollectionManager.GetOccurrences(
-                    AnalyzerMode.SudachiC,
-                    sortedWordCount.Id
-                );
-
-                occurrences.Count.Should()
-                    .Be(
-                        (int) sortedWordCount.TotalOccurrences,
-                        $"[{sortedWordCount.Kanji.FirstOrDefault() ?? sortedWordCount.Readings.First()}]({sortedWordCount.Id})"
-                    );
-                ;
-            }
-        }
-
-        [Theory, InlineData(2270030, "乃")]
-        public async Task TestProcessWords2(int wordId, string text)
-        {
-            var middleware = new DialogPostprocessingMiddleware(
-                _wordInfoCollectionManager,
-                _dialogCollectionManager
-            );
-            await middleware.Execute(
-                new BeginIngestion(string.Empty, string.Empty),
-                activity => Task.CompletedTask
-            );
+            // var middleware = new DialogPostprocessingMiddleware(
+            //     _wordInfoCollectionManager,
+            //     _dialogCollectionManager
+            // );
+            // await middleware.Execute(
+            //     new BeginIngestion(string.Empty, string.Empty),
+            //     activity => Task.CompletedTask
+            // );
 
             var words = await _wordInfoCollectionManager.GetWords(new[] {wordId});
-            words.Single().TotalOccurrences.Should().Be(487);
+            var wordInfo = words.Single();
+            wordInfo.Kanji.First().Should().Be(text);
+            wordInfo.TotalOccurrences.Should().Be(count);
         }
     }
 }
