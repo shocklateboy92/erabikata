@@ -37,7 +37,7 @@ namespace Erabikata.Backend.Controllers
             Analyzer analyzer,
             [FromQuery] PagingInfo pagingInfo)
         {
-            if (analyzer != Analyzer.SudachiC)
+            if (analyzer.ToAnalyzerMode() != Constants.DefaultAnalyzerMode)
             {
                 return Array.Empty<WordRankInfo>();
             }
