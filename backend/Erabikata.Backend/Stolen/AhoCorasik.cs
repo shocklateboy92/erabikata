@@ -122,10 +122,10 @@ namespace Erabikata.Backend.Stolen
             {
                 index++;
 
-                while (node[c.BaseForm] == null && node != _root)
+                while (node[c.DictionaryForm] == null && node != _root)
                     node = node.Fail;
 
-                node = node[c.BaseForm] ?? _root;
+                node = node[c.DictionaryForm] ?? _root;
 
                 for (var t = node; t != _root; t = t.Fail)
                     foreach (var value in t.Values)
