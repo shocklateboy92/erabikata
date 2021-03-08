@@ -73,7 +73,7 @@ namespace Erabikata.Tests
         }
 
         [Theory]
-        [InlineData(2270030, "乃", 487)]
+        [InlineData(2270030, "乃", 491)]
         [InlineData(1249960, "兄弟", 1)]
         [InlineData(1598360, "手作り", 4)]
         [InlineData(1247250, "君", 19)]

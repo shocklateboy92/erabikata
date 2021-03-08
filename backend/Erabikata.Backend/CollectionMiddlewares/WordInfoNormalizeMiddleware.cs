@@ -44,7 +44,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                     (info, index) => new AnalyzeDialogRequest
                                     {
                                         Lines = {info.Kanji.Any() ? info.Kanji : info.Readings},
-                                        Mode = AnalyzerMode.SudachiC,
+                                        Mode = Constants.DefaultAnalyzerMode,
                                         Style = "none",
                                         Time = index
                                     }

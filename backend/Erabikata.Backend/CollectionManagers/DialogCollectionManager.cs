@@ -89,7 +89,7 @@ namespace Erabikata.Backend.CollectionManagers
 
             trie.Build();
 
-            var cursor = await _mongoCollections[AnalyzerMode.SudachiC]
+            var cursor = await _mongoCollections[Constants.DefaultAnalyzerMode]
                 .FindAsync(
                     FilterDefinition<Dialog>.Empty,
                     new FindOptions<Dialog> {BatchSize = 10000}
@@ -127,7 +127,7 @@ namespace Erabikata.Backend.CollectionManagers
                         )
                     )
                     .ToArray();
-                await _mongoCollections[AnalyzerMode.SudachiC]
+                await _mongoCollections[Constants.DefaultAnalyzerMode]
                     .BulkWriteAsync(replaceOneModels, new BulkWriteOptions {IsOrdered = false});
             }
         }
