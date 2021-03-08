@@ -88,5 +88,12 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task<StyleFilter?> GetByShowId(int showId) =>
             await _mongoCollection.Find(filter => filter.ShowId == showId).FirstOrDefaultAsync();
+
+        public async Task<int?> GetShowIdOf(int episodeId)
+        {
+            return await _mongoCollection.Find(filter => filter.ForEpisodes.Contains(episodeId))
+                .Project(filter => filter.ShowId)
+                .FirstOrDefaultAsync();
+        }
     }
 }

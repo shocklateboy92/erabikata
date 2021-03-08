@@ -71,6 +71,7 @@ export const {
     useWordsSearchQuery,
     useEpisodeIndexQuery,
     useEngSubsIndexQuery,
+    useEngSubsShowIdOfQuery,
     useActionsExecuteMutation,
     useExecuteActionMutation,
     useEngSubsActiveStylesForQuery,

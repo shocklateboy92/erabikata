@@ -69,6 +69,17 @@ namespace Erabikata.Backend.Controllers
             return show?.EnabledStyles ?? Array.Empty<string>();
         }
 
+        [Route("[action]/{episodeId}")]
+        public async Task<ActionResult<int?>> ShowIdOf(string episodeId)
+        {
+            if (!int.TryParse(episodeId, out var parsedEpisodeId))
+            {
+                return BadRequest();
+            }
+
+            return await _styleFilterCollection.GetShowIdOf(parsedEpisodeId);
+        }
+
         [Route("[action]")]
         public async Task<EngSubsResponse> ByStyleName(
             int showId,
