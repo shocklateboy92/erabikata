@@ -9,7 +9,7 @@ interface IBackendSelection {
 }
 
 const initialState: IBackendSelection = {
-    analyzer: 'SudachiB',
+    analyzer: 'SudachiA',
     baseUrl: getInitialBaseUrl()
 };
 
