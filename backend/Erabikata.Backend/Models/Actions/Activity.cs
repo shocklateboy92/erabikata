@@ -10,8 +10,8 @@ namespace Erabikata.Backend.Models.Actions
         typeof(LearnWord),
         typeof(UnlearnWord),
         typeof(DictionaryUpdate),
-        typeof(IncludePartOfSpeech),
-        typeof(ExcludePartOfSpeech),
+        typeof(IgnoreReadingsOf),
+        typeof(IncludeReadingsOf),
         typeof(EnableStyle),
         typeof(DisableStyle),
         typeof(BeginIngestion),
@@ -21,8 +21,8 @@ namespace Erabikata.Backend.Models.Actions
     [KnownType(typeof(LearnWord))]
     [KnownType(typeof(UnlearnWord))]
     [KnownType(typeof(DictionaryUpdate))]
-    [KnownType(typeof(IncludePartOfSpeech))]
-    [KnownType(typeof(ExcludePartOfSpeech))]
+    [KnownType(typeof(IgnoreReadingsOf))]
+    [KnownType(typeof(IncludeReadingsOf))]
     [KnownType(typeof(EnableStyle))]
     [KnownType(typeof(DisableStyle))]
     [KnownType(typeof(BeginIngestion))]

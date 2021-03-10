@@ -20,14 +20,14 @@ namespace Erabikata.Backend.CollectionManagers
         {
             switch (activity)
             {
-                case IncludePartOfSpeech({ } partOfSpeech):
+                case IgnoreReadingsOf({ } partOfSpeech):
                     await _mongoCollection.ReplaceOneAsync(
                         filter => filter.PartOfSpeech == partOfSpeech,
                         new PartOfSpeechFilter(partOfSpeech, true),
                         new ReplaceOptions {IsUpsert = true}
                     );
                     break;
-                case ExcludePartOfSpeech({ } partOfSpeech):
+                case IncludeReadingsOf({ } partOfSpeech):
                     await _mongoCollection.ReplaceOneAsync(
                         filter => filter.PartOfSpeech == partOfSpeech,
                         new PartOfSpeechFilter(partOfSpeech, false),
@@ -39,7 +39,7 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<string>> GetIgnoredPartOfSpeech()
         {
-            return _mongoCollection.Find(filter => !filter.Include)
+            return _mongoCollection.Find(filter => filter.IgnoreReading)
                 .Project(filter => filter.PartOfSpeech)
                 .ToListAsync();
         }

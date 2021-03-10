@@ -42,10 +42,8 @@ namespace Erabikata.Backend.Controllers
                 return Array.Empty<WordRankInfo>();
             }
 
-            var (ignoredPartsOfSpeech, totalCount) = await (
-                _partOfSpeechFilter.GetIgnoredPartOfSpeech(), _wordInfo.GetTotalWordCount());
             var ranks = await _wordInfo.GetSortedWordCounts(
-                ignoredPartsOfSpeech,
+                ArraySegment<string>.Empty, 
                 pagingInfo.Max,
                 pagingInfo.Skip
             );

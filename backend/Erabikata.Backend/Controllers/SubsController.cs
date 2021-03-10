@@ -6,6 +6,7 @@ using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.Controllers
 {
@@ -14,10 +15,14 @@ namespace Erabikata.Backend.Controllers
     public class SubsController : ControllerBase
     {
         private readonly DialogCollectionManager _dialogCollection;
+        private readonly PartOfSpeechFilterCollectionManager _partOfSpeechFilter;
 
-        public SubsController(DialogCollectionManager dialogCollection)
+        public SubsController(
+            DialogCollectionManager dialogCollection,
+            PartOfSpeechFilterCollectionManager partOfSpeechFilter)
         {
             _dialogCollection = dialogCollection;
+            _partOfSpeechFilter = partOfSpeechFilter;
         }
 
         [Route("[action]/{id}")]
@@ -25,12 +30,16 @@ namespace Erabikata.Backend.Controllers
             [BindRequired] Analyzer analyzer,
             string id)
         {
-            var dialogs = await _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] {id});
+            var (dialogs, ignoredPartsOfSpeech) = await (
+                _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] {id}),
+                _partOfSpeechFilter.GetIgnoredPartOfSpeech());
             var dialog = dialogs.FirstOrDefault();
             if (dialog == null)
             {
                 return NotFound($"Unable to find dialog with id '{id}'.");
             }
+
+            var ignoreReadingMap = ignoredPartsOfSpeech.ToHashSet();
 
             return new WordOccurrence
             {
@@ -45,7 +54,9 @@ namespace Erabikata.Backend.Controllers
                                     word => new DialogInfo.WordRef(
                                         word.OriginalForm,
                                         word.BaseForm,
-                                        word.Reading,
+                                        word.PartOfSpeech.Any(ignoreReadingMap.Contains)
+                                            ? string.Empty
+                                            : word.Reading,
                                         word.InfoIds
                                     )
                                 )
