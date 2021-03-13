@@ -13,7 +13,7 @@ export const selectSelectedEnglishDialog = (state: RootState) => {
     const { data } = apiEndpoints.engSubsIndex.select({
         episodeId,
         time,
-        count: 3
+        count: 1
     })(state);
     if (!data) {
         return;
