@@ -8,31 +8,27 @@ namespace Erabikata.Backend.Processing
     {
         public record Candidate(
             int WordId,
-            IEnumerable<string[]> NormalizedForms,
+            IReadOnlyList<IReadOnlyList<string>> NormalizedForms,
             IEnumerable<string[]> DictionaryForms,
-            IEnumerable<string> Readings)  ;
+            IEnumerable<string> Readings);
 
         public WordMatcher(IEnumerable<Candidate> candidates)
         {
             foreach (var candidate in candidates)
             {
                 AddToTrie(candidate, candidate.NormalizedForms);
-                AddToTrie(candidate, candidate.DictionaryForms);
-                AddToTrie(
-                    candidate,
-                    candidate.Readings.Select(reading => new[] { reading }));
+                // AddToTrie(candidate, candidate.DictionaryForms);
+                AddToTrie(candidate, candidate.Readings.Select(reading => new[] {reading}));
             }
 
-			_trie.Build();
+            _trie.Build();
         }
 
-        private void AddToTrie(
-            Candidate candidate,
-            IEnumerable<string[]> matchList)
+        private void AddToTrie(Candidate candidate, IEnumerable<IReadOnlyList<string>> matchList)
         {
             foreach (var normalized in matchList)
             {
-                _trie.Add(normalized, (candidate, normalized.Length));
+                _trie.Add(normalized, (candidate, normalized.Count));
             }
         }
 

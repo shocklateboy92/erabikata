@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Erabikata.Backend.Processing;
 using Mapster;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
@@ -125,5 +127,20 @@ namespace Erabikata.Backend.CollectionManagers
                 .SortByDescending(word => word.TotalOccurrences)
                 .Project(word => word.Id)
                 .ToListAsync();
+
+        public async Task<WordMatcher> BuildWordMatcher()
+        {
+            var words = await _mongoCollection.Find(FilterDefinition<WordInfo>.Empty)
+                .Project(
+                    word => new WordMatcher.Candidate(
+                        word.Id,
+                        word.Normalized,
+                        Array.Empty<string[]>(),
+                        word.Readings
+                    )
+                ).ToListAsync();
+
+            return new WordMatcher(words);
+        }
     }
 }
