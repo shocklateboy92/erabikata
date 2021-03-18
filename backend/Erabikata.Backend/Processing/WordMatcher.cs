@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Erabikata.Backend.Stolen;
 
 namespace Erabikata.Backend.Processing
@@ -13,9 +14,28 @@ namespace Erabikata.Backend.Processing
 
         public WordMatcher(IEnumerable<Candidate> candidates)
         {
-            foreach (var candidate in candidates) { }
+            foreach (var candidate in candidates)
+            {
+                AddToTrie(candidate, candidate.NormalizedForms);
+                AddToTrie(candidate, candidate.DictionaryForms);
+                AddToTrie(
+                    candidate,
+                    candidate.Readings.Select(reading => new[] { reading }));
+            }
+
+			_trie.Build();
         }
 
-        private Trie<Candidate> _trie = new();
+        private void AddToTrie(
+            Candidate candidate,
+            IEnumerable<string[]> matchList)
+        {
+            foreach (var normalized in matchList)
+            {
+                _trie.Add(normalized, (candidate, normalized.Length));
+            }
+        }
+
+        private Trie<(Candidate word, int length)> _trie = new();
     }
 }
