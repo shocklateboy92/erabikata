@@ -29,7 +29,7 @@ namespace Erabikata.Backend.Models.Database
 
         [DataMember] public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
 
-        [DataMember] public ICollection<int> WordsToRank { get; set; } = new List<int>();
+        [DataMember] public ICollection<int> WordsToRank { get; set; } = new HashSet<int>();
 
         [DataContract]
         public record Word(

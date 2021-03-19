@@ -50,12 +50,12 @@ namespace Erabikata.Backend.CollectionManagers
 
         public record WordReading([property: BsonId] int Id, IEnumerable<string> Readings);
 
-        public Task UpdateWordCounts(IEnumerable<NormalizedWord> words)
+        public Task UpdateWordCounts(IEnumerable<(int wordId, ulong count)> words)
         {
             var models = words.Select(
                     word => new UpdateOneModel<WordInfo>(
-                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.Id),
-                        Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.Count)
+                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.wordId),
+                        Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.count)
                     )
                 )
                 .ToArray();
@@ -138,7 +138,8 @@ namespace Erabikata.Backend.CollectionManagers
                         Array.Empty<string[]>(),
                         word.Readings
                     )
-                ).ToListAsync();
+                )
+                .ToListAsync();
 
             return new WordMatcher(words);
         }

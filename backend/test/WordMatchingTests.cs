@@ -51,7 +51,7 @@ namespace Erabikata.Tests
                 )
                 .ToArray();
             
-            _fixture.Matcher.FillMatches(words);
+            _fixture.Matcher.FillMatchesAndGetWords(words);
 
             words.Should().Contain(word => word.InfoIds.Contains(2842157));
         }

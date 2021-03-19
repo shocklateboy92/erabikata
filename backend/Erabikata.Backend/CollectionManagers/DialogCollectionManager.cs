@@ -8,6 +8,7 @@ using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Models.Output;
+using Erabikata.Backend.Processing;
 using Erabikata.Backend.Stolen;
 using Grpc.Core.Utils;
 using Microsoft.Extensions.Logging;
@@ -60,35 +61,8 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
-        public async Task ProcessWords2(
-            IEnumerable<WordInfoCollectionManager.NormalizedWord> words,
-            IEnumerable<WordInfoCollectionManager.WordReading> wordReadings)
+        public async Task ProcessWords2(WordMatcher matcher)
         {
-            var trie = new Trie<(int Count, WordInfoCollectionManager.NormalizedWord word)>();
-            foreach (var word in words)
-            foreach (var normalized in word.Normalized)
-            {
-                trie.Add(normalized, (normalized.Count, word));
-            }
-
-            // These are added afterwards, in the hope that matching normalized forms will
-            // take priority.
-            foreach (var (id, readings) in wordReadings)
-            foreach (var reading in readings)
-            {
-                var normalized = new[] {reading};
-                trie.Add(
-                    normalized,
-                    // Constructing a new set of normalized words here, whose counts
-                    // will be incremented but not written back to the database. For
-                    // future investigation: is that incrementing expensive?
-                    (1, new WordInfoCollectionManager.NormalizedWord(id, new[] {normalized}))
-                );
-            }
-
-
-            trie.Build();
-
             var cursor = await _mongoCollections[Constants.DefaultAnalyzerMode]
                 .FindAsync(
                     FilterDefinition<Dialog>.Empty,
@@ -102,17 +76,10 @@ namespace Erabikata.Backend.CollectionManagers
                         {
                             foreach (var line in dialog.Lines)
                             {
-                                var matches = trie.Find(line.Words);
-                                foreach (var (endIndex, (length, word)) in matches)
+                                var wordsInLine = matcher.FillMatchesAndGetWords(line.Words);
+                                foreach (var wordId in wordsInLine)
                                 {
-                                    for (var index = endIndex - length; index < endIndex; index++)
-                                        line.Words[index].InfoIds.Add(word.Id);
-
-                                    Interlocked.Increment(ref word.Count);
-                                    if (!line.Words[endIndex - 1].IsInParenthesis)
-                                    {
-                                        dialog.WordsToRank.Add(word.Id);
-                                    }
+                                    dialog.WordsToRank.Add(wordId);
                                 }
                             }
 
