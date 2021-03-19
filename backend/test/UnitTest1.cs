@@ -72,7 +72,7 @@ namespace Erabikata.Tests
             endCommit.Should().Be("yolo");
         }
 
-        [Theory]
+        [Theory, Priority(20)]
         [InlineData(2270030, "乃", 491)]
         [InlineData(1249960, "兄弟", 1)]
         [InlineData(1598360, "手作り", 4)]
