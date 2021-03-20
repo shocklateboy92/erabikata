@@ -25,8 +25,8 @@ namespace Erabikata.Backend.Processing
         {
             foreach (var candidate in candidates)
             {
-                AddToTrie(candidate, candidate.NormalizedForms);
                 AddToTrie(candidate, candidate.DictionaryForms);
+                AddToTrie(candidate, candidate.NormalizedForms);
                 // AddToTrie(candidate, candidate.Readings.Select(reading => new[] {reading}));
             }
 
