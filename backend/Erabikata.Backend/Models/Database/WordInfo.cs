@@ -29,7 +29,11 @@ namespace Erabikata.Backend.Models.Database
 
         [DataMember]
         public IReadOnlyList<IReadOnlyList<string>> Normalized { get; set; } =
-            new Collection<IReadOnlyList<string>>();
+            new List<IReadOnlyList<string>>();
+
+        [DataMember]
+        public IReadOnlyList<IReadOnlyList<string>> Analyzed { get; set; } =
+            new List<IReadOnlyList<string>>();
 
         [DataMember] public IEnumerable<Meaning> Meanings { get; set; }
 

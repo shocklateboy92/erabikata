@@ -113,7 +113,7 @@ namespace Erabikata.Backend.Stolen
         /// </summary>
         /// <param name="text">The text to search in.</param>
         /// <returns>The values that were added for the found words.</returns>
-        public IEnumerable<(int index, TValue value)> Find(IEnumerable<Dialog.Word> text)
+        public IEnumerable<(int index, TValue value)> Find(IEnumerable<string> text)
         {
             var node = _root;
 
@@ -122,10 +122,10 @@ namespace Erabikata.Backend.Stolen
             {
                 index++;
 
-                while (node[c.DictionaryForm] == null && node != _root)
+                while (node[c] == null && node != _root)
                     node = node.Fail;
 
-                node = node[c.DictionaryForm] ?? _root;
+                node = node[c] ?? _root;
 
                 for (var t = node; t != _root; t = t.Fail)
                     foreach (var value in t.Values)

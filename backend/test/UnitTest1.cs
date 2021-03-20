@@ -72,8 +72,20 @@ namespace Erabikata.Tests
             endCommit.Should().Be("yolo");
         }
 
+        [Fact, Priority(19)]
+        public async Task ReprocessDialogMatches()
+        {
+            var middleware = new DialogPostprocessingMiddleware(
+                _wordInfoCollectionManager,
+                _dialogCollectionManager
+            );
+            await middleware.Execute(
+                new BeginIngestion(string.Empty, string.Empty),
+                activity => Task.CompletedTask
+            );
+        }
+
         [Theory, Priority(20)]
-        [InlineData(2270030, "乃", 491)]
         [InlineData(1249960, "兄弟", 1)]
         [InlineData(1598360, "手作り", 4)]
         [InlineData(1247250, "君", 19)]
@@ -83,15 +95,6 @@ namespace Erabikata.Tests
         [InlineData(1591330, "気づく", 3)]
         public async Task TestProcessWords2(int wordId, string text, uint count)
         {
-            // var middleware = new DialogPostprocessingMiddleware(
-            //     _wordInfoCollectionManager,
-            //     _dialogCollectionManager
-            // );
-            // await middleware.Execute(
-            //     new BeginIngestion(string.Empty, string.Empty),
-            //     activity => Task.CompletedTask
-            // );
-
             var words = await _wordInfoCollectionManager.GetWords(new[] {wordId});
             var wordInfo = words.Single();
             wordInfo.Kanji.First().Should().Be(text);

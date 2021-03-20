@@ -12,10 +12,13 @@ namespace Erabikata.Backend.Processing
         public record Candidate(
             int WordId,
             IReadOnlyList<IReadOnlyList<string>> NormalizedForms,
-            IEnumerable<string[]> DictionaryForms,
+            IReadOnlyList<IReadOnlyList<string>> DictionaryForms,
             IEnumerable<string> Readings)
         {
             public ulong Count = 0;
+
+            public virtual bool Equals(Candidate? other) => other?.WordId == WordId;
+            public override int GetHashCode() => WordId.GetHashCode();
         };
 
         public WordMatcher(IReadOnlyCollection<Candidate> candidates)
@@ -23,15 +26,15 @@ namespace Erabikata.Backend.Processing
             foreach (var candidate in candidates)
             {
                 AddToTrie(candidate, candidate.NormalizedForms);
-                // AddToTrie(candidate, candidate.DictionaryForms);
-                AddToTrie(candidate, candidate.Readings.Select(reading => new[] {reading}));
+                AddToTrie(candidate, candidate.DictionaryForms);
+                // AddToTrie(candidate, candidate.Readings.Select(reading => new[] {reading}));
             }
 
             _trie.Build();
             _candidates = candidates;
         }
 
-        private Trie<(Candidate word, int length)> _trie = new();
+        private readonly Trie<(Candidate word, int length)> _trie = new();
         private readonly IReadOnlyCollection<Candidate> _candidates;
 
         private void AddToTrie(Candidate candidate, IEnumerable<IReadOnlyList<string>> matchList)
@@ -42,23 +45,28 @@ namespace Erabikata.Backend.Processing
             }
         }
 
-        public IReadOnlyCollection<int> FillMatchesAndGetWords(IReadOnlyList<Dialog.Word> words)
+        public IEnumerable<int> FillMatchesAndGetWords(IReadOnlyList<Dialog.Word> words)
         {
-            var uniqueMatches = new List<int>();
-            var matches = _trie.Find(words);
+            var uniqueMatches = new HashSet<Candidate>();
+            var matches = _trie.Find(words.Select(word => word.DictionaryForm))
+                .Concat(_trie.Find(words.Select(word => word.BaseForm)));
             foreach (var (endIndex, (word, length)) in matches)
             {
                 for (var index = endIndex - length; index < endIndex; index++)
                     words[index].InfoIds.Add(word.WordId);
 
-                Interlocked.Increment(ref word.Count);
                 if (!words[endIndex - 1].IsInParenthesis)
                 {
-                    uniqueMatches.Add(word.WordId);
+                    uniqueMatches.Add(word);
                 }
             }
 
-            return uniqueMatches;
+            foreach (var candidate in uniqueMatches)
+            {
+                Interlocked.Increment(ref candidate.Count);
+            }
+
+            return uniqueMatches.Select(candidate => candidate.WordId);
         }
 
         public IEnumerable<(int WordId, ulong Count)> GetUpdatedWordCounts()

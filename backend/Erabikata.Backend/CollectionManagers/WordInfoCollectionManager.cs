@@ -135,7 +135,7 @@ namespace Erabikata.Backend.CollectionManagers
                     word => new WordMatcher.Candidate(
                         word.Id,
                         word.Normalized,
-                        Array.Empty<string[]>(),
+                        word.Analyzed,
                         word.Readings
                     )
                 )

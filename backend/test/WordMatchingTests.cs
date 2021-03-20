@@ -90,10 +90,7 @@ namespace Erabikata.Tests
                 .ToArray();
 
             var results = _fixture.Matcher.FillMatchesAndGetWords(words);
-            foreach (var expectedWord in expectedWords)
-            {
-                results.Should().Contain(expectedWord);
-            }
+            results.Should().Contain(expectedWords);
         }
 
         public static IEnumerable<object[]> GetData()

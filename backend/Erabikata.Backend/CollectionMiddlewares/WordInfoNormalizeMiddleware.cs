@@ -52,15 +52,26 @@ namespace Erabikata.Backend.CollectionMiddlewares
                             );
 
                             await foreach (var response in client.ResponseStream.ReadAllAsync())
-                                batchWords[(int) response.Time].Normalized = response.Lines.Select(
-                                        line => line.Words.Select(word => word.DictionaryForm)
-                                            .ToArray()
-                                    )
-                                    .Distinct(new EnumerableComparer<string, string[]>())
-                                    .ToList();
+                            {
+                                batchWords[(int) response.Time].Normalized = ExtractForm(
+                                    response,
+                                    word => word.BaseForm
+                                );
+                                batchWords[(int) response.Time].Analyzed = ExtractForm(
+                                    response,
+                                    word => word.DictionaryForm
+                                );
+                            }
                         }
                     )
                 );
         }
+
+        private static List<string[]> ExtractForm(
+            AnalyzeDialogResponse response,
+            Func<AnalyzedWord, string> selector) =>
+            response.Lines.Select(line => line.Words.Select(selector).ToArray())
+                .Distinct(new EnumerableComparer<string, string[]>())
+                .ToList();
     }
 }
