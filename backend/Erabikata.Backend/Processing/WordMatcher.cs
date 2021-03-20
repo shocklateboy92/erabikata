@@ -40,25 +40,25 @@ namespace Erabikata.Backend.Processing
         {
             foreach (var normalized in matchList)
             {
-                _trie.Add(normalized, (candidate, normalized.Count));
+                _trie.Add(normalized, (candidate, normalized.Sum(s => s.Length)));
             }
         }
 
         public IEnumerable<int> FillMatchesAndGetWords(IReadOnlyList<Dialog.Word> words)
         {
             var uniqueMatches = new HashSet<Candidate>();
-            var matches = _trie.Find(words.Select(word => word.DictionaryForm))
-                .Concat(_trie.Find(words.Select(word => word.BaseForm)));
-            foreach (var (endIndex, (word, length)) in matches)
-            {
-                for (var index = endIndex - length; index < endIndex; index++)
-                    words[index].InfoIds.Add(word.WordId);
-
-                if (!words[endIndex - 1].IsInParenthesis)
-                {
-                    uniqueMatches.Add(word);
-                }
-            }
+            ProcessMatchesOfType(
+                words,
+                uniqueMatches,
+                _trie.Find(words.Select(word => word.DictionaryForm)),
+                word => word.DictionaryForm
+            );
+            ProcessMatchesOfType(
+                words,
+                uniqueMatches,
+                _trie.Find(words.Select(word => word.BaseForm)),
+                word => word.BaseForm
+            );
 
             foreach (var candidate in uniqueMatches)
             {
@@ -66,6 +66,31 @@ namespace Erabikata.Backend.Processing
             }
 
             return uniqueMatches.Select(candidate => candidate.WordId);
+        }
+
+        private static void ProcessMatchesOfType(
+            IReadOnlyList<Dialog.Word> words,
+            ISet<Candidate> uniqueMatches,
+            IEnumerable<(int index, (Candidate word, int length) value)> matches,
+            Func<Dialog.Word, string> formSelector)
+        {
+            foreach (var (endIndex, (word, length)) in matches)
+            {
+                var index = endIndex - 1;
+                var remainingLength = length;
+                while (remainingLength > 0)
+                {
+                    words[index].InfoIds.Add(word.WordId);
+
+                    remainingLength -= formSelector(words[index]).Length;
+                    index--;
+                }
+
+                if (!words[endIndex - 1].IsInParenthesis)
+                {
+                    uniqueMatches.Add(word);
+                }
+            }
         }
 
         public IEnumerable<(int WordId, ulong Count)> GetUpdatedWordCounts()
