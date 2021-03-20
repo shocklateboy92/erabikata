@@ -48,3 +48,16 @@
     - 1459820
   episode: 2590
   time: 833.791
+
+## Cases for abitrary substring matching
+- text: 各務原隊員、現地調査を頼めるかね？
+  words:
+    - 1411520
+  episode: 1409
+  time: 752.93
+
+- text: 悔いのないように　精一杯やりましょう
+  words:
+    - 1379870
+  episode: 2327
+  time: 397.41
