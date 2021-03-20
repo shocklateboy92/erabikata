@@ -47,7 +47,7 @@ namespace Erabikata.Tests
             _wordInfoCollectionManager = wordInfoCollectionManager;
         }
 
-        [Fact, Priority(20)]
+        [Fact, Priority(1)]
         public async Task IngestDictionary()
         {
             await _actionsController.Execute(
