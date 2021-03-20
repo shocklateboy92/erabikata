@@ -33,7 +33,7 @@ namespace Erabikata.Backend.Stolen
         /// <summary>
         ///     Root of the trie. It has no value and no parent.
         /// </summary>
-        private readonly Node<string, TValue> _root = new();
+        private readonly Node<char, TValue> _root = new();
 
         /// <summary>
         ///     Adds a word to the tree.
@@ -46,20 +46,21 @@ namespace Erabikata.Backend.Stolen
         /// </remarks>
         /// <param name="word">The word that will be searched.</param>
         /// <param name="value">The value that will be returned when the word is found.</param>
-        public void Add(IEnumerable<string> word, TValue value)
+        public void Add(IEnumerable<string> wordParts, TValue value)
         {
             // start at the root
             var node = _root;
 
             // build a branch for the word, one letter at a time
             // if a letter node doesn't exist, add it
-            foreach (var c in word)
+            foreach (var part in wordParts)
+            foreach (var c in part)
             {
                 var child = node[c];
 
                 if (child == null)
                 {
-                    child = node[c] = new Node<string, TValue>(c, node);
+                    child = node[c] = new Node<char, TValue>(c, node);
                 }
 
                 node = child;
@@ -77,7 +78,7 @@ namespace Erabikata.Backend.Stolen
         public void Build()
         {
             // construction is done using breadth-first-search
-            var queue = new Queue<Node<string, TValue>>();
+            var queue = new Queue<Node<char, TValue>>();
             queue.Enqueue(_root);
 
             while (queue.Count > 0)
@@ -118,18 +119,20 @@ namespace Erabikata.Backend.Stolen
             var node = _root;
 
             var index = 0;
-            foreach (var c in text)
+            foreach (var word in text)
             {
                 index++;
+                foreach (var c in word)
+                {
+                    while (node[c] == null && node != _root)
+                        node = node.Fail;
 
-                while (node[c] == null && node != _root)
-                    node = node.Fail;
+                    node = node[c] ?? _root;
 
-                node = node[c] ?? _root;
-
-                for (var t = node; t != _root; t = t.Fail)
-                    foreach (var value in t.Values)
-                        yield return (index, value);
+                    for (var t = node; t != _root; t = t.Fail)
+                        foreach (var value in t.Values)
+                            yield return (index, value);
+                }
             }
         }
 
