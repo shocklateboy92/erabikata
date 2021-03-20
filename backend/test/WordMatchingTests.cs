@@ -42,7 +42,8 @@ namespace Erabikata.Tests
         [Fact]
         public async Task TestKnownMatch()
         {
-            var sentence = "どうもこうも　妹がいるとそうなるんだよ";
+            // https://erabikata3.apps.lasath.org/ui/dialog?episode=2938&time=450.31&word=2842157&word=2028940&word=1399250&word=1402240&word=1584680&word=1912240
+            const string sentence = "どうもこうも　妹がいるとそうなるんだよ";
             var response =
                 await _analyzerServiceClient.AnalyzeTextAsync(
                     new AnalyzeRequest
@@ -65,6 +66,16 @@ namespace Erabikata.Tests
             _fixture.Matcher.FillMatchesAndGetWords(words);
 
             words.Should().Contain(word => word.InfoIds.Contains(2842157));
+            words[3].InfoIds.Should().Contain(2842157);
+            words[5].InfoIds.Should().Contain(1524590);
+            words[6].InfoIds.Should().Contain(2028930);
+            words[7].InfoIds.Should().Contain(1577980);
+            words[8].InfoIds.Should().Contain(1008490);
+            words[9].InfoIds.Should().Contain(2137720);
+            words[10].InfoIds.Should().Contain(1375610);
+            words[11].InfoIds.Should().Contain(2087820);
+            words[12].InfoIds.Should().Contain(2087820);
+            words[13].InfoIds.Should().Contain(2029090);
         }
 
         [Theory, MemberData(nameof(GetData))]
