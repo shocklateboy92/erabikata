@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -221,33 +220,6 @@ namespace Erabikata.Backend.CollectionManagers
             return new Dialog.Line(results);
         }
 
-        public async Task<IReadOnlyList<Dialog>> GetNearestDialog(
-            int episodeId,
-            double time,
-            int count,
-            AnalyzerMode analyzerMode)
-        {
-            var closest = await _mongoCollections[analyzerMode]
-                .Aggregate()
-                .Match(dialog => dialog.EpisodeId == episodeId)
-                .Project(dialog => new {dialog.Index, Delta = Math.Abs(dialog.Time - time)})
-                .SortBy(d => d.Delta)
-                .FirstOrDefaultAsync();
-
-            if (closest == null)
-            {
-                return Array.Empty<Dialog>();
-            }
-
-            return await _mongoCollections[analyzerMode]
-                .Find(
-                    dialog => dialog.EpisodeId == episodeId &&
-                              dialog.Index > closest.Index - count &&
-                              dialog.Index < closest.Index + count
-                )
-                .ToListAsync();
-        }
-
         public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
             AnalyzerMode mode,
             int episodeId,
@@ -281,42 +253,6 @@ namespace Erabikata.Backend.CollectionManagers
                     )
                 );
             return await cursor.ToListAsync();
-        }
-
-        public Task<List<AggregateSortByCountResult<string>>> GetSortedWordCounts(
-            AnalyzerMode mode,
-            IEnumerable<string> ignoredPartsOfSpeech,
-            int max = int.MaxValue,
-            int skip = 0)
-        {
-            return _mongoCollections[mode]
-                .Aggregate()
-                .Unwind(dialog => dialog.Lines)
-                .Unwind<IntermediateDialog>($"{nameof(Dialog.Lines)}.{nameof(Dialog.Line.Words)}")
-                .Match(
-                    dialog => dialog.Lines.Words.IsInParenthesis == false &&
-                              !dialog.Lines.Words.PartOfSpeech.Any(
-                                  // ReSharper disable once ConvertClosureToMethodGroup
-                                  // LINQ to Mongo Query generator can't handle method groups
-                                  pos => ignoredPartsOfSpeech.Contains(pos)
-                              )
-                )
-                .SortByCount<string>(
-                    $"${nameof(Dialog.Lines)}.{nameof(Dialog.Line.Words)}.{nameof(Dialog.Word.BaseForm)}"
-                )
-                .Skip(skip)
-                .Limit(max)
-                .ToListAsync();
-        }
-
-        private IFindFluent<Dialog, Dialog> Find(string baseForm, AnalyzerMode analyzerMode)
-        {
-            return _mongoCollections[analyzerMode]
-                .Find(
-                    dialog => dialog.Lines.Any(
-                        line => line.Words.Any(word => word.BaseForm == baseForm)
-                    )
-                );
         }
 
         public Task<AggregateCountResult> GetEpisodeWordCount(
