@@ -135,8 +135,7 @@ namespace Erabikata.Backend.CollectionManagers
                     word => new WordMatcher.Candidate(
                         word.Id,
                         word.Normalized,
-                        word.Analyzed,
-                        word.Readings
+                        word.Analyzed
                     )
                 )
                 .ToListAsync();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -12,8 +13,7 @@ namespace Erabikata.Backend.Processing
         public record Candidate(
             int WordId,
             IReadOnlyList<IReadOnlyList<string>> NormalizedForms,
-            IReadOnlyList<IReadOnlyList<string>> DictionaryForms,
-            IEnumerable<string> Readings)
+            IReadOnlyList<IReadOnlyList<string>> DictionaryForms)
         {
             public ulong Count = 0;
 
@@ -27,7 +27,6 @@ namespace Erabikata.Backend.Processing
             {
                 AddToTrie(candidate, candidate.DictionaryForms);
                 AddToTrie(candidate, candidate.NormalizedForms);
-                // AddToTrie(candidate, candidate.Readings.Select(reading => new[] {reading}));
             }
 
             _trie.Build();
