@@ -13,7 +13,8 @@ namespace Erabikata.Backend.Processing
         public record Candidate(
             int WordId,
             IReadOnlyList<IReadOnlyList<string>> NormalizedForms,
-            IReadOnlyList<IReadOnlyList<string>> DictionaryForms)
+            IReadOnlyList<IReadOnlyList<string>> DictionaryForms,
+            IEnumerable<string> Kanji)
         {
             public ulong Count = 0;
 
@@ -28,10 +29,9 @@ namespace Erabikata.Backend.Processing
                 AddToTrie(candidate, candidate.DictionaryForms);
                 AddToTrie(candidate, candidate.NormalizedForms);
 
-                foreach (var dictionaryForm in candidate.DictionaryForms)
+                foreach (var kanji in candidate.Kanji)
                 {
-                    var joined = string.Join(string.Empty, dictionaryForm);
-                    _charTrie.Add(joined, (candidate, joined.Length));
+                    _charTrie.Add(kanji, (candidate, kanji.Length));
                 }
             }
 
