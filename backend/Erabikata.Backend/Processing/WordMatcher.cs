@@ -27,37 +27,47 @@ namespace Erabikata.Backend.Processing
             {
                 AddToTrie(candidate, candidate.DictionaryForms);
                 AddToTrie(candidate, candidate.NormalizedForms);
+
+                foreach (var dictionaryForm in candidate.DictionaryForms)
+                {
+                    var joined = string.Join(string.Empty, dictionaryForm);
+                    _charTrie.Add(joined, (candidate, joined.Length));
+                }
             }
 
-            _trie.Build();
+            _wordTrie.Build();
+            _charTrie.Build();
             _candidates = candidates;
         }
 
-        private readonly Trie<(Candidate word, int length)> _trie = new();
+        private readonly Trie<(Candidate word, int length), string> _wordTrie = new();
+        private readonly Trie<(Candidate word, int length), char> _charTrie = new();
         private readonly IReadOnlyCollection<Candidate> _candidates;
 
         private void AddToTrie(Candidate candidate, IEnumerable<IReadOnlyList<string>> matchList)
         {
             foreach (var normalized in matchList)
             {
-                _trie.Add(normalized, (candidate, normalized.Sum(s => s.Length)));
+                _wordTrie.Add(normalized, (candidate, normalized.Count));
             }
         }
 
         public IEnumerable<int> FillMatchesAndGetWords(IReadOnlyList<Dialog.Word> words)
         {
             var uniqueMatches = new HashSet<Candidate>();
+            var dictionaryForms = words.Select(word => word.DictionaryForm).ToArray();
+            ProcessMatchesOfType(words, uniqueMatches, _wordTrie.Find(dictionaryForms));
             ProcessMatchesOfType(
                 words,
                 uniqueMatches,
-                _trie.Find(words.Select(word => word.DictionaryForm)),
-                word => word.DictionaryForm
+                _wordTrie.Find(words.Select(word => word.BaseForm))
             );
-            ProcessMatchesOfType(
+
+            ProcessCharacterMatches(
                 words,
                 uniqueMatches,
-                _trie.Find(words.Select(word => word.BaseForm)),
-                word => word.BaseForm
+                _charTrie.Find(dictionaryForms.SelectMany(s => s)),
+                dictionaryForms
             );
 
             foreach (var candidate in uniqueMatches)
@@ -68,23 +78,55 @@ namespace Erabikata.Backend.Processing
             return uniqueMatches.Select(candidate => candidate.WordId);
         }
 
-        private static void ProcessMatchesOfType(
+        private static void ProcessCharacterMatches(
             IReadOnlyList<Dialog.Word> words,
             ISet<Candidate> uniqueMatches,
             IEnumerable<(int index, (Candidate word, int length) value)> matches,
-            Func<Dialog.Word, string> formSelector)
+            IReadOnlyList<string> wordMatchForms)
+        {
+            // Since the matches have a char index yet input word forms
+            // are strings, build a lookup/map to easily convert back.
+            var wordCharMap = new int[wordMatchForms.Sum(word => word.Length)];
+            var formIndex = 0;
+            var currentFormLength = wordMatchForms[formIndex].Length;
+            for (var i = 0; i < wordCharMap.Length; i++)
+            {
+                if (currentFormLength == 0)
+                {
+                    formIndex++;
+                    currentFormLength = wordMatchForms[formIndex].Length;
+                }
+
+                wordCharMap[i] = formIndex;
+
+                currentFormLength--;
+            }
+
+            // Use the map to assign match ids to the word objects.
+            foreach (var (matchIndex, (word, length)) in matches)
+            {
+                var wordIndexes = wordCharMap.Skip(matchIndex - length).Take(length).Distinct();
+                foreach (var wordIndex in wordIndexes)
+                {
+                    words[wordIndex].InfoIds.Add(word.WordId);
+
+                    if (!words[wordIndex].IsInParenthesis)
+                    {
+                        uniqueMatches.Add(word);
+                    }
+                }
+            }
+        }
+
+        private static void ProcessMatchesOfType(
+            IReadOnlyList<Dialog.Word> words,
+            ISet<Candidate> uniqueMatches,
+            IEnumerable<(int index, (Candidate word, int length) value)> matches)
         {
             foreach (var (endIndex, (word, length)) in matches)
             {
-                var index = endIndex - 1;
-                var remainingLength = length;
-                while (remainingLength > 0)
-                {
+                for (var index = endIndex - length; index < endIndex; index++)
                     words[index].InfoIds.Add(word.WordId);
-
-                    remainingLength -= formSelector(words[index]).Length;
-                    index--;
-                }
 
                 if (!words[endIndex - 1].IsInParenthesis)
                 {
