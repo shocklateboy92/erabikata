@@ -32,6 +32,11 @@ namespace Erabikata.Backend.CollectionManagers
             _mongoCollection = database.GetCollection<AnkiWord>(nameof(AnkiWord));
         }
 
+        public async Task<bool> IsWordInAnki(int wordId)
+        {
+            return await _mongoCollection.CountDocumentsAsync(word => word.WordId == wordId) > 0;
+        }
+
         public async Task OnActivityExecuting(Activity activity)
         {
             switch (activity)

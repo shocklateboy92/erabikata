@@ -1,9 +1,7 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using NJsonSchema.Converters;
 using Refit;
 
 namespace Erabikata.Backend.Models

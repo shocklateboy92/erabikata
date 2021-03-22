@@ -130,7 +130,9 @@ namespace Erabikata.Backend
                 .ConfigureHttpClient(
                     client =>
                     {
-                        client.BaseAddress = new Uri("http://localhost:8765");
+                        client.BaseAddress = new Uri(
+                                Configuration.GetSection("ServiceClients:Anki:BaseUrl").Value
+                        );
                     }
                 );
         }
