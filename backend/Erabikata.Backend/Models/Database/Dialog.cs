@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Mapster;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -35,6 +36,7 @@ namespace Erabikata.Backend.Models.Database
         public record Word(
             string BaseForm,
             string DictionaryForm,
+            [AdaptMember(nameof(AnalyzedWord.Original))]
             string OriginalForm,
             string Reading,
             bool IsInParenthesis = false)

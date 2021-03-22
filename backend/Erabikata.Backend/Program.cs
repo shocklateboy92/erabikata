@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Mapster;
 using Microsoft.AspNetCore.Hosting;
@@ -15,7 +16,6 @@ namespace Erabikata.Backend
             var host = CreateHostBuilder(args).Build();
 
             // await host.Services.GetRequiredService<WordCountsManager>().Initialize();
-            TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetExecutingAssembly());
 
             await host.RunAsync();
         }
@@ -30,6 +30,13 @@ namespace Erabikata.Backend
                     }
                 )
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+        }
+
+        [ModuleInitializer]
+        public static void InitializeAssembly()
+        {
+            TypeAdapterConfig.GlobalSettings.Default.MapToConstructor(true);
+            TypeAdapterConfig.GlobalSettings.Scan(Assembly.GetAssembly(typeof(Program))!);
         }
     }
 }
