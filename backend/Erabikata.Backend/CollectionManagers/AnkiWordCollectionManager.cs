@@ -29,12 +29,16 @@ namespace Erabikata.Backend.CollectionManagers
             _ankiSyncClient = ankiSyncClient;
             _analyzerServiceClient = analyzerServiceClient;
             _logger = logger;
-            _mongoCollection = database.GetCollection<AnkiWord>(nameof(AnkiWord));
+            _mongoCollection = database.GetCollection<AnkiWord>(
+                nameof(AnkiWord)
+            );
         }
 
         public async Task<bool> IsWordInAnki(int wordId)
         {
-            return await _mongoCollection.CountDocumentsAsync(word => word.WordId == wordId) > 0;
+            return await _mongoCollection.CountDocumentsAsync(
+                word => word.WordId == wordId
+            ) > 0;
         }
 
         public async Task OnActivityExecuting(Activity activity)
@@ -42,16 +46,23 @@ namespace Erabikata.Backend.CollectionManagers
             switch (activity)
             {
                 case SyncAnki:
-                    await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiWord>.Empty);
+                    await _mongoCollection.DeleteManyAsync(
+                        FilterDefinition<AnkiWord>.Empty
+                    );
                     var notes = Unwrap(
                         await _ankiSyncClient.FindNotes(
-                            new AnkiAction("findNotes", new {query = "\"note:Jap Sentences 2\""})
+                            new AnkiAction(
+                                "findNotes",
+                                new { query = "\"note:Jap Sentences 2\"" }
+                            )
                         )
                     );
 
                     _logger.LogInformationString($"Got {notes.Length} notes for query");
                     var noteInfo = Unwrap(
-                        await _ankiSyncClient.NotesInfo(new AnkiAction("notesInfo", new {notes}))
+                        await _ankiSyncClient.NotesInfo(
+                            new AnkiAction("notesInfo", new { notes })
+                        )
                     );
 
                     _logger.LogInformationString($"Got {noteInfo.Length} notes info");
@@ -61,8 +72,9 @@ namespace Erabikata.Backend.CollectionManagers
                             note => new AnalyzeRequest
                             {
                                 Mode = AnalyzerMode.SudachiC,
-                                Text = (note.Fields.GetValueOrDefault("Reading") ??
-                                        note.Fields["Text"]).Value
+                                Text = (note.Fields.GetValueOrDefault(
+                                    "Reading"
+                                ) ?? note.Fields["Text"]).Value
                             }
                         )
                     );
