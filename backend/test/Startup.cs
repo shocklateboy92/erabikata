@@ -13,12 +13,17 @@ namespace Erabikata.Tests
                 .ConfigureWebHostDefaults(
                     webHostBuilder => webHostBuilder.UseTestServer()
                         .UseStartup<Erabikata.Backend.Startup>()
-                        .ConfigureLogging(logging => {logging.AddConsole();logging.SetMinimumLevel(LogLevel.Debug);})
+                        .ConfigureLogging(
+                            logging =>
+                            {
+                                logging.AddConsole();
+                                logging.SetMinimumLevel(LogLevel.Debug);
+                            }
+                        )
                         .ConfigureAppConfiguration(
-                            builder =>
-                                builder.AddJsonFile("appsettings.json")
-                                    .AddJsonFile("appsettings.Development.json")
-                                    .AddYamlFile("testSettings.yaml")
+                            builder => builder.AddJsonFile("appsettings.json")
+                                .AddJsonFile("appsettings.Development.json")
+                                .AddYamlFile("testSettings.yaml")
                         )
                 );
     }
