@@ -20,15 +20,18 @@ namespace Erabikata.Backend.Controllers
         private readonly DialogCollectionManager _dialogCollectionManager;
         private readonly PartOfSpeechFilterCollectionManager _partOfSpeechFilter;
         private readonly WordInfoCollectionManager _wordInfo;
+        private readonly AnkiWordCollectionManager _ankiWords;
 
         public WordsController(
             DialogCollectionManager dialogCollectionManager,
             PartOfSpeechFilterCollectionManager partOfSpeechFilter,
-            WordInfoCollectionManager wordInfo)
+            WordInfoCollectionManager wordInfo,
+            AnkiWordCollectionManager ankiWords)
         {
             _dialogCollectionManager = dialogCollectionManager;
             _partOfSpeechFilter = partOfSpeechFilter;
             _wordInfo = wordInfo;
+            _ankiWords = ankiWords;
         }
 
         [HttpGet]
@@ -131,6 +134,13 @@ namespace Erabikata.Backend.Controllers
                 wordId,
                 await _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId)
             );
+        }
+
+        [HttpGet]
+        [Route("[action]")]
+        public Task<List<int>> Known()
+        {
+            return _ankiWords.GetAllKnownWords();
         }
     }
 }

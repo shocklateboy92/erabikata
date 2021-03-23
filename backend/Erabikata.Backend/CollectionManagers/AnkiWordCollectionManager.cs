@@ -46,6 +46,13 @@ namespace Erabikata.Backend.CollectionManagers
             ) > 0;
         }
 
+        public Task<List<int>> GetAllKnownWords()
+        {
+            return _mongoCollection.Find(FilterDefinition<AnkiWord>.Empty)
+                .Project(word => word.WordId)
+                .ToListAsync();
+        }
+
         public async Task OnActivityExecuting(Activity activity)
         {
             switch (activity)
