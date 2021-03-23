@@ -131,8 +131,15 @@ namespace Erabikata.Backend.CollectionManagers
             @"\[[^]]*\]",
             RegexOptions.Compiled
         );
+        private static readonly Regex TagsPattern = new Regex(
+            @"<[^>]*>",
+            RegexOptions.Compiled
+        );
         private string ProcessText(string text) =>
-            ReadingsPattern.Replace(text, string.Empty);
+            TagsPattern.Replace(
+                ReadingsPattern.Replace(text, string.Empty),
+                " "
+            );
 
         private async Task<IEnumerable<(long id, Dialog.Word[])>> AnalyzeNoteTexts(
             IReadOnlyList<(long id, string text)> noteTexts)
