@@ -103,11 +103,16 @@ namespace Erabikata.Backend.CollectionManagers
 
             _logger.LogInformationString($"Got {noteInfos.Length} notes info");
             var noteTexts = noteInfos.Select(
-                note => (note.NoteId, ProcessText(
-                    (note.Fields.GetValueOrDefault("Reading") ?? note.Fields[
-                        "Text"
-                    ]).Value
-                ))
+                note =>
+                {
+                    var text = note.Fields["Reading"].Value;
+                    if (string.IsNullOrWhiteSpace(text))
+                    {
+                        text = note.Fields["Text"].Value;
+                    }
+
+                    return (note.NoteId, ProcessText(text));
+                }
             );
 
             return await AnalyzeNoteTexts(noteTexts.ToArray());
@@ -134,13 +139,23 @@ namespace Erabikata.Backend.CollectionManagers
                 )
             );
 
-            var results = await client.ResponseStream.ToListAsync();
-            return results.Select(
-                (result, index) => (noteTexts[index].id, result.Words.Select(
-                        analyzed => analyzed.Adapt<Dialog.Word>()
-                    )
-                    .ToArray())
-            );
+            var responses = await client.ResponseStream.ToListAsync();
+            return responses.Select(
+                    (result, index) =>
+                    {
+                        _logger.LogDebug(
+                            "Completed analysis for note {nid}:\n\tInput: {text}\n\tAnalyzed: {words})",
+                            noteTexts[index].id,
+                            noteTexts[index].text,
+                            result.Words.Select(word => word.Original)
+                        );
+                        return (noteTexts[index].id, result.Words.Select(
+                                analyzed => analyzed.Adapt<Dialog.Word>()
+                            )
+                            .ToArray());
+                    }
+                )
+                .ToArray();
         }
 
         private static T Unwrap<T>(AnkiResponse<T> ankiResponse)
