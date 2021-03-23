@@ -59,7 +59,7 @@ namespace Erabikata.Backend.CollectionManagers
                         FilterDefinition<AnkiWord>.Empty
                     ), GetAndAnalyzeNoteTexts(), _wordInfoCollectionManager.BuildWordMatcher());
 
-                    var totalWords = new HashSet<int>();
+                    var totalWords = new List<(int wordId, long noteId)>();
                     foreach (var (id, words) in noteTexts)
                     {
                         if (!words.Any())
@@ -71,12 +71,21 @@ namespace Erabikata.Backend.CollectionManagers
                         var newWords = matcher.FillMatchesAndGetWords(words);
                         foreach (var word in newWords)
                         {
-                            totalWords.Add(word);
+                            totalWords.Add((word, id));
                         }
                     }
 
+                    var ankiWords = totalWords.GroupBy(
+                            word => word.wordId,
+                            (key, group) => new AnkiWord(
+                                key,
+                                group.Select(g => g.noteId)
+                            )
+                        )
+                        .ToArray();
+
                     await _mongoCollection.InsertManyAsync(
-                        totalWords.Select(wordId => new AnkiWord(wordId)),
+                        ankiWords,
                         new InsertManyOptions { IsOrdered = false }
                     );
                     break;
