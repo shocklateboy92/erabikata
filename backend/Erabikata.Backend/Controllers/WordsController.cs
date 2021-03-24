@@ -130,9 +130,27 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId)
         {
+            var (occurrences, knownWords) = await (
+                _dialogCollectionManager.GetOccurrences(
+                    analyzer.ToAnalyzerMode(),
+                    wordId
+                ),
+                _wordInfo.GetWordRanks(
+                    await _ankiWords.GetAllKnownWords()
+                )
+            );
+
+            var knownWordsMap = knownWords.ToDictionary(
+                word => word.WordId,
+                word => word.GlobalRank
+            );
+
             return new(
                 wordId,
-                await _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId)
+                occurrences.OrderByDescending(
+                    occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
+                )
+                .Select(oc => oc.dialogId)
             );
         }
 

@@ -272,7 +272,7 @@ namespace Erabikata.Backend.CollectionManagers
                 .FirstAsync();
         }
 
-        public Task<List<string>> GetOccurrences(AnalyzerMode mode, int wordId)
+        public Task<List<DialogWords>> GetOccurrences(AnalyzerMode mode, int wordId)
         {
             return _mongoCollections[mode]
                 .Find(
@@ -280,7 +280,7 @@ namespace Erabikata.Backend.CollectionManagers
                         line => line.Words.Any(word => word.InfoIds.Contains(wordId))
                     )
                 )
-                .Project(dialog => dialog.Id.ToString())
+                .Project(dialog => new DialogWords(dialog.Id.ToString(), dialog.WordsToRank))
                 .ToListAsync();
         }
 
@@ -315,6 +315,8 @@ namespace Erabikata.Backend.CollectionManagers
         private record IntermediateLine(Dialog.Word Words);
 
         private record IntermediateDialog(IntermediateLine Lines);
+
+        public record DialogWords(string dialogId, IEnumerable<int> wordIds);
 
         public record WordRank(
             [property: BsonId] string BaseForm,
