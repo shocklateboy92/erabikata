@@ -59,12 +59,9 @@ namespace Erabikata.Backend.CollectionManagers
             {
                 case SyncAnki:
                     var (
-                        _,
                         noteTexts,
                         matcher
-                        ) = await (_mongoCollection.DeleteManyAsync(
-                        FilterDefinition<AnkiWord>.Empty
-                    ), GetAndAnalyzeNoteTexts(), _wordInfoCollectionManager.BuildWordMatcher());
+                        ) = await (GetAndAnalyzeNoteTexts(), _wordInfoCollectionManager.BuildWordMatcher());
 
                     var totalWords = new List<(int wordId, long noteId)>();
                     foreach (var (id, words) in noteTexts)
@@ -90,6 +87,9 @@ namespace Erabikata.Backend.CollectionManagers
                             )
                         )
                         .ToArray();
+
+                    // Only clear the collection once we have the replacements ready.
+                    await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiWord>.Empty);
 
                     await _mongoCollection.InsertManyAsync(
                         ankiWords,
