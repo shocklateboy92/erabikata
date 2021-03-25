@@ -104,14 +104,47 @@ namespace Erabikata.Tests
             results.Should().Contain(expectedWords);
         }
 
-        public static IEnumerable<object[]> GetData()
+        [Theory, MemberData(nameof(GetExclusionData))]
+        public async Task TestWordMatchingExclusions(
+            string text,
+            int[] excludedWords)
+        {
+            var response =
+                await _analyzerServiceClient.AnalyzeTextAsync(
+                    new AnalyzeRequest
+                    {
+                        Mode = Constants.DefaultAnalyzerMode,
+                        Text = text
+                    }
+                );
+
+            var words = response.Words.Select(
+                    word => new Dialog.Word(
+                        word.BaseForm,
+                        word.DictionaryForm,
+                        word.Original,
+                        word.Reading
+                    )
+                )
+                .ToArray();
+
+            var results = _fixture.Matcher.FillMatchesAndGetWords(words);
+            results.Should().NotContain(excludedWords);
+        }
+
+        public static IEnumerable<object[]> GetData() =>
+            ReadInputDataFile("wordMatchingInputData.yaml");
+        public static IEnumerable<object[]> GetExclusionData() =>
+            ReadInputDataFile("wordMatchingExclusionInputData.yaml");
+
+        public static IEnumerable<object[]> ReadInputDataFile(string fileName)
         {
             var deserializer = new DeserializerBuilder().WithNamingConvention(
                     CamelCaseNamingConvention.Instance
                 )
                 .Build();
 
-            var inputFile = File.ReadAllText("wordMatchingInputData.yaml");
+            var inputFile = File.ReadAllText(fileName);
             foreach (var input in deserializer.Deserialize<WordMatchingInput[]>(
                 inputFile
             ))

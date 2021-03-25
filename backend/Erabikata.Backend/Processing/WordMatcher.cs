@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Stolen;
 
@@ -31,7 +29,10 @@ namespace Erabikata.Backend.Processing
 
                 foreach (var kanji in candidate.Kanji)
                 {
-                    _charTrie.Add(kanji, (candidate, kanji.Length));
+                    if (kanji.Length > 1)
+                    {
+                        _charTrie.Add(kanji, (candidate, kanji.Length));
+                    }
                 }
             }
 
