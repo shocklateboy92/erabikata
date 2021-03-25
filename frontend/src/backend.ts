@@ -74,6 +74,7 @@ export const {
     useEngSubsShowIdOfQuery,
     useActionsExecuteMutation,
     useExecuteActionMutation,
+    useWordsKnownQuery,
     useEngSubsActiveStylesForQuery,
     useEngSubsByStyleNameQuery,
     useEngSubsStylesOfQuery

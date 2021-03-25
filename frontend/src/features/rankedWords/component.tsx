@@ -1,7 +1,7 @@
 import { mdiChevronLeft, mdiChevronRight, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
-import { useWordsRanked2Query } from 'backend';
+import { useWordsKnownQuery, useWordsRanked2Query } from 'backend';
 import classNames from 'classnames';
 import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
 import React, { FC } from 'react';
@@ -13,6 +13,14 @@ import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder'
 import { WordRankInfo } from '../../backend-rtk.generated';
 
 const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
+    const { isKnown } = useWordsKnownQuery(
+        {},
+        {
+            selectFromResult: (result) => ({
+                isKnown: result.data?.includes(id)
+            })
+        }
+    );
     const isActive = useTypedSelector((state) =>
         selectSelectedWords(state).includes(id)
     );
@@ -20,7 +28,8 @@ const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
     return (
         <div
             className={classNames(styles.word, {
-                [styles.active]: isActive
+                [styles.active]: isActive,
+				[styles.known]: isKnown
             })}
             onClick={() => dispatch(wordSelectionV2([id]))}
         >

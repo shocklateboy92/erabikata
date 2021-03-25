@@ -4,6 +4,7 @@ import React, { FC } from 'react';
 import styles from './wordDefinition.module.scss';
 import { Pill } from '../../components/pill';
 import { Link } from 'react-router-dom';
+import { useWordsKnownQuery } from 'backend';
 
 export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     wordId,
@@ -18,6 +19,15 @@ export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     );
     const readingsOnly = useTypedSelector(
         (state) => state.wordDefinitions.readingsOnly
+    );
+
+    const { isKnown } = useWordsKnownQuery(
+        {},
+        {
+            selectFromResult: (result) => ({
+                isKnown: result.data?.includes(wordId)
+            })
+        }
     );
 
     if (!definition) {
@@ -47,6 +57,7 @@ export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
             {priorities.gai && <Pill>Loanword</Pill>}
             {priorities.spec && <Pill>Special</Pill>}
             {priorities.freq && <Pill>General</Pill>}
+            {isKnown && <Pill>Known {'A'}</Pill>}
             {!readingsOnly &&
                 definition.english.map((english, index) => (
                     <div key={index} className={styles.sense}>
