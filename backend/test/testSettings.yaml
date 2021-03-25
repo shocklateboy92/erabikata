@@ -4,3 +4,10 @@ Db:
 SubtitleProcessing:
   Input:
     RootDirectory: data
+
+Logging:
+  LogLevel:
+    Default: Information
+    System.Net.Http.HttpClient.AnalyzerServiceClient: Warning
+    System.Net.Http.HttpClient.AssParserServiceClient: Warning
+    Erabikata: Information

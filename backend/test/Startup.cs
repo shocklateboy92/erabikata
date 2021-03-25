@@ -14,10 +14,12 @@ namespace Erabikata.Tests
                     webHostBuilder => webHostBuilder.UseTestServer()
                         .UseStartup<Erabikata.Backend.Startup>()
                         .ConfigureLogging(
-                            logging =>
+                            (builder, logging) =>
                             {
                                 logging.AddConsole();
-                                logging.SetMinimumLevel(LogLevel.Debug);
+                                logging.AddConfiguration(
+                                    builder.Configuration.GetSection("Logging")
+                                );
                             }
                         )
                         .ConfigureAppConfiguration(
