@@ -60,8 +60,9 @@ namespace Erabikata.Backend.CollectionManagers
                 case SyncAnki:
                     var (
                         noteTexts,
+                        takobotoWords,
                         matcher
-                        ) = await (GetAndAnalyzeNoteTexts(), _wordInfoCollectionManager.BuildWordMatcher());
+                        ) = await (GetAndAnalyzeNoteTexts(), GetTakobotoWords(), _wordInfoCollectionManager.BuildWordMatcher());
 
                     var totalWords = new List<(int wordId, long noteId)>();
                     foreach (var (id, words) in noteTexts)
@@ -79,6 +80,8 @@ namespace Erabikata.Backend.CollectionManagers
                         }
                     }
 
+                    totalWords.AddRange(takobotoWords);
+
                     var ankiWords = totalWords.GroupBy(
                             word => word.wordId,
                             (key, group) => new AnkiWord(
@@ -89,7 +92,9 @@ namespace Erabikata.Backend.CollectionManagers
                         .ToArray();
 
                     // Only clear the collection once we have the replacements ready.
-                    await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiWord>.Empty);
+                    await _mongoCollection.DeleteManyAsync(
+                        FilterDefinition<AnkiWord>.Empty
+                    );
 
                     await _mongoCollection.InsertManyAsync(
                         ankiWords,
@@ -99,24 +104,27 @@ namespace Erabikata.Backend.CollectionManagers
             }
         }
 
+        private static readonly Regex TakobotoLinkPattern = new Regex(
+            @"i\.word=(\d+);",
+            RegexOptions.Compiled
+        );
+
+        private async Task<IEnumerable<(int wordId, long noteId)>> GetTakobotoWords()
+        {
+            var notes = await FindAndGetNoteInfo("note:jp.takoboto");
+            return notes.Select(
+                note => (int.Parse(
+                    TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[
+                        1
+                    ].Value
+                ), note.NoteId)
+            );
+        }
+
         private async Task<IEnumerable<(long id, Dialog.Word[])>> GetAndAnalyzeNoteTexts()
         {
-            var notes = Unwrap(
-                await _ankiSyncClient.FindNotes(
-                    new AnkiAction(
-                        "findNotes",
-                        new { query = "\"note:Jap Sentences 2\"" }
-                    )
-                )
-            );
-
-            _logger.LogInformationString($"Got {notes.Length} notes for query");
-            var noteInfos = Unwrap(
-                await _ankiSyncClient.NotesInfo(
-                    new AnkiAction("notesInfo", new { notes })
-                )
-            );
-
+            var noteInfos =
+                await FindAndGetNoteInfo("\"note:Jap Sentences 2\"");
             _logger.LogInformationString($"Got {noteInfos.Length} notes info");
             var noteTexts = noteInfos.Select(
                 note =>
@@ -132,6 +140,23 @@ namespace Erabikata.Backend.CollectionManagers
             );
 
             return await AnalyzeNoteTexts(noteTexts.ToArray());
+        }
+
+        private async Task<AnkiNote[]> FindAndGetNoteInfo(string query)
+        {
+            var notes = Unwrap(
+                await _ankiSyncClient.FindNotes(
+                    new AnkiAction("findNotes", new { query })
+                )
+            );
+
+            _logger.LogInformationString($"Got {notes.Length} notes for query");
+            var noteInfos = Unwrap(
+                await _ankiSyncClient.NotesInfo(
+                    new AnkiAction("notesInfo", new { notes })
+                )
+            );
+            return noteInfos;
         }
 
         private static readonly Regex ReadingsPattern = new Regex(
