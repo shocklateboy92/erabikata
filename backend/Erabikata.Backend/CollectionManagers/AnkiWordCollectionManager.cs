@@ -28,22 +28,18 @@ namespace Erabikata.Backend.CollectionManagers
             IMongoDatabase database,
             AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
             ILogger<AnkiWordCollectionManager> logger,
-            WordInfoCollectionManager wordInfoCollectionManager)
-        {
+            WordInfoCollectionManager wordInfoCollectionManager
+        ) {
             _ankiSyncClient = ankiSyncClient;
             _analyzerServiceClient = analyzerServiceClient;
             _logger = logger;
-            _mongoCollection = database.GetCollection<AnkiWord>(
-                nameof(AnkiWord)
-            );
+            _mongoCollection = database.GetCollection<AnkiWord>(nameof(AnkiWord));
             _wordInfoCollectionManager = wordInfoCollectionManager;
         }
 
         public async Task<bool> IsWordInAnki(int wordId)
         {
-            return await _mongoCollection.CountDocumentsAsync(
-                word => word.WordId == wordId
-            ) > 0;
+            return await _mongoCollection.CountDocumentsAsync(word => word.WordId == wordId) > 0;
         }
 
         public Task<List<int>> GetAllKnownWords()
@@ -58,11 +54,11 @@ namespace Erabikata.Backend.CollectionManagers
             switch (activity)
             {
                 case SyncAnki:
-                    var (
-                        noteTexts,
-                        takobotoWords,
-                        matcher
-                        ) = await (GetAndAnalyzeNoteTexts(), GetTakobotoWords(), _wordInfoCollectionManager.BuildWordMatcher());
+                    var (noteTexts, takobotoWords, matcher) = await (
+                        GetAndAnalyzeNoteTexts(),
+                        GetTakobotoWords(),
+                        _wordInfoCollectionManager.BuildWordMatcher()
+                    );
 
                     var totalWords = new List<(int wordId, long noteId)>();
                     foreach (var (id, words) in noteTexts)
@@ -84,17 +80,12 @@ namespace Erabikata.Backend.CollectionManagers
 
                     var ankiWords = totalWords.GroupBy(
                             word => word.wordId,
-                            (key, group) => new AnkiWord(
-                                key,
-                                group.Select(g => g.noteId)
-                            )
+                            (key, group) => new AnkiWord(key, group.Select(g => g.noteId))
                         )
                         .ToArray();
 
                     // Only clear the collection once we have the replacements ready.
-                    await _mongoCollection.DeleteManyAsync(
-                        FilterDefinition<AnkiWord>.Empty
-                    );
+                    await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiWord>.Empty);
 
                     await _mongoCollection.InsertManyAsync(
                         ankiWords,
@@ -113,18 +104,19 @@ namespace Erabikata.Backend.CollectionManagers
         {
             var notes = await FindAndGetNoteInfo("note:jp.takoboto");
             return notes.Select(
-                note => (int.Parse(
-                    TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[
-                        1
-                    ].Value
-                ), note.NoteId)
+                note =>
+                    (
+                        int.Parse(
+                            TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[1].Value
+                        ),
+                        note.NoteId
+                    )
             );
         }
 
         private async Task<IEnumerable<(long id, Dialog.Word[])>> GetAndAnalyzeNoteTexts()
         {
-            var noteInfos =
-                await FindAndGetNoteInfo("\"note:Jap Sentences 2\"");
+            var noteInfos = await FindAndGetNoteInfo("\"note:Jap Sentences 2\"");
             _logger.LogInformationString($"Got {noteInfos.Length} notes info");
             var noteTexts = noteInfos.Select(
                 note =>
@@ -145,16 +137,12 @@ namespace Erabikata.Backend.CollectionManagers
         private async Task<AnkiNote[]> FindAndGetNoteInfo(string query)
         {
             var notes = Unwrap(
-                await _ankiSyncClient.FindNotes(
-                    new AnkiAction("findNotes", new { query })
-                )
+                await _ankiSyncClient.FindNotes(new AnkiAction("findNotes", new { query }))
             );
 
             _logger.LogInformationString($"Got {notes.Length} notes for query");
             var noteInfos = Unwrap(
-                await _ankiSyncClient.NotesInfo(
-                    new AnkiAction("notesInfo", new { notes })
-                )
+                await _ankiSyncClient.NotesInfo(new AnkiAction("notesInfo", new { notes }))
             );
             return noteInfos;
         }
@@ -163,27 +151,22 @@ namespace Erabikata.Backend.CollectionManagers
             @"\[[^]]*\]",
             RegexOptions.Compiled
         );
-        private static readonly Regex TagsPattern = new Regex(
-            @"<[^>]*>",
-            RegexOptions.Compiled
-        );
+        private static readonly Regex TagsPattern = new Regex(@"<[^>]*>", RegexOptions.Compiled);
         private string ProcessText(string text) =>
-            TagsPattern.Replace(
-                ReadingsPattern.Replace(text, string.Empty),
-                " "
-            );
+            TagsPattern.Replace(ReadingsPattern.Replace(text, string.Empty), " ");
 
         private async Task<IEnumerable<(long id, Dialog.Word[])>> AnalyzeNoteTexts(
-            IReadOnlyList<(long id, string text)> noteTexts)
-        {
+            IReadOnlyList<(long id, string text)> noteTexts
+        ) {
             var client = _analyzerServiceClient.AnalyzeBulk();
             await client.RequestStream.WriteAllAsync(
                 noteTexts.Select(
-                    note => new AnalyzeRequest
-                    {
-                        Mode = Constants.DefaultAnalyzerMode,
-                        Text = note.text
-                    }
+                    note =>
+                        new AnalyzeRequest
+                        {
+                            Mode = Constants.DefaultAnalyzerMode,
+                            Text = note.text
+                        }
                 )
             );
 
@@ -197,10 +180,10 @@ namespace Erabikata.Backend.CollectionManagers
                             noteTexts[index].text,
                             result.Words.Select(word => word.Original)
                         );
-                        return (noteTexts[index].id, result.Words.Select(
-                                analyzed => analyzed.Adapt<Dialog.Word>()
-                            )
-                            .ToArray());
+                        return (
+                            noteTexts[index].id,
+                            result.Words.Select(analyzed => analyzed.Adapt<Dialog.Word>()).ToArray()
+                        );
                     }
                 )
                 .ToArray();
