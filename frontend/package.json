@@ -5,6 +5,8 @@
   "dependencies": {
     "@mdi/js": "^5.9.55",
     "@mdi/react": "^1.4.0",
+    "@microsoft/applicationinsights-react-js": "^3.1.2",
+    "@microsoft/applicationinsights-web": "^2.6.2",
     "@reduxjs/toolkit": "^1.5.0",
     "@rtk-incubator/rtk-query": "^0.2.0",
     "@testing-library/jest-dom": "^5.11.9",

@@ -1,3 +1,7 @@
+import {
+    useAppInsightsContext,
+    useTrackMetric
+} from '@microsoft/applicationinsights-react-js';
 import classNames from 'classnames';
 import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
@@ -14,6 +18,8 @@ export interface IPageProps {
 
 export const Page: FC<IPageProps> = (props) => {
     const dispatch = useDispatch();
+    const appInsights = useAppInsightsContext();
+    useTrackMetric(appInsights, 'Page');
 
     // Much cheaper than including react-helmet
     useEffect(() => {

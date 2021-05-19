@@ -10,14 +10,18 @@ import { HassContext } from 'features/hass';
 import { Router } from 'react-router-dom';
 import { AppSwitch } from './features/routing/switch';
 import history from './appHistory';
+import { AppInsightsContext } from '@microsoft/applicationinsights-react-js';
+import { reactPlugin } from 'appInsights';
 
 ReactDOM.render(
     <React.StrictMode>
         <HassContext.Provider value={{}}>
             <Provider store={store}>
-                <Router history={history} >
-                    <AppSwitch />
-                </Router>
+                <AppInsightsContext.Provider value={reactPlugin}>
+                    <Router history={history}>
+                        <AppSwitch />
+                    </Router>
+                </AppInsightsContext.Provider>
             </Provider>
         </HassContext.Provider>
     </React.StrictMode>,
