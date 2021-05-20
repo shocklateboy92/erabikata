@@ -1,8 +1,8 @@
-import React, { FC } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { FullPageError } from 'components/fullPageError';
 import { Page } from 'components/page';
 import { SelectedWord } from 'features/selectedWord';
-import { FullPageError } from 'components/fullPageError';
+import React, { FC } from 'react';
+import { Redirect, useParams } from 'react-router-dom';
 import { WordOccurrences } from '../features/wordContext/occurrences';
 
 export const WordPage: FC = () => {
@@ -26,9 +26,15 @@ export const SearchWordPage: FC = () => {
     const params = new URLSearchParams(window.location.search);
     const word = params.get('word');
 
-    if (!word) {
-        return <FullPageError>Invalid Word '{word}'</FullPageError>;
+    if (word) {
+        const wordId =
+            parseInt(word) ||
+            parseInt(/http:\/\/takoboto\.jp\/?\?w=(\d+)/.exec(word)?.[1]!);
+
+        if (wordId) {
+            return <Redirect to={`/ui/word/${wordId}`} />;
+        }
     }
 
-    return <Redirect to={`/ui/word/${word}`} />;
+    return <Redirect to={`/ui/word/search?query=${word}`} />;
 };

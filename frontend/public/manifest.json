@@ -22,7 +22,9 @@
     "action": "word",
     "method": "GET",
     "params": {
-      "text": "word"
+      "text": "word",
+      "title": "title",
+      "url": "link"
     },
     "enctype": "application/x-www-form-urlencoded"
   },
