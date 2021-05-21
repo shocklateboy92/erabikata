@@ -22,8 +22,9 @@ const ICON_SIZE = '2em';
 export const Dialog: FC<{
     dialogId: string;
     showTitle?: boolean;
+    compact?: boolean;
     forWord?: number;
-}> = ({ forWord, dialogId, showTitle }) => {
+}> = ({ forWord, dialogId, compact, showTitle }) => {
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const result = useSubsByIdQuery({ id: dialogId, analyzer });
@@ -34,9 +35,11 @@ export const Dialog: FC<{
 
     return (
         <div className={styles.container}>
-            <div className={styles.metadata}>
-                {formatTime(text.startTime)} {showTitle && episodeName}
-            </div>
+            {!compact && (
+                <div className={styles.metadata}>
+                    {formatTime(text.startTime)} {showTitle && episodeName}
+                </div>
+            )}
             <div className={styles.lines}>
                 {text.words.map((line, lineIndex) => (
                     <Fragment key={lineIndex}>

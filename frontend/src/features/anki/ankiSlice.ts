@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-interface IEpisodeTime {
+export interface IEpisodeTime {
     episodeId: string;
     time: number;
 }

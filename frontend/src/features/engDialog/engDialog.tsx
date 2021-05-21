@@ -9,8 +9,9 @@ import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { Sentence } from '../../backend-rtk.generated';
 
-export const EngDialog: FC<{ content: Sentence }> = ({
-    content: { episodeId, text, time }
+export const EngDialog: FC<{ content: Sentence; compact?: boolean }> = ({
+    content: { episodeId, text, time },
+    compact
 }) => {
     const highlightColor = useTypedSelector((state) =>
         selectIsCurrentlySelected(state, episodeId, time)
@@ -24,8 +25,12 @@ export const EngDialog: FC<{ content: Sentence }> = ({
                 dispatch(dialogSelection({ time: time, episode: episodeId }));
             }}
         >
-            {formatTime(time)}
-            <br />
+            {!compact && (
+                <>
+                    {formatTime(time)}
+                    <br />
+                </>
+            )}
             {text.map((text, index) => (
                 <Fragment key={index}>
                     {index > 0 && <br />}
