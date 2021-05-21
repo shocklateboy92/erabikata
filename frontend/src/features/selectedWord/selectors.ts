@@ -28,6 +28,9 @@ export const selectSelectedWord = (state: RootState) => state.selectedWord;
 export const selectSelectedEpisodeId = (state: RootState) =>
     state.selectedWord.episode;
 
+export const selectSelectedTime = (state: RootState) =>
+    state.selectedWord.sentenceTimestamp;
+
 export const selectSelectedWords = (state: RootState) =>
     state.selectedWord.wordIds;
 

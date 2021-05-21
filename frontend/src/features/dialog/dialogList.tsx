@@ -1,15 +1,12 @@
 import { mdiChevronLeft, mdiChevronRight } from '@mdi/js';
 import Icon from '@mdi/react';
-import { useTypedSelector } from 'app/hooks';
-import { useEpisodeIndexQuery } from 'backend';
 import classNames from 'classnames';
 import { InlineButton } from 'components/button';
 import { Dialog } from 'features/dialog/Dialog';
 import React, { FC, useEffect, useState } from 'react';
-import styles from './dialog.module.scss';
-import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { findNearbyDialog } from '../selectedWord';
+import { useNearbyDialogQuery } from './api';
+import styles from './dialog.module.scss';
 
 export interface IDialogListProps {
     count: number;
@@ -20,19 +17,18 @@ export interface IDialogListProps {
 export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
     const [timeOverride, setTimeOverride] = useState(time);
 
-    const analyzer = useTypedSelector(selectAnalyzer);
-    const response = useEpisodeIndexQuery({
-        analyzer,
-        episodeId: episode
-    });
+    const { response, dialog } = useNearbyDialogQuery(
+        episode,
+        timeOverride,
+        count
+    );
     useEffect(() => {
         setTimeOverride(time);
     }, [time]);
 
-    if (!response.data) {
+    if (!dialog) {
         return <QueryPlaceholder result={response} />;
     }
-    const dialog = findNearbyDialog(response.data.entries, timeOverride, count);
 
     return (
         <>
