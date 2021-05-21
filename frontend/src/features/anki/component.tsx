@@ -9,13 +9,12 @@ import {
     selectSelectedEpisodeTime,
     selectSelectedWords
 } from 'features/selectedWord';
-import { FC } from 'react';
+import { selectWordDefinition } from 'features/wordDefinition/selectors';
+import { FC, Fragment } from 'react';
 import { IEpisodeTime } from './ankiSlice';
+import { FieldView } from './fieldView';
 
 export const Anki: FC = () => {
-    const isWordSelected = useTypedSelector(
-        (state) => selectSelectedWords(state).length > 0
-    );
     const sentenceTime = useAppSelector(
         (state) => state.anki.sentence ?? selectSelectedEpisodeTime(state)
     );
@@ -26,11 +25,16 @@ export const Anki: FC = () => {
         (state) => state.anki.image ?? selectSelectedEpisodeTime(state)
     );
 
+    const wordId = useTypedSelector(
+        (state) => state.anki.word?.id ?? selectSelectedWords(state)[0]
+    );
+
     return (
         <>
             {sentenceTime && <SentenceField {...sentenceTime} />}
             {meaningTime && <MeaningField {...meaningTime} />}
             {imageTime && <ImageContext {...imageTime} />}
+            {wordId && <WordKanjiField wordId={wordId} />}
         </>
     );
 };
@@ -57,4 +61,49 @@ const MeaningField: FC<IEpisodeTime> = ({ episodeId, time }) => {
     }
 
     return <EngDialog compact content={response.data.dialog[0]} />;
+};
+
+const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
+    const definition = useTypedSelector((state) =>
+        selectWordDefinition(state, wordId)
+    );
+    if (!definition) {
+        return null;
+    }
+
+    const {
+        japanese: [{ kanji, reading }],
+        english
+    } = definition;
+    return (
+        <>
+            <FieldView title="Primary word">{kanji}</FieldView>
+            {reading && (
+                <FieldView title="Primary word reading">{reading}</FieldView>
+            )}
+            <FieldView title="Primary word meaning">
+                <form>
+                    {english.map((meaning, index) => {
+                        const id = 'some-unique-' + index;
+                        return (
+                            <div>
+                                <input key={index} id={id} type="checkbox" />
+                                <label htmlFor={id}>
+                                    {meaning.senses.map((sense, index) => (
+                                        <Fragment key={index}>
+                                            {index > 0 && <br />}
+                                            {sense}
+                                        </Fragment>
+                                    ))}
+                                </label>
+                            </div>
+                        );
+                    })}
+                </form>
+            </FieldView>
+            <FieldView title="Primary word notes">
+                {english.map((meaning) => meaning.tags.join('; '))}
+            </FieldView>
+        </>
+    );
 };

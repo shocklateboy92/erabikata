@@ -5,13 +5,14 @@ import styles from './wordDefinition.module.scss';
 import { Pill } from '../../components/pill';
 import { Link } from 'react-router-dom';
 import { useWordsKnownQuery } from 'backend';
+import { selectWordDefinition } from './selectors';
 
 export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
     wordId,
     episodeId
 }) => {
-    const definition = useTypedSelector(
-        (state) => state.wordDefinitions.byId[wordId]
+    const definition = useTypedSelector((state) =>
+        selectWordDefinition(state, wordId)
     );
     const episodeRank = useTypedSelector(
         (state) =>
