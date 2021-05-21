@@ -1,5 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import { ankiReducer } from 'features/ankiSlice';
+import { ankiReducer } from 'features/anki/ankiSlice';
 import { authReducer } from 'features/auth/slice';
 import { backendReducer } from 'features/backendSelection';
 import { furiganaReducer } from 'features/furigana/slice';

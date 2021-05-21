@@ -11,8 +11,9 @@ export const useNearbyDialogQuery = (
     const analyzer = useTypedSelector(selectAnalyzer);
     const response = useEpisodeIndexQuery({ analyzer, episodeId });
 
-    const dialog =
-        response.data && findNearbyDialog(response.data.entries, time, count);
+    const dialog = !!response.data
+        ? findNearbyDialog(response.data.entries, time, count)
+        : [];
 
     return { response, dialog };
 };

@@ -7,6 +7,7 @@ import { InfoPage } from '../../pages/infoPage';
 import { NowPlaying } from '../nowPlaying';
 import { StylesPage } from '../engDialog/stylesPage';
 import { WordSearchPage } from 'features/wordDefinition';
+import { AnkiPage } from 'features/anki/ankiPage';
 
 const UiRedirect: FC = () => (
     <Redirect to={'/ui' + window.location.pathname + window.location.search} />
@@ -41,6 +42,9 @@ export const AppSwitch: FC = () => (
         </Route>
         <Route path="/ui/engSubs/stylesOf/:showId">
             <StylesPage />
+        </Route>
+        <Route path="/ui/anki">
+            <AnkiPage />
         </Route>
         <Route path="/ui/*">
             <Redirect to="/ui/nowPlaying" />

@@ -1,15 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-interface ITimeStamp {
+interface IEpisodeTime {
     episodeId: string;
     time: number;
 }
 
 interface IAnkiState {
-    sentence?: { id: string };
-    meaning?: ITimeStamp;
+    sentence?: IEpisodeTime;
+    meaning?: IEpisodeTime;
     word?: { id: number; definitions?: number[] };
-    image?: ITimeStamp;
+    image?: IEpisodeTime;
 }
 
 const initialState: IAnkiState = {};
