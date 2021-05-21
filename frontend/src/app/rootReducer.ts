@@ -1,4 +1,5 @@
 import { combineReducers } from '@reduxjs/toolkit';
+import { ankiReducer } from 'features/ankiSlice';
 import { authReducer } from 'features/auth/slice';
 import { backendReducer } from 'features/backendSelection';
 import { furiganaReducer } from 'features/furigana/slice';
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     notifications: notificationReducer,
     api: apiReducer,
+    anki: ankiReducer,
     hass: hassReducer
 });
 
