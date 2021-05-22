@@ -17,7 +17,7 @@ namespace Erabikata.Backend.Models
         public Task<AnkiResponse<AnkiNote[]>> NotesInfo([Body(buffered: true)] AnkiAction action);
 
         [Post("/")]
-        public Task<AnkiResponse<AnkiNote[]>> AddNote([Body(buffered: true)] AddNoteAnkiAction action);
+        public Task<AnkiResponse<long?>> AddNote([Body(buffered: true)] AddNoteAnkiAction action);
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

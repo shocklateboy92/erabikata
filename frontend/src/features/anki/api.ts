@@ -2,7 +2,10 @@ import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { apiEndpoints } from 'backend';
 import { SendToAnki } from 'backend.generated';
-import { selectSentenceTextToSend } from './selectors';
+import {
+    selectSentenceLinkToSend,
+    selectSentenceTextToSend
+} from './selectors';
 
 export const sendToAnki: AsyncThunk<
     void,
@@ -13,7 +16,7 @@ export const sendToAnki: AsyncThunk<
     const activity: SendToAnki = {
         activityType: 'SendToAnki',
         text: selectSentenceTextToSend(state)!,
-        link: '',
+        link: selectSentenceLinkToSend(state)!,
         image: '',
         notes: '',
         meaning: '',

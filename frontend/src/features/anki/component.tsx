@@ -16,6 +16,7 @@ import { FieldView } from './fieldView';
 import {
     selectImageTimeToSend,
     selectMeaningTimeToSend,
+    selectSentenceLinkToSend,
     selectSentenceTimeToSend,
     selectWordIdToSend
 } from './selectors';
@@ -33,6 +34,7 @@ export const Anki: FC = () => {
             {meaningTime && <MeaningField {...meaningTime} />}
             {imageTime && <ImageContext {...imageTime} />}
             {wordId && <WordKanjiField wordId={wordId} />}
+            <LinkField />
             <ActionButton
                 icon={mdiSend}
                 onClick={() => dispatch(sendToAnki())}
@@ -117,3 +119,9 @@ const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
         </>
     );
 };
+
+const LinkField: FC = () => (
+    <FieldView title="Erabikata Link">
+        {useTypedSelector(selectSentenceLinkToSend)}
+    </FieldView>
+);

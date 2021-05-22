@@ -5,6 +5,7 @@ import {
     selectSelectedEpisodeTime,
     selectSelectedWords
 } from 'features/selectedWord';
+import { generateDialogLink } from 'routing/linkGen';
 
 export const selectSentenceTimeToSend = (state: RootState) =>
     state.anki.sentence ?? selectSelectedEpisodeTime(state);
@@ -41,4 +42,21 @@ export const selectSentenceTextToSend = (state: RootState) => {
                 .join('')
         )
         .join('\n');
+};
+
+export const selectSentenceLinkToSend = (state: RootState) => {
+    const wordId = selectWordIdToSend(state);
+    const sentenceTime = selectSentenceTimeToSend(state);
+    if (!sentenceTime) {
+        return;
+    }
+
+    return (
+        'https://erabikata3.apps.lasath.org' +
+        generateDialogLink(
+            sentenceTime.episodeId,
+            sentenceTime.time,
+            wordId ? [wordId] : []
+        )
+    );
 };
