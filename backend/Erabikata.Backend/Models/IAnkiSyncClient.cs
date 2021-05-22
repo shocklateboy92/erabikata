@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Erabikata.Backend.Models.Actions;
+using Mapster;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Refit;
@@ -13,10 +15,31 @@ namespace Erabikata.Backend.Models
 
         [Post("/")]
         public Task<AnkiResponse<AnkiNote[]>> NotesInfo([Body(buffered: true)] AnkiAction action);
+
+        [Post("/")]
+        public Task<AnkiResponse<AnkiNote[]>> AddNote([Body(buffered: true)] AddNoteAnkiAction action);
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public record AnkiAction(string Action, object Params, int Version = 6);
+    //public record AnkiAction<TParams>(string Action, TParams Params, int Version = 6);
+
+    public record AddNoteAnkiAction(SendToAnki activity) 
+        : AnkiAction(
+            "addNote",
+            new AddNoteParams(
+                DeckName: "Japanese",
+                ModelName: "Jap Sentences 2",
+                Fields: activity.Adapt<Dictionary<string, string>>()
+            )
+        )
+    {
+        public record AddNoteParams(
+            string DeckName,
+            string ModelName,
+            IDictionary<string, string> Fields
+        );
+    };
 
     public record AnkiNote(
         long NoteId,
