@@ -1,34 +1,31 @@
+import { mdiSend } from '@mdi/js';
 import { useAppSelector, useTypedSelector } from 'app/hooks';
 import { useEngSubsIndexQuery } from 'backend';
+import { ActionButton } from 'components/button/actionButton';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
 import { useNearbyDialogQuery } from 'features/dialog/api';
 import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
-import {
-    selectSelectedEpisodeTime,
-    selectSelectedWords
-} from 'features/selectedWord';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
-import { FC, Fragment } from 'react';
+import { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { IEpisodeTime, wordMeaningCheckToggle } from './ankiSlice';
+import { sendToAnki } from './api';
 import { FieldView } from './fieldView';
+import {
+    selectImageTimeToSend,
+    selectMeaningTimeToSend,
+    selectSentenceTimeToSend,
+    selectWordIdToSend
+} from './selectors';
 
 export const Anki: FC = () => {
-    const sentenceTime = useAppSelector(
-        (state) => state.anki.sentence ?? selectSelectedEpisodeTime(state)
-    );
-    const meaningTime = useAppSelector(
-        (state) => state.anki.meaning ?? selectSelectedEpisodeTime(state)
-    );
-    const imageTime = useAppSelector(
-        (state) => state.anki.image ?? selectSelectedEpisodeTime(state)
-    );
-
-    const wordId = useTypedSelector(
-        (state) => state.anki.word?.id ?? selectSelectedWords(state)[0]
-    );
+    const dispatch = useDispatch();
+    const sentenceTime = useAppSelector(selectSentenceTimeToSend);
+    const meaningTime = useAppSelector(selectMeaningTimeToSend);
+    const imageTime = useAppSelector(selectImageTimeToSend);
+    const wordId = useTypedSelector(selectWordIdToSend);
 
     return (
         <>
@@ -36,6 +33,10 @@ export const Anki: FC = () => {
             {meaningTime && <MeaningField {...meaningTime} />}
             {imageTime && <ImageContext {...imageTime} />}
             {wordId && <WordKanjiField wordId={wordId} />}
+            <ActionButton
+                icon={mdiSend}
+                onClick={() => dispatch(sendToAnki())}
+            ></ActionButton>
         </>
     );
 };

@@ -24,16 +24,23 @@ namespace Erabikata.Backend.Models
     public record AnkiAction(string Action, object Params, int Version = 6);
     //public record AnkiAction<TParams>(string Action, TParams Params, int Version = 6);
 
-    public record AddNoteAnkiAction(SendToAnki activity) 
-        : AnkiAction(
-            "addNote",
-            new AddNoteParams(
-                DeckName: "Japanese",
-                ModelName: "Jap Sentences 2",
-                Fields: activity.Adapt<Dictionary<string, string>>()
-            )
-        )
+    public record AddNoteAnkiAction : AnkiAction
     {
+        public AddNoteAnkiAction(SendToAnki activity)
+            : base(
+                "addNote",
+                new
+                {
+                    note = new AddNoteParams(
+                        DeckName: "Takoboto",
+                        ModelName: "Jap Sentences 2",
+                        Fields: activity.Adapt<Dictionary<string, string>>()
+                    )
+                }
+            )
+        {}
+
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public record AddNoteParams(
             string DeckName,
             string ModelName,

@@ -15,6 +15,7 @@ namespace Erabikata.Backend.Models.Actions
         typeof(EnableStyle),
         typeof(DisableStyle),
         typeof(SyncAnki),
+        typeof(SendToAnki),
         typeof(BeginIngestion),
         typeof(EndIngestion)
     )]
@@ -27,6 +28,7 @@ namespace Erabikata.Backend.Models.Actions
     [KnownType(typeof(EnableStyle))]
     [KnownType(typeof(DisableStyle))]
     [KnownType(typeof(SyncAnki))]
+    [KnownType(typeof(SendToAnki))]
     [KnownType(typeof(BeginIngestion))]
     [KnownType(typeof(EndIngestion))]
     public record Activity

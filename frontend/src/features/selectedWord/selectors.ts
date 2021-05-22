@@ -3,6 +3,7 @@ import { apiEndpoints } from '../../backend';
 import { selectAnalyzer } from '../backendSelection';
 import { Entry } from '../../backend-rtk.generated';
 import { notUndefined } from '../../typeUtils';
+import { IEpisodeTime } from 'features/anki/ankiSlice';
 
 export const selectIsCurrentlySelected = (
     state: RootState,
@@ -63,21 +64,28 @@ export const selectSelectedWordOccurrences = (state: RootState) => {
 };
 
 export const selectNearestSelectedDialog = (state: RootState) => {
-    const { episode, sentenceTimestamp } = state.selectedWord;
-    if (!episode || !sentenceTimestamp) {
-        return;
+    if (state.selectedWord.episode && state.selectedWord.sentenceTimestamp) {
+        return selectNearestDialogContent(state, {
+            episodeId: state.selectedWord.episode,
+            time: state.selectedWord.sentenceTimestamp
+        });
     }
+};
 
+export const selectNearestDialogContent = (
+    state: RootState,
+    { episodeId, time }: IEpisodeTime
+) => {
     const analyzer = selectAnalyzer(state);
     const { data } = apiEndpoints.episodeIndex.select({
         analyzer,
-        episodeId: episode
+        episodeId: episodeId
     })(state);
     if (!data) {
         return;
     }
 
-    const [{ dialogId }] = findNearbyDialog(data.entries, sentenceTimestamp, 1);
+    const [{ dialogId }] = findNearbyDialog(data.entries, time, 1);
     return apiEndpoints.subsById.select({ analyzer, id: dialogId })(state).data
         ?.text;
 };

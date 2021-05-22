@@ -2,7 +2,7 @@ import {
     ActionsExecuteApiResponse,
     api as generatedApi
 } from './backend-rtk.generated';
-import { DisableStyle, EnableStyle } from './backend.generated';
+import { DisableStyle, EnableStyle, SendToAnki } from './backend.generated';
 
 const api = generatedApi
     .enhanceEndpoints({
@@ -44,7 +44,7 @@ const api = generatedApi
         endpoints: (build) => ({
             executeAction: build.mutation<
                 ActionsExecuteApiResponse,
-                EnableStyle | DisableStyle
+                EnableStyle | DisableStyle | SendToAnki
             >({
                 query: (queryArg) => ({
                     url: `/api/Actions/execute`,

@@ -25,6 +25,7 @@ import {
 import { selectSelectedEnglishDialog } from '../engDialog';
 import history from 'appHistory';
 import { generateDialogLink } from 'routing/linkGen';
+import { selectSentenceTextToSend } from 'features/anki/selectors';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
@@ -45,28 +46,10 @@ const handlers: {
 }[] = [
     {
         key: 'c',
-        action: copyAction((state) => {
-            const selectedWords = selectSelectedWords(state);
-            const selectedDialog = selectNearestSelectedDialog(state);
-            return selectedDialog?.words
-                .map((line) =>
-                    line
-                        .map((word) =>
-                            word.definitionIds === selectedWords ||
-                            isKana(word.displayText) ||
-                            selectIsFuriganaHiddenForWords(
-                                state,
-                                word.definitionIds
-                            ) ||
-                            word.displayText === word.reading ||
-                            !word.reading
-                                ? word.displayText.replaceAll(' ', '　')
-                                : ` ${word.displayText}[${word.reading}]`
-                        )
-                        .join('')
-                )
-                .join('\n');
-        }, 'Japanese text')
+        action: copyAction(
+            (state) => selectSentenceTextToSend(state),
+            'Japanese text'
+        )
     },
     {
         key: 'C',
