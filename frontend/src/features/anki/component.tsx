@@ -11,7 +11,8 @@ import {
 } from 'features/selectedWord';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { FC, Fragment } from 'react';
-import { IEpisodeTime } from './ankiSlice';
+import { useDispatch } from 'react-redux';
+import { IEpisodeTime, wordMeaningCheckToggle } from './ankiSlice';
 import { FieldView } from './fieldView';
 
 export const Anki: FC = () => {
@@ -64,6 +65,10 @@ const MeaningField: FC<IEpisodeTime> = ({ episodeId, time }) => {
 };
 
 const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
+    const dispatch = useDispatch();
+    const uncheckedSenses = useTypedSelector(
+        (state) => state.anki.word?.definitions
+    );
     const definition = useTypedSelector((state) =>
         selectWordDefinition(state, wordId)
     );
@@ -86,16 +91,20 @@ const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
                     {english.map((meaning, index) => {
                         const id = 'some-unique-' + index;
                         return (
-                            <div>
-                                <input key={index} id={id} type="checkbox" />
-                                <label htmlFor={id}>
-                                    {meaning.senses.map((sense, index) => (
-                                        <Fragment key={index}>
-                                            {index > 0 && <br />}
-                                            {sense}
-                                        </Fragment>
-                                    ))}
-                                </label>
+                            <div key={index} className="definitionSelect">
+                                <input
+                                    id={id}
+                                    type="checkbox"
+                                    checked={!uncheckedSenses[index]}
+                                    onChange={() => {
+                                        dispatch(wordMeaningCheckToggle(index));
+                                    }}
+                                />
+                                {meaning.senses.map((sense, index) => (
+                                    <label key={index} htmlFor={id}>
+                                        {sense}
+                                    </label>
+                                ))}
                             </div>
                         );
                     })}

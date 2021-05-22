@@ -1,7 +1,16 @@
 .ankiField {
-    .title {
-    }
+    // .title {
+    // }
 
-    label {
+    .definitionSelect {
+        display: grid;
+        place-content: start;
+
+        label {
+            grid-column-start: 2;
+        }
+        input + label {
+            margin: unset;
+        }
     }
 }
