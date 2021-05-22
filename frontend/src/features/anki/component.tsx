@@ -17,6 +17,7 @@ import {
     selectImageTimeToSend,
     selectMeaningTimeToSend,
     selectSentenceLinkToSend,
+    selectSentenceTextToSend,
     selectSentenceTimeToSend,
     selectWordIdToSend
 } from './selectors';
@@ -51,11 +52,20 @@ const SentenceField: FC<{ episodeId: string; time: number }> = ({
         dialog: [dialog],
         response
     } = useNearbyDialogQuery(episodeId, time, 1);
-    if (!dialog) {
-        return <QueryPlaceholder result={response} />;
-    }
+    const textToSend = useTypedSelector(selectSentenceTextToSend);
 
-    return <Dialog dialogId={dialog.dialogId} compact />;
+    return (
+        <FieldView title="Sentence">
+            {!dialog ? (
+                <QueryPlaceholder result={response} />
+            ) : (
+                <>
+                    <Dialog dialogId={dialog.dialogId} compact />
+                    {textToSend}
+                </>
+            )}
+        </FieldView>
+    );
 };
 
 const MeaningField: FC<IEpisodeTime> = ({ episodeId, time }) => {
