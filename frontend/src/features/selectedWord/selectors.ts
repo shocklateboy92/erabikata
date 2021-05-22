@@ -31,9 +31,11 @@ export const selectSelectedEpisodeId = (state: RootState) =>
 
 export const selectSelectedEpisodeTime = ({
     selectedWord: { episode, sentenceTimestamp }
-}: RootState) =>
-    episode &&
-    sentenceTimestamp && { episodeId: episode, time: sentenceTimestamp };
+}: RootState) => {
+    if (episode && sentenceTimestamp) {
+        return { episodeId: episode, time: sentenceTimestamp };
+    }
+};
 
 export const selectSelectedWords = (state: RootState) =>
     state.selectedWord.wordIds;

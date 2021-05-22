@@ -33,7 +33,7 @@ export const Anki: FC = () => {
         <>
             {sentenceTime && <SentenceField {...sentenceTime} />}
             {meaningTime && <MeaningField {...meaningTime} />}
-            {imageTime && <ImageContext {...imageTime} />}
+            {imageTime && <ImageField {...imageTime} />}
             {wordId && <WordKanjiField wordId={wordId} />}
             <LinkField />
             <ActionButton
@@ -70,11 +70,15 @@ const SentenceField: FC<{ episodeId: string; time: number }> = ({
 
 const MeaningField: FC<IEpisodeTime> = ({ episodeId, time }) => {
     const response = useEngSubsIndexQuery({ episodeId, time, count: 0 });
-    if (!response.data) {
-        return <QueryPlaceholder result={response} />;
-    }
-
-    return <EngDialog compact content={response.data.dialog[0]} />;
+    return (
+        <FieldView title="Meaning">
+            {!response.data ? (
+                <QueryPlaceholder result={response} />
+            ) : (
+                <EngDialog compact content={response.data.dialog[0]} />
+            )}
+        </FieldView>
+    );
 };
 
 const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
@@ -129,6 +133,12 @@ const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
         </>
     );
 };
+
+const ImageField: FC<IEpisodeTime> = (props) => (
+    <FieldView title="Image">
+        <ImageContext includeSubs {...props} />
+    </FieldView>
+);
 
 const LinkField: FC = () => (
     <FieldView title="Erabikata Link">
