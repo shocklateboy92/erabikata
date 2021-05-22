@@ -34,7 +34,15 @@ namespace Erabikata.Backend.Models
                     note = new AddNoteParams(
                         DeckName: "Takoboto",
                         ModelName: "Jap Sentences 2",
-                        Fields: activity.Adapt<Dictionary<string, string>>()
+                        Fields: activity.Adapt<Dictionary<string, string>>(),
+                        Picture: new []
+                        {
+                            new PictureInfo(
+                                Url: $"https://erabikata3.apps.lasath.org/api/image/{activity.Image.EpisodeId}/{activity.Image.Time}?includeSubs={activity.Image.IncludeSubs}",
+                                Filename: $"erabikata_{activity.Image.EpisodeId}_{activity.Image.Time}.png",
+                                Fields: new [] {"Image"}
+                            )
+                        }
                     )
                 }
             )
@@ -44,8 +52,12 @@ namespace Erabikata.Backend.Models
         public record AddNoteParams(
             string DeckName,
             string ModelName,
-            IDictionary<string, string> Fields
+            IDictionary<string, string> Fields,
+            IEnumerable<PictureInfo> Picture
         );
+
+        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+        public record PictureInfo(string Url, string Filename, string[] Fields);
     };
 
     public record AnkiNote(
