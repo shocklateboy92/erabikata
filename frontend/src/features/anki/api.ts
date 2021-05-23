@@ -4,6 +4,7 @@ import { apiEndpoints } from 'backend';
 import { SendToAnki } from 'backend.generated';
 import {
     selectImageTimeToSend,
+    selectMeaningTextToSend,
     selectSentenceLinkToSend,
     selectSentenceTextToSend
 } from './selectors';
@@ -20,7 +21,7 @@ export const sendToAnki: AsyncThunk<
         link: selectSentenceLinkToSend(state)!,
         image: { ...selectImageTimeToSend(state)!, includeSubs: true },
         notes: '',
-        meaning: '',
+        meaning: selectMeaningTextToSend(state)!,
         primaryWord: '',
         primaryWordMeaning: '',
         primaryWordReading: ''

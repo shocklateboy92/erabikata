@@ -1,6 +1,7 @@
 import { mdiSend } from '@mdi/js';
 import { useAppSelector, useTypedSelector } from 'app/hooks';
 import { useEngSubsIndexQuery } from 'backend';
+import { EngSubsIndexApiArg } from 'backend-rtk.generated';
 import { ActionButton } from 'components/button/actionButton';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
 import { useNearbyDialogQuery } from 'features/dialog/api';
@@ -68,8 +69,8 @@ const SentenceField: FC<{ episodeId: string; time: number }> = ({
     );
 };
 
-const MeaningField: FC<IEpisodeTime> = ({ episodeId, time }) => {
-    const response = useEngSubsIndexQuery({ episodeId, time, count: 0 });
+const MeaningField: FC<EngSubsIndexApiArg> = (args) => {
+    const response = useEngSubsIndexQuery(args);
     return (
         <FieldView title="Meaning">
             {!response.data ? (
