@@ -8,7 +8,6 @@ import { useNearbyDialogQuery } from 'features/dialog/api';
 import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
-import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { IEpisodeTime, wordMeaningCheckToggle } from './ankiSlice';
@@ -21,7 +20,7 @@ import {
     selectSentenceTextToSend,
     selectSentenceTimeToSend,
     selectWordDefinitionToSend,
-    selectWordIdToSend
+    selectWordTagsToSend
 } from './selectors';
 
 export const Anki: FC = () => {
@@ -36,11 +35,11 @@ export const Anki: FC = () => {
             {meaningTime && <MeaningField {...meaningTime} />}
             {imageTime && <ImageField {...imageTime} />}
             <WordKanjiField />
+            <PrimaryWordNotesField />
             <LinkField />
-            <ActionButton
-                icon={mdiSend}
-                onClick={() => dispatch(sendToAnki())}
-            ></ActionButton>
+            <ActionButton icon={mdiSend} onClick={() => dispatch(sendToAnki())}>
+                Send to Anki
+            </ActionButton>
         </>
     );
 };
@@ -126,11 +125,17 @@ const WordKanjiField: FC = () => {
                     })}
                 </form>
             </FieldView>
-            <FieldView title="Primary word notes">
-                {english.map((meaning) => meaning.tags.join('; '))}
-            </FieldView>
         </>
     );
+};
+
+const PrimaryWordNotesField: FC = () => {
+    const tags = useAppSelector(selectWordTagsToSend);
+    if (!tags) {
+        return null;
+    }
+
+    return <FieldView title="Primary word notes">{tags}</FieldView>;
 };
 
 const ImageField: FC<IEpisodeTime> = (props) => (

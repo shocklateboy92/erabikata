@@ -81,3 +81,24 @@ export const selectSentenceLinkToSend = (state: RootState) => {
         )
     );
 };
+
+export const selectWordTagsToSend = (state: RootState) => {
+    const definition = selectWordDefinitionToSend(state);
+    if (!definition) {
+        return;
+    }
+    const toSkip = state.anki.word.definitions;
+
+    const uniq = new Set();
+    for (const [index, meaning] of definition.english.entries()) {
+        if (toSkip[index]) {
+            continue;
+        }
+
+        for (const tag of meaning.tags) {
+            uniq.add(tag);
+        }
+    }
+
+    return [...uniq.values()].join(', ');
+};

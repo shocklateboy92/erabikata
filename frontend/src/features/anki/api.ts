@@ -8,7 +8,8 @@ import {
     selectMeaningTextToSend,
     selectSentenceLinkToSend,
     selectSentenceTextToSend,
-    selectWordDefinitionToSend
+    selectWordDefinitionToSend,
+    selectWordTagsToSend
 } from './selectors';
 
 export const sendToAnki: AsyncThunk<
@@ -27,19 +28,23 @@ export const sendToAnki: AsyncThunk<
         );
     }
     const [{ reading, kanji }] = word.japanese;
+    const toSkip = state.anki.word.definitions;
 
     const activity: SendToAnki = {
         activityType: 'SendToAnki',
         text: selectSentenceTextToSend(state)!,
         link: selectSentenceLinkToSend(state)!,
         image: { ...selectImageTimeToSend(state)!, includeSubs: true },
-        notes: '',
+        notes: selectWordTagsToSend(state)!,
         meaning: selectMeaningTextToSend(state)!,
         primaryWord:
             kanji ??
             reading ??
             throwError(new Error(`Word ${word.id} had no kanji or reading`)),
-        primaryWordMeaning: '',
+        primaryWordMeaning: word.english
+            .filter((_, index) => !toSkip[index])
+            .map((meaning) => meaning.senses.join('\n'))
+            .join('\n\n'),
         primaryWordReading: reading ?? ''
     };
 
