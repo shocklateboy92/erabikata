@@ -1,8 +1,10 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import { AppDispatch } from 'app/store';
 import { apiEndpoints } from 'backend';
 import { SendToAnki } from 'backend.generated';
 import { notification } from 'features/notifications';
+import { ankiSendCompletion } from './ankiSlice';
 import {
     selectImageTimeToSend,
     selectMeaningTextToSend,
@@ -15,7 +17,7 @@ import {
 export const sendToAnki: AsyncThunk<
     void,
     void,
-    { state: RootState }
+    { state: RootState; dispatch: AppDispatch }
 > = createAsyncThunk('sendToAnki', async (_, { getState, dispatch }) => {
     const state = getState();
     const word = selectWordDefinitionToSend(state);
@@ -48,7 +50,20 @@ export const sendToAnki: AsyncThunk<
         primaryWordReading: reading ?? ''
     };
 
-    return dispatch(apiEndpoints.executeAction.initiate(activity));
+    const { data, error } = await dispatch(
+        apiEndpoints.executeAction.initiate(activity)
+    );
+    if (!data) {
+        return dispatch(
+            notification({
+                title: 'Failed to create note',
+                text: JSON.stringify(error)
+            })
+        );
+    }
+
+    dispatch(ankiSendCompletion());
+    return data;
 });
 
 const throwError = (error: Error) => {

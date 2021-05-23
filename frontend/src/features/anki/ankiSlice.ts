@@ -20,9 +20,10 @@ const slice = createSlice({
     reducers: {
         wordMeaningCheckToggle: (state, { payload }: PayloadAction<number>) => {
             state.word.definitions[payload] = !state.word.definitions[payload];
-        }
+        },
+        ankiSendCompletion: () => initialState
     }
 });
 
 export const ankiReducer = slice.reducer;
-export const { wordMeaningCheckToggle } = slice.actions;
+export const { wordMeaningCheckToggle, ankiSendCompletion } = slice.actions;
