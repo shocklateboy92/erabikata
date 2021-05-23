@@ -42,6 +42,7 @@ export const WordDefinitionDrawer: FC<{
         >
             {definition.map((word) => (
                 <Definition
+                    isPrimary={exact}
                     key={word}
                     wordId={word}
                     episodeId={selectedEpisode}

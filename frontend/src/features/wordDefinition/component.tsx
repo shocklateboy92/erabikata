@@ -6,11 +6,17 @@ import { Pill } from '../../components/pill';
 import { Link } from 'react-router-dom';
 import { useWordsKnownQuery } from 'backend';
 import { selectWordDefinition } from './selectors';
+import { useDispatch } from 'react-redux';
+import { wordPromotion } from 'features/selectedWord';
 
-export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
-    wordId,
-    episodeId
-}) => {
+const PRIMARY_ELEMENT_ID = 'primary-word-definition-view';
+
+export const Definition: FC<{
+    wordId: number;
+    episodeId?: string;
+    isPrimary?: boolean;
+}> = ({ wordId, episodeId, isPrimary }) => {
+    const dispatch = useDispatch();
     const definition = useTypedSelector((state) =>
         selectWordDefinition(state, wordId)
     );
@@ -39,7 +45,16 @@ export const Definition: FC<{ wordId: number; episodeId?: string }> = ({
 
     return (
         <div className={styles.definition}>
-            <div className={styles.title}>
+            <div
+                id={isPrimary ? PRIMARY_ELEMENT_ID : undefined}
+                className={styles.title}
+                onClick={() => {
+                    dispatch(wordPromotion(wordId));
+                    document
+                        .getElementById(PRIMARY_ELEMENT_ID)
+                        ?.scrollIntoView();
+                }}
+            >
                 {definition.japanese.map((word, i) => (
                     <ruby key={i}>
                         {word.kanji}

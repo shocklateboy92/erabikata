@@ -31,7 +31,7 @@ const slice = createSlice({
     name: 'selectedWord',
     reducers: {
         newWordSelected: (
-            state,
+            _state,
             {
                 payload: { word, timestamp, episode }
             }: PayloadAction<{
@@ -197,12 +197,17 @@ const slice = createSlice({
                     : wordIds
         }),
 
+        wordPromotion: (state, { payload }: PayloadAction<number>) => ({
+            ...state,
+            wordIds: [payload, ...state.wordIds.filter((w) => w !== payload)]
+        }),
+
         wordSelectionV2: (state, { payload }: PayloadAction<number[]>) => ({
             ...state,
             wordIds: payload
         }),
         dialogWordSelectionV2: (
-            state,
+            _state,
             {
                 payload
             }: PayloadAction<{
@@ -233,5 +238,6 @@ export const {
     selectedWordReverseCycleRequest,
     occurrenceShift,
     wordSelectionV2,
+    wordPromotion,
     dialogWordSelectionV2
 } = slice.actions;
