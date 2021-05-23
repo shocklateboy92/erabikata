@@ -1,0 +1,7 @@
+.selectedWord {
+    &.container {
+        @media (orientation: portrait) {
+            margin-top: 1vh;
+        }
+    }
+}

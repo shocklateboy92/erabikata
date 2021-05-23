@@ -7,6 +7,7 @@ import { DialogDrawer } from '../dialog/DialogDrawer';
 import { shouldShowPanel } from './selectors';
 import { ImageContextDrawer } from '../imageContext/drawer';
 import { EngDialogDrawer } from '../engDialog/drawer';
+import './selectedWord.scss';
 
 export const SelectedWord: FC = () => {
     if (!useTypedSelector(shouldShowPanel)) {
@@ -14,7 +15,7 @@ export const SelectedWord: FC = () => {
     }
 
     return (
-        <div>
+        <div className="selectedWord container">
             <WordDefinitionDrawer exact initiallyOpen toggleDefinition />
             <Separator />
             <WordDefinitionDrawer initiallyOpen={false} />
