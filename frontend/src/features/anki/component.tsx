@@ -20,6 +20,7 @@ import {
     selectSentenceLinkToSend,
     selectSentenceTextToSend,
     selectSentenceTimeToSend,
+    selectWordDefinitionToSend,
     selectWordIdToSend
 } from './selectors';
 
@@ -28,14 +29,13 @@ export const Anki: FC = () => {
     const sentenceTime = useAppSelector(selectSentenceTimeToSend);
     const meaningTime = useAppSelector(selectMeaningTimeToSend);
     const imageTime = useAppSelector(selectImageTimeToSend);
-    const wordId = useTypedSelector(selectWordIdToSend);
 
     return (
         <>
             {sentenceTime && <SentenceField {...sentenceTime} />}
             {meaningTime && <MeaningField {...meaningTime} />}
             {imageTime && <ImageField {...imageTime} />}
-            {wordId && <WordKanjiField wordId={wordId} />}
+            <WordKanjiField />
             <LinkField />
             <ActionButton
                 icon={mdiSend}
@@ -82,14 +82,12 @@ const MeaningField: FC<EngSubsIndexApiArg> = (args) => {
     );
 };
 
-const WordKanjiField: FC<{ wordId: number }> = ({ wordId }) => {
+const WordKanjiField: FC = () => {
     const dispatch = useDispatch();
     const uncheckedSenses = useTypedSelector(
         (state) => state.anki.word?.definitions
     );
-    const definition = useTypedSelector((state) =>
-        selectWordDefinition(state, wordId)
-    );
+    const definition = useTypedSelector(selectWordDefinitionToSend);
     if (!definition) {
         return null;
     }

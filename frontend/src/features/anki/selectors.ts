@@ -6,6 +6,7 @@ import {
     selectSelectedEpisodeTime,
     selectSelectedWords
 } from 'features/selectedWord';
+import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { generateDialogLink } from 'routing/linkGen';
 
 export const selectSentenceTimeToSend = (state: RootState) =>
@@ -23,6 +24,13 @@ export const selectImageTimeToSend = (state: RootState) =>
 
 export const selectWordIdToSend = (state: RootState) =>
     state.anki.word?.id ?? selectSelectedWords(state)[0];
+
+export const selectWordDefinitionToSend = (state: RootState) => {
+    const wordId = selectWordIdToSend(state);
+    if (wordId) {
+        return selectWordDefinition(state, wordId);
+    }
+};
 
 export const selectSentenceTextToSend = (state: RootState) => {
     const wordId = selectWordIdToSend(state);
