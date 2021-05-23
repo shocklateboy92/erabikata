@@ -24,7 +24,7 @@ export const ImageContext: FC<{
         // Whenever the srcUrl changes, we're loading a new image
         // If it takes more than 100ms, start showing the spinner
         timer.current = window.setTimeout(
-            () => imgRef.current?.loading && setShowSpinner(true),
+            () => imgRef.current?.complete || setShowSpinner(true),
             100
         );
 
