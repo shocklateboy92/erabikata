@@ -9,8 +9,9 @@ import {
 } from './slice';
 import { Drawer } from '../../components/drawer';
 import Icon from '@mdi/react';
-import { mdiPageNextOutline } from '@mdi/js';
+import { mdiPageNextOutline, mdiSend } from '@mdi/js';
 import { Definition } from './component';
+import { AnkiPageLink } from 'features/routing/links';
 
 export const WordDefinitionDrawer: FC<{
     exact?: boolean;
@@ -31,13 +32,22 @@ export const WordDefinitionDrawer: FC<{
     return (
         <Drawer
             summary={exact ? 'Definition' : 'Related Words'}
-            extraActions={(iconSize) =>
-                toggleDefinition && (
-                    <button onClick={() => dispatch(readingsOnlyModeToggle())}>
-                        <Icon path={mdiPageNextOutline} size={iconSize} />
-                    </button>
-                )
-            }
+            extraActions={(iconSize) => (
+                <>
+                    {exact && (
+                        <AnkiPageLink>
+                            <Icon size={iconSize} path={mdiSend} />
+                        </AnkiPageLink>
+                    )}
+                    {toggleDefinition && (
+                        <button
+                            onClick={() => dispatch(readingsOnlyModeToggle())}
+                        >
+                            <Icon path={mdiPageNextOutline} size={iconSize} />
+                        </button>
+                    )}
+                </>
+            )}
             startOpen={initiallyOpen}
         >
             {definition.map((word) => (
