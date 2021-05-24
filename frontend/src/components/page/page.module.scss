@@ -19,6 +19,8 @@
 
     @media (orientation: landscape) {
         grid: none / auto 1px min-content;
+        column-gap: 1vw;
+
         .primary {
             grid-column-start: 1;
         }
