@@ -9,9 +9,11 @@ import {
 } from './slice';
 import { Drawer } from '../../components/drawer';
 import Icon from '@mdi/react';
-import { mdiPageNextOutline, mdiSend } from '@mdi/js';
+import { mdiFuriganaHorizontal, mdiPageNextOutline, mdiSend } from '@mdi/js';
 import { Definition } from './component';
 import { AnkiPageLink } from 'features/routing/links';
+import { ActionButton } from 'components/button/actionButton';
+import { toggleWordFurigana } from 'features/furigana';
 
 export const WordDefinitionDrawer: FC<{
     exact?: boolean;
@@ -32,18 +34,27 @@ export const WordDefinitionDrawer: FC<{
     return (
         <Drawer
             summary={exact ? 'Definition' : 'Related Words'}
-            extraActions={(iconSize) => (
+            extraActions={() => (
                 <>
                     {exact && (
                         <AnkiPageLink>
-                            <Icon size={iconSize} path={mdiSend} />
+                            <Icon path={mdiSend} />
                         </AnkiPageLink>
                     )}
                     {toggleDefinition && (
                         <button
                             onClick={() => dispatch(readingsOnlyModeToggle())}
                         >
-                            <Icon path={mdiPageNextOutline} size={iconSize} />
+                            <Icon path={mdiPageNextOutline} />
+                        </button>
+                    )}
+                    {exact && (
+                        <button
+                            onClick={() => {
+                                dispatch(toggleWordFurigana(definition));
+                            }}
+                        >
+                            <Icon path={mdiFuriganaHorizontal} />
                         </button>
                     )}
                 </>

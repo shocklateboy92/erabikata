@@ -11,7 +11,7 @@ export const ActionButton: FC<
 > = ({ icon, isLoading, children, className, ...rest }) => (
     <InlineButton className={classNames([styles.action], className)} {...rest}>
         <Icon
-            className={classNames({ animateSelfSpinFast: isLoading })}
+            className={classNames('icon', { animateSelfSpinFast: isLoading })}
             path={isLoading ? mdiLoading : icon}
         />
         <div>{children}</div>
