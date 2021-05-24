@@ -54,6 +54,8 @@ namespace Erabikata.Backend.CollectionManagers
             switch (activity)
             {
                 case SyncAnki:
+                    await _ankiSyncClient.Execute(new SyncAnkiAction());
+
                     var (noteTexts, takobotoWords, matcher) = await (
                         GetAndAnalyzeNoteTexts(),
                         GetTakobotoWords(),

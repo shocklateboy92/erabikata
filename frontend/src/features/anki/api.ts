@@ -1,8 +1,8 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { AppDispatch } from 'app/store';
-import { apiEndpoints } from 'backend';
-import { SendToAnki } from 'backend.generated';
+import { apiEndpoints, useExecuteActionMutation } from 'backend';
+import { SendToAnki, SyncAnki } from 'backend.generated';
 import { notification } from 'features/notifications';
 import { ankiSendCompletion } from './ankiSlice';
 import {
@@ -14,6 +14,8 @@ import {
     selectWordTagsToSend
 } from './selectors';
 
+export const syncAnkiActivity = (): SyncAnki => ({ activityType: 'SyncAnki' });
+
 export const sendToAnki: AsyncThunk<
     void,
     void,
@@ -22,12 +24,13 @@ export const sendToAnki: AsyncThunk<
     const state = getState();
     const word = selectWordDefinitionToSend(state);
     if (!word) {
-        return dispatch(
+        dispatch(
             notification({
                 title: 'Unable to send',
                 text: 'Primary word not selected or definition unavailable'
             })
         );
+        return;
     }
     const [{ reading, kanji }] = word.japanese;
     const toSkip = state.anki.word.definitions;
@@ -54,16 +57,18 @@ export const sendToAnki: AsyncThunk<
         apiEndpoints.executeAction.initiate(activity)
     );
     if (!data) {
-        return dispatch(
+        dispatch(
             notification({
                 title: 'Failed to create note',
                 text: JSON.stringify(error)
             })
         );
+        return;
     }
 
     dispatch(ankiSendCompletion());
-    return data;
+
+    await dispatch(apiEndpoints.executeAction.initiate(syncAnkiActivity()));
 });
 
 const throwError = (error: Error) => {

@@ -17,12 +17,16 @@ namespace Erabikata.Backend.Models
         public Task<AnkiResponse<AnkiNote[]>> NotesInfo([Body(buffered: true)] AnkiAction action);
 
         [Post("/")]
-        public Task<AnkiResponse<long?>> AddNote([Body(buffered: true)] AddNoteAnkiAction action);
+        public Task<AnkiResponse<long?>> Execute([Body(buffered: true)] AddNoteAnkiAction action);
+
+        [Post("/")]
+        public Task<AnkiResponse<object?>> Execute([Body(buffered: true)] SyncAnkiAction action);
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public record AnkiAction(string Action, object Params, int Version = 6);
-    //public record AnkiAction<TParams>(string Action, TParams Params, int Version = 6);
+
+    public record SyncAnkiAction() : AnkiAction("sync", new {});
 
     public record AddNoteAnkiAction : AnkiAction
     {

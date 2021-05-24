@@ -2,7 +2,12 @@ import {
     ActionsExecuteApiResponse,
     api as generatedApi
 } from './backend-rtk.generated';
-import { DisableStyle, EnableStyle, SendToAnki } from './backend.generated';
+import {
+    DisableStyle,
+    EnableStyle,
+    SendToAnki,
+    SyncAnki
+} from './backend.generated';
 
 const api = generatedApi
     .enhanceEndpoints({
@@ -10,22 +15,15 @@ const api = generatedApi
             'WordOccurrences',
             'Dialog',
             'EngDialog',
+            'KnownWords',
             'ActiveStyle'
         ],
         endpoints: {
-            actionsExecute: {
-                invalidates: (_, { activity }) => {
-                    switch (activity.activityType) {
-                        case 'EnableStyle':
-                        case 'DisableStyle':
-                            return ['EngDialog', 'ActiveStyle'];
-                        default:
-                            return [];
-                    }
-                }
-            },
             engSubsActiveStylesFor: {
                 provides: ['ActiveStyle']
+            },
+            wordsKnown: {
+                provides: ['KnownWords']
             },
             engSubsIndex: {
                 provides: ['EngDialog']
@@ -44,7 +42,7 @@ const api = generatedApi
         endpoints: (build) => ({
             executeAction: build.mutation<
                 ActionsExecuteApiResponse,
-                EnableStyle | DisableStyle | SendToAnki
+                EnableStyle | DisableStyle | SendToAnki | SyncAnki
             >({
                 query: (queryArg) => ({
                     url: `/api/Actions/execute`,
@@ -56,6 +54,8 @@ const api = generatedApi
                         case 'EnableStyle':
                         case 'DisableStyle':
                             return ['EngDialog', 'ActiveStyle'];
+                        case 'SyncAnki':
+                            return ['KnownWords'];
                         default:
                             return [];
                     }

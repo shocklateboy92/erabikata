@@ -1,6 +1,6 @@
-import { mdiSend } from '@mdi/js';
+import { mdiLoading, mdiSend, mdiSync } from '@mdi/js';
 import { useAppSelector, useTypedSelector } from 'app/hooks';
-import { useEngSubsIndexQuery } from 'backend';
+import { useEngSubsIndexQuery, useExecuteActionMutation } from 'backend';
 import { EngSubsIndexApiArg } from 'backend-rtk.generated';
 import { ActionButton } from 'components/button/actionButton';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
@@ -11,7 +11,7 @@ import { ImageContext } from 'features/imageContext/component';
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { IEpisodeTime, wordMeaningCheckToggle } from './ankiSlice';
-import { sendToAnki } from './api';
+import { sendToAnki, syncAnkiActivity } from './api';
 import { FieldView } from './fieldView';
 import {
     selectImageTimeToSend,
@@ -40,6 +40,7 @@ export const Anki: FC = () => {
             <ActionButton icon={mdiSend} onClick={() => dispatch(sendToAnki())}>
                 Send to Anki
             </ActionButton>
+            <SyncAnkiButton />
         </>
     );
 };
@@ -153,3 +154,18 @@ const LinkField: FC = () => (
         {useTypedSelector(selectSentenceLinkToSend)}
     </FieldView>
 );
+
+const SyncAnkiButton: FC = () => {
+    const [executeAction, { isLoading }] = useExecuteActionMutation();
+    return (
+        <ActionButton
+            spinIcon={isLoading}
+            icon={isLoading ? mdiLoading : mdiSync}
+            onClick={() => {
+                executeAction(syncAnkiActivity());
+            }}
+        >
+            Sync Anki
+        </ActionButton>
+    );
+};
