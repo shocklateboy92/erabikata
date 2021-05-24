@@ -21,9 +21,32 @@ const slice = createSlice({
         wordMeaningCheckToggle: (state, { payload }: PayloadAction<number>) => {
             state.word.definitions[payload] = !state.word.definitions[payload];
         },
-        ankiSendCompletion: () => initialState
+        ankiSendCompletion: () => initialState,
+        ankiTimeLockRequest: (
+            state,
+            {
+                payload: { field, time }
+            }: PayloadAction<{
+                time: IEpisodeTime;
+                field: 'sentence' | 'meaning' | 'image';
+            }>
+        ) => {
+            const stateTime = state[field];
+            return {
+                ...state,
+                [field]:
+                    stateTime?.time === time.time &&
+                    stateTime?.episodeId === time.episodeId
+                        ? undefined
+                        : time
+            };
+        }
     }
 });
 
 export const ankiReducer = slice.reducer;
-export const { wordMeaningCheckToggle, ankiSendCompletion } = slice.actions;
+export const {
+    wordMeaningCheckToggle,
+    ankiSendCompletion,
+    ankiTimeLockRequest
+} = slice.actions;

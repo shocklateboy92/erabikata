@@ -10,9 +10,10 @@ import { useNearbyDialogQuery } from 'features/dialog/api';
 import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
+import { selectSelectedEpisodeTime } from 'features/selectedWord';
 import React, { FC, Fragment, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { wordMeaningCheckToggle } from './ankiSlice';
+import { ankiTimeLockRequest, wordMeaningCheckToggle } from './ankiSlice';
 import { sendToAnki, syncAnkiActivity } from './api';
 import { ActionFieldView, FieldView } from './fieldView';
 import {
@@ -58,7 +59,7 @@ const SentenceField: FC<{ episodeId: string; time: number }> = ({
     const textToSend = useTypedSelector(selectSentenceTextToSend);
 
     return (
-        <FieldView title="Sentence">
+        <TimeLockableField title="Sentence" field="sentence">
             {!dialog ? (
                 <QueryPlaceholder result={response} />
             ) : (
@@ -67,20 +68,20 @@ const SentenceField: FC<{ episodeId: string; time: number }> = ({
                     {textToSend}
                 </>
             )}
-        </FieldView>
+        </TimeLockableField>
     );
 };
 
 const MeaningField: FC<EngSubsIndexApiArg> = (args) => {
     const response = useEngSubsIndexQuery(args);
     return (
-        <FieldView title="Meaning">
+        <TimeLockableField title="Meaning" field="meaning">
             {!response.data ? (
                 <QueryPlaceholder result={response} />
             ) : (
                 <EngDialog compact content={response.data.dialog[0]} />
             )}
-        </FieldView>
+        </TimeLockableField>
     );
 };
 
@@ -152,9 +153,9 @@ const ImageField: FC = () => {
     }
 
     return (
-        <FieldView title="Image">
+        <TimeLockableField title="Image" field="image">
             <ImageContext includeSubs {...imageArgs} />
-        </FieldView>
+        </TimeLockableField>
     );
 };
 
@@ -198,5 +199,29 @@ const SendToAnkiButton: FC = () => {
         >
             Send to Anki
         </ActionButton>
+    );
+};
+
+const TimeLockableField: FC<{
+    field: 'image' | 'meaning' | 'sentence';
+    title: string;
+}> = ({ field, ...props }) => {
+    const dispatch = useDispatch();
+    const isActive = useTypedSelector((state) => !!state.anki[field]);
+    const time = useTypedSelector(
+        (state) => state.anki[field] ?? selectSelectedEpisodeTime(state)
+    );
+    if (!time) {
+        return null;
+    }
+
+    return (
+        <FieldView
+            active={isActive}
+            toggleActive={() => {
+                dispatch(ankiTimeLockRequest({ field, time }));
+            }}
+            {...props}
+        ></FieldView>
     );
 };

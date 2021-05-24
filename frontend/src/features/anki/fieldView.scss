@@ -6,6 +6,12 @@
         margin-bottom: 2vh;
     }
 
+    &.active {
+        h3 {
+            text-decoration: underline;
+        }
+    }
+
     form {
         display: inline-grid;
         place-content: start;

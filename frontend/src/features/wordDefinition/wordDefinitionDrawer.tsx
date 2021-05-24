@@ -1,19 +1,18 @@
+import { mdiFuriganaHorizontal, mdiPageNextOutline, mdiSend } from '@mdi/js';
+import Icon from '@mdi/react';
+import { toggleWordFurigana } from 'features/furigana';
+import { AnkiPageLink } from 'features/routing/links';
 import React, { FC, useEffect } from 'react';
-import { useTypedSelector } from '../../app/hooks';
-import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { useDispatch } from 'react-redux';
+import { useTypedSelector } from '../../app/hooks';
+import { Drawer } from '../../components/drawer';
+import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
+import { Definition } from './component';
 import {
     fetchDefinitionsIfNeeded,
     fetchEpisodeRanksIfNeeded,
     readingsOnlyModeToggle
 } from './slice';
-import { Drawer } from '../../components/drawer';
-import Icon from '@mdi/react';
-import { mdiFuriganaHorizontal, mdiPageNextOutline, mdiSend } from '@mdi/js';
-import { Definition } from './component';
-import { AnkiPageLink } from 'features/routing/links';
-import { ActionButton } from 'components/button/actionButton';
-import { toggleWordFurigana } from 'features/furigana';
 
 export const WordDefinitionDrawer: FC<{
     exact?: boolean;
