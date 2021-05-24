@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import React, { FC } from 'react';
-import styles from './separator.module.scss';
+import './separator.scss';
 
-export const Separator: FC<{ navBar?: boolean }> = (props) => (
+export const Separator: FC<{ navBar?: boolean }> = ({ navBar }) => (
     <div
-        className={classNames(styles.separator, {
-            [styles.navBar]: props.navBar
+        className={classNames('separator', {
+            navBar
         })}
     />
 );
