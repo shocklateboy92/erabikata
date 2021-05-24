@@ -210,7 +210,8 @@ namespace Erabikata.Backend.CollectionManagers
                     new Dialog.Word(
                         word.BaseForm,
                         word.DictionaryForm,
-                        word.Original,
+                        // replace the normalized spaces with the funky Japanese spaces
+                        word.Original.Replace(' ', '　'),
                         word.Reading,
                         bracketCount > 0
                     ) {PartOfSpeech = word.PartOfSpeech}

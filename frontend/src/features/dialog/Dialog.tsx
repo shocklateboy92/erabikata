@@ -69,7 +69,7 @@ export const Dialog: FC<{
                             >
                                 {
                                     // It seems the analyzers replace japanese spaces with normal spaces
-                                    word.displayText.replaceAll(' ', '　')
+                                    word.displayText
                                 }
                             </SelectableRuby>
                         ))}
