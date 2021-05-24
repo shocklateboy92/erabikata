@@ -43,7 +43,7 @@ export const Drawer: FC<IDrawerProps> = ({
             </InlineButton>
             {props.extraActions && (
                 <div className={styles.actions}>
-                    <Row>{props.extraActions('2em')}</Row>
+                    <Row>{props.extraActions('32px')}</Row>
                 </div>
             )}
             {isOpen && <div className={styles.content}>{children}</div>}

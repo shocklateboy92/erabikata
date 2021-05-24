@@ -1,6 +1,7 @@
 .layout {
     &.row {
         display: flex;
+        align-items: center;
 
         > * {
             margin-left: 1vw;
