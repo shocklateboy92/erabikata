@@ -9,3 +9,7 @@ export const FieldView: FC<{ title: string }> = ({ title, children }) => (
         <Separator />
     </section>
 );
+
+export const ActionFieldView: FC = ({ children }) => (
+    <section className="ankiActionField">{children}</section>
+);

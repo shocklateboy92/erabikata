@@ -1,18 +1,20 @@
-import { mdiLoading, mdiSend, mdiSync } from '@mdi/js';
+import { mdiSend, mdiSync } from '@mdi/js';
 import { useAppSelector, useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { useEngSubsIndexQuery, useExecuteActionMutation } from 'backend';
 import { EngSubsIndexApiArg } from 'backend-rtk.generated';
 import { ActionButton } from 'components/button/actionButton';
+import { Row } from 'components/layout';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
 import { useNearbyDialogQuery } from 'features/dialog/api';
 import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
-import React, { FC, Fragment } from 'react';
+import React, { FC, Fragment, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { IEpisodeTime, wordMeaningCheckToggle } from './ankiSlice';
+import { wordMeaningCheckToggle } from './ankiSlice';
 import { sendToAnki, syncAnkiActivity } from './api';
-import { FieldView } from './fieldView';
+import { ActionFieldView, FieldView } from './fieldView';
 import {
     selectImageTimeToSend,
     selectMeaningTimeToSend,
@@ -24,23 +26,23 @@ import {
 } from './selectors';
 
 export const Anki: FC = () => {
-    const dispatch = useDispatch();
     const sentenceTime = useAppSelector(selectSentenceTimeToSend);
     const meaningTime = useAppSelector(selectMeaningTimeToSend);
-    const imageTime = useAppSelector(selectImageTimeToSend);
 
     return (
         <>
             {sentenceTime && <SentenceField {...sentenceTime} />}
             {meaningTime && <MeaningField {...meaningTime} />}
-            {imageTime && <ImageField {...imageTime} />}
+            <ImageField />
             <WordKanjiField />
             <PrimaryWordNotesField />
             <LinkField />
-            <ActionButton icon={mdiSend} onClick={() => dispatch(sendToAnki())}>
-                Send to Anki
-            </ActionButton>
-            <SyncAnkiButton />
+            <ActionFieldView>
+                <Row centerChildren>
+                    <SendToAnkiButton />
+                    <SyncAnkiButton />
+                </Row>
+            </ActionFieldView>
         </>
     );
 };
@@ -143,29 +145,58 @@ const PrimaryWordNotesField: FC = () => {
     return <FieldView title="Primary word notes">{tags}</FieldView>;
 };
 
-const ImageField: FC<IEpisodeTime> = (props) => (
-    <FieldView title="Image">
-        <ImageContext includeSubs {...props} />
-    </FieldView>
-);
+const ImageField: FC = () => {
+    const imageArgs = useAppSelector(selectImageTimeToSend);
+    if (!imageArgs) {
+        return null;
+    }
 
-const LinkField: FC = () => (
-    <FieldView title="Erabikata Link">
-        {useTypedSelector(selectSentenceLinkToSend)}
-    </FieldView>
-);
+    return (
+        <FieldView title="Image">
+            <ImageContext includeSubs {...imageArgs} />
+        </FieldView>
+    );
+};
+
+const LinkField: FC = () => {
+    const link = useTypedSelector(selectSentenceLinkToSend);
+    if (!link) {
+        return null;
+    }
+    return <FieldView title="Erabikata Link">{link}</FieldView>;
+};
 
 const SyncAnkiButton: FC = () => {
     const [executeAction, { isLoading }] = useExecuteActionMutation();
     return (
         <ActionButton
-            spinIcon={isLoading}
-            icon={isLoading ? mdiLoading : mdiSync}
+            large
+            isLoading={isLoading}
+            icon={mdiSync}
             onClick={() => {
                 executeAction(syncAnkiActivity());
             }}
         >
             Sync Anki
+        </ActionButton>
+    );
+};
+
+const SendToAnkiButton: FC = () => {
+    const dispatch = useAppDispatch();
+    const [isLoading, setLoading] = useState(false);
+    return (
+        <ActionButton
+            large
+            isLoading={isLoading}
+            icon={mdiSend}
+            onClick={async () => {
+                setLoading(true);
+                await dispatch(sendToAnki());
+                setLoading(false);
+            }}
+        >
+            Send to Anki
         </ActionButton>
     );
 };

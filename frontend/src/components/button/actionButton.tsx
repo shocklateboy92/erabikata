@@ -4,15 +4,16 @@ import { FC } from 'react';
 import { IButtonProps, InlineButton } from './inlineButton';
 import styles from './button.module.scss';
 import classNames from 'classnames';
+import { mdiLoading } from '@mdi/js';
 
 export const ActionButton: FC<
-    IButtonProps & { icon: string; spinIcon?: boolean }
-> = ({ icon, spinIcon, children, className, ...rest }) => (
+    IButtonProps & { icon: string; isLoading?: boolean }
+> = ({ icon, isLoading, children, className, ...rest }) => (
     <InlineButton className={classNames([styles.action], className)} {...rest}>
         <Icon
-            className={classNames({ animateSelfSpinFast: spinIcon })}
-            path={icon}
+            className={classNames({ animateSelfSpinFast: isLoading })}
+            path={isLoading ? mdiLoading : icon}
         />
-        {children}
+        <div>{children}</div>
     </InlineButton>
 );

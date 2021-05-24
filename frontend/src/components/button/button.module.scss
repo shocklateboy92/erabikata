@@ -12,6 +12,10 @@ button.inline {
         font-size: small;
     }
 
+    &.large {
+        font-size: large;
+    }
+
     font-size: inherit;
 
     &.action {
