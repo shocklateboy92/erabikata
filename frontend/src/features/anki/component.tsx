@@ -8,7 +8,7 @@ import { useNearbyDialogQuery } from 'features/dialog/api';
 import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
-import { FC } from 'react';
+import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { IEpisodeTime, wordMeaningCheckToggle } from './ankiSlice';
 import { sendToAnki } from './api';
@@ -97,16 +97,20 @@ const WordKanjiField: FC = () => {
     } = definition;
     return (
         <>
-            <FieldView title="Primary word">{kanji}</FieldView>
+            <FieldView title="Primary word">
+                <ruby>{kanji}</ruby>
+            </FieldView>
             {reading && (
-                <FieldView title="Primary word reading">{reading}</FieldView>
+                <FieldView title="Primary word reading">
+                    <ruby>{reading}</ruby>
+                </FieldView>
             )}
             <FieldView title="Primary word meaning">
                 <form>
                     {english.map((meaning, index) => {
                         const id = 'some-unique-' + index;
                         return (
-                            <div key={index} className="definitionSelect">
+                            <Fragment key={index}>
                                 <input
                                     id={id}
                                     type="checkbox"
@@ -120,7 +124,7 @@ const WordKanjiField: FC = () => {
                                         {sense}
                                     </label>
                                 ))}
-                            </div>
+                            </Fragment>
                         );
                     })}
                 </form>
