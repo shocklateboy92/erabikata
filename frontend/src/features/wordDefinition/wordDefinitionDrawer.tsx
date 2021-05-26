@@ -50,7 +50,7 @@ export const WordDefinitionDrawer: FC<{
                     {exact && (
                         <button
                             onClick={() => {
-                                dispatch(toggleWordFurigana(definition));
+                                dispatch(toggleWordFurigana(definition[0]));
                             }}
                         >
                             <Icon path={mdiFuriganaHorizontal} />

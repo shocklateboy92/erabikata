@@ -3,6 +3,7 @@ import {
     useTrackMetric
 } from '@microsoft/applicationinsights-react-js';
 import classNames from 'classnames';
+import { fetchWordsWithHiddenFurigana } from 'features/furigana';
 import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
 import { selectionClearRequest } from 'features/selectedWord';
@@ -34,6 +35,9 @@ export const Page: FC<IPageProps> = (props) => {
     }>();
 
     const secondary = props.secondaryChildren?.();
+    useEffect(() => {
+        dispatch(fetchWordsWithHiddenFurigana());
+    });
 
     return (
         <div className="App">

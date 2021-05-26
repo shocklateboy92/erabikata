@@ -1,5 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import { AppDispatch } from 'app/store';
+import { apiEndpoints } from 'backend';
 
 const initialState: {
     enabled: boolean;
@@ -15,18 +17,41 @@ const slice = createSlice({
     name: 'furigana',
     initialState,
     reducers: {
-        toggleFurigana: (state) => ({ ...state, enabled: !state.enabled }),
-        toggleWordFurigana: (state, { payload }: PayloadAction<number[]>) => ({
-            ...state,
-            words: {
-                ...state.words,
-                ...Object.fromEntries(
-                    payload.map((id) => [id, { hide: !state.words[id]?.hide }])
+        toggleFurigana: (state) => ({ ...state, enabled: !state.enabled })
+    },
+    extraReducers: (builder) =>
+        builder.addMatcher(
+            apiEndpoints.wordsWithReadingsKnown.matchFulfilled,
+            (state, { payload: { result } }) => ({
+                ...state,
+                words: Object.fromEntries(
+                    result.map((id) => [id, { hide: true }])
                 )
-            }
-        })
-    }
+            })
+        )
 });
+
+export const toggleWordFurigana = createAsyncThunk<
+    void,
+    number,
+    { state: RootState; dispatch: AppDispatch }
+>('toggleWordFurigana', async (wordId, { getState, dispatch }) => {
+    const isHidden = selectIsFuriganaHiddenForWords(getState(), [wordId]);
+    await dispatch(
+        apiEndpoints.executeAction.initiate(
+            {
+                activityType: isHidden ? 'UnLearnReading' : 'LearnReading',
+                wordId
+            },
+            { track: false }
+        )
+    );
+
+    await dispatch(fetchWordsWithHiddenFurigana());
+});
+
+export const fetchWordsWithHiddenFurigana = () =>
+    apiEndpoints.wordsWithReadingsKnown.initiate({}, { subscribe: false });
 
 export const selectIsFuriganaEnabled = (state: RootState) =>
     state.furigana.enabled;
@@ -35,6 +60,6 @@ export const selectIsFuriganaHiddenForWords = (
     wordIds: number[]
 ) => wordIds.find((id) => state.furigana.words[id]?.hide);
 
-export const { toggleFurigana, toggleWordFurigana } = slice.actions;
+export const { toggleFurigana } = slice.actions;
 
 export const furiganaReducer = slice.reducer;

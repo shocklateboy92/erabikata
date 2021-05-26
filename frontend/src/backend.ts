@@ -5,8 +5,10 @@ import {
 import {
     DisableStyle,
     EnableStyle,
+    LearnReading,
     SendToAnki,
-    SyncAnki
+    SyncAnki,
+    UnLearnReading
 } from './backend.generated';
 
 const api = generatedApi
@@ -16,6 +18,7 @@ const api = generatedApi
             'Dialog',
             'EngDialog',
             'KnownWords',
+            'KnownReadings',
             'ActiveStyle'
         ],
         endpoints: {
@@ -42,7 +45,12 @@ const api = generatedApi
         endpoints: (build) => ({
             executeAction: build.mutation<
                 ActionsExecuteApiResponse,
-                EnableStyle | DisableStyle | SendToAnki | SyncAnki
+                | EnableStyle
+                | DisableStyle
+                | SendToAnki
+                | SyncAnki
+                | LearnReading
+                | UnLearnReading
             >({
                 query: (queryArg) => ({
                     url: `/api/Actions/execute`,
@@ -56,6 +64,9 @@ const api = generatedApi
                             return ['EngDialog', 'ActiveStyle'];
                         case 'SyncAnki':
                             return ['KnownWords'];
+                        case 'LearnReading':
+                        case 'UnLearnReading':
+                            return ['KnownReadings'];
                         default:
                             return [];
                     }

@@ -87,7 +87,7 @@ const handlers: {
     {
         key: 't',
         action: (dispatch, getState) => {
-            dispatch(toggleWordFurigana(selectSelectedWords(getState())));
+            dispatch(toggleWordFurigana(selectSelectedWords(getState())[0]));
         }
     },
     {
