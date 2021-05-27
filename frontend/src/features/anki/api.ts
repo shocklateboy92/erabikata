@@ -1,7 +1,7 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { AppDispatch } from 'app/store';
-import { apiEndpoints, useExecuteActionMutation } from 'backend';
+import { apiEndpoints } from 'backend';
 import { SendToAnki, SyncAnki } from 'backend.generated';
 import { notification } from 'features/notifications';
 import { ankiSendCompletion } from './ankiSlice';
@@ -21,6 +21,11 @@ export const sendToAnki: AsyncThunk<
     void,
     { state: RootState; dispatch: AppDispatch }
 > = createAsyncThunk('sendToAnki', async (_, { getState, dispatch }) => {
+    if (Notification.permission !== 'granted') {
+        // Have to do this early so it's still "in response to a user action"
+        Notification.requestPermission();
+    }
+
     const state = getState();
     const word = selectWordDefinitionToSend(state);
     if (!word) {
@@ -69,6 +74,11 @@ export const sendToAnki: AsyncThunk<
     dispatch(ankiSendCompletion());
 
     await dispatch(apiEndpoints.executeAction.initiate(syncAnkiActivity()));
+
+    if (document.hidden) {
+        const worker = await navigator.serviceWorker.getRegistration();
+        worker?.showNotification('Successfully sent note to Anki');
+    }
 });
 
 const throwError = (error: Error) => {
