@@ -1,5 +1,5 @@
 import { useTypedSelector } from 'app/hooks';
-import { isKana } from 'features/furigana';
+import { isKana, selectIsFuriganaHiddenForWords } from 'features/furigana';
 import React, { FC } from 'react';
 import styles from './wordDefinition.module.scss';
 import { Pill } from '../../components/pill';
@@ -23,6 +23,9 @@ export const Definition: FC<{
     const episodeRank = useTypedSelector(
         (state) =>
             (state.wordDefinitions.episodeRanks[episodeId!] ?? {})[wordId]
+    );
+    const isReadingKnown = useTypedSelector((state) =>
+        selectIsFuriganaHiddenForWords(state, [wordId])
     );
     const readingsOnly = useTypedSelector(
         (state) => state.wordDefinitions.readingsOnly
@@ -74,6 +77,7 @@ export const Definition: FC<{
             {priorities.spec && <Pill>Special</Pill>}
             {priorities.freq && <Pill>General</Pill>}
             {isKnown && <Pill>Known {'A'}</Pill>}
+            {isReadingKnown && <Pill>Known {'R'}</Pill>}
             {!readingsOnly &&
                 definition.english.map((english, index) => (
                     <div key={index} className={styles.sense}>
