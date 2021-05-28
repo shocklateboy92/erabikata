@@ -8,6 +8,7 @@ import { useTypedSelector } from '../../app/hooks';
 import { Drawer } from '../../components/drawer';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { Definition } from './component';
+import { ExternalDictionaryLink } from './externalDictionaryLink';
 import {
     fetchDefinitionsIfNeeded,
     fetchEpisodeRanksIfNeeded,
@@ -56,6 +57,7 @@ export const WordDefinitionDrawer: FC<{
                             <Icon path={mdiFuriganaHorizontal} />
                         </button>
                     )}
+                    {exact && <ExternalDictionaryLink wordId={definition[0]} />}
                 </>
             )}
             startOpen={initiallyOpen}
