@@ -1,31 +1,27 @@
 import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
-import {
-    isKana,
-    selectIsFuriganaHiddenForWords,
-    toggleWordFurigana
-} from 'features/furigana';
+import history from 'appHistory';
+import { selectSentenceTextToSend } from 'features/anki/selectors';
+import { toggleWordFurigana } from 'features/furigana';
 import { notification } from 'features/notifications';
 import {
     dialogWordShift,
     episodeDialogShift,
     occurrenceShift,
-    selectNearestSelectedDialog,
-    selectSelectedEpisodeContent,
     selectedWordCycleRequest,
     selectedWordReverseCycleRequest,
+    selectNearestSelectedDialog,
+    selectSelectedEpisodeContent,
+    selectSelectedWord,
     selectSelectedWordOccurrences,
-    selectSelectedWords,
-    selectSelectedWord
+    selectSelectedWords
 } from 'features/selectedWord';
 import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
-import { selectSelectedEnglishDialog } from '../engDialog';
-import history from 'appHistory';
 import { generateDialogLink } from 'routing/linkGen';
-import { selectSentenceTextToSend } from 'features/anki/selectors';
+import { selectSelectedEnglishDialog } from '../engDialog';
 
 const copyAction = (
     selector: (state: RootState) => string | undefined,
