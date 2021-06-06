@@ -153,7 +153,8 @@ namespace Erabikata.Backend.Controllers
                 occurrences.OrderByDescending(
                     occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
                 )
-                .Select(oc => oc.dialogId)
+                .GroupBy(occ => occ.wordsPartsOfSpeech.Distinct(), new EnumerableComparer<string, IEnumerable<string>>())
+                .ToDictionary(group => string.Join(", ", group.Key), group => group.Select(oc => oc.dialogId))
             );
         }
 

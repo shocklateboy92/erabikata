@@ -56,11 +56,12 @@ export const selectSelectedWordOccurrences = (state: RootState) => {
         analyzer,
         wordId
     })(state).data?.dialogIds;
-    if (!dialogIds?.length) {
+    if (!dialogIds) {
         return;
     }
 
-    return dialogIds
+    return Object.values(dialogIds)
+        .flat()
         .map((id) => apiEndpoints.subsById.select({ analyzer, id })(state).data)
         .filter(notUndefined);
 };

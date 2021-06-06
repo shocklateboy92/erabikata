@@ -281,7 +281,14 @@ namespace Erabikata.Backend.CollectionManagers
                         line => line.Words.Any(word => word.InfoIds.Contains(wordId))
                     )
                 )
-                .Project(dialog => new DialogWords(dialog.Id.ToString(), dialog.WordsToRank))
+                .Project(dialog => new DialogWords(
+                    dialog.Id.ToString(),
+                    dialog.WordsToRank,
+                    dialog.Lines
+                        .SelectMany(line => line.Words
+                            .Where(word => word.InfoIds.Contains(wordId))
+                            .SelectMany(word => word.PartOfSpeech))
+                ))
                 .ToListAsync();
         }
 
@@ -317,7 +324,12 @@ namespace Erabikata.Backend.CollectionManagers
 
         private record IntermediateDialog(IntermediateLine Lines);
 
-        public record DialogWords(string dialogId, IEnumerable<int> wordIds);
+        public record DialogWords(
+                string dialogId,
+                IEnumerable<int> wordIds,
+                IEnumerable<string> wordsPartsOfSpeech);
+
+        public record WordPartsOfSpeech(ICollection<int> InfoIds, IEnumerable<string> PartOfSpeech);
 
         public record WordRank(
             [property: BsonId] string BaseForm,

@@ -13,6 +13,7 @@ namespace Erabikata.Backend
     {
         public static async Task Main(string[] args)
         {
+            Console.WriteLine("Beginning server initialization...");
             var host = CreateHostBuilder(args).Build();
 
             // await host.Services.GetRequiredService<WordCountsManager>().Initialize();

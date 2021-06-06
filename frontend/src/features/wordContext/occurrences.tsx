@@ -11,7 +11,6 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
     wordId,
     readOnly
 }) => {
-    const [skip, setSkip] = useState(0);
     const analyzer = useTypedSelector(selectAnalyzer);
     const occurrences = useWordsOccurrencesQuery({
         analyzer,
@@ -22,16 +21,32 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
         return <QueryPlaceholder result={occurrences} />;
     }
 
-    const dialogIds = occurrences.data.dialogIds.slice(skip, skip + max);
     return (
         <>
-            {dialogIds.map((con) => (
-                <div className={styles.dialog} key={con}>
-                    <Dialog
-                        dialogId={con}
-                        showTitle
+            {Object.entries(occurrences.data.dialogIds).map(([pos, ids]) => (
+                <div key={pos}>
+                    <h4>{pos}</h4>
+                    <WordOccurrencesGroup
+                        dialogIds={ids}
                         forWord={readOnly ? wordId : undefined}
                     />
+                </div>
+            ))}
+        </>
+    );
+};
+
+const WordOccurrencesGroup: FC<{ dialogIds: string[]; forWord?: number }> = ({
+    dialogIds,
+    forWord
+}) => {
+    const [skip] = useState(0);
+    const pagedIds = dialogIds.slice(skip, skip + max);
+    return (
+        <>
+            {pagedIds.map((con) => (
+                <div className={styles.dialog} key={con}>
+                    <Dialog dialogId={con} showTitle forWord={forWord} />
                 </div>
             ))}
         </>
