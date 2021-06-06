@@ -12,7 +12,8 @@ const appInsights = new ApplicationInsights({
             [reactPlugin.identifier]: { history }
         },
         disableFetchTracking: false,
-        enableCorsCorrelation: true
+        enableCorsCorrelation: true,
+        correlationHeaderExcludedDomains: ['home-assistant.apps.lasath.org']
     }
 });
 
