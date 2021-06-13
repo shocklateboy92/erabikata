@@ -69,7 +69,7 @@ export const pause = createAsyncThunk(
     'hass/pause',
     async (context: IHassContext, { getState, dispatch }) => {
         const state = getState() as RootState;
-        const entity_id = selectSelectedPlayerId(state);
+        const entity_id = withPlayerOverrides(selectSelectedPlayerId(state));
         if (!entity_id) {
             return;
         }
@@ -97,16 +97,9 @@ export const playFrom = createAsyncThunk(
         // TODO: try making this automagic by wrapping `createAsyncThunk`
         //       with a function that passes through everything, but sets
         //       the 3rd type argument to `RootState`.
-        let entity_id = selectSelectedPlayerId(state as RootState);
-
-        // Plex for Android doesn't seem to allow direct control, but the
-        // ADB integration seems to work.
-        if (
-            entity_id ===
-            'media_player.plex_plex_for_android_tv_shield_android_tv_2'
-        ) {
-            entity_id = 'media_player.apollo2';
-        }
+        const entity_id = withPlayerOverrides(
+            selectSelectedPlayerId(state as RootState)
+        );
 
         await Promise.all([
             axios.post(
@@ -122,6 +115,13 @@ export const playFrom = createAsyncThunk(
         ]);
     }
 );
+
+// Plex for Android doesn't seem to allow direct control,
+// but the ADB integration seems to work.
+const withPlayerOverrides = (entity_id: string | null) =>
+    entity_id === 'media_player.plex_plex_for_android_tv_shield_android_tv_2'
+        ? 'media_player.apollo2'
+        : entity_id;
 
 interface IHassContext {
     connection?: hass.Connection;
