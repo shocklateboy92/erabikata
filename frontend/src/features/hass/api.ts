@@ -97,7 +97,16 @@ export const playFrom = createAsyncThunk(
         // TODO: try making this automagic by wrapping `createAsyncThunk`
         //       with a function that passes through everything, but sets
         //       the 3rd type argument to `RootState`.
-        const entity_id = selectSelectedPlayerId(state as RootState);
+        let entity_id = selectSelectedPlayerId(state as RootState);
+
+        // Plex for Android doesn't seem to allow direct control, but the
+        // ADB integration seems to work.
+        if (
+            entity_id ===
+            'media_player.plex_plex_for_android_tv_shield_android_tv_2'
+        ) {
+            entity_id = 'media_player.apollo2';
+        }
 
         await Promise.all([
             axios.post(
