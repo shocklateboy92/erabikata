@@ -22,4 +22,4 @@ cp -rvf "$frontend_build_dir" "$www_dir"
 docker build -t $image_name $backend_dir
 docker push $image_name
 
-ssh mccoy /home/data_user/mccoy-vnext/update-erabikata.sh
+ssh mccoy.home.lasath.org /home/data_user/mccoy-vnext/update-erabikata.sh
