@@ -11,6 +11,7 @@ import {
     selectSentenceLinkToSend,
     selectSentenceTextToSend,
     selectWordDefinitionToSend,
+    selectWordMeaningTextToSend,
     selectWordTagsToSend
 } from './selectors';
 
@@ -38,7 +39,6 @@ export const sendToAnki: AsyncThunk<
         return;
     }
     const [{ reading, kanji }] = word.japanese;
-    const toSkip = state.anki.word.definitions;
 
     const activity: SendToAnki = {
         activityType: 'SendToAnki',
@@ -51,10 +51,7 @@ export const sendToAnki: AsyncThunk<
             kanji ??
             reading ??
             throwError(new Error(`Word ${word.id} had no kanji or reading`)),
-        primaryWordMeaning: word.english
-            .filter((_, index) => !toSkip[index])
-            .map((meaning) => meaning.senses.join('\n'))
-            .join('\n\n'),
+        primaryWordMeaning: selectWordMeaningTextToSend(state)!,
         primaryWordReading: reading ?? ''
     };
 

@@ -91,7 +91,7 @@ export const selectWordTagsToSend = (state: RootState) => {
 
     const uniq = new Set();
     for (const [index, meaning] of definition.english.entries()) {
-        if (toSkip[index]) {
+        if (toSkip[index]?.every((skip) => skip)) {
             continue;
         }
 
@@ -101,4 +101,20 @@ export const selectWordTagsToSend = (state: RootState) => {
     }
 
     return [...uniq.values()].join(', ');
+};
+
+export const selectWordMeaningTextToSend = (state: RootState) => {
+    const toSkip = state.anki.word.definitions;
+    const word = selectWordDefinitionToSend(state);
+
+    return word?.english
+        .map((meaning, meaningIndex) =>
+            meaning.senses
+                .filter(
+                    (_, senseIndex) => !(toSkip[meaningIndex] ?? [])[senseIndex]
+                )
+                .join('\n')
+        )
+        .filter((senses) => !!senses)
+        .join('\n\n');
 };

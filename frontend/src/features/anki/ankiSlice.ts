@@ -8,7 +8,7 @@ export interface IEpisodeTime {
 interface IAnkiState {
     sentence?: IEpisodeTime;
     meaning?: IEpisodeTime;
-    word: { id?: number; definitions: boolean[] };
+    word: { id?: number; definitions: boolean[][] };
     image?: IEpisodeTime;
 }
 
@@ -18,9 +18,27 @@ const slice = createSlice({
     name: 'anki',
     initialState,
     reducers: {
-        wordMeaningCheckToggle: (state, { payload }: PayloadAction<number>) => {
-            state.word.definitions[payload] = !state.word.definitions[payload];
-        },
+        wordMeaningCheckToggle: (
+            { word: { definitions, ...word }, ...state },
+            {
+                payload: { meaningIndex, senseIndex }
+            }: PayloadAction<{ meaningIndex: number; senseIndex: number }>
+        ) => ({
+            ...state,
+            word: {
+                ...word,
+                definitions: Object.assign([...definitions], {
+                    [meaningIndex]: Object.assign(
+                        [...(definitions[meaningIndex] ?? [])],
+                        {
+                            [senseIndex]: !(definitions[meaningIndex] ?? [])[
+                                senseIndex
+                            ]
+                        }
+                    )
+                })
+            }
+        }),
         ankiSendCompletion: () => initialState,
         ankiTimeLockRequest: (
             state,

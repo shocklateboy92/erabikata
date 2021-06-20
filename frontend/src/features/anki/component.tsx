@@ -35,7 +35,7 @@ export const Anki: FC = () => {
             {sentenceTime && <SentenceField {...sentenceTime} />}
             {meaningTime && <MeaningField {...meaningTime} />}
             <ImageField />
-            <WordKanjiField />
+            <WordField />
             <PrimaryWordNotesField />
             <LinkField />
             <ActionFieldView>
@@ -85,7 +85,7 @@ const MeaningField: FC<EngSubsIndexApiArg> = (args) => {
     );
 };
 
-const WordKanjiField: FC = () => {
+const WordField: FC = () => {
     const dispatch = useDispatch();
     const uncheckedSenses = useTypedSelector(
         (state) => state.anki.word?.definitions
@@ -111,26 +111,37 @@ const WordKanjiField: FC = () => {
             )}
             <FieldView title="Primary word meaning">
                 <form>
-                    {english.map((meaning, index) => {
-                        const id = 'some-unique-' + index;
-                        return (
-                            <Fragment key={index}>
-                                <input
-                                    id={id}
-                                    type="checkbox"
-                                    checked={!uncheckedSenses[index]}
-                                    onChange={() => {
-                                        dispatch(wordMeaningCheckToggle(index));
-                                    }}
-                                />
-                                {meaning.senses.map((sense, index) => (
-                                    <label key={index} htmlFor={id}>
-                                        {sense}
-                                    </label>
-                                ))}
-                            </Fragment>
-                        );
-                    })}
+                    {english.map((meaning, meaningIndex) => (
+                        <Fragment key={meaningIndex}>
+                            {meaning.senses.map(function (sense, senseIndex) {
+                                const id = `some-unique-${meaningIndex}-${senseIndex}`;
+                                return (
+                                    <Fragment key={senseIndex}>
+                                        <input
+                                            id={id}
+                                            type="checkbox"
+                                            checked={
+                                                !(uncheckedSenses[
+                                                    meaningIndex
+                                                ] ?? [])[senseIndex]
+                                            }
+                                            onChange={() => {
+                                                dispatch(
+                                                    wordMeaningCheckToggle({
+                                                        meaningIndex,
+                                                        senseIndex
+                                                    })
+                                                );
+                                            }}
+                                        />
+                                        <label key={senseIndex} htmlFor={id}>
+                                            {sense}
+                                        </label>
+                                    </Fragment>
+                                );
+                            })}
+                        </Fragment>
+                    ))}
                 </form>
             </FieldView>
         </>
