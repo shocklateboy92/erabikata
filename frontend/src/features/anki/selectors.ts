@@ -113,8 +113,8 @@ export const selectWordMeaningTextToSend = (state: RootState) => {
                 .filter(
                     (_, senseIndex) => !(toSkip[meaningIndex] ?? [])[senseIndex]
                 )
-                .join('\n')
+                .join('<br/>')
         )
         .filter((senses) => !!senses)
-        .join('\n\n');
+        .join('<br/><br/>');
 };
