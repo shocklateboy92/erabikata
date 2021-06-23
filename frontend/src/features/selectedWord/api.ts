@@ -1,16 +1,22 @@
 import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../../app/rootReducer';
 import { notification } from 'features/notifications';
+import { useTypedSelector } from 'app/hooks';
+import { selectSelectedWord } from './selectors';
 
 export const encodeSelectionParams = (
-    episode: string,
-    time: number,
+    episode: string | undefined,
+    time: number | undefined,
     words: number[],
     baseForm?: string
 ) => {
     const params = new URLSearchParams();
-    params.set('episode', episode);
-    params.set('time', time.toString());
+    if (episode) {
+        params.set('episode', episode);
+    }
+    if (time) {
+        params.set('time', time.toString());
+    }
 
     // Base form must be first, or will be ignored by slice
     if (baseForm) {
@@ -21,6 +27,13 @@ export const encodeSelectionParams = (
     }
 
     return params.toString();
+};
+
+export const useEncodedSelectionParams = () => {
+    const { wordIds, episode, sentenceTimestamp } = useTypedSelector(
+        selectSelectedWord
+    );
+    return encodeSelectionParams(episode, sentenceTimestamp, wordIds);
 };
 
 export const shareSelectedWordDialog: AsyncThunk<
