@@ -18,7 +18,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
         {
             switch (activity) {
                 case SendToAnki sendToAnki:
-                    await _ankiSyncClient.Execute(new AddNoteAnkiAction(sendToAnki));
+                    var response = await _ankiSyncClient.Execute(new AddNoteAnkiAction(sendToAnki));
+                    response.Unwrap();
                     break;
             }
 

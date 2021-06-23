@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
 using Mapster;
 using Newtonsoft.Json;
@@ -73,5 +74,16 @@ namespace Erabikata.Backend.Models
         public record Field(string Value, int Order);
     };
 
-    public record AnkiResponse<T>(T Result, string? Error);
+    public record AnkiResponse<T>(T Result, string? Error)
+    {
+        public T Unwrap()
+        {
+            if (!string.IsNullOrEmpty(this.Error))
+            {
+                throw new AnkiConnectException(this.Error);
+            }
+
+            return this.Result;
+        }
+    }
 }

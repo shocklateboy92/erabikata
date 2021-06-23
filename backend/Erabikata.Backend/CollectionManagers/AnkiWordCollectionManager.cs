@@ -138,14 +138,14 @@ namespace Erabikata.Backend.CollectionManagers
 
         private async Task<AnkiNote[]> FindAndGetNoteInfo(string query)
         {
-            var notes = Unwrap(
-                await _ankiSyncClient.FindNotes(new AnkiAction("findNotes", new { query }))
-            );
+            var notes = (await _ankiSyncClient.FindNotes(
+                new AnkiAction("findNotes", new { query })
+            )).Unwrap();
 
             _logger.LogInformationString($"Got {notes.Length} notes for query");
-            var noteInfos = Unwrap(
-                await _ankiSyncClient.NotesInfo(new AnkiAction("notesInfo", new { notes }))
-            );
+            var noteInfos = (await _ankiSyncClient.NotesInfo(
+                new AnkiAction("notesInfo", new { notes })
+            )).Unwrap();
             return noteInfos;
         }
 
@@ -189,16 +189,6 @@ namespace Erabikata.Backend.CollectionManagers
                     }
                 )
                 .ToArray();
-        }
-
-        private static T Unwrap<T>(AnkiResponse<T> ankiResponse)
-        {
-            if (!string.IsNullOrEmpty(ankiResponse.Error))
-            {
-                throw new AnkiConnectException(ankiResponse.Error);
-            }
-
-            return ankiResponse.Result;
         }
     }
 }
