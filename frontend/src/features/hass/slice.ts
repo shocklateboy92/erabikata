@@ -39,6 +39,30 @@ const PLEX_ID_PREFIX = 'media_player.plex_';
 const MEDIA_ID_KEY = 'media_content_id';
 const UNAVAILABLE_STATE = 'unavailable';
 
+const overrides = {
+    2985: 1185,
+    2986: 1186,
+    2987: 1187,
+    2988: 1188,
+    2989: 1189,
+    2990: 1190,
+    2991: 1191,
+    2992: 1192,
+    2993: 1193,
+    2994: 1194,
+    2995: 1195,
+    2996: 1196,
+    2997: 1197,
+    2998: 1198
+};
+const checkOverrides = (id: keyof typeof overrides) => {
+    if (id in overrides) {
+        return overrides[id];
+    }
+
+    return id;
+};
+
 const entityUpdateReducer = (
     state: IHassState,
     { payload }: PayloadAction<HassEntities>
@@ -64,7 +88,7 @@ const entityUpdateReducer = (
                     id: e.entity_id,
                     state: e.state,
                     media: e.attributes[MEDIA_ID_KEY] && {
-                        id: e.attributes[MEDIA_ID_KEY],
+                        id: checkOverrides(e.attributes[MEDIA_ID_KEY]),
                         title: e.attributes['media_title'],
                         position: e.attributes['media_position'],
                         position_last_updated_at:
