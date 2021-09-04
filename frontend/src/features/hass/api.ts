@@ -108,12 +108,8 @@ export const playFrom = createAsyncThunk(
     }
 );
 
-// Plex for Android doesn't seem to allow direct control,
-// but the ADB integration seems to work.
-const withPlayerOverrides = (entity_id: string | null) =>
-    entity_id === 'media_player.plex_plex_for_android_tv_shield_android_tv_2'
-        ? 'media_player.apollo2'
-        : entity_id;
+// As of 2021-09-04, the plex integration seems to control apollo
+const withPlayerOverrides = (entity_id: string | null) => entity_id;
 
 interface IHassContext {
     connection?: hass.Connection;
