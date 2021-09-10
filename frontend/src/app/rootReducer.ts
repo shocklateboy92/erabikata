@@ -2,6 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit';
 import { ankiReducer } from 'features/anki/ankiSlice';
 import { authReducer } from 'features/auth/slice';
 import { backendReducer } from 'features/backendSelection';
+import { drawerReducer } from 'features/drawer';
 import { furiganaReducer } from 'features/furigana/slice';
 import { hassReducer } from 'features/hass';
 import { notificationReducer } from 'features/notifications';
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     auth: authReducer,
     notifications: notificationReducer,
     api: apiReducer,
+    drawer: drawerReducer,
     anki: ankiReducer,
     hass: hassReducer
 });

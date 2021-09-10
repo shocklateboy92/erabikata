@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTypedSelector } from '../../app/hooks';
 import { selectSelectedWord } from '../selectedWord';
-import { Drawer } from '../../components/drawer';
+import { Drawer } from '../../features/drawer';
 import { EngDialogList } from './engDialogList';
 import { useEngSubsShowIdOfQuery } from 'backend';
 import { StylesOfPageLink } from '../routing/links';

@@ -9,7 +9,7 @@ import { Page } from '../../components/page';
 import { useParams } from 'react-router-dom';
 import { FullPageError } from '../../components/fullPageError';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { Drawer } from '../../components/drawer';
+import { Drawer } from '../../features/drawer';
 import { Separator } from '../../components/separator';
 import { EngDialog } from './engDialog';
 import { SelectedWord } from '../selectedWord';

@@ -5,7 +5,7 @@ import { AnkiPageLink } from 'features/routing/links';
 import React, { FC, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useTypedSelector } from '../../app/hooks';
-import { Drawer } from '../../components/drawer';
+import { Drawer } from '../../features/drawer';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { Definition } from './component';
 import { ExternalDictionaryLink } from './externalDictionaryLink';

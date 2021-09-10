@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Drawer } from '../../components/drawer';
+import { Drawer } from '../../features/drawer';
 import { Link } from 'react-router-dom';
 import { encodeSelectionParams, selectSelectedWord } from '../selectedWord';
 import Icon from '@mdi/react';

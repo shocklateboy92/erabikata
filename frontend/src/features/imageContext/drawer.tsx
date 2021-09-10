@@ -1,7 +1,7 @@
 import { mdiSubtitlesOutline } from '@mdi/js';
 import Icon from '@mdi/react';
 import { InlineButton } from 'components/button';
-import { Drawer } from 'components/drawer';
+import { Drawer } from 'features/drawer';
 import React, { FC, useState } from 'react';
 import { useTypedSelector } from '../../app/hooks';
 import { selectSelectedWord } from '../selectedWord';
@@ -35,4 +35,3 @@ export const ImageContextDrawer: FC = () => {
         </Drawer>
     );
 };
-

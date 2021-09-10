@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTypedSelector } from '../../app/hooks';
 import { selectSelectedWords } from '../selectedWord';
-import { Drawer } from '../../components/drawer';
+import { Drawer } from '../../features/drawer';
 import { Link } from 'react-router-dom';
 import Icon from '@mdi/react';
 import { mdiShare } from '@mdi/js';
