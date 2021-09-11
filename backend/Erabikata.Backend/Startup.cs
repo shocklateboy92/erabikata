@@ -5,6 +5,7 @@ using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
+using Microsoft.ApplicationInsights.SnapshotCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +32,7 @@ namespace Erabikata.Backend
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApplicationInsightsTelemetry();
+            services.AddSnapshotCollector();
 
             services.Configure<SubtitleProcessingSettings>(
                 Configuration.GetSection("SubtitleProcessing")
