@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
+using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Models.Output;
@@ -77,12 +79,25 @@ namespace Erabikata.Backend.CollectionManagers
                     .Select(
                         dialog =>
                         {
-                            foreach (var line in dialog.Lines)
+                            foreach (var (index, line) in dialog.Lines.WithIndicies())
                             {
-                                var wordsInLine = matcher.FillMatchesAndGetWords(line.Words);
-                                foreach (var wordId in wordsInLine)
+                                try
                                 {
-                                    dialog.WordsToRank.Add(wordId);
+                                    var wordsInLine = matcher.FillMatchesAndGetWords(line.Words);
+                                    foreach (var wordId in wordsInLine)
+                                    {
+                                        dialog.WordsToRank.Add(wordId);
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    _logger.LogError(
+                                        e,
+                                        "Error processing line {LineNumber} '{Line}' of dialog '{Dialog}'",
+                                        index,
+                                        string.Join(", ", line.Words.Select(w => w.OriginalForm)),
+                                        dialog.Id
+                                    );
                                 }
                             }
 
