@@ -25,18 +25,20 @@ namespace Erabikata.Backend.CollectionMiddlewares
                     var showsToIngest = await Task.WhenAll(
                         filesInSeed.Where(path => path.EndsWith("show-metadata.json"))
                             .Select(
-                                async showPath => new IngestShows.ShowToIngest(
-                                    filesInSeed.Where(
-                                            path => path.StartsWith(
-                                                showPath.Replace(
-                                                    "/show-metadata.json",
-                                                    string.Empty
-                                                )
+                                async showPath =>
+                                    new IngestShows.ShowToIngest(
+                                        filesInSeed.Where(
+                                                path =>
+                                                    path.StartsWith(
+                                                        showPath.Replace(
+                                                            "/show-metadata.json",
+                                                            string.Empty
+                                                        )
+                                                    )
                                             )
-                                        )
-                                        .ToList(),
-                                    await SeedDataProvider.DeserializeFile<ShowInfo>(showPath)
-                                )
+                                            .ToList(),
+                                        await SeedDataProvider.DeserializeFile<ShowInfo>(showPath)
+                                    )
                             )
                     );
 

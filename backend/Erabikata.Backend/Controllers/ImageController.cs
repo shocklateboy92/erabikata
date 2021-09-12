@@ -19,8 +19,8 @@ namespace Erabikata.Backend.Controllers
 
         public ImageController(
             IOptions<VideoInputSettings> settings,
-            EpisodeInfoCollectionManager episodeInfoCollectionManager)
-        {
+            EpisodeInfoCollectionManager episodeInfoCollectionManager
+        ) {
             _episodeInfoCollectionManager = episodeInfoCollectionManager;
             _settings = settings.Value;
         }
@@ -48,8 +48,8 @@ namespace Erabikata.Backend.Controllers
                     if (includeSubs)
                     {
                         conversion
-                            // https://stackoverflow.com/a/59576487
-                            .AddParameter("-copyts")
+                        // https://stackoverflow.com/a/59576487
+                        .AddParameter("-copyts")
                             // https://superuser.com/a/1309658
                             .AddParameter($"-vf subtitles=\"'{input}'\"");
                     }

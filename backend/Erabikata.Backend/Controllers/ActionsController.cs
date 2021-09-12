@@ -27,8 +27,8 @@ namespace Erabikata.Backend.Controllers
             IMongoCollection<ActivityExecution> mongo,
             IEnumerable<ICollectionManager> collectionManagers,
             ILogger<ActionsController> logger,
-            IEnumerable<ICollectionMiddleware> collectionMiddlewares)
-        {
+            IEnumerable<ICollectionMiddleware> collectionMiddlewares
+        ) {
             _mongo = mongo;
             _logger = logger;
             _collectionMiddlewares = collectionMiddlewares;
@@ -50,8 +50,8 @@ namespace Erabikata.Backend.Controllers
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
         private Task ExecuteMiddleware(
             Activity previousActivity,
-            IEnumerable<ICollectionMiddleware> remaining)
-        {
+            IEnumerable<ICollectionMiddleware> remaining
+        ) {
             var current = remaining.FirstOrDefault();
             if (current != null)
             {

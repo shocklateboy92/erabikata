@@ -138,14 +138,14 @@ namespace Erabikata.Backend.CollectionManagers
 
         private async Task<AnkiNote[]> FindAndGetNoteInfo(string query)
         {
-            var notes = (await _ankiSyncClient.FindNotes(
-                new AnkiAction("findNotes", new { query })
-            )).Unwrap();
+            var notes = (
+                await _ankiSyncClient.FindNotes(new AnkiAction("findNotes", new { query }))
+            ).Unwrap();
 
             _logger.LogInformationString($"Got {notes.Length} notes for query");
-            var noteInfos = (await _ankiSyncClient.NotesInfo(
-                new AnkiAction("notesInfo", new { notes })
-            )).Unwrap();
+            var noteInfos = (
+                await _ankiSyncClient.NotesInfo(new AnkiAction("notesInfo", new { notes }))
+            ).Unwrap();
             return noteInfos;
         }
 

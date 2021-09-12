@@ -16,7 +16,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
-            switch (activity) {
+            switch (activity)
+            {
                 case SendToAnki sendToAnki:
                     var response = await _ankiSyncClient.Execute(new AddNoteAnkiAction(sendToAnki));
                     response.Unwrap();

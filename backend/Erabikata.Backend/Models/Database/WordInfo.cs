@@ -12,8 +12,8 @@ namespace Erabikata.Backend.Models.Database
             IEnumerable<string> kanji,
             IEnumerable<string> readings,
             IEnumerable<Meaning> meanings,
-            HashSet<string> priorities)
-        {
+            HashSet<string> priorities
+        ) {
             Id = id;
             Kanji = kanji;
             Readings = readings;
@@ -21,11 +21,15 @@ namespace Erabikata.Backend.Models.Database
             Priorities = priorities;
         }
 
-        [BsonId] [DataMember] public int Id { get; set; }
+        [BsonId]
+        [DataMember]
+        public int Id { get; set; }
 
-        [DataMember] public IEnumerable<string> Kanji { get; set; }
+        [DataMember]
+        public IEnumerable<string> Kanji { get; set; }
 
-        [DataMember] public IEnumerable<string> Readings { get; set; }
+        [DataMember]
+        public IEnumerable<string> Readings { get; set; }
 
         [DataMember]
         public IReadOnlyList<IReadOnlyList<string>> Normalized { get; set; } =
@@ -35,11 +39,14 @@ namespace Erabikata.Backend.Models.Database
         public IReadOnlyList<IReadOnlyList<string>> Analyzed { get; set; } =
             new List<IReadOnlyList<string>>();
 
-        [DataMember] public IEnumerable<Meaning> Meanings { get; set; }
+        [DataMember]
+        public IEnumerable<Meaning> Meanings { get; set; }
 
-        [DataMember] public IReadOnlyCollection<string> Priorities { get; set; }
+        [DataMember]
+        public IReadOnlyCollection<string> Priorities { get; set; }
 
-        [DataMember] public uint TotalOccurrences { get; set; }
+        [DataMember]
+        public uint TotalOccurrences { get; set; }
 
         public record Meaning(IReadOnlyCollection<string> Tags, IEnumerable<string> Senses);
     }

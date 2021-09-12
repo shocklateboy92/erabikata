@@ -11,10 +11,13 @@ namespace Erabikata.Backend.Models.Actions
             ForceFullIngestion = forceFullIngestion;
         }
 
-        [DataMember] public string StartCommit { get; set; }
+        [DataMember]
+        public string StartCommit { get; set; }
 
-        [DataMember] public string EndCommit { get; set; }
+        [DataMember]
+        public string EndCommit { get; set; }
 
-        [DataMember] public bool ForceFullIngestion { get; set; }
+        [DataMember]
+        public bool ForceFullIngestion { get; set; }
     }
 }

@@ -12,8 +12,8 @@ namespace Erabikata.Backend.Processing
             int WordId,
             IReadOnlyList<IReadOnlyList<string>> NormalizedForms,
             IReadOnlyList<IReadOnlyList<string>> DictionaryForms,
-            IEnumerable<string> Kanji)
-        {
+            IEnumerable<string> Kanji
+        ) {
             public ulong Count = 0;
 
             public virtual bool Equals(Candidate? other) => other?.WordId == WordId;
@@ -83,8 +83,8 @@ namespace Erabikata.Backend.Processing
             IReadOnlyList<Dialog.Word> words,
             ISet<Candidate> uniqueMatches,
             IEnumerable<(int index, (Candidate word, int length) value)> matches,
-            IReadOnlyList<string> wordMatchForms)
-        {
+            IReadOnlyList<string> wordMatchForms
+        ) {
             // Since the matches have a char index yet input word forms
             // are strings, build a lookup/map to easily convert back.
             var wordCharMap = new int[wordMatchForms.Sum(word => word.Length)];
@@ -122,8 +122,8 @@ namespace Erabikata.Backend.Processing
         private static void ProcessMatchesOfType(
             IReadOnlyList<Dialog.Word> words,
             ISet<Candidate> uniqueMatches,
-            IEnumerable<(int index, (Candidate word, int length) value)> matches)
-        {
+            IEnumerable<(int index, (Candidate word, int length) value)> matches
+        ) {
             foreach (var (endIndex, (word, length)) in matches)
             {
                 for (var index = endIndex - length; index < endIndex; index++)

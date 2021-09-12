@@ -14,8 +14,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public RevisionControlMiddleware(
             DatabaseInfoManager databaseInfoManager,
-            IOptions<SubtitleProcessingSettings> settings)
-        {
+            IOptions<SubtitleProcessingSettings> settings
+        ) {
             _databaseInfoManager = databaseInfoManager;
             _settings = settings.Value;
         }
@@ -26,14 +26,16 @@ namespace Erabikata.Backend.CollectionMiddlewares
             {
                 case BeginIngestion beginIngestion:
                     var previousComment = await _databaseInfoManager.GetCurrentCommit();
-                    if (beginIngestion.ForceFullIngestion ||
-                        previousComment == beginIngestion.StartCommit &&
-                        (beginIngestion.StartCommit != beginIngestion.EndCommit ||
-                         _settings.AllowIngestionOfSameCommit))
-                    {
+                    if (
+                        beginIngestion.ForceFullIngestion
+                        || previousComment == beginIngestion.StartCommit
+                            && (
+                                beginIngestion.StartCommit != beginIngestion.EndCommit
+                                || _settings.AllowIngestionOfSameCommit
+                            )
+                    ) {
                         await next(beginIngestion);
                     }
-
                     // Drop the activity at this stage
                     // TODO: Add error reporting / logging
                     break;

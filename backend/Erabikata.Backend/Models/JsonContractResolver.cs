@@ -24,14 +24,16 @@ namespace Erabikata.Backend.Models
             foreach (var property in contract.Properties)
                 if (!property.HasMemberAttribute && property.UnderlyingName != null)
                 {
-                    var contextualMember = objectType.GetMember(property.UnderlyingName)[0]
-                        .ToContextualMember();
+                    var contextualMember = objectType.GetMember(property.UnderlyingName)[
+                        0
+                    ].ToContextualMember();
                     var description = _schemaGeneratorSettings.ReflectionService.GetDescription(
                         contextualMember,
                         _schemaGeneratorSettings
                     );
-                    property.Required =
-                        description.IsNullable ? Required.AllowNull : Required.Always;
+                    property.Required = description.IsNullable
+                        ? Required.AllowNull
+                        : Required.Always;
                 }
 
             return contract;

@@ -24,12 +24,9 @@ namespace Erabikata.Backend.CollectionManagers
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<EpisodeInfo>.Empty);
                     await _mongoCollection.InsertManyAsync(
                         ingestShows.ShowsToIngest.SelectMany(
-                            ingest => ingest.Info.Episodes[0]
-                                .Select(
-                                    info => new EpisodeInfo(
-                                        info.Key.ParseId(),
-                                        info.File
-                                    )
+                            ingest =>
+                                ingest.Info.Episodes[0].Select(
+                                    info => new EpisodeInfo(info.Key.ParseId(), info.File)
                                 )
                         )
                     );

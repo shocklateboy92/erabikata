@@ -44,13 +44,13 @@ namespace Erabikata.Backend
             services.AddCollectionManagers();
             services.AddCollectionMiddlewares();
 
-
             services.AddSingleton<SeedDataProvider>();
 
             services.AddCors(
-                options => options.AddDefaultPolicy(
-                    builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
-                )
+                options =>
+                    options.AddDefaultPolicy(
+                        builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+                    )
             );
 
             AddGrpcClient<AnalyzerService.AnalyzerServiceClient>(services);
@@ -66,7 +66,12 @@ namespace Erabikata.Backend
                     }
                 );
 
-            services.AddSpaStaticFiles(options => { options.RootPath = "wwwroot"; });
+            services.AddSpaStaticFiles(
+                options =>
+                {
+                    options.RootPath = "wwwroot";
+                }
+            );
 
             services.AddOpenApiDocument(
                 settings =>
@@ -135,7 +140,7 @@ namespace Erabikata.Backend
                     client =>
                     {
                         client.BaseAddress = new Uri(
-                                Configuration.GetSection("ServiceClients:Anki:BaseUrl").Value
+                            Configuration.GetSection("ServiceClients:Anki:BaseUrl").Value
                         );
                     }
                 );
@@ -143,8 +148,8 @@ namespace Erabikata.Backend
 
         private static void AddCollection<TDataType>(
             IServiceCollection services,
-            IMongoDatabase mongoDatabase)
-        {
+            IMongoDatabase mongoDatabase
+        ) {
             services.AddSingleton(mongoDatabase.GetCollection<TDataType>(typeof(TDataType).Name));
         }
 
@@ -166,24 +171,31 @@ namespace Erabikata.Backend
             app.UseOpenApi();
             app.UseReDoc();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(
+                endpoints =>
+                {
+                    endpoints.MapControllers();
+                }
+            );
 
             app.UseStaticFiles();
             app.UseWhen(
-                context => !context.Request.Path.Value?.StartsWith(
-                    "/api",
-                    StringComparison.OrdinalIgnoreCase
-                ) ?? false,
-                appBuilder => appBuilder.UseSpa(
-                    builder =>
-                    {
-                        builder.Options.DefaultPage = "/index.html";
-                        if (env.IsDevelopment())
+                context =>
+                    !context.Request.Path.Value?.StartsWith(
+                        "/api",
+                        StringComparison.OrdinalIgnoreCase
+                    ) ?? false,
+                appBuilder =>
+                    appBuilder.UseSpa(
+                        builder =>
                         {
-                            builder.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                            builder.Options.DefaultPage = "/index.html";
+                            if (env.IsDevelopment())
+                            {
+                                builder.UseProxyToSpaDevelopmentServer("http://localhost:3000");
+                            }
                         }
-                    }
-                )
+                    )
             );
         }
     }

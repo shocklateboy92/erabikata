@@ -12,26 +12,29 @@ namespace Erabikata.Backend.CollectionManagers
 
         public PartOfSpeechFilterCollectionManager(IMongoDatabase mongoDatabase)
         {
-            _mongoCollection =
-                mongoDatabase.GetCollection<PartOfSpeechFilter>(nameof(PartOfSpeechFilter));
+            _mongoCollection = mongoDatabase.GetCollection<PartOfSpeechFilter>(
+                nameof(PartOfSpeechFilter)
+            );
         }
 
         public async Task OnActivityExecuting(Activity activity)
         {
             switch (activity)
             {
-                case IgnoreReadingsOf({ } partOfSpeech):
+                case IgnoreReadingsOf
+                ( { } partOfSpeech):
                     await _mongoCollection.ReplaceOneAsync(
                         filter => filter.PartOfSpeech == partOfSpeech,
                         new PartOfSpeechFilter(partOfSpeech, true),
-                        new ReplaceOptions {IsUpsert = true}
+                        new ReplaceOptions { IsUpsert = true }
                     );
                     break;
-                case IncludeReadingsOf({ } partOfSpeech):
+                case IncludeReadingsOf
+                ( { } partOfSpeech):
                     await _mongoCollection.ReplaceOneAsync(
                         filter => filter.PartOfSpeech == partOfSpeech,
                         new PartOfSpeechFilter(partOfSpeech, false),
-                        new ReplaceOptions {IsUpsert = true}
+                        new ReplaceOptions { IsUpsert = true }
                     );
                     break;
             }

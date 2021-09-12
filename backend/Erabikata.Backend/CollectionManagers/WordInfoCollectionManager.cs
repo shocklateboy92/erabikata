@@ -24,11 +24,11 @@ namespace Erabikata.Backend.CollectionManagers
         {
             switch (activity)
             {
-                case (DictionaryIngestion ({ } dictionary)):
+                case (DictionaryIngestion( { } dictionary)):
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<WordInfo>.Empty);
                     await _mongoCollection.InsertManyAsync(
                         dictionary,
-                        new InsertManyOptions {IsOrdered = false}
+                        new InsertManyOptions { IsOrdered = false }
                     );
                     break;
             }
@@ -53,23 +53,24 @@ namespace Erabikata.Backend.CollectionManagers
         public Task UpdateWordCounts(IEnumerable<(int wordId, ulong count)> words)
         {
             var models = words.Select(
-                    word => new UpdateOneModel<WordInfo>(
-                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.wordId),
-                        Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.count)
-                    )
+                    word =>
+                        new UpdateOneModel<WordInfo>(
+                            new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.wordId),
+                            Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.count)
+                        )
                 )
                 .ToArray();
 
             return _mongoCollection.BulkWriteAsync(
                 models,
-                new BulkWriteOptions {IsOrdered = false}
+                new BulkWriteOptions { IsOrdered = false }
             );
         }
 
         public record NormalizedWord(
             [property: BsonId] int Id,
-            IReadOnlyList<IReadOnlyList<string>> Normalized)
-        {
+            IReadOnlyList<IReadOnlyList<string>> Normalized
+        ) {
             public uint Count = 0;
         }
 
@@ -88,7 +89,7 @@ namespace Erabikata.Backend.CollectionManagers
             return _mongoCollection.Aggregate()
                 .Match(word => word.TotalOccurrences > 0)
                 .SortByDescending(word => word.TotalOccurrences)
-                .Group(word => string.Empty, infos => new {WordId = infos.Select(i => i.Id)})
+                .Group(word => string.Empty, infos => new { WordId = infos.Select(i => i.Id) })
                 .Unwind(
                     group => group.WordId,
                     new AggregateUnwindOptions<WordRank>
@@ -103,13 +104,15 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<List<WordInfo>> GetSortedWordCounts(
             IEnumerable<string> ignoredPartsOfSpeech,
             int pagingInfoMax,
-            int pagingInfoSkip)
-        {
+            int pagingInfoSkip
+        ) {
             return _mongoCollection.Aggregate()
                 .Match(
-                    word => word.TotalOccurrences > 0 && !word.Meanings.Any(
-                        meaning => meaning.Tags.Any(s => ignoredPartsOfSpeech.Contains(s))
-                    )
+                    word =>
+                        word.TotalOccurrences > 0
+                        && !word.Meanings.Any(
+                            meaning => meaning.Tags.Any(s => ignoredPartsOfSpeech.Contains(s))
+                        )
                 )
                 .SortByDescending(info => info.TotalOccurrences)
                 .Skip(pagingInfoSkip)
@@ -121,8 +124,9 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<int>> SearchWords(string query) =>
             _mongoCollection.Find(
-                    word => word.Kanji.Any(kanji => kanji.Contains(query)) ||
-                            word.Readings.Any(reading => reading.Contains(query))
+                    word =>
+                        word.Kanji.Any(kanji => kanji.Contains(query))
+                        || word.Readings.Any(reading => reading.Contains(query))
                 )
                 .SortByDescending(word => word.TotalOccurrences)
                 .Project(word => word.Id)
@@ -132,12 +136,13 @@ namespace Erabikata.Backend.CollectionManagers
         {
             var words = await _mongoCollection.Find(FilterDefinition<WordInfo>.Empty)
                 .Project(
-                    word => new WordMatcher.Candidate(
-                        word.Id,
-                        word.Normalized,
-                        word.Analyzed,
-                        word.Kanji
-                    )
+                    word =>
+                        new WordMatcher.Candidate(
+                            word.Id,
+                            word.Normalized,
+                            word.Analyzed,
+                            word.Kanji
+                        )
                 )
                 .ToListAsync();
 

@@ -11,7 +11,8 @@ namespace Erabikata.Backend.Models.Actions
             ShowsToIngest = showsToIngest;
         }
 
-        [DataMember] public ICollection<ShowToIngest> ShowsToIngest { get; }
+        [DataMember]
+        public ICollection<ShowToIngest> ShowsToIngest { get; }
 
         public record ShowToIngest(ICollection<string> Files, ShowInfo Info);
     }

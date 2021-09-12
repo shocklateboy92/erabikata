@@ -24,29 +24,33 @@ namespace Erabikata.Backend.CollectionManagers
             switch (activity)
             {
                 case IngestShows ingestShows:
-                    var existingShows = await _mongoCollection
-                        .Find(FilterDefinition<StyleFilter>.Empty)
+                    var existingShows = await _mongoCollection.Find(
+                            FilterDefinition<StyleFilter>.Empty
+                        )
                         .Project(filter => filter.ShowId)
                         .ToListAsync();
                     var showIdMap = existingShows.ToHashSet();
                     var toInsert = await Task.WhenAll(
-                        ingestShows.ShowsToIngest
-                            .Where(show => !showIdMap.Contains(show.Info.Key.ParseId()))
+                        ingestShows.ShowsToIngest.Where(
+                                show => !showIdMap.Contains(show.Info.Key.ParseId())
+                            )
                             .Select(
                                 async show =>
                                 {
                                     var file = show.Files.FirstOrDefault(
                                         name => name.EndsWith("english/include_styles.txt")
                                     );
-                                    var styles = file == null
-                                        ? Enumerable.Empty<string>()
-                                        : await File.ReadAllLinesAsync(file);
+                                    var styles =
+                                        file == null
+                                            ? Enumerable.Empty<string>()
+                                            : await File.ReadAllLinesAsync(file);
 
                                     return new StyleFilter(
                                         show.Info.Key.ParseId(),
                                         styles,
-                                        show.Info.Episodes[0]
-                                            .Select(episode => episode.Key.ParseId())
+                                        show.Info.Episodes[0].Select(
+                                            episode => episode.Key.ParseId()
+                                        )
                                     );
                                 }
                             )
@@ -56,7 +60,6 @@ namespace Erabikata.Backend.CollectionManagers
                     {
                         await _mongoCollection.InsertManyAsync(toInsert);
                     }
-
                     break;
                 case EnableStyle toEnable:
                     await _mongoCollection.UpdateOneAsync(

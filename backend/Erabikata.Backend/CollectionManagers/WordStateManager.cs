@@ -23,15 +23,15 @@ namespace Erabikata.Backend.CollectionManagers
                 case LearnWord toLearn:
                     await _collection.ReplaceOneAsync(
                         word => word.BaseForm == toLearn.BaseForm,
-                        new WordState(toLearn.BaseForm) {IsKnown = true},
-                        new ReplaceOptions {IsUpsert = true}
+                        new WordState(toLearn.BaseForm) { IsKnown = true },
+                        new ReplaceOptions { IsUpsert = true }
                     );
                     break;
                 case UnlearnWord toUnlearn:
                     await _collection.ReplaceOneAsync(
                         word => word.BaseForm == toUnlearn.BaseForm,
-                        new WordState(toUnlearn.BaseForm) {IsKnown = false},
-                        new ReplaceOptions {IsUpsert = true}
+                        new WordState(toUnlearn.BaseForm) { IsKnown = false },
+                        new ReplaceOptions { IsUpsert = true }
                     );
                     break;
             }

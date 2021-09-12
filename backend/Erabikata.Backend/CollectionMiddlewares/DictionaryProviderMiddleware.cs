@@ -26,7 +26,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
-            if (activity is DictionaryUpdate ({ } sourceUrl))
+            if (activity is DictionaryUpdate( { } sourceUrl))
             {
                 var currentUrl = await _databaseInfo.GetCurrentDictionary();
                 if (currentUrl != sourceUrl)
@@ -59,40 +59,46 @@ namespace Erabikata.Backend.CollectionMiddlewares
             return dictionaryIngestion.Elements("entry")
                 .AsParallel()
                 .Select(
-                    entry => new WordInfo(
-                        int.Parse(entry.Element("ent_seq")!.Value),
-                        entry.Elements("k_ele").Select(ele => ele.Element("keb")!.Value),
-                        entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value),
-                        entry.Elements("sense")
-                            .GroupBy(
-                                sense => sense.Elements("pos")
-                                    .Concat(sense.Elements("misc"))
-                                    .Select(element => element.Value)
-                                    .Concat(
-                                        sense.Elements("field")
-                                            .Select(field => $"{field.Value} term")
-                                    )
-                                    .ToArray(),
-                                (tags, senses) => new WordInfo.Meaning(
-                                    tags,
-                                    senses.Select(
-                                        sense => string.Join(
-                                            "; ",
-                                            sense.Elements("gloss").Select(gloss => gloss.Value)
-                                        )
-                                    )
+                    entry =>
+                        new WordInfo(
+                            int.Parse(entry.Element("ent_seq")!.Value),
+                            entry.Elements("k_ele").Select(ele => ele.Element("keb")!.Value),
+                            entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value),
+                            entry.Elements("sense")
+                                .GroupBy(
+                                    sense =>
+                                        sense.Elements("pos")
+                                            .Concat(sense.Elements("misc"))
+                                            .Select(element => element.Value)
+                                            .Concat(
+                                                sense.Elements("field")
+                                                    .Select(field => $"{field.Value} term")
+                                            )
+                                            .ToArray(),
+                                    (tags, senses) =>
+                                        new WordInfo.Meaning(
+                                            tags,
+                                            senses.Select(
+                                                sense =>
+                                                    string.Join(
+                                                        "; ",
+                                                        sense.Elements("gloss")
+                                                            .Select(gloss => gloss.Value)
+                                                    )
+                                            )
+                                        ),
+                                    new EnumerableComparer<string, string[]>()
                                 ),
-                                new EnumerableComparer<string, string[]>()
-                            ),
-                        entry.Elements("k_ele")
-                            .SelectMany(kEle => kEle.Elements("ke_pri"))
-                            .Concat(
-                                entry.Elements("r_ele").SelectMany(rEle => rEle.Elements("re_pri"))
-                            )
-                            .Select(ele => ele.Value)
-                            .Distinct()
-                            .ToHashSet()
-                    )
+                            entry.Elements("k_ele")
+                                .SelectMany(kEle => kEle.Elements("ke_pri"))
+                                .Concat(
+                                    entry.Elements("r_ele")
+                                        .SelectMany(rEle => rEle.Elements("re_pri"))
+                                )
+                                .Select(ele => ele.Value)
+                                .Distinct()
+                                .ToHashSet()
+                        )
                 );
         }
     }

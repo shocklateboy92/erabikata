@@ -27,7 +27,7 @@ namespace Erabikata.Backend.Models
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public record AnkiAction(string Action, object Params, int Version = 6);
 
-    public record SyncAnkiAction() : AnkiAction("sync", new {});
+    public record SyncAnkiAction() : AnkiAction("sync", new {  });
 
     public record AddNoteAnkiAction : AnkiAction
     {
@@ -40,18 +40,17 @@ namespace Erabikata.Backend.Models
                         DeckName: "Takoboto",
                         ModelName: "Jap Sentences 2",
                         Fields: activity.Adapt<Dictionary<string, string>>(),
-                        Picture: new []
+                        Picture: new[]
                         {
                             new PictureInfo(
                                 Url: $"https://erabikata3.apps.lasath.org/api/image/{activity.Image.EpisodeId}/{activity.Image.Time}?includeSubs={activity.Image.IncludeSubs}",
                                 Filename: $"erabikata_{activity.Image.EpisodeId}_{activity.Image.Time}.png",
-                                Fields: new [] {"Image"}
+                                Fields: new[] { "Image" }
                             )
                         }
                     )
                 }
-            )
-        {}
+            ) { }
 
         [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public record AddNoteParams(
@@ -69,8 +68,8 @@ namespace Erabikata.Backend.Models
         long NoteId,
         string ModelName,
         IReadOnlyCollection<string> Tags,
-        IReadOnlyDictionary<string, AnkiNote.Field> Fields)
-    {
+        IReadOnlyDictionary<string, AnkiNote.Field> Fields
+    ) {
         public record Field(string Value, int Order);
     };
 

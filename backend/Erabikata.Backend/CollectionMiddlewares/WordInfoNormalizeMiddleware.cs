@@ -21,7 +21,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
-            if (activity is DictionaryIngestion ({ } words))
+            if (activity is DictionaryIngestion( { } words))
             {
                 // mutates inline, because this is already memory intensive
                 await AddNormalizedForms(words);
@@ -41,23 +41,27 @@ namespace Erabikata.Backend.CollectionMiddlewares
                             using var client = _analyzer.AnalyzeDialogBulk();
                             await client.RequestStream.WriteAllAsync(
                                 batchWords.Select(
-                                    (info, index) => new AnalyzeDialogRequest
-                                    {
-                                        Lines = {info.Kanji.Any() ? info.Kanji : info.Readings},
-                                        Mode = Constants.DefaultAnalyzerMode,
-                                        Style = "none",
-                                        Time = index
-                                    }
+                                    (info, index) =>
+                                        new AnalyzeDialogRequest
+                                        {
+                                            Lines =
+                                            {
+                                                info.Kanji.Any() ? info.Kanji : info.Readings
+                                            },
+                                            Mode = Constants.DefaultAnalyzerMode,
+                                            Style = "none",
+                                            Time = index
+                                        }
                                 )
                             );
 
                             await foreach (var response in client.ResponseStream.ReadAllAsync())
                             {
-                                batchWords[(int) response.Time].Normalized = ExtractForm(
+                                batchWords[(int)response.Time].Normalized = ExtractForm(
                                     response,
                                     word => word.BaseForm
                                 );
-                                batchWords[(int) response.Time].Analyzed = ExtractForm(
+                                batchWords[(int)response.Time].Analyzed = ExtractForm(
                                     response,
                                     word => word.DictionaryForm
                                 );
@@ -69,7 +73,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         private static List<string[]> ExtractForm(
             AnalyzeDialogResponse response,
-            Func<AnalyzedWord, string> selector) =>
+            Func<AnalyzedWord, string> selector
+        ) =>
             response.Lines.Select(line => line.Words.Select(selector).ToArray())
                 .Distinct(new EnumerableComparer<string, string[]>())
                 .ToList();

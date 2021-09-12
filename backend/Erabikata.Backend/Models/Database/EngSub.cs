@@ -13,8 +13,8 @@ namespace Erabikata.Backend.Models.Database
             double time,
             string[] lines,
             bool isComment,
-            string style)
-        {
+            string style
+        ) {
             Id = id;
             EpisodeId = episodeId;
             Time = time;
@@ -23,16 +23,22 @@ namespace Erabikata.Backend.Models.Database
             Style = style;
         }
 
-        [DataMember] public ObjectId Id { get; set; }
+        [DataMember]
+        public ObjectId Id { get; set; }
 
-        [DataMember] public int EpisodeId { get; set; }
+        [DataMember]
+        public int EpisodeId { get; set; }
 
-        [DataMember] public double Time { get; set; }
+        [DataMember]
+        public double Time { get; set; }
 
-        [DataMember] public IReadOnlyList<string> Lines { get; set; }
+        [DataMember]
+        public IReadOnlyList<string> Lines { get; set; }
 
-        [DataMember] public bool IsComment { get; set; }
+        [DataMember]
+        public bool IsComment { get; set; }
 
-        [DataMember] public string Style { get; set; }
+        [DataMember]
+        public string Style { get; set; }
     }
 }

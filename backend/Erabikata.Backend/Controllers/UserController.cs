@@ -41,8 +41,8 @@ namespace Erabikata.Backend.Controllers
 
             await _mongoClient.ReplaceOneAsync(
                 user => user.Id == userId,
-                new UserInfo(userId) {TodoistToken = token},
-                new ReplaceOptions {IsUpsert = true}
+                new UserInfo(userId) { TodoistToken = token },
+                new ReplaceOptions { IsUpsert = true }
             );
 
             return Ok();

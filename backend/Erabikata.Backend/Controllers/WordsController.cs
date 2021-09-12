@@ -28,8 +28,8 @@ namespace Erabikata.Backend.Controllers
             PartOfSpeechFilterCollectionManager partOfSpeechFilter,
             WordInfoCollectionManager wordInfo,
             AnkiWordCollectionManager ankiWords,
-            KnownReadingCollectionManager knownReadings)
-        {
+            KnownReadingCollectionManager knownReadings
+        ) {
             _dialogCollectionManager = dialogCollectionManager;
             _partOfSpeechFilter = partOfSpeechFilter;
             _wordInfo = wordInfo;
@@ -41,26 +41,27 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public async Task<IEnumerable<WordRankInfo>> Ranked2(
             Analyzer analyzer,
-            [FromQuery] PagingInfo pagingInfo)
-        {
+            [FromQuery] PagingInfo pagingInfo
+        ) {
             if (analyzer.ToAnalyzerMode() != Constants.DefaultAnalyzerMode)
             {
                 return Array.Empty<WordRankInfo>();
             }
 
             var ranks = await _wordInfo.GetSortedWordCounts(
-                ArraySegment<string>.Empty, 
+                ArraySegment<string>.Empty,
                 pagingInfo.Max,
                 pagingInfo.Skip
             );
 
             return ranks.Select(
-                (word, index) => new WordRankInfo(
-                    word.Id,
-                    index + pagingInfo.Skip,
-                    word.TotalOccurrences,
-                    word.Kanji.FirstOrDefault() ?? word.Readings.First()
-                )
+                (word, index) =>
+                    new WordRankInfo(
+                        word.Id,
+                        index + pagingInfo.Skip,
+                        word.TotalOccurrences,
+                        word.Kanji.FirstOrDefault() ?? word.Readings.First()
+                    )
             );
         }
 
@@ -74,15 +75,19 @@ namespace Erabikata.Backend.Controllers
         [HttpGet]
         [Route("[action]")]
         public async Task<IEnumerable<WordDefinition>> Definition(
-            [BindRequired] [FromQuery] int[] wordId)
-        {
-            var (infos, ranks, totalCount) = await (_wordInfo.GetWords(wordId),
-                _wordInfo.GetWordRanks(wordId), _wordInfo.GetTotalWordCount());
+            [BindRequired] [FromQuery] int[] wordId
+        ) {
+            var (infos, ranks, totalCount) = await (
+                _wordInfo.GetWords(wordId),
+                _wordInfo.GetWordRanks(wordId),
+                _wordInfo.GetTotalWordCount()
+            );
             var definitions = infos.Adapt<List<WordDefinition>>();
             foreach (var definition in definitions)
                 definition.GlobalRank =
-                    ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank * 100 /
-                    totalCount + 1;
+                    ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank * 100
+                        / totalCount
+                    + 1;
 
             return definitions;
         }
@@ -92,8 +97,8 @@ namespace Erabikata.Backend.Controllers
         public async Task<ActionResult<IEnumerable<WordRank>>> EpisodeRank(
             [BindRequired] Analyzer analyzer,
             [BindRequired] string episodeId,
-            [BindRequired] [FromQuery] int[] wordId)
-        {
+            [BindRequired] [FromQuery] int[] wordId
+        ) {
             if (!int.TryParse(episodeId, out var episode))
             {
                 return BadRequest($"{nameof(episodeId)} must be a number");
@@ -102,15 +107,18 @@ namespace Erabikata.Backend.Controllers
             var analyzerMode = analyzer.ToAnalyzerMode();
             var (ranks, total) = await (
                 _dialogCollectionManager.GetWordRanks(analyzerMode, episode, wordId),
-                _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episode));
+                _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episode)
+            );
 
             return Ok(
                 wordId.Select(
-                    id => new WordRank(
-                        id,
-                        ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100 /
-                        total.Count + 1
-                    )
+                    id =>
+                        new WordRank(
+                            id,
+                            ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100
+                                / total.Count
+                                + 1
+                        )
                 )
             );
         }
@@ -119,8 +127,8 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public async Task<object> EpisodeTotal(
             [BindRequired] Analyzer analyzer,
-            [BindRequired] int episodeId)
-        {
+            [BindRequired] int episodeId
+        ) {
             var results = await _dialogCollectionManager.GetEpisodeWordCount(
                 analyzer.ToAnalyzerMode(),
                 episodeId
@@ -134,13 +142,8 @@ namespace Erabikata.Backend.Controllers
         public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId)
         {
             var (occurrences, knownWords) = await (
-                _dialogCollectionManager.GetOccurrences(
-                    analyzer.ToAnalyzerMode(),
-                    wordId
-                ),
-                _wordInfo.GetWordRanks(
-                    await _ankiWords.GetAllKnownWords()
-                )
+                _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId),
+                _wordInfo.GetWordRanks(await _ankiWords.GetAllKnownWords())
             );
 
             var knownWordsMap = knownWords.ToDictionary(
@@ -151,9 +154,9 @@ namespace Erabikata.Backend.Controllers
             return new(
                 wordId,
                 occurrences.OrderByDescending(
-                    occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
-                )
-                .Select(oc => oc.dialogId)
+                        occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
+                    )
+                    .Select(oc => oc.dialogId)
             );
         }
 

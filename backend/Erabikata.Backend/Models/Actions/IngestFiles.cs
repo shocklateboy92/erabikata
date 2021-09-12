@@ -10,6 +10,7 @@ namespace Erabikata.Backend.Models.Actions
             FilesInSeed = filesInSeed;
         }
 
-        [DataMember] public ICollection<string> FilesInSeed { get; }
+        [DataMember]
+        public ICollection<string> FilesInSeed { get; }
     }
 }

@@ -26,8 +26,8 @@ namespace Erabikata.Backend.CollectionManagers
         public EngSubCollectionManager(
             IMongoDatabase mongoDatabase,
             AssParserService.AssParserServiceClient assParserServiceClient,
-            ILogger<EngSubCollectionManager> logger)
-        {
+            ILogger<EngSubCollectionManager> logger
+        ) {
             _assParserServiceClient = assParserServiceClient;
             _logger = logger;
             _mongoCollection = mongoDatabase.GetCollection<EngSub>(nameof(EngSub));
@@ -48,35 +48,28 @@ namespace Erabikata.Backend.CollectionManagers
         {
             foreach (var (files, showInfo) in showsToIngest)
                 await Task.WhenAll(
-                    showInfo.Episodes[0]
-                        .Select(
-                            (episode, index) =>
+                    showInfo.Episodes[0].Select(
+                        (episode, index) =>
+                        {
+                            var epNum = index + 1;
+                            var epFile = files.FirstOrDefault(
+                                filePath =>
+                                    SeedDataProvider.IsPathForEpisode(filePath, "english", epNum)
+                            );
+
+                            if (string.IsNullOrEmpty(epFile))
                             {
-                                var epNum = index + 1;
-                                var epFile = files.FirstOrDefault(
-                                    filePath => SeedDataProvider.IsPathForEpisode(
-                                        filePath,
-                                        "english",
-                                        epNum
-                                    )
+                                _logger.LogError(
+                                    "Unable to find english file for episode ({EpNum}, {Key})",
+                                    epNum.ToString(),
+                                    episode.Key
                                 );
-
-                                if (string.IsNullOrEmpty(epFile))
-                                {
-                                    _logger.LogError(
-                                        "Unable to find english file for episode ({EpNum}, {Key})",
-                                        epNum.ToString(),
-                                        episode.Key
-                                    );
-                                    return Task.CompletedTask;
-                                }
-
-                                return IngestEpisode(
-                                    epFile,
-                                    int.Parse(episode.Key.Split('/').Last())
-                                );
+                                return Task.CompletedTask;
                             }
-                        )
+
+                            return IngestEpisode(epFile, int.Parse(episode.Key.Split('/').Last()));
+                        }
+                    )
                 );
         }
 
@@ -88,23 +81,24 @@ namespace Erabikata.Backend.CollectionManagers
             var subtitleEvents = await client.ResponseStream.ToListAsync();
             await _mongoCollection.InsertManyAsync(
                 subtitleEvents.Select(
-                    dialog => new EngSub(
-                        ObjectId.Empty,
-                        time: dialog.Time,
-                        lines: dialog.Lines.ToArray(),
-                        isComment: dialog.IsComment,
-                        style: dialog.Style,
-                        episodeId: id
-                    )
+                    dialog =>
+                        new EngSub(
+                            ObjectId.Empty,
+                            time: dialog.Time,
+                            lines: dialog.Lines.ToArray(),
+                            isComment: dialog.IsComment,
+                            style: dialog.Style,
+                            episodeId: id
+                        )
                 ),
-                new InsertManyOptions {IsOrdered = false}
+                new InsertManyOptions { IsOrdered = false }
             );
         }
 
         public static async Task WriteFileToParserClient(
             AsyncDuplexStreamingCall<ParseAssRequestChunk, AssParsedResponseDialog> client,
-            string filePath)
-        {
+            string filePath
+        ) {
             await using var showFileStream = File.OpenRead(filePath);
             using var buffer = MemoryPool<byte>.Shared.Rent(4096);
             int lastReadBytesCount;
@@ -127,33 +121,38 @@ namespace Erabikata.Backend.CollectionManagers
             int episodeId,
             double time,
             int count,
-            IEnumerable<string> styleFilter)
-        {
+            IEnumerable<string> styleFilter
+        ) {
             var (matchAndBefore, afterMatch) = await (
-                _mongoCollection
-                    .Find(
-                        sub => sub.EpisodeId == episodeId && !sub.IsComment &&
-                               styleFilter.Contains(sub.Style) && sub.Time <= time
+                _mongoCollection.Find(
+                        sub =>
+                            sub.EpisodeId == episodeId
+                            && !sub.IsComment
+                            && styleFilter.Contains(sub.Style)
+                            && sub.Time <= time
                     )
                     .SortByDescending(sub => sub.Time)
                     .Limit(count + 1)
                     .ToListAsync(),
-                _mongoCollection
-                    .Find(
-                        sub => sub.EpisodeId == episodeId && !sub.IsComment &&
-                               styleFilter.Contains(sub.Style) && sub.Time > time
+                _mongoCollection.Find(
+                        sub =>
+                            sub.EpisodeId == episodeId
+                            && !sub.IsComment
+                            && styleFilter.Contains(sub.Style)
+                            && sub.Time > time
                     )
                     .SortBy(sub => sub.Time)
                     .Limit(count)
-                    .ToListAsync());
+                    .ToListAsync()
+            );
 
             matchAndBefore.Reverse();
             return matchAndBefore.Concat(afterMatch);
         }
 
         public async Task<List<AggregateSortByCountResult<string>>> GetAllStylesOf(
-            IEnumerable<int> episodeIds)
-        {
+            IEnumerable<int> episodeIds
+        ) {
             var cursor = _mongoCollection.Aggregate()
                 .Match(sub => episodeIds.Contains(sub.EpisodeId))
                 .SortByCount(sub => sub.Style);
@@ -164,10 +163,11 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<List<EngSub>> GetByStyleName(
             IEnumerable<int> episodeIds,
             string styleName,
-            PagingInfo pagingInfo)
-        {
-            return _mongoCollection
-                .Find(sub => episodeIds.Contains(sub.EpisodeId) && sub.Style == styleName)
+            PagingInfo pagingInfo
+        ) {
+            return _mongoCollection.Find(
+                    sub => episodeIds.Contains(sub.EpisodeId) && sub.Style == styleName
+                )
                 .Skip(pagingInfo.Skip)
                 .Limit(pagingInfo.Max)
                 .ToListAsync();

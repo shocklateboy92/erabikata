@@ -18,33 +18,41 @@ namespace Erabikata.Backend.Models.Database
             EpisodeTitle = episodeTitle;
         }
 
-        [BsonId] [DataMember] public ObjectId Id { get; set; }
+        [BsonId]
+        [DataMember]
+        public ObjectId Id { get; set; }
 
-        [DataMember] public int EpisodeId { get; set; }
+        [DataMember]
+        public int EpisodeId { get; set; }
 
-        [DataMember] public int Index { get; set; }
+        [DataMember]
+        public int Index { get; set; }
 
-        [DataMember] public string EpisodeTitle { get; set; }
+        [DataMember]
+        public string EpisodeTitle { get; set; }
 
-        [DataMember] public double Time { get; set; }
+        [DataMember]
+        public double Time { get; set; }
 
-        [DataMember] public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
+        [DataMember]
+        public IEnumerable<Line> Lines { get; set; } = Array.Empty<Line>();
 
-        [DataMember] public ICollection<int> WordsToRank { get; set; } = new HashSet<int>();
+        [DataMember]
+        public ICollection<int> WordsToRank { get; set; } = new HashSet<int>();
 
         [DataContract]
         public record Word(
             string BaseForm,
             string DictionaryForm,
-            [AdaptMember(nameof(AnalyzedWord.Original))]
-            string OriginalForm,
+            [AdaptMember(nameof(AnalyzedWord.Original))] string OriginalForm,
             string Reading,
-            bool IsInParenthesis = false)
-        {
+            bool IsInParenthesis = false
+        ) {
             [DataMember]
             public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 
-            [DataMember] public ICollection<int> InfoIds { get; set; } = new List<int>();
+            [DataMember]
+            public ICollection<int> InfoIds { get; set; } = new List<int>();
         }
 
         public record Line(IReadOnlyList<Word> Words);

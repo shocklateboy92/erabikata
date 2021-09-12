@@ -9,18 +9,21 @@ namespace Erabikata.Backend.Models.Output
 {
     public record EngSubsResponse
     {
-        [DataMember] public IEnumerable<Sentence> Dialog { get; init; } = Array.Empty<Sentence>();
+        [DataMember]
+        public IEnumerable<Sentence> Dialog { get; init; } = Array.Empty<Sentence>();
 
         public record Sentence(
             string Id,
             double Time,
             string EpisodeId,
             [AdaptMember(nameof(EngSub.Lines))] IReadOnlyList<string> Text,
-            string? EpisodeTitle);
+            string? EpisodeTitle
+        );
     }
 
     public record StylesOfResponse(
         int ShowId,
         IEnumerable<AggregateSortByCountResult<string>> AllStyles,
-        IEnumerable<string> EnabledStyles);
+        IEnumerable<string> EnabledStyles
+    );
 }

@@ -19,8 +19,8 @@ namespace Erabikata.Backend.Controllers
 
         public SubsController(
             DialogCollectionManager dialogCollection,
-            PartOfSpeechFilterCollectionManager partOfSpeechFilter)
-        {
+            PartOfSpeechFilterCollectionManager partOfSpeechFilter
+        ) {
             _dialogCollection = dialogCollection;
             _partOfSpeechFilter = partOfSpeechFilter;
         }
@@ -28,11 +28,12 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]/{id}")]
         public async Task<ActionResult<WordOccurrence>> ById(
             [BindRequired] Analyzer analyzer,
-            string id)
-        {
+            string id
+        ) {
             var (dialogs, ignoredPartsOfSpeech) = await (
-                _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] {id}),
-                _partOfSpeechFilter.GetIgnoredPartOfSpeech());
+                _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] { id }),
+                _partOfSpeechFilter.GetIgnoredPartOfSpeech()
+            );
             var dialog = dialogs.FirstOrDefault();
             if (dialog == null)
             {
@@ -50,17 +51,19 @@ namespace Erabikata.Backend.Controllers
                     dialog.Id.ToString(),
                     dialog.Time,
                     dialog.Lines.Select(
-                            list => list.Words.Select(
-                                    word => new DialogInfo.WordRef(
-                                        word.OriginalForm,
-                                        word.BaseForm,
-                                        word.PartOfSpeech.Any(ignoreReadingMap.Contains)
-                                            ? string.Empty
-                                            : word.Reading,
-                                        word.InfoIds
+                            list =>
+                                list.Words.Select(
+                                        word =>
+                                            new DialogInfo.WordRef(
+                                                word.OriginalForm,
+                                                word.BaseForm,
+                                                word.PartOfSpeech.Any(ignoreReadingMap.Contains)
+                                                    ? string.Empty
+                                                    : word.Reading,
+                                                word.InfoIds
+                                            )
                                     )
-                                )
-                                .ToArray()
+                                    .ToArray()
                         )
                         .ToArray()
                 )

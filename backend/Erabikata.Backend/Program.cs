@@ -29,7 +29,12 @@ namespace Erabikata.Backend
                         config.AddJsonFile($"appsettings.{Environment.MachineName}.json", true);
                     }
                 )
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+                .ConfigureWebHostDefaults(
+                    webBuilder =>
+                    {
+                        webBuilder.UseStartup<Startup>();
+                    }
+                );
         }
 
         [ModuleInitializer]

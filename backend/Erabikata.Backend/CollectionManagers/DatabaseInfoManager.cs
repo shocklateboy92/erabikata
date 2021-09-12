@@ -22,7 +22,7 @@ namespace Erabikata.Backend.CollectionManagers
                     await _mongoCollection.ReplaceOneAsync(
                         FilterDefinition<DatabaseInfo>.Empty,
                         new DatabaseInfo(beginIngestion.EndCommit),
-                        new ReplaceOptions {IsUpsert = true}
+                        new ReplaceOptions { IsUpsert = true }
                     );
                     break;
             }

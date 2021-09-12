@@ -10,8 +10,10 @@ namespace Erabikata.Backend.Models.Actions
             EndCommit = endCommit;
         }
 
-        [DataMember] public string StartCommit { get; set; }
+        [DataMember]
+        public string StartCommit { get; set; }
 
-        [DataMember] public string EndCommit { get; set; }
+        [DataMember]
+        public string EndCommit { get; set; }
     }
 }

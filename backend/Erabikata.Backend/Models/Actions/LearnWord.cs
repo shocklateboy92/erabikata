@@ -10,6 +10,7 @@ namespace Erabikata.Backend.Models.Actions
             BaseForm = baseForm;
         }
 
-        [DataMember] public string BaseForm { get; set; }
+        [DataMember]
+        public string BaseForm { get; set; }
     }
 }

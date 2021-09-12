@@ -11,8 +11,11 @@ namespace Erabikata.Backend.Models.Database
             File = file;
         }
 
-        [BsonId] [DataMember] public int Id { get; set; }
+        [BsonId]
+        [DataMember]
+        public int Id { get; set; }
 
-        [DataMember] public string File { get; set; }
+        [DataMember]
+        public string File { get; set; }
     }
 }

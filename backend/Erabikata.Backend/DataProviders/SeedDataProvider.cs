@@ -34,15 +34,15 @@ namespace Erabikata.Backend.DataProviders
             await using var file = File.OpenRead(path);
             var results = await JsonSerializer.DeserializeAsync<T>(
                 file,
-                new JsonSerializerOptions {PropertyNamingPolicy = JsonNamingPolicy.CamelCase}
+                new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }
             );
             return results!;
         }
 
         public static bool IsPathForEpisode(string path, string type, int epNum)
         {
-            return path.EndsWith($"{type}/{epNum:00}.ass") ||
-                   path.EndsWith($"{type}/{epNum:00}.srt");
+            return path.EndsWith($"{type}/{epNum:00}.ass")
+                || path.EndsWith($"{type}/{epNum:00}.srt");
         }
 
         public record ShowContentFile(int Id, string Path);
