@@ -22,7 +22,7 @@ const slice = createSlice({
     extraReducers: (builder) =>
         builder.addMatcher(
             apiEndpoints.wordsWithReadingsKnown.matchFulfilled,
-            (state, { payload: { result } }) => ({
+            (state, { payload: result }) => ({
                 ...state,
                 words: Object.fromEntries(
                     result.map((id) => [id, { hide: true }])

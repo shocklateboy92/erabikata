@@ -13,7 +13,7 @@ import {
 
 const api = generatedApi
     .enhanceEndpoints({
-        addEntityTypes: [
+        addTagTypes: [
             'WordOccurrences',
             'Dialog',
             'EngDialog',
@@ -23,19 +23,19 @@ const api = generatedApi
         ],
         endpoints: {
             engSubsActiveStylesFor: {
-                provides: ['ActiveStyle']
+                providesTags: ['ActiveStyle']
             },
             wordsKnown: {
-                provides: ['KnownWords']
+                providesTags: ['KnownWords']
             },
             engSubsIndex: {
-                provides: ['EngDialog']
+                providesTags: ['EngDialog']
             },
             wordsOccurrences: {
-                provides: (response) => [
+                providesTags: (response) => [
                     {
                         type: 'WordOccurrences',
-                        id: response.wordId
+                        id: response?.wordId
                     }
                 ]
             }
@@ -57,7 +57,7 @@ const api = generatedApi
                     method: 'POST',
                     body: queryArg
                 }),
-                invalidates: (_, { activityType }) => {
+                invalidatesTags: (_response, _error, { activityType }) => {
                     switch (activityType) {
                         case 'EnableStyle':
                         case 'DisableStyle':

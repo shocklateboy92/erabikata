@@ -55,14 +55,14 @@ export const sendToAnki: AsyncThunk<
         primaryWordReading: reading ?? ''
     };
 
-    const { data, error } = await dispatch(
+    const response = await dispatch(
         apiEndpoints.executeAction.initiate(activity)
     );
-    if (!data) {
+    if ('error' in response) {
         dispatch(
             notification({
                 title: 'Failed to create note',
-                text: JSON.stringify(error)
+                text: JSON.stringify(response.error)
             })
         );
         return;
