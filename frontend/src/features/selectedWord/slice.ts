@@ -81,6 +81,15 @@ const slice = createSlice({
             };
         },
 
+        episodeTimeShift: (
+            { sentenceTimestamp, ...state },
+            { payload }: PayloadAction<number>
+        ) => ({
+            ...state,
+            sentenceTimestamp:
+                sentenceTimestamp && (sentenceTimestamp += payload)
+        }),
+
         dialogWordShift: (
             state,
             {
@@ -234,6 +243,7 @@ export const {
     dialogSelection,
     dialogWordShift,
     episodeDialogShift,
+    episodeTimeShift,
     selectedWordCycleRequest,
     selectedWordReverseCycleRequest,
     occurrenceShift,

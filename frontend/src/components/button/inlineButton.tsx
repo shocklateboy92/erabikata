@@ -8,6 +8,7 @@ export interface IButtonProps {
     complex?: boolean;
     small?: boolean;
     large?: boolean;
+    standalone?: boolean;
     hideOnMobile?: boolean;
 }
 export const InlineButton: FC<IButtonProps> = (props) => {
@@ -19,6 +20,7 @@ export const InlineButton: FC<IButtonProps> = (props) => {
                     [styles.complex]: props.complex,
                     [styles.small]: props.small,
                     [styles.large]: props.large,
+                    [styles.standalone]: props.standalone,
                     hideOnMobile: props.hideOnMobile
                 },
                 props.className
