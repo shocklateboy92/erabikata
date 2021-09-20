@@ -44,7 +44,6 @@ def do_extract(input: str, output: Path):
         if len(subs) > 1:
             subs = [s for s in subs if s["tags"]["language"] == "eng"]
 
-        track_arg = {}
         if len(subs) > 1:
             tracks_file = output.with_name(TRACKS_FILE_NAME)
             if not tracks_file.exists():
@@ -53,12 +52,9 @@ def do_extract(input: str, output: Path):
                 )
 
             include_tracks = [s.strip() for s in tracks_file.read_text().splitlines()]
-            track_arg = next(
-                {"map": f"0:{f['index']}"}
-                for f in subs
-                if f["tags"]["title"] in include_tracks
-            )
+            subs = [f for f in subs if f["tags"]["title"] in include_tracks]
 
+        track_arg = next({"map": f"0:{f['index']}"} for f in subs)
         job = ffmpeg.input(input).output(str(output), **track_arg)
         ffmpeg.run(job, quiet=True)
 
