@@ -58,10 +58,14 @@ namespace Erabikata.Backend.Controllers
                 _logger.LogInformationString(
                     $"Executing '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
                 );
-                return current.Execute(
+                var result = current.Execute(
                     previousActivity,
                     modifiedActivity => ExecuteMiddleware(modifiedActivity, remaining.Skip(1))
                 );
+                _logger.LogInformationString(
+                    $"Completed '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
+                );
+                return result;
             }
 
             return ExecuteCollectionManagers(previousActivity);
@@ -75,6 +79,9 @@ namespace Erabikata.Backend.Controllers
                     $"Executing '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
                 );
                 await manager.OnActivityExecuting(activity);
+                _logger.LogInformationString(
+                    $"Completed '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
+                );
             }
         }
 
