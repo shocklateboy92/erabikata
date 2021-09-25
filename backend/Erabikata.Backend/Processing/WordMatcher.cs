@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -55,6 +56,12 @@ namespace Erabikata.Backend.Processing
 
         public IEnumerable<int> FillMatchesAndGetWords(IReadOnlyList<Dialog.Word> words)
         {
+            // Empty input causes ProcessCharacterMatches to blow up later
+            if (!words.Any())
+            {
+                return Array.Empty<int>();
+            }
+
             var uniqueMatches = new HashSet<Candidate>();
             var dictionaryForms = words.Select(word => word.DictionaryForm).ToArray();
             ProcessMatchesOfType(words, uniqueMatches, _wordTrie.Find(dictionaryForms));
