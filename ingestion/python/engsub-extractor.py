@@ -52,7 +52,7 @@ def do_extract(input: str, output: Path):
                 )
 
             include_tracks = [s.strip() for s in tracks_file.read_text().splitlines()]
-            subs = [f for f in subs if f["tags"]["title"] in include_tracks]
+            subs = [f for f in subs if f["tags"].get("title", None) in include_tracks]
 
         track_arg = next({"map": f"0:{f['index']}"} for f in subs)
         job = ffmpeg.input(input).output(str(output), **track_arg)
