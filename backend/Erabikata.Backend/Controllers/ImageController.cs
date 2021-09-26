@@ -52,27 +52,33 @@ namespace Erabikata.Backend.Controllers
 
                             if (includeSubs)
                             {
-                                conversion
+                                // ffmpeg interprets ':' as delimiter in 'subtitles=' argument
+                                var subInputFile = input.Replace(":", @"\:");
+
                                 // https://stackoverflow.com/a/59576487
-                                .AddParameter("-copyts");
+                                conversion.AddParameter("-copyts");
+
                                 if (episodeInfo.SubTracks?.Count > 0)
                                 {
                                     var mediaInfo = await FFmpeg.GetMediaInfo(input);
-                                    var match = mediaInfo.SubtitleStreams.FirstOrDefault(
-                                        sub => episodeInfo.SubTracks.Contains(sub.Title)
-                                    );
-                                    if (match != null)
+                                    // Turns out the subtitle filter does not want the stream id,
+                                    // but rather the index of the stream w.r.t. sub streams
+                                    var subIndex = mediaInfo.SubtitleStreams.ToList()
+                                        .FindIndex(
+                                            sub => episodeInfo.SubTracks.Contains(sub.Title)
+                                        );
+                                    if (subIndex > 0)
                                     {
                                         // https://ffmpeg.org/ffmpeg-filters.html#subtitles-1
                                         conversion.AddParameter(
-                                            $"-vf subtitles=\"'{input}'\":stream_index={match.Index}"
+                                            $"-vf subtitles=\"'{subInputFile}'\":si={subIndex}"
                                         );
                                     }
                                 }
                                 else
                                 {
                                     // https://superuser.com/a/1309658
-                                    conversion.AddParameter($"-vf subtitles=\"'{input}'\"");
+                                    conversion.AddParameter($"-vf subtitles=\"'{subInputFile}'\"");
                                 }
                             }
 
