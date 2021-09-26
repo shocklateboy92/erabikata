@@ -56,14 +56,14 @@ namespace Erabikata.Backend.Controllers
             if (current != null)
             {
                 _logger.LogInformationString(
-                    $"Executing '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
+                    $"Executing middleware' {current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
                 );
                 var result = current.Execute(
                     previousActivity,
                     modifiedActivity => ExecuteMiddleware(modifiedActivity, remaining.Skip(1))
                 );
                 _logger.LogInformationString(
-                    $"Completed '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
+                    $"Completed middleware '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
                 );
                 return result;
             }
@@ -76,13 +76,15 @@ namespace Erabikata.Backend.Controllers
             foreach (var manager in _collectionManagers)
             {
                 _logger.LogInformationString(
-                    $"Executing '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
+                    $"Executing collection manager '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
                 );
                 await manager.OnActivityExecuting(activity);
                 _logger.LogInformationString(
-                    $"Completed '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
+                    $"Completed collection manager '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
                 );
             }
+
+            _logger.LogInformationString($"Completed all collection managers");
         }
 
         [HttpGet]
