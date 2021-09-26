@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Models.Configuration;
@@ -53,9 +54,26 @@ namespace Erabikata.Backend.Controllers
                             {
                                 conversion
                                 // https://stackoverflow.com/a/59576487
-                                .AddParameter("-copyts")
+                                .AddParameter("-copyts");
+                                if (episodeInfo.SubTracks?.Count > 0)
+                                {
+                                    var mediaInfo = await FFmpeg.GetMediaInfo(input);
+                                    var match = mediaInfo.SubtitleStreams.FirstOrDefault(
+                                        sub => episodeInfo.SubTracks.Contains(sub.Title)
+                                    );
+                                    if (match != null)
+                                    {
+                                        // https://ffmpeg.org/ffmpeg-filters.html#subtitles-1
+                                        conversion.AddParameter(
+                                            $"-vf subtitles=\"'{input}'\":stream_index={match.Index}"
+                                        );
+                                    }
+                                }
+                                else
+                                {
                                     // https://superuser.com/a/1309658
-                                    .AddParameter($"-vf subtitles=\"'{input}'\"");
+                                    conversion.AddParameter($"-vf subtitles=\"'{input}'\"");
+                                }
                             }
 
                             await conversion.Start();
