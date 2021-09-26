@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Extensions;
@@ -22,23 +23,36 @@ namespace Erabikata.Backend.CollectionManagers
             {
                 case IngestShows ingestShows:
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<EpisodeInfo>.Empty);
-                    await _mongoCollection.InsertManyAsync(
-                        ingestShows.ShowsToIngest.SelectMany(
-                            ingest =>
-                                ingest.Info.Episodes[0].Select(
-                                    info => new EpisodeInfo(info.Key.ParseId(), info.File)
-                                )
+                    var toInsert = await Task.WhenAll(
+                        ingestShows.ShowsToIngest.Select(
+                            async ingest =>
+                            {
+                                var tracksFile = ingest.Files.FirstOrDefault(
+                                    path => path.EndsWith("english/include_tracks.txt")
+                                );
+                                var subTracks =
+                                    tracksFile == null
+                                        ? null
+                                        : await File.ReadAllLinesAsync(tracksFile);
+                                return ingest.Info.Episodes[0].Select(
+                                    info =>
+                                        new EpisodeInfo(
+                                            info.Key.ParseId(),
+                                            info.File,
+                                            subTracks?.ToHashSet()
+                                        )
+                                );
+                            }
                         )
                     );
+                    await _mongoCollection.InsertManyAsync(toInsert.SelectMany(a => a));
                     break;
             }
         }
 
-        public Task<string?> GetFilePathOfEpisode(int episodeId)
+        public async Task<EpisodeInfo?> GetEpisodeInfo(int episodeId)
         {
-            return _mongoCollection.Find(info => info.Id == episodeId)
-                .Project(info => info.File)
-                .FirstOrDefaultAsync()!;
+            return await _mongoCollection.Find(info => info.Id == episodeId).FirstOrDefaultAsync();
         }
     }
 }
