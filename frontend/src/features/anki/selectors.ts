@@ -54,14 +54,14 @@ export const selectSentenceTextToSend = (state: RootState) => {
                 )
                 .join('')
         )
-        .join('\n');
+        .join('<br>');
 };
 
 export const selectMeaningTextToSend = (state: RootState) => {
     const args = selectMeaningTimeToSend(state);
     if (args) {
         const { data } = apiEndpoints.engSubsIndex.select(args)(state);
-        return data?.dialog[0].text.join('\n');
+        return data?.dialog[0].text.join('<br>');
     }
 };
 
