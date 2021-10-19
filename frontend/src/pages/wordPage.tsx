@@ -29,7 +29,7 @@ export const SearchWordPage: FC = () => {
     if (word) {
         const wordId =
             parseInt(word) ||
-            parseInt(/http:\/\/takoboto\.jp\/?\?w=(\d+)/.exec(word)?.[1]!);
+            parseInt(/https?:\/\/takoboto\.jp\/?\?w=(\d+)/.exec(word)?.[1]!);
 
         if (wordId) {
             return <Redirect to={`/ui/word/${wordId}`} />;
