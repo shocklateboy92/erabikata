@@ -103,6 +103,7 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<WordInfo>> GetSortedWordCounts(
             IEnumerable<string> ignoredPartsOfSpeech,
+            IEnumerable<int> wordsToSkip,
             int pagingInfoMax,
             int pagingInfoSkip
         ) {
@@ -113,6 +114,7 @@ namespace Erabikata.Backend.CollectionManagers
                         && !word.Meanings.Any(
                             meaning => meaning.Tags.Any(s => ignoredPartsOfSpeech.Contains(s))
                         )
+                        && !wordsToSkip.Contains(word.Id)
                 )
                 .SortByDescending(info => info.TotalOccurrences)
                 .Skip(pagingInfoSkip)

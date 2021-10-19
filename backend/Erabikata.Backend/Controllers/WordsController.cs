@@ -41,15 +41,18 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public async Task<IEnumerable<WordRankInfo>> Ranked2(
             Analyzer analyzer,
-            [FromQuery] PagingInfo pagingInfo
+            [FromQuery] PagingInfo pagingInfo,
+            bool skipKnown = true
         ) {
             if (analyzer.ToAnalyzerMode() != Constants.DefaultAnalyzerMode)
             {
                 return Array.Empty<WordRankInfo>();
             }
 
+            var wordsToSkip = skipKnown ? await _ankiWords.GetAllKnownWords() : new();
             var ranks = await _wordInfo.GetSortedWordCounts(
                 ArraySegment<string>.Empty,
+                wordsToSkip,
                 pagingInfo.Max,
                 pagingInfo.Skip
             );
