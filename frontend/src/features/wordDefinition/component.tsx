@@ -52,6 +52,9 @@ export const Definition: FC<{
                 id={isPrimary ? PRIMARY_ELEMENT_ID : undefined}
                 className={styles.title}
                 onClick={() => {
+                    if (isPrimary) {
+                        return;
+                    }
                     dispatch(wordPromotion(wordId));
                     document
                         .getElementById(PRIMARY_ELEMENT_ID)
