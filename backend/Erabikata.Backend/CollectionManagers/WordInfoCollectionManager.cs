@@ -101,6 +101,16 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
+        public Task<List<int>> GetSortedWords(IEnumerable<int> wordsToSkip)
+        {
+            return _mongoCollection.Find(
+                    word => word.TotalOccurrences > 0 && !wordsToSkip.Contains(word.Id)
+                )
+                .SortByDescending(info => info.TotalOccurrences)
+                .Project(word => word.Id)
+                .ToListAsync();
+        }
+
         public Task<List<WordInfo>> GetSortedWordCounts(
             IEnumerable<string> ignoredPartsOfSpeech,
             IEnumerable<int> wordsToSkip,

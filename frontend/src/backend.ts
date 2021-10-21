@@ -38,6 +38,9 @@ const api = generatedApi
                         id: response?.wordId
                     }
                 ]
+            },
+            wordsUnknownRanks: {
+                providesTags: ['KnownWords']
             }
         }
     })
@@ -85,6 +88,7 @@ export const {
     useEngSubsShowIdOfQuery,
     useActionsExecuteMutation,
     useExecuteActionMutation,
+    useWordsUnknownRanksQuery,
     useWordsKnownQuery,
     useEngSubsActiveStylesForQuery,
     useEngSubsByStyleNameQuery,

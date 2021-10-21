@@ -4,7 +4,7 @@ import React, { FC } from 'react';
 import styles from './wordDefinition.module.scss';
 import { Pill } from '../../components/pill';
 import { Link } from 'react-router-dom';
-import { useWordsKnownQuery } from 'backend';
+import { useWordsKnownQuery, useWordsUnknownRanksQuery } from 'backend';
 import { selectWordDefinition } from './selectors';
 import { useDispatch } from 'react-redux';
 import { wordPromotion } from 'features/selectedWord';
@@ -36,6 +36,15 @@ export const Definition: FC<{
         {
             selectFromResult: (result) => ({
                 isKnown: result.data?.includes(wordId)
+            })
+        }
+    );
+
+    const { unknownRank } = useWordsUnknownRanksQuery(
+        {},
+        {
+            selectFromResult: (result) => ({
+                unknownRank: result.data?.[wordId]
             })
         }
     );
@@ -74,6 +83,7 @@ export const Definition: FC<{
                 </Link>
             )}
             {episodeRank && <Pill>Episode {episodeRank}</Pill>}
+            {unknownRank && <Pill>Unkown {unknownRank}</Pill>}
             {priorities.news && <Pill>News</Pill>}
             {priorities.ichi && <Pill>Ichimango</Pill>}
             {priorities.gai && <Pill>Loanword</Pill>}

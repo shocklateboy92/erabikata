@@ -128,6 +128,16 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
+        public async Task<IDictionary<string, long?>> UnknownRanks()
+        {
+            var knownWords = await _ankiWords.GetAllKnownWords();
+            var ranks = await _wordInfo.GetSortedWords(knownWords);
+            return ranks.Select((word, index) => new WordRank(word, index * 100 / ranks.Count + 1))
+                .ToDictionary(w => w.Id.ToString(), w => w.Rank);
+        }
+
+        [HttpGet]
+        [Route("[action]")]
         public async Task<object> EpisodeTotal(
             [BindRequired] Analyzer analyzer,
             [BindRequired] int episodeId
