@@ -1,7 +1,9 @@
+import { useTypedSelector } from 'app/hooks';
 import { FullPageError } from 'components/fullPageError';
 import { Page } from 'components/page';
 import { SelectedWord } from 'features/selectedWord';
 import React, { FC } from 'react';
+import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { Redirect, useParams } from 'react-router-dom';
 import { WordOccurrences } from '../features/wordContext/occurrences';
 
@@ -11,12 +13,16 @@ export const WordPage: FC = () => {
     }>();
 
     const parsedId = parseInt(wordId);
+    const title = useTypedSelector(
+        (state) =>
+            selectWordDefinition(state, parsedId)?.japanese[0].kanji ?? wordId
+    );
     if (!parsedId) {
         return <FullPageError>Error: Invalid word id: {wordId}</FullPageError>;
     }
 
     return (
-        <Page title={wordId} secondaryChildren={() => <SelectedWord />}>
+        <Page title={title} secondaryChildren={() => <SelectedWord />}>
             <WordOccurrences wordId={parsedId} />
         </Page>
     );
