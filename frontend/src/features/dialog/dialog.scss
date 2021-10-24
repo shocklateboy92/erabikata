@@ -14,20 +14,20 @@
             user-select: none;
         }
     }
+
+    .active {
+        color: $highlight-color;
+    }
+
+    .lines {
+        white-space: pre-line;
+    }
 }
 
-.active {
-    color: $highlight-color;
-}
-
-.busy {
-    opacity: 0.5;
-}
-
-.scrollButton {
+.dialog-scroll-button {
     margin: auto;
-}
 
-.lines {
-    white-space: pre-line;
+    .busy {
+        opacity: 0.5;
+    }
 }

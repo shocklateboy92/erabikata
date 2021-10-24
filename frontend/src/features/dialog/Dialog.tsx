@@ -10,7 +10,7 @@ import {
 } from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
-import styles from './dialog.module.scss';
+import './dialog.scss';
 import { useSubsByIdQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
@@ -34,13 +34,13 @@ export const Dialog: FC<{
     const { text, episodeName, episodeId, time } = result.data;
 
     return (
-        <div className={styles.container}>
+        <div className="dialog-container">
             {!compact && (
-                <div className={styles.metadata}>
+                <div className="metadata">
                     {formatTime(text.startTime)} {showTitle && episodeName}
                 </div>
             )}
-            <div className={styles.lines}>
+            <div className="lines">
                 {text.words.map((line, lineIndex) => (
                     <Fragment key={lineIndex}>
                         {lineIndex > 0 && <br />}
@@ -115,7 +115,7 @@ const SelectableRuby: FC<
         alwaysHighlightSelectedWord?: boolean;
     } & React.ComponentProps<typeof Ruby>
 > = ({ episode, time, wordIds, alwaysHighlightSelectedWord, ...restProps }) => {
-    const isActive = useTypedSelector((state) => {
+    const active = useTypedSelector((state) => {
         const selectedWord = selectSelectedWord(state);
         return (
             ((selectedWord?.episode === episode &&
@@ -127,7 +127,7 @@ const SelectableRuby: FC<
 
     return (
         <Ruby
-            className={classNames({ [styles.active]: isActive })}
+            className={classNames({ active })}
             wordIds={wordIds}
             {...restProps}
         />

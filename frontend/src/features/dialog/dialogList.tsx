@@ -6,7 +6,7 @@ import { Dialog } from 'features/dialog/Dialog';
 import React, { FC, useEffect, useState } from 'react';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { useNearbyDialogQuery } from './api';
-import styles from './dialog.module.scss';
+import './dialog.scss';
 
 export interface IDialogListProps {
     count: number;
@@ -67,8 +67,8 @@ const BeginScrollButton: FC<IScrollButtonProps> = ({
 }) => {
     return (
         <InlineButton
-            className={classNames(styles.scrollButton, {
-                [styles.busy]: isLoading
+            className={classNames('dialog-scroll-button', {
+                busy: isLoading
             })}
             complex
             small
