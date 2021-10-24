@@ -11,7 +11,7 @@ import {
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import './dialog.scss';
-import { useSubsByIdQuery } from 'backend';
+import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import Icon from '@mdi/react';
@@ -124,10 +124,18 @@ const SelectableRuby: FC<
             selectedWord.wordIds.find((a) => wordIds.includes(a))
         );
     });
+    const { known } = useWordsKnownQuery(
+        {},
+        {
+            selectFromResult: (result) => ({
+                known: wordIds.every((id) => result.data?.includes(id))
+            })
+        }
+    );
 
     return (
         <Ruby
-            className={classNames({ active })}
+            className={classNames({ active, known })}
             wordIds={wordIds}
             {...restProps}
         />
