@@ -50,44 +50,70 @@ const createConnection = async (
 
 export const updatePlayerList = createAsyncThunk(
     'hass/updatePlayers',
-    async (context: IHassContext, { dispatch }) => {
-        if (!context.connection) {
-            context.connection = await createConnection(dispatch);
+    async (_, { dispatch }) => {
+        if (!globalContext.connection) {
+            globalContext.connection = await createConnection(dispatch);
         }
 
-        const states = await hass.getStates(context.connection);
+        const states = await hass.getStates(globalContext.connection);
         return Object.fromEntries(states.map((e) => [e.entity_id, e]));
     }
 );
 
 export const pause = createAsyncThunk(
     'hass/pause',
-    async (context: IHassContext, { getState, dispatch }) => {
+    async (_, { getState, dispatch }) => {
         const state = getState() as RootState;
         const entity_id = withPlayerOverrides(selectSelectedPlayerId(state));
         if (!entity_id) {
             return;
         }
 
-        if (!context.connection) {
-            context.connection = await createConnection(dispatch);
+        if (!globalContext.connection) {
+            globalContext.connection = await createConnection(dispatch);
         }
 
-        await hass.callService(context.connection, DOMAIN, 'media_pause', {
-            entity_id
-        });
+        await hass.callService(
+            globalContext.connection,
+            DOMAIN,
+            'media_pause',
+            {
+                entity_id
+            }
+        );
+    }
+);
+
+export const togglePlayback = createAsyncThunk(
+    'hass/media_play_pause',
+    async (_, { getState, dispatch }) => {
+        const state = getState() as RootState;
+        const entity_id = withPlayerOverrides(selectSelectedPlayerId(state));
+        if (!entity_id) {
+            return;
+        }
+
+        if (!globalContext.connection) {
+            globalContext.connection = await createConnection(dispatch);
+        }
+
+        await hass.callService(
+            globalContext.connection,
+            DOMAIN,
+            'media_play_pause',
+            {
+                entity_id
+            }
+        );
     }
 );
 
 const DOMAIN = 'media_player';
 export const playFrom = createAsyncThunk(
     'hass/playFrom',
-    async (
-        args: { context: IHassContext; timeStamp: number },
-        { getState, dispatch }
-    ) => {
-        if (!args.context.connection) {
-            args.context.connection = await createConnection(dispatch);
+    async (args: { timeStamp: number }, { getState, dispatch }) => {
+        if (!globalContext.connection) {
+            globalContext.connection = await createConnection(dispatch);
         }
 
         const state = getState();
@@ -98,11 +124,11 @@ export const playFrom = createAsyncThunk(
             selectSelectedPlayerId(state as RootState)
         );
 
-        await hass.callService(args.context.connection, DOMAIN, 'media_seek', {
+        await hass.callService(globalContext.connection, DOMAIN, 'media_seek', {
             entity_id,
             seek_position: args.timeStamp
         });
-        await hass.callService(args.context.connection, DOMAIN, 'media_play', {
+        await hass.callService(globalContext.connection, DOMAIN, 'media_play', {
             entity_id
         });
     }
@@ -114,5 +140,4 @@ const withPlayerOverrides = (entity_id: string | null) => entity_id;
 interface IHassContext {
     connection?: hass.Connection;
 }
-export const HassContext = React.createContext<IHassContext>({});
-export const useHass = () => useContext(HassContext);
+const globalContext: IHassContext = {};

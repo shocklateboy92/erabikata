@@ -3,6 +3,7 @@ import store, { AppThunk } from 'app/store';
 import history from 'appHistory';
 import { selectSentenceTextToSend } from 'features/anki/selectors';
 import { toggleWordFurigana } from 'features/furigana';
+import { togglePlayback } from 'features/hass';
 import { notification } from 'features/notifications';
 import {
     dialogWordShift,
@@ -23,16 +24,20 @@ import {
 import { generateDialogLink } from 'routing/linkGen';
 import { selectSelectedEnglishDialog } from '../engDialog';
 
-const copyAction = (
-    selector: (state: RootState) => string | undefined,
-    name: string
-): AppThunk => (dispatch, getState) => {
-    const text = selector(getState());
-    if (text) {
-        navigator.clipboard.writeText(text);
-        dispatch(notification({ title: `${name} copied to clipboard`, text }));
-    }
-};
+const copyAction =
+    (
+        selector: (state: RootState) => string | undefined,
+        name: string
+    ): AppThunk =>
+    (dispatch, getState) => {
+        const text = selector(getState());
+        if (text) {
+            navigator.clipboard.writeText(text);
+            dispatch(
+                notification({ title: `${name} copied to clipboard`, text })
+            );
+        }
+    };
 
 const handlers: {
     key: string;
@@ -191,6 +196,11 @@ const handlers: {
                 .map((word) => word.tags.join(', '))
                 .join('\n\n');
         }, 'Primary word notes')
+    },
+
+    {
+        key: ' ',
+        action: (dispatch) => dispatch(togglePlayback())
     }
 ];
 
