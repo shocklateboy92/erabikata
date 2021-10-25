@@ -175,9 +175,10 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public Task<List<int>> Known()
+        public async Task<IReadOnlyDictionary<string, bool>> Known()
         {
-            return _ankiWords.GetAllKnownWords();
+            var words = await _ankiWords.GetAllKnownWords();
+            return words.ToDictionary(w => w.ToString(), _ => true);
         }
 
         [HttpGet]

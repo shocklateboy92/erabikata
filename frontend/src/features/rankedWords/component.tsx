@@ -17,7 +17,7 @@ const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
         {},
         {
             selectFromResult: (result) => ({
-                isKnown: result.data?.includes(id)
+                isKnown: result.data?.[id]
             })
         }
     );
@@ -29,7 +29,7 @@ const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
         <div
             className={classNames(styles.word, {
                 [styles.active]: isActive,
-				[styles.known]: isKnown
+                [styles.known]: isKnown
             })}
             onClick={() => dispatch(wordSelectionV2([id]))}
         >

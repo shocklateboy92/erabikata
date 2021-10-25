@@ -35,7 +35,7 @@ export const Definition: FC<{
         {},
         {
             selectFromResult: (result) => ({
-                isKnown: result.data?.includes(wordId)
+                isKnown: result.data?.[wordId]
             })
         }
     );

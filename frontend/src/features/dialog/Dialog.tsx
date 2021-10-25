@@ -128,7 +128,7 @@ const SelectableRuby: FC<
         {},
         {
             selectFromResult: (result) => ({
-                known: wordIds.every((id) => result.data?.includes(id))
+                known: wordIds.every((id) => result.data?.[id])
             })
         }
     );
