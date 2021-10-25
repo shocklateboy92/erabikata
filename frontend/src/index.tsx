@@ -6,7 +6,6 @@ import './app.scss';
 import * as serviceWorker from './serviceWorkerRegistration';
 import { Provider } from 'react-redux';
 import store from './app/store';
-import { HassContext } from 'features/hass';
 import { Router } from 'react-router-dom';
 import { AppSwitch } from './features/routing/switch';
 import history from './appHistory';
@@ -15,15 +14,13 @@ import { reactPlugin } from 'appInsights';
 
 ReactDOM.render(
     <React.StrictMode>
-        <HassContext.Provider value={{}}>
-            <Provider store={store}>
-                <AppInsightsContext.Provider value={reactPlugin}>
-                    <Router history={history}>
-                        <AppSwitch />
-                    </Router>
-                </AppInsightsContext.Provider>
-            </Provider>
-        </HassContext.Provider>
+        <Provider store={store}>
+            <AppInsightsContext.Provider value={reactPlugin}>
+                <Router history={history}>
+                    <AppSwitch />
+                </Router>
+            </AppInsightsContext.Provider>
+        </Provider>
     </React.StrictMode>,
     document.getElementById('root')
 );
