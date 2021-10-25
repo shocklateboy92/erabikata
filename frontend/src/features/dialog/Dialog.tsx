@@ -8,7 +8,7 @@ import {
     encodeSelectionParams,
     selectSelectedWord
 } from 'features/selectedWord';
-import React, { FC, Fragment } from 'react';
+import React, { FC, Fragment, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import './dialog.scss';
 import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
@@ -23,11 +23,25 @@ export const Dialog: FC<{
     dialogId: string;
     showTitle?: boolean;
     compact?: boolean;
+    autoSelect?: boolean;
     forWord?: number;
-}> = ({ forWord, dialogId, compact, showTitle }) => {
+}> = ({ forWord, dialogId, compact, showTitle, autoSelect }) => {
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const result = useSubsByIdQuery({ id: dialogId, analyzer });
+    useEffect(() => {
+        if (!result.data || !autoSelect) {
+            return;
+        }
+
+        dispatch(
+            dialogSelection({
+                time: result.data.time,
+                episode: result.data.episodeId
+            })
+        );
+    }, [dispatch, autoSelect, result.data]);
+
     if (!result.data) {
         return <QueryPlaceholder result={result} quiet />;
     }

@@ -12,6 +12,7 @@ export interface IDialogListProps {
     count: number;
     episode: string;
     time: number;
+    autoSelectNearest?: boolean;
 }
 
 export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
@@ -40,8 +41,12 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
                 Load Previous
             </BeginScrollButton>
 
-            {dialog.map(({ dialogId }) => (
-                <Dialog key={dialogId} dialogId={dialogId} />
+            {dialog.map(({ dialogId }, index) => (
+                <Dialog
+                    key={dialogId}
+                    dialogId={dialogId}
+                    autoSelect={index === count - 1}
+                />
             ))}
 
             <BeginScrollButton

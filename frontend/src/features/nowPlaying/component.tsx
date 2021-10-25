@@ -51,6 +51,7 @@ export const NowPlaying: FC = () => {
                 count={5}
                 episode={session.media.id.toString()}
                 time={session.media.position}
+                autoSelectNearest
             />
             <WakeLock />
         </Page>
