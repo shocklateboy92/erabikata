@@ -4,7 +4,7 @@ import history from 'appHistory';
 import { apiEndpoints } from 'backend';
 import { selectSentenceTextToSend } from 'features/anki/selectors';
 import { toggleWordFurigana } from 'features/furigana';
-import { togglePlayback } from 'features/hass';
+import { playFrom, togglePlayback } from 'features/hass';
 import { notification } from 'features/notifications';
 import {
     dialogWordShift,
@@ -208,6 +208,15 @@ const handlers: {
         key: 'i',
         action: (dispatch) => dispatch(togglePlayback())
     },
+    {
+        key: 'p',
+        action: (dispatch, getState) => {
+            const timeStamp = getState().selectedWord.sentenceTimestamp;
+            if (timeStamp) {
+                dispatch(playFrom({ timeStamp }));
+            }
+        }
+    },
 
     {
         key: 'o',
@@ -221,7 +230,9 @@ const handlers: {
                     word.definitionIds.find((id) => !known?.[id.toString()])
                 );
 
-            firstUnkown && dispatch(wordSelectionV2(firstUnkown.definitionIds));
+            if (firstUnkown) {
+                dispatch(wordSelectionV2(firstUnkown.definitionIds));
+            }
         }
     }
 ];
