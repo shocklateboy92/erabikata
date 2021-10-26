@@ -15,7 +15,12 @@ export interface IDialogListProps {
     autoSelectNearest?: boolean;
 }
 
-export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
+export const DialogList: FC<IDialogListProps> = ({
+    episode,
+    time,
+    count,
+    autoSelectNearest
+}) => {
     const [timeOverride, setTimeOverride] = useState(time);
 
     const { response, dialog } = useNearbyDialogQuery(
@@ -45,7 +50,7 @@ export const DialogList: FC<IDialogListProps> = ({ episode, time, count }) => {
                 <Dialog
                     key={dialogId}
                     dialogId={dialogId}
-                    autoSelect={index === count - 1}
+                    autoSelect={autoSelectNearest && index === count - 1}
                 />
             ))}
 
