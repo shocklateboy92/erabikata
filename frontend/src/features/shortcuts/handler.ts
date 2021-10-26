@@ -92,7 +92,7 @@ const handlers: {
         }
     },
     {
-        key: 'L',
+        key: 'l',
         action: (dispatch, getState) =>
             dispatch(
                 dialogWordShift({
@@ -102,7 +102,7 @@ const handlers: {
             )
     },
     {
-        key: 'H',
+        key: 'h',
         action: (dispatch, getState) =>
             dispatch(
                 dialogWordShift({
@@ -112,7 +112,7 @@ const handlers: {
             )
     },
     {
-        key: 'J',
+        key: 'j',
         action: (dispatch, getState) => {
             dispatch(
                 episodeDialogShift({
@@ -123,7 +123,7 @@ const handlers: {
         }
     },
     {
-        key: 'K',
+        key: 'k',
         action: (dispatch, getState) => {
             dispatch(
                 episodeDialogShift({
