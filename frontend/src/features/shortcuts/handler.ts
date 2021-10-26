@@ -1,6 +1,7 @@
 import { RootState } from 'app/rootReducer';
 import store, { AppThunk } from 'app/store';
 import history from 'appHistory';
+import { apiEndpoints } from 'backend';
 import { selectSentenceTextToSend } from 'features/anki/selectors';
 import { toggleWordFurigana } from 'features/furigana';
 import { togglePlayback } from 'features/hass';
@@ -15,7 +16,8 @@ import {
     selectSelectedEpisodeContent,
     selectSelectedWord,
     selectSelectedWordOccurrences,
-    selectSelectedWords
+    selectSelectedWords,
+    wordSelectionV2
 } from 'features/selectedWord';
 import {
     selectDefinitionsById,
@@ -201,6 +203,26 @@ const handlers: {
     {
         key: ' ',
         action: (dispatch) => dispatch(togglePlayback())
+    },
+    {
+        key: 'i',
+        action: (dispatch) => dispatch(togglePlayback())
+    },
+
+    {
+        key: 'o',
+        action: (dispatch, getState) => {
+            const state = getState();
+            const dialog = selectNearestSelectedDialog(state);
+            const { data: known } = apiEndpoints.wordsKnown.select({})(state);
+            const firstUnkown = dialog?.words
+                .flat()
+                .find((word) =>
+                    word.definitionIds.find((id) => !known?.[id.toString()])
+                );
+
+            firstUnkown && dispatch(wordSelectionV2(firstUnkown.definitionIds));
+        }
     }
 ];
 

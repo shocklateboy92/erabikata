@@ -6,6 +6,8 @@ import {
     dialogSelection,
     dialogWordSelectionV2,
     encodeSelectionParams,
+    selectIsCurrentlySelected,
+    selectSelectedEpisodeTime,
     selectSelectedWord
 } from 'features/selectedWord';
 import React, { FC, Fragment, useEffect } from 'react';
@@ -15,8 +17,9 @@ import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
 import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import Icon from '@mdi/react';
-import { mdiImport, mdiShare } from '@mdi/js';
+import { mdiImport, mdiRadioboxMarked, mdiShare } from '@mdi/js';
 import { Link } from 'react-router-dom';
+import { Row } from 'components/layout';
 
 const ICON_SIZE = '2em';
 export const Dialog: FC<{
@@ -29,6 +32,10 @@ export const Dialog: FC<{
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const result = useSubsByIdQuery({ id: dialogId, analyzer });
+    const data = result.data;
+    const isActive = useTypedSelector((state) =>
+        selectIsCurrentlySelected(state, data?.episodeId, data?.time)
+    );
     useEffect(() => {
         if (!result.data || !autoSelect) {
             return;
@@ -51,7 +58,13 @@ export const Dialog: FC<{
         <div className="dialog-container">
             {!compact && (
                 <div className="metadata">
-                    {formatTime(text.startTime)} {showTitle && episodeName}
+                    <Row>
+                        {isActive && <Icon path={mdiRadioboxMarked} />}
+                        <span>
+                            {formatTime(text.startTime)}{' '}
+                            {showTitle && episodeName}
+                        </span>
+                    </Row>
                 </div>
             )}
             <div className="lines">

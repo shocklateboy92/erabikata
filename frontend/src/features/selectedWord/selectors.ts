@@ -7,8 +7,8 @@ import { IEpisodeTime } from 'features/anki/ankiSlice';
 
 export const selectIsCurrentlySelected = (
     state: RootState,
-    episodeId: string,
-    time: number
+    episodeId?: string,
+    time?: number
 ) =>
     state.selectedWord.episode === episodeId &&
     state.selectedWord.sentenceTimestamp === time;

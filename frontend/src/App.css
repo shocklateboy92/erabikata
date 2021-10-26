@@ -45,3 +45,7 @@ input + label {
         display: none;
     }
 }
+
+svg {
+    height: 1em;
+}
