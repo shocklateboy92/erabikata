@@ -1,6 +1,6 @@
 import { useTypedSelector } from 'app/hooks';
 import classNames from 'classnames';
-import { pause, selectIsCurrentPlayerActive } from 'features/hass';
+import { selectIsCurrentPlayerActive, togglePlayback } from 'features/hass';
 import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import logo from './logo.svg';
@@ -20,7 +20,7 @@ export const SpinnerTop: FC = () => {
                 [styles.inactive]: !isActive
             })}
             onClick={() => {
-                dispatch(pause());
+                dispatch(togglePlayback());
             }}
         >
             <img src={logo} className={styles.logo} alt="logo" />

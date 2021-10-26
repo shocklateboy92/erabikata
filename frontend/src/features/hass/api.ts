@@ -6,7 +6,6 @@ import {
 } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import * as hass from 'home-assistant-js-websocket';
-import React, { useContext } from 'react';
 import {
     hassEntityUpdate,
     hassSocketDisconnection,
@@ -57,30 +56,6 @@ export const updatePlayerList = createAsyncThunk(
 
         const states = await hass.getStates(globalContext.connection);
         return Object.fromEntries(states.map((e) => [e.entity_id, e]));
-    }
-);
-
-export const pause = createAsyncThunk(
-    'hass/pause',
-    async (_, { getState, dispatch }) => {
-        const state = getState() as RootState;
-        const entity_id = withPlayerOverrides(selectSelectedPlayerId(state));
-        if (!entity_id) {
-            return;
-        }
-
-        if (!globalContext.connection) {
-            globalContext.connection = await createConnection(dispatch);
-        }
-
-        await hass.callService(
-            globalContext.connection,
-            DOMAIN,
-            'media_pause',
-            {
-                entity_id
-            }
-        );
     }
 );
 
