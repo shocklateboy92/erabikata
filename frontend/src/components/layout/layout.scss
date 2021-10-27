@@ -3,7 +3,7 @@
         display: flex;
         align-items: center;
 
-        > * :not(:first-child) {
+        > *:not(:first-child) {
             margin-left: 1vw;
         }
     }
