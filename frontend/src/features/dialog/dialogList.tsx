@@ -50,7 +50,11 @@ export const DialogList: FC<IDialogListProps> = ({
                 <Dialog
                     key={dialogId}
                     dialogId={dialogId}
-                    autoSelect={autoSelectNearest && index === count - 1}
+                    autoSelect={
+                        autoSelectNearest &&
+                        timeOverride === time &&
+                        index === count - 1
+                    }
                 />
             ))}
 
