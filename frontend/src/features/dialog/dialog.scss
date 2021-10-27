@@ -6,6 +6,18 @@
 
     .metadata {
         margin-bottom: 0.25em;
+        white-space: nowrap;
+        > span {
+            vertical-align: middle;
+            display: inline-block;
+
+            &.content {
+                white-space: normal;
+            }
+            &.icon {
+                margin-right: 1vw;
+            }
+        }
     }
 
     ruby {

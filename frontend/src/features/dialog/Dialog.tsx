@@ -58,13 +58,12 @@ export const Dialog: FC<{
         <div className="dialog-container">
             {!compact && (
                 <div className="metadata">
-                    <Row>
+                    <span className="icon">
                         {isActive && <Icon path={mdiRadioboxMarked} />}
-                        <span>
-                            {formatTime(text.startTime)}{' '}
-                            {showTitle && episodeName}
-                        </span>
-                    </Row>
+                    </span>
+                    <span className="content">
+                        {formatTime(text.startTime)} {showTitle && episodeName}
+                    </span>
                 </div>
             )}
             <div className="lines">
