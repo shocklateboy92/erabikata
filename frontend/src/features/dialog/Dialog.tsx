@@ -29,6 +29,7 @@ export const Dialog: FC<{
 }> = ({ forWord, dialogId, compact, showTitle, autoSelect }) => {
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
+    const ref = useRef<HTMLDivElement>(null);
     const result = useSubsByIdQuery({ id: dialogId, analyzer });
     const data = result.data;
     const isActive = useTypedSelector((state) =>
@@ -45,6 +46,7 @@ export const Dialog: FC<{
                 episode: result.data.episodeId
             })
         );
+        ref.current?.scrollIntoView({ block: 'nearest' });
     }, [dispatch, autoSelect, result.data]);
 
     if (!result.data) {
@@ -53,7 +55,7 @@ export const Dialog: FC<{
     const { text, episodeName, episodeId, time } = result.data;
 
     return (
-        <div className="dialog-container">
+        <div className="dialog-container" ref={ref}>
             {!compact && (
                 <div className="metadata">
                     {isActive && (
