@@ -3,6 +3,7 @@ $pill-radius: 5px;
 .pill {
     font-size: small;
     margin-right: 1vw;
+    white-space: nowrap;
 
     > * {
         border: thin white solid;
@@ -28,3 +29,4 @@ $pill-radius: 5px;
         }
     }
 }
+
