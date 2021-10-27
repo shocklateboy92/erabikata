@@ -25,8 +25,9 @@ export const Dialog: FC<{
     showTitle?: boolean;
     compact?: boolean;
     autoSelect?: boolean;
+    scrollTo?: boolean;
     forWord?: number;
-}> = ({ forWord, dialogId, compact, showTitle, autoSelect }) => {
+}> = ({ forWord, dialogId, compact, showTitle, autoSelect, scrollTo }) => {
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const ref = useRef<HTMLDivElement>(null);
@@ -36,18 +37,23 @@ export const Dialog: FC<{
         selectIsCurrentlySelected(state, data?.episodeId, data?.time)
     );
     useEffect(() => {
-        if (!result.data || !autoSelect) {
+        if (!result.data) {
             return;
         }
 
-        dispatch(
-            dialogSelection({
-                time: result.data.time,
-                episode: result.data.episodeId
-            })
-        );
-        ref.current?.scrollIntoView({ block: 'nearest' });
-    }, [dispatch, autoSelect, result.data]);
+        if (autoSelect) {
+            dispatch(
+                dialogSelection({
+                    time: result.data.time,
+                    episode: result.data.episodeId
+                })
+            );
+        }
+
+        if (scrollTo) {
+            ref.current?.scrollIntoView({ block: 'nearest' });
+        }
+    }, [dispatch, autoSelect, scrollTo, result.data]);
 
     if (!result.data) {
         return <QueryPlaceholder result={result} quiet />;

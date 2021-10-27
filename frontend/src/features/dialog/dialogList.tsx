@@ -13,13 +13,15 @@ export interface IDialogListProps {
     episode: string;
     time: number;
     autoSelectNearest?: boolean;
+    scrollToSelected?: boolean;
 }
 
 export const DialogList: FC<IDialogListProps> = ({
     episode,
     time,
     count,
-    autoSelectNearest
+    autoSelectNearest,
+    scrollToSelected
 }) => {
     const [timeOverride, setTimeOverride] = useState(time);
 
@@ -46,7 +48,7 @@ export const DialogList: FC<IDialogListProps> = ({
                 Load Previous
             </BeginScrollButton>
 
-            {dialog.map(({ dialogId }, index) => (
+            {dialog.map(({ dialogId, time: dialogTime }, index) => (
                 <Dialog
                     key={dialogId}
                     dialogId={dialogId}
@@ -55,6 +57,7 @@ export const DialogList: FC<IDialogListProps> = ({
                         timeOverride === time &&
                         index === count - 1
                     }
+                    scrollTo={scrollToSelected && time === dialogTime}
                 />
             ))}
 

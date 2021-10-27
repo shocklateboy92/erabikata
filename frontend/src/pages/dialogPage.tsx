@@ -22,7 +22,12 @@ export const DialogPage: FC = () => {
     }
     return (
         <Page title={title} secondaryChildren={() => <SelectedWord />}>
-            <DialogList episode={episode} time={time} count={8} />
+            <DialogList
+                episode={episode}
+                time={time}
+                count={8}
+                scrollToSelected
+            />
         </Page>
     );
 };
