@@ -1,4 +1,7 @@
+import { mdiImport, mdiRadioboxMarked, mdiShare } from '@mdi/js';
+import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
+import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
 import classNames from 'classnames';
 import { formatTime } from 'components/time';
 import { Ruby } from 'features/furigana';
@@ -7,19 +10,14 @@ import {
     dialogWordSelectionV2,
     encodeSelectionParams,
     selectIsCurrentlySelected,
-    selectSelectedEpisodeTime,
     selectSelectedWord
 } from 'features/selectedWord';
-import React, { FC, Fragment, useEffect } from 'react';
+import React, { FC, Fragment, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
-import './dialog.scss';
-import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
-import { selectAnalyzer } from '../backendSelection';
-import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import Icon from '@mdi/react';
-import { mdiImport, mdiRadioboxMarked, mdiShare } from '@mdi/js';
 import { Link } from 'react-router-dom';
-import { Row } from 'components/layout';
+import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
+import { selectAnalyzer } from '../backendSelection';
+import './dialog.scss';
 
 const ICON_SIZE = '2em';
 export const Dialog: FC<{
@@ -58,9 +56,11 @@ export const Dialog: FC<{
         <div className="dialog-container">
             {!compact && (
                 <div className="metadata">
-                    <span className="icon">
-                        {isActive && <Icon path={mdiRadioboxMarked} />}
-                    </span>
+                    {isActive && (
+                        <span className="icon">
+                            <Icon path={mdiRadioboxMarked} />
+                        </span>
+                    )}
                     <span className="content">
                         {formatTime(text.startTime)} {showTitle && episodeName}
                     </span>
