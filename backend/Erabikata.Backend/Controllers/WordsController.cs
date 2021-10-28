@@ -177,13 +177,8 @@ namespace Erabikata.Backend.Controllers
         [Route("known/{wordId}/[action]")]
         public async Task<IEnumerable<NoteInfo>> Notes(int wordId)
         {
-            var word = await _ankiWords.GetWord(wordId);
-            if (word == null)
-            {
-                return Enumerable.Empty<NoteInfo>();
-            }
-
-            return word.NoteIds.Select(n => new NoteInfo(n));
+            var words = await _ankiWords.GetWord(wordId);
+            return words.Adapt<IEnumerable<NoteInfo>>();
         }
 
         [HttpGet]

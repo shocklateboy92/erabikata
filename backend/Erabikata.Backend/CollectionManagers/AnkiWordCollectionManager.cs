@@ -10,6 +10,7 @@ using Grpc.Core.Utils;
 using Mapster;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.CollectionManagers
@@ -21,7 +22,7 @@ namespace Erabikata.Backend.CollectionManagers
         private readonly WordInfoCollectionManager _wordInfoCollectionManager;
         private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
         private readonly ILogger<AnkiWordCollectionManager> _logger;
-        private readonly IMongoCollection<AnkiWord> _mongoCollection;
+        private readonly IMongoCollection<AnkiNote> _mongoCollection;
 
         public AnkiWordCollectionManager(
             IAnkiSyncClient ankiSyncClient,
@@ -33,25 +34,27 @@ namespace Erabikata.Backend.CollectionManagers
             _ankiSyncClient = ankiSyncClient;
             _analyzerServiceClient = analyzerServiceClient;
             _logger = logger;
-            _mongoCollection = database.GetCollection<AnkiWord>(nameof(AnkiWord));
+            _mongoCollection = database.GetCollection<AnkiNote>(nameof(AnkiNote));
             _wordInfoCollectionManager = wordInfoCollectionManager;
         }
 
         public async Task<bool> IsWordInAnki(int wordId)
         {
-            return await _mongoCollection.CountDocumentsAsync(word => word.WordId == wordId) > 0;
+            return await _mongoCollection.CountDocumentsAsync(word => word.WordIds.Contains(wordId))
+                > 0;
         }
 
         public Task<List<int>> GetAllKnownWords()
         {
-            return _mongoCollection.Find(FilterDefinition<AnkiWord>.Empty)
-                .Project(word => word.WordId)
+            return _mongoCollection.AsQueryable()
+                .SelectMany(n => n.WordIds)
+                .Distinct()
                 .ToListAsync();
         }
 
-        public async Task<AnkiWord?> GetWord(int wordId)
+        public Task<List<AnkiNote>> GetWord(int wordId)
         {
-            return await _mongoCollection.Find(word => word.WordId == wordId).FirstOrDefaultAsync();
+            return _mongoCollection.Find(note => note.WordIds.Contains(wordId)).ToListAsync();
         }
 
         public async Task OnActivityExecuting(Activity activity)
@@ -67,32 +70,20 @@ namespace Erabikata.Backend.CollectionManagers
                         _wordInfoCollectionManager.BuildWordMatcher()
                     );
 
-                    var totalWords = new List<(int wordId, long noteId)>();
-                    foreach (var (id, words) in noteTexts)
-                    {
-                        if (!words.Any())
-                        {
-                            _logger.LogWarning("nid:{nid} had no words", id);
-                            continue;
-                        }
-
-                        var newWords = matcher.FillMatchesAndGetWords(words);
-                        foreach (var word in newWords)
-                        {
-                            totalWords.Add((word, id));
-                        }
-                    }
-
-                    totalWords.AddRange(takobotoWords);
-
-                    var ankiWords = totalWords.GroupBy(
-                            word => word.wordId,
-                            (key, group) => new AnkiWord(key, group.Select(g => g.noteId))
+                    var ankiWords = noteTexts.Select(
+                            text =>
+                                new AnkiNote(
+                                    text.id,
+                                    matcher.FillMatchesAndGetWords(text.Item2).ToArray(),
+                                    text.primaryWord,
+                                    text.primaryWordReading
+                                )
                         )
+                        .Concat(takobotoWords)
                         .ToArray();
 
                     // Only clear the collection once we have the replacements ready.
-                    await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiWord>.Empty);
+                    await _mongoCollection.DeleteManyAsync(FilterDefinition<AnkiNote>.Empty);
 
                     await _mongoCollection.InsertManyAsync(
                         ankiWords,
@@ -107,21 +98,28 @@ namespace Erabikata.Backend.CollectionManagers
             RegexOptions.Compiled
         );
 
-        private async Task<IEnumerable<(int wordId, long noteId)>> GetTakobotoWords()
+        private async Task<IEnumerable<AnkiNote>> GetTakobotoWords()
         {
             var notes = await FindAndGetNoteInfo("note:jp.takoboto");
             return notes.Select(
                 note =>
-                    (
-                        int.Parse(
-                            TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[1].Value
-                        ),
-                        note.NoteId
+                    new AnkiNote(
+                        note.NoteId,
+                        new[]
+                        {
+                            int.Parse(
+                                TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[1].Value
+                            )
+                        },
+                        note.Fields["Japanese"].Value,
+                        note.Fields["Reading"].Value
                     )
             );
         }
 
-        private async Task<IEnumerable<(long id, Dialog.Word[])>> GetAndAnalyzeNoteTexts()
+        private async Task<
+            IEnumerable<(long id, Dialog.Word[], string primaryWord, string primaryWordReading)>
+        > GetAndAnalyzeNoteTexts()
         {
             var noteInfos = await FindAndGetNoteInfo("\"note:Jap Sentences 2\"");
             _logger.LogInformationString($"Got {noteInfos.Length} notes info");
@@ -134,14 +132,19 @@ namespace Erabikata.Backend.CollectionManagers
                         text = note.Fields["Text"].Value;
                     }
 
-                    return (note.NoteId, ProcessText(text));
+                    return (
+                        note.NoteId,
+                        ProcessText(text),
+                        note.Fields["PrimaryWord"].Value,
+                        note.Fields["PrimaryWordReading"].Value
+                    );
                 }
             );
 
             return await AnalyzeNoteTexts(noteTexts.ToArray());
         }
 
-        private async Task<AnkiNote[]> FindAndGetNoteInfo(string query)
+        private async Task<AnkiNoteResponse[]> FindAndGetNoteInfo(string query)
         {
             var notes = (
                 await _ankiSyncClient.FindNotes(new AnkiAction("findNotes", new { query }))
@@ -162,8 +165,10 @@ namespace Erabikata.Backend.CollectionManagers
         private string ProcessText(string text) =>
             TagsPattern.Replace(ReadingsPattern.Replace(text, string.Empty), " ");
 
-        private async Task<IEnumerable<(long id, Dialog.Word[])>> AnalyzeNoteTexts(
-            IReadOnlyList<(long id, string text)> noteTexts
+        private async Task<
+            IEnumerable<(long id, Dialog.Word[], string primaryWord, string primaryWordReading)>
+        > AnalyzeNoteTexts(
+            IReadOnlyList<(long id, string text, string primaryWord, string primaryWordReading)> noteTexts
         ) {
             var client = _analyzerServiceClient.AnalyzeBulk();
             await client.RequestStream.WriteAllAsync(
@@ -189,7 +194,10 @@ namespace Erabikata.Backend.CollectionManagers
                         );
                         return (
                             noteTexts[index].id,
-                            result.Words.Select(analyzed => analyzed.Adapt<Dialog.Word>()).ToArray()
+                            result.Words.Select(analyzed => analyzed.Adapt<Dialog.Word>())
+                                .ToArray(),
+                            noteTexts[index].primaryWord,
+                            noteTexts[index].primaryWordReading
                         );
                     }
                 )

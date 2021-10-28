@@ -15,7 +15,9 @@ namespace Erabikata.Backend.Models
         public Task<AnkiResponse<long[]>> FindNotes([Body(buffered: true)] AnkiAction action);
 
         [Post("/")]
-        public Task<AnkiResponse<AnkiNote[]>> NotesInfo([Body(buffered: true)] AnkiAction action);
+        public Task<AnkiResponse<AnkiNoteResponse[]>> NotesInfo(
+            [Body(buffered: true)] AnkiAction action
+        );
 
         [Post("/")]
         public Task<AnkiResponse<long?>> Execute([Body(buffered: true)] AddNoteAnkiAction action);
@@ -64,11 +66,11 @@ namespace Erabikata.Backend.Models
         public record PictureInfo(string Url, string Filename, string[] Fields);
     };
 
-    public record AnkiNote(
+    public record AnkiNoteResponse(
         long NoteId,
         string ModelName,
         IReadOnlyCollection<string> Tags,
-        IReadOnlyDictionary<string, AnkiNote.Field> Fields
+        IReadOnlyDictionary<string, AnkiNoteResponse.Field> Fields
     ) {
         public record Field(string Value, int Order);
     };
