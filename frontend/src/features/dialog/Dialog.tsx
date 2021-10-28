@@ -171,6 +171,7 @@ const SelectableRuby: FC<
         <Ruby
             className={classNames({ active, known })}
             wordIds={wordIds}
+            role="button"
             {...restProps}
         />
     );

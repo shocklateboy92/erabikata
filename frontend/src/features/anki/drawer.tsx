@@ -28,7 +28,15 @@ const DrawerContent: FC = () => {
         <>
             {data.map((note, index) => (
                 <div className="anki-note-info" key={index}>
-                    <Pill>{'nid:' + note.id}</Pill>
+                    <div>
+                        <ruby>
+                            {note.primaryWord}
+                            <rt>{note.primaryWordReading}</rt>
+                        </ruby>
+                    </div>
+                    <div className="nid">
+                        <Pill>{'nid:' + note.id}</Pill>
+                    </div>
                 </div>
             ))}
         </>
