@@ -90,6 +90,7 @@ export const {
     useExecuteActionMutation,
     useWordsUnknownRanksQuery,
     useWordsKnownQuery,
+    useWordsNotesQuery,
     useEngSubsActiveStylesForQuery,
     useEngSubsByStyleNameQuery,
     useEngSubsStylesOfQuery

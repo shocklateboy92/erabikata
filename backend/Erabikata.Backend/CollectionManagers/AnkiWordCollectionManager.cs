@@ -49,6 +49,11 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
+        public async Task<AnkiWord?> GetWord(int wordId)
+        {
+            return await _mongoCollection.Find(word => word.WordId == wordId).FirstOrDefaultAsync();
+        }
+
         public async Task OnActivityExecuting(Activity activity)
         {
             switch (activity)

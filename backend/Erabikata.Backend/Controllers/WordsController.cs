@@ -174,6 +174,19 @@ namespace Erabikata.Backend.Controllers
         }
 
         [HttpGet]
+        [Route("known/{wordId}/[action]")]
+        public async Task<IEnumerable<NoteInfo>> Notes(int wordId)
+        {
+            var word = await _ankiWords.GetWord(wordId);
+            if (word == null)
+            {
+                return Enumerable.Empty<NoteInfo>();
+            }
+
+            return word.NoteIds.Select(n => new NoteInfo(n));
+        }
+
+        [HttpGet]
         [Route("[action]")]
         public async Task<IReadOnlyDictionary<string, bool>> Known()
         {

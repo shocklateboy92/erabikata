@@ -1,5 +1,7 @@
 import { useTypedSelector } from 'app/hooks';
 import { Separator } from 'components/separator';
+import { AnkiDrawer } from 'features/anki/drawer';
+import { Drawer } from 'features/drawer';
 import { MediaControlsDrawer } from 'features/mediaControls';
 import { OccurrencesDrawer } from 'features/wordContext';
 import { WordDefinitionDrawer } from 'features/wordDefinition';
@@ -28,6 +30,8 @@ export const SelectedWord: FC = () => {
             <EngDialogDrawer />
             <Separator />
             <MediaControlsDrawer />
+            <Separator />
+            <AnkiDrawer />
             <Separator />
             <OccurrencesDrawer />
             <Separator />
