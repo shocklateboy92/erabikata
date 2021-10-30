@@ -26,9 +26,9 @@ export const SelectedWord: FC = () => {
             <Separator />
             <ImageContextDrawer />
             <Separator />
-            <EngDialogDrawer />
-            <Separator />
             <MediaControlsDrawer />
+            <Separator />
+            <EngDialogDrawer />
             <Separator />
             <AnkiDrawer />
             <Separator />
