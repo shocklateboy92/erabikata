@@ -152,9 +152,9 @@ const SelectableRuby: FC<
     const active = useTypedSelector((state) => {
         const selectedWord = selectSelectedWord(state);
         return (
-            ((selectedWord?.episode === episode &&
-                selectedWord.sentenceTimestamp === time) ||
-                alwaysHighlightSelectedWord) &&
+            (alwaysHighlightSelectedWord ||
+                (selectedWord.sentenceTimestamp === time &&
+                    selectedWord?.episode === episode)) &&
             selectedWord.wordIds.find((a) => wordIds.includes(a))
         );
     });
