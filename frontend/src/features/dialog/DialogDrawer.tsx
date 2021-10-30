@@ -1,20 +1,26 @@
-import React, { FC } from 'react';
-import { Drawer } from '../../features/drawer';
-import { Link } from 'react-router-dom';
-import { encodeSelectionParams, selectSelectedWord } from '../selectedWord';
-import Icon from '@mdi/react';
 import { mdiShare, mdiShareVariant } from '@mdi/js';
-import { DialogList } from './dialogList';
+import Icon from '@mdi/react';
+import { selectEpisodeTitle } from 'features/dialog/selectors';
+import React, { FC } from 'react';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { useTypedSelector } from '../../app/hooks';
 import { InlineButton } from '../../components/button';
-import { shareSelectedWordDialog } from '../selectedWord/api';
-import { useDispatch } from 'react-redux';
+import { Drawer } from '../../features/drawer';
 import { HassPlayButton } from '../hass';
+import { encodeSelectionParams, selectSelectedWord } from '../selectedWord';
+import { shareSelectedWordDialog } from '../selectedWord/api';
+import { DialogList } from './dialogList';
 
 export const DialogDrawer: FC = () => {
     const dispatch = useDispatch();
-    const { wordIds, sentenceTimestamp: time, episode } = useTypedSelector(
-        selectSelectedWord
+    const {
+        wordIds,
+        sentenceTimestamp: time,
+        episode
+    } = useTypedSelector(selectSelectedWord);
+    const episodeTitle = useTypedSelector(
+        (state) => episode && selectEpisodeTitle(state, episode)
     );
     if (!(time && episode)) {
         return null;
@@ -49,7 +55,8 @@ export const DialogDrawer: FC = () => {
                 </InlineButton>
             ]}
         >
-            {<DialogList episode={episode} time={time} count={2} />}
+            <h3 className="dialog-episode-title">{episodeTitle}</h3>
+            <DialogList episode={episode} time={time} count={2} />
         </Drawer>
     );
 };
