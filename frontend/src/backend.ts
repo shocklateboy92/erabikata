@@ -28,6 +28,7 @@ const api = generatedApi
             wordsKnown: {
                 providesTags: ['KnownWords']
             },
+            wordsNotes: { providesTags: ['KnownWords'] },
             engSubsIndex: {
                 providesTags: ['EngDialog']
             },
