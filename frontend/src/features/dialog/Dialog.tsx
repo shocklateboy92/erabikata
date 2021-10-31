@@ -31,21 +31,38 @@ export const Dialog: FC<{
     const dispatch = useDispatch();
     const analyzer = useTypedSelector(selectAnalyzer);
     const ref = useRef<HTMLDivElement>(null);
-    const result = useSubsByIdQuery({ id: dialogId, analyzer });
-    const data = result.data;
+    const { data, ...result } = useSubsByIdQuery({ id: dialogId, analyzer });
     const isActive = useTypedSelector((state) =>
         selectIsCurrentlySelected(state, data?.episodeId, data?.time)
     );
+    const knownWords = useWordsKnownQuery(
+        {},
+        {
+            selectFromResult: (result) =>
+                data
+                    ? Object.fromEntries(
+                          data.text.words.flatMap((l) =>
+                              l.flatMap((w) =>
+                                  w.definitionIds.map((d) => [
+                                      d,
+                                      !!result.data?.[d.toString()]
+                                  ])
+                              )
+                          )
+                      )
+                    : {}
+        }
+    );
     useEffect(() => {
-        if (!result.data) {
+        if (!data) {
             return;
         }
 
         if (autoSelect) {
             dispatch(
                 dialogSelection({
-                    time: result.data.time,
-                    episode: result.data.episodeId
+                    time: data.time,
+                    episode: data.episodeId
                 })
             );
         }
@@ -53,12 +70,12 @@ export const Dialog: FC<{
         if (scrollTo) {
             ref.current?.scrollIntoView({ block: 'nearest' });
         }
-    }, [dispatch, autoSelect, scrollTo, result.data]);
+    }, [dispatch, autoSelect, scrollTo, data]);
 
-    if (!result.data) {
+    if (!data) {
         return <QueryPlaceholder result={result} quiet />;
     }
-    const { text, episodeName, episodeId, time } = result.data;
+    const { text, episodeName, episodeId, time } = data;
 
     return (
         <div className="dialog-container" ref={ref}>
@@ -83,6 +100,7 @@ export const Dialog: FC<{
                                 key={index}
                                 episode={episodeId}
                                 alwaysHighlightSelectedWord={!!forWord}
+                                knownWords={knownWords}
                                 time={text.startTime}
                                 wordIds={word.definitionIds}
                                 onClick={() => {
@@ -146,9 +164,17 @@ const SelectableRuby: FC<
         episode: string;
         time: number;
         wordIds: number[];
+        knownWords: { [key: number]: boolean };
         alwaysHighlightSelectedWord?: boolean;
     } & React.ComponentProps<typeof Ruby>
-> = ({ episode, time, wordIds, alwaysHighlightSelectedWord, ...restProps }) => {
+> = ({
+    episode,
+    time,
+    wordIds,
+    knownWords,
+    alwaysHighlightSelectedWord,
+    ...restProps
+}) => {
     const active = useTypedSelector((state) => {
         const selectedWord = selectSelectedWord(state);
         return (
@@ -158,14 +184,7 @@ const SelectableRuby: FC<
             selectedWord.wordIds.find((a) => wordIds.includes(a))
         );
     });
-    const { known } = useWordsKnownQuery(
-        {},
-        {
-            selectFromResult: (result) => ({
-                known: wordIds.every((id) => result.data?.[id])
-            })
-        }
-    );
+    const known = wordIds.every((w) => knownWords[w]);
 
     return (
         <Ruby
