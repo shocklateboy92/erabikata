@@ -3,6 +3,7 @@ import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
 import classNames from 'classnames';
+import { Row } from 'components/layout';
 import { formatTime } from 'components/time';
 import { Ruby } from 'features/furigana';
 import {
@@ -80,16 +81,12 @@ export const Dialog: FC<{
     return (
         <div className="dialog-container" ref={ref}>
             {!compact && (
-                <div className="metadata">
-                    {isActive && (
-                        <span className="icon">
-                            <Icon path={mdiRadioboxMarked} />
-                        </span>
-                    )}
+                <Row>
+                    {isActive && <Icon path={mdiRadioboxMarked} />}
                     <span className="content">
                         {formatTime(text.startTime)} {showTitle && episodeName}
                     </span>
-                </div>
+                </Row>
             )}
             <div className="lines">
                 {text.words.map((line, lineIndex) => (

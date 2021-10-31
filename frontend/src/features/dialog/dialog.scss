@@ -4,22 +4,6 @@
     margin-block-start: 1em;
     margin-block-end: 1em;
 
-    .metadata {
-        margin-bottom: 0.25em;
-        white-space: nowrap;
-        > span {
-            vertical-align: middle;
-            display: inline-block;
-
-            &.content {
-                white-space: normal;
-            }
-            &.icon {
-                margin-right: 1vw;
-            }
-        }
-    }
-
     ruby {
         user-select: text;
         rt {
@@ -36,7 +20,7 @@
     }
 
     .lines {
-        white-space: pre-line;
+        margin-top: 0.25em;
     }
 }
 
