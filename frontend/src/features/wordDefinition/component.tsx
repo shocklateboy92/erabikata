@@ -20,10 +20,6 @@ export const Definition: FC<{
     const definition = useTypedSelector((state) =>
         selectWordDefinition(state, wordId)
     );
-    const episodeRank = useTypedSelector(
-        (state) =>
-            (state.wordDefinitions.episodeRanks[episodeId!] ?? {})[wordId]
-    );
     const isReadingKnown = useTypedSelector((state) =>
         selectIsFuriganaHiddenForWords(state, [wordId])
     );
@@ -82,7 +78,6 @@ export const Definition: FC<{
                     <Pill>Global {definition.globalRank}</Pill>
                 </Link>
             )}
-            {episodeRank && <Pill>Episode {episodeRank}</Pill>}
             {unknownRank && <Pill>Unkown {unknownRank}</Pill>}
             {priorities.news && <Pill>News</Pill>}
             {priorities.ichi && <Pill>Ichimango</Pill>}
