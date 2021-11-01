@@ -54,6 +54,7 @@ export const Dialog: FC<{
                     : {}
         }
     );
+
     useEffect(() => {
         if (!data) {
             return;

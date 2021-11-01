@@ -1,4 +1,4 @@
-import { useTypedSelector } from 'app/hooks';
+import { useAppSelector, useTypedSelector } from 'app/hooks';
 import { FullWidthText } from 'components/fullWidth';
 import { Page } from 'components/page';
 import { DialogList } from 'features/dialog/dialogList';
@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 
 export const NowPlaying: FC = () => {
     const isPlayerSelected = useTypedSelector(selectIsPlayerSelected);
-    const session = useTypedSelector(selectSelectedPlayer);
+    const media = useAppSelector((state) => selectSelectedPlayer(state)?.media);
 
     if (!isPlayerSelected) {
         return (
@@ -22,19 +22,7 @@ export const NowPlaying: FC = () => {
         );
     }
 
-    if (!session) {
-        return (
-            <Page>
-                <FullWidthText>
-                    字幕はまもなくここに出てきます！
-                    <br />
-                    少々お待ちください。
-                </FullWidthText>
-            </Page>
-        );
-    }
-
-    if (!session.media) {
+    if (!media) {
         return (
             <Page>
                 <FullWidthText>今、何も再生されていません。</FullWidthText>
@@ -43,15 +31,17 @@ export const NowPlaying: FC = () => {
     }
 
     return (
-        <Page
-            secondaryChildren={() => <SelectedWord />}
-            title={session.media.title}
-        >
+        <Page secondaryChildren={() => <SelectedWord />} title={media.title}>
             <DialogList
                 count={5}
-                episode={session.media.id.toString()}
-                time={session.media.position}
-                autoSelectNearest
+                episode={media.id.toString()}
+                time={media.position}
+                autoSelectNearest={
+                    // to avoid selecting on page navigation etc.
+                    new Date().getTime() -
+                        new Date(media.position_last_updated_at).getTime() <
+                    1000
+                }
             />
             <WakeLock />
         </Page>
