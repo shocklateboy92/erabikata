@@ -42,6 +42,7 @@ export const NowPlaying: FC = () => {
                         new Date(media.position_last_updated_at).getTime() <
                     1000
                 }
+                scrollToSelected
             />
             <WakeLock />
         </Page>
