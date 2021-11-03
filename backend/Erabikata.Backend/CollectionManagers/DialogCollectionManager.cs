@@ -331,7 +331,8 @@ namespace Erabikata.Backend.CollectionManagers
         {
             return _mongoCollections[mode].Find(
                     dialog =>
-                        dialog.Lines.Any(
+                        !dialog.ExcludeWhenRanking
+                        && dialog.Lines.Any(
                             line => line.Words.Any(word => word.InfoIds.Contains(wordId))
                         )
                 )
