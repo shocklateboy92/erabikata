@@ -40,6 +40,9 @@ namespace Erabikata.Backend.Models.Database
         [DataMember]
         public ICollection<int> WordsToRank { get; set; } = new HashSet<int>();
 
+        [DataMember]
+        public bool ExcludeWhenRanking { get; set; } = false;
+
         [DataContract]
         public record Word(
             string BaseForm,

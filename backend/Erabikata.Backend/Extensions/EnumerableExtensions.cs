@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace Erabikata.Backend.Extensions
@@ -11,6 +12,23 @@ namespace Erabikata.Backend.Extensions
             {
                 yield return (index, element);
                 index++;
+            }
+        }
+
+        public static IEnumerable<T> WithoutAdjacentDuplicates<T, I>(
+            this IEnumerable<T> enumerable,
+            Func<T, I> propertySelector,
+            Func<T, bool> skipComparisonCondition
+        ) {
+            var last = default(I);
+            foreach (var item in enumerable)
+            {
+                var prop = propertySelector(item);
+                if (skipComparisonCondition(item) || !object.Equals(last, prop))
+                {
+                    last = prop;
+                    yield return item;
+                }
             }
         }
     }

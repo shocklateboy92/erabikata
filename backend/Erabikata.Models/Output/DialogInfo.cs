@@ -7,11 +7,12 @@ namespace Erabikata.Models.Output
 #nullable enable
     public class DialogInfo
     {
-        public DialogInfo(string id, double startTime, WordRef[][] tokenized)
+        public DialogInfo(string id, double startTime, WordRef[][] tokenized, bool isSongLyric)
         {
             StartTime = startTime;
             Words = tokenized;
             Id = id;
+            IsSongLyric = isSongLyric;
         }
 
         [JsonProperty(Required = Required.Always)]
@@ -22,6 +23,9 @@ namespace Erabikata.Models.Output
 
         [JsonProperty(Required = Required.Always)]
         public WordRef[][] Words { get; }
+
+        [JsonProperty(Required = Required.Always)]
+        public bool IsSongLyric { get; }
 
         public class WordRef
         {

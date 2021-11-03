@@ -11,6 +11,7 @@ using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Models.Output;
 using Erabikata.Backend.Processing;
 using Erabikata.Backend.Stolen;
+using Grpc.Core;
 using Grpc.Core.Utils;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
@@ -83,7 +84,10 @@ namespace Erabikata.Backend.CollectionManagers
                             {
                                 try
                                 {
-                                    var wordsInLine = matcher.FillMatchesAndGetWords(line.Words);
+                                    var wordsInLine = matcher.FillMatchesAndGetWords(
+                                        line.Words,
+                                        incrementWordRanks: !dialog.ExcludeWhenRanking
+                                    );
                                     foreach (var wordId in wordsInLine)
                                     {
                                         dialog.WordsToRank.Add(wordId);
@@ -132,6 +136,13 @@ namespace Erabikata.Backend.CollectionManagers
                     includeStylesFile == null
                         ? new HashSet<string>()
                         : (await File.ReadAllLinesAsync(includeStylesFile)).ToHashSet();
+                var songStylesFile = files.FirstOrDefault(
+                    path => path.EndsWith("input/song_styles.txt")
+                );
+                var songStyles =
+                    songStylesFile == null
+                        ? new HashSet<string>()
+                        : (await File.ReadAllLinesAsync(songStylesFile)).ToHashSet();
 
                 await Task.WhenAll(
                     showInfo.Episodes[0].Select(
@@ -144,6 +155,7 @@ namespace Erabikata.Backend.CollectionManagers
                                 ),
                                 (epNum, info.Key),
                                 includeStyles,
+                                songStyles,
                                 showInfo.Title
                             );
                         }
@@ -156,6 +168,7 @@ namespace Erabikata.Backend.CollectionManagers
             string? file,
             (int index, string key) info,
             IReadOnlySet<string> includeStyles,
+            IReadOnlySet<string> songStyles,
             string showTitle
         ) {
             var episodeId = int.Parse(info.key.Split('/').Last());
@@ -165,48 +178,64 @@ namespace Erabikata.Backend.CollectionManagers
                 return;
             }
 
-            using var client = _assParserServiceClient.ParseAss();
-            await EngSubCollectionManager.WriteFileToParserClient(client, file);
-
-            var dialog = await client.ResponseStream.ToListAsync();
-            var toInclude = dialog.Where(
-                    responseDialog =>
-                        !responseDialog.IsComment
-                        && (includeStyles.Contains(responseDialog.Style) || file.EndsWith(".srt"))
-                )
-                .ToList();
-
-            foreach (var (mode, collection) in _mongoCollections)
+            try
             {
-                using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
-                await analyzer.RequestStream.WriteAllAsync(
-                    toInclude.Select(
+                using var client = _assParserServiceClient.ParseAss();
+                await EngSubCollectionManager.WriteFileToParserClient(client, file);
+
+                var dialog = await client.ResponseStream.ToListAsync();
+                var toInclude = dialog.Where(
                         responseDialog =>
-                            new AnalyzeDialogRequest
-                            {
-                                Mode = mode,
-                                Style = responseDialog.Style,
-                                Time = responseDialog.Time,
-                                Lines = { responseDialog.Lines }
-                            }
+                            !responseDialog.IsComment
+                            && (
+                                includeStyles.Contains(responseDialog.Style)
+                                || songStyles.Contains(responseDialog.Style)
+                                || file.EndsWith(".srt")
+                            )
                     )
-                );
-                var analyzed = await analyzer.ResponseStream.ToListAsync();
-                await collection.InsertManyAsync(
-                    analyzed.Select(
-                        (response, index) =>
-                            new Dialog(
-                                ObjectId.Empty,
-                                episodeId,
-                                index,
-                                response.Time,
-                                $"{showTitle} Episode {info.index}"
-                            ) {
-                                Lines = response.Lines.Select(ProcessLine)
-                            }
-                    ),
-                    new InsertManyOptions { IsOrdered = false }
-                );
+                    .WithoutAdjacentDuplicates(
+                        d => string.Concat(d.Lines).Trim(),
+                        d => !songStyles.Contains(d.Style)
+                    )
+                    .ToList();
+
+                foreach (var (mode, collection) in _mongoCollections)
+                {
+                    using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
+                    await analyzer.RequestStream.WriteAllAsync(
+                        toInclude.Select(
+                            responseDialog =>
+                                new AnalyzeDialogRequest
+                                {
+                                    Mode = mode,
+                                    Style = responseDialog.Style,
+                                    Time = responseDialog.Time,
+                                    Lines = { responseDialog.Lines }
+                                }
+                        )
+                    );
+                    var analyzed = await analyzer.ResponseStream.ToListAsync();
+                    await collection.InsertManyAsync(
+                        analyzed.Select(
+                            (response, index) =>
+                                new Dialog(
+                                    ObjectId.Empty,
+                                    episodeId,
+                                    index,
+                                    response.Time,
+                                    $"{showTitle} Episode {info.index}"
+                                ) {
+                                    Lines = response.Lines.Select(ProcessLine),
+                                    ExcludeWhenRanking = songStyles.Contains(response.Style)
+                                }
+                        ),
+                        new InsertManyOptions { IsOrdered = false }
+                    );
+                }
+            }
+            catch (RpcException exception)
+            {
+                _logger.LogError(exception, "Unable to parse file '{File}': ", file);
             }
         }
 

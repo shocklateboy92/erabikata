@@ -65,7 +65,8 @@ namespace Erabikata.Backend.Controllers
                                     )
                                     .ToArray()
                         )
-                        .ToArray()
+                        .ToArray(),
+                    isSongLyric: dialog.ExcludeWhenRanking
                 )
             };
         }

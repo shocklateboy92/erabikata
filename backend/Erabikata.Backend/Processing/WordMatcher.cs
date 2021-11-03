@@ -54,8 +54,10 @@ namespace Erabikata.Backend.Processing
             }
         }
 
-        public IEnumerable<int> FillMatchesAndGetWords(IReadOnlyList<Dialog.Word> words)
-        {
+        public IEnumerable<int> FillMatchesAndGetWords(
+            IReadOnlyList<Dialog.Word> words,
+            bool incrementWordRanks = true
+        ) {
             // Empty input causes ProcessCharacterMatches to blow up later
             if (!words.Any())
             {
@@ -78,9 +80,12 @@ namespace Erabikata.Backend.Processing
                 dictionaryForms
             );
 
-            foreach (var candidate in uniqueMatches)
+            if (incrementWordRanks)
             {
-                Interlocked.Increment(ref candidate.Count);
+                foreach (var candidate in uniqueMatches)
+                {
+                    Interlocked.Increment(ref candidate.Count);
+                }
             }
 
             return uniqueMatches.Select(candidate => candidate.WordId);

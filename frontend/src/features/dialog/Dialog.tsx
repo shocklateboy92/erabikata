@@ -1,4 +1,4 @@
-import { mdiImport, mdiRadioboxMarked, mdiShare } from '@mdi/js';
+import { mdiImport, mdiMusicNote, mdiRadioboxMarked, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
@@ -87,6 +87,7 @@ export const Dialog: FC<{
                     <span className="content">
                         {formatTime(text.startTime)} {showTitle && episodeName}
                     </span>
+                    {text.isSongLyric && <Icon path={mdiMusicNote} />}
                 </Row>
             )}
             <div className="lines">
