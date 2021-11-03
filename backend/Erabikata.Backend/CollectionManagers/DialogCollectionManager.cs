@@ -193,6 +193,7 @@ namespace Erabikata.Backend.CollectionManagers
                                 || file.EndsWith(".srt")
                             )
                     )
+                    .OrderBy(d => d.Time)
                     .WithoutAdjacentDuplicates(
                         d => string.Concat(d.Lines).Trim(),
                         d => !songStyles.Contains(d.Style)
