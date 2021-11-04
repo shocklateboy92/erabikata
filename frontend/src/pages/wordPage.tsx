@@ -1,11 +1,12 @@
 import { useTypedSelector } from 'app/hooks';
 import { FullPageError } from 'components/fullPageError';
 import { Page } from 'components/page';
-import { SelectedWord } from 'features/selectedWord';
+import { SelectedWord, wordSelectionV2 } from 'features/selectedWord';
 import React, { FC } from 'react';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { Redirect, useParams } from 'react-router-dom';
 import { WordOccurrences } from '../features/wordContext/occurrences';
+import { useAppDispatch } from 'app/store';
 
 export const WordPage: FC = () => {
     const { wordId } = useParams<{
@@ -31,6 +32,7 @@ export const WordPage: FC = () => {
 export const SearchWordPage: FC = () => {
     const params = new URLSearchParams(window.location.search);
     const word = params.get('word');
+    const dispatch = useAppDispatch();
 
     if (word) {
         const wordId =
@@ -38,7 +40,8 @@ export const SearchWordPage: FC = () => {
             parseInt(/https?:\/\/takoboto\.jp\/?\?w=(\d+)/.exec(word)?.[1]!);
 
         if (wordId) {
-            return <Redirect to={`/ui/word/${wordId}`} />;
+            dispatch(wordSelectionV2([wordId]));
+            return <Redirect to={`/ui/word/${wordId}?word=${wordId}`} />;
         }
     }
 
