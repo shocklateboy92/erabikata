@@ -17,6 +17,11 @@
         background: none;
     }
 
+    .primary {
+        align-self: center;
+        max-height: 100%;
+    }
+
     @media (orientation: landscape) {
         grid: none / auto 1px min-content;
         column-gap: 1vw;
@@ -41,6 +46,7 @@
 
     @media (orientation: portrait) {
         grid: auto 1px auto / none;
+
         .primary {
             grid-row-start: 1;
         }
