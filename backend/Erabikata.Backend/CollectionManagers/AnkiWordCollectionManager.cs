@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -76,7 +77,8 @@ namespace Erabikata.Backend.CollectionManagers
                                     text.id,
                                     matcher.FillMatchesAndGetWords(text.Item2).ToArray(),
                                     text.primaryWord,
-                                    text.primaryWordReading
+                                    text.primaryWordReading,
+                                    text.Item2
                                 )
                         )
                         .Concat(takobotoWords)
@@ -112,7 +114,8 @@ namespace Erabikata.Backend.CollectionManagers
                             )
                         },
                         note.Fields["Japanese"].Value,
-                        note.Fields["Reading"].Value
+                        note.Fields["Reading"].Value,
+                        Array.Empty<Dialog.Word>()
                     )
             );
         }

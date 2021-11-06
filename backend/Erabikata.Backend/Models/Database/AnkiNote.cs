@@ -6,6 +6,7 @@ namespace Erabikata.Backend.Models.Database
         [property: BsonId] long Id,
         int[] WordIds,
         string PrimaryWord,
-        string PrimaryWordReading
+        string PrimaryWordReading,
+        Dialog.Word[] Words
     );
 }
