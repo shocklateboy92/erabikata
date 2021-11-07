@@ -1,20 +1,27 @@
 import { useTypedSelector } from 'app/hooks';
+import classNames from 'classnames';
 import React, { FC } from 'react';
 import { isKana } from './kana';
 import {
     selectIsFuriganaEnabled,
     selectIsFuriganaHiddenForWords
 } from './slice';
+import './ruby.scss';
 
 interface IRubyProps extends React.ComponentProps<'ruby'> {
     reading?: string;
     wordIds: number[];
+    active?: boolean;
+    known?: boolean;
 }
 
 export const Ruby: FC<IRubyProps> = ({
     children,
     reading,
     wordIds,
+    known,
+    className,
+    active,
     ...rest
 }) => {
     const hideReading = useTypedSelector(
@@ -24,7 +31,7 @@ export const Ruby: FC<IRubyProps> = ({
     );
 
     return (
-        <ruby {...rest}>
+        <ruby className={classNames({ active, known }, className)} {...rest}>
             {children ?? reading}
             {!hideReading &&
                 children &&

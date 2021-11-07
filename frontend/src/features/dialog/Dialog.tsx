@@ -118,10 +118,7 @@ export const Dialog: FC<{
                                 }}
                                 reading={word.reading}
                             >
-                                {
-                                    // It seems the analyzers replace japanese spaces with normal spaces
-                                    word.displayText
-                                }
+                                {word.displayText}
                             </SelectableRuby>
                         ))}
                     </Fragment>
@@ -180,14 +177,15 @@ const SelectableRuby: FC<
             (alwaysHighlightSelectedWord ||
                 (selectedWord.sentenceTimestamp === time &&
                     selectedWord?.episode === episode)) &&
-            selectedWord.wordIds.find((a) => wordIds.includes(a))
+            !!selectedWord.wordIds.find((a) => wordIds.includes(a))
         );
     });
     const known = wordIds.every((w) => knownWords[w]);
 
     return (
         <Ruby
-            className={classNames({ active, known })}
+            active={active}
+            known={known}
             wordIds={wordIds}
             role="button"
             {...restProps}

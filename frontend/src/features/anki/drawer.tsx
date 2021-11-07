@@ -1,10 +1,14 @@
+import { mdiArrowRight } from '@mdi/js';
+import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { useWordsNotesQuery } from 'backend';
 import { Pill } from 'components/pill';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
 import { Drawer } from 'features/drawer';
+import { Ruby } from 'features/furigana';
 import { selectSelectedWords } from 'features/selectedWord';
 import { FC } from 'react';
+import './drawer.scss';
 
 export const AnkiDrawer: FC = () => {
     return (
@@ -33,6 +37,21 @@ const DrawerContent: FC = () => {
                             {note.primaryWord}
                             <rt>{note.primaryWordReading}</rt>
                         </ruby>
+                        <Icon path={mdiArrowRight} />
+                        {note.words.map((word, index) => (
+                            <Ruby
+                                key={index}
+                                wordIds={word.definitionIds}
+                                known
+                                active={
+                                    !!word.definitionIds.find(
+                                        (w) => w === wordId
+                                    )
+                                }
+                            >
+                                {word.displayText}
+                            </Ruby>
+                        ))}
                     </div>
                     <div className="nid">
                         <Pill>{'nid:' + note.id}</Pill>

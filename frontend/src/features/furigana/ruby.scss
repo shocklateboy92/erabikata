@@ -1,0 +1,16 @@
+@import 'common';
+
+ruby {
+    user-select: text;
+    rt {
+        user-select: none;
+    }
+
+    &.active {
+        color: $highlight-color;
+    }
+
+    &.known {
+        opacity: 0.8;
+    }
+}

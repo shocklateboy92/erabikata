@@ -1,5 +1,10 @@
 .anki-note-info {
     .nid {
+        margin-top: 0.2rem;
         white-space: 'nowrap';
+    }
+
+    & + & {
+        margin-top: 1rem;
     }
 }
