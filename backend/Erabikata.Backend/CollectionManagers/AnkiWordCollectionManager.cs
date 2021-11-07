@@ -166,7 +166,8 @@ namespace Erabikata.Backend.CollectionManagers
         );
         private static readonly Regex TagsPattern = new Regex(@"<[^>]*>", RegexOptions.Compiled);
         private string ProcessText(string text) =>
-            TagsPattern.Replace(ReadingsPattern.Replace(text, string.Empty), " ");
+            TagsPattern.Replace(ReadingsPattern.Replace(text, string.Empty), string.Empty)
+                .Replace(" ", string.Empty);
 
         private async Task<
             IEnumerable<(long id, Dialog.Word[], string primaryWord, string primaryWordReading)>
