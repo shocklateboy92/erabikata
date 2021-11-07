@@ -2,7 +2,6 @@ import { mdiImport, mdiMusicNote, mdiRadioboxMarked, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
 import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
-import classNames from 'classnames';
 import { Row } from 'components/layout';
 import { formatTime } from 'components/time';
 import { Ruby } from 'features/furigana';
