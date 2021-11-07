@@ -152,25 +152,47 @@ namespace Erabikata.Backend.Controllers
 
         [HttpGet]
         [Route("[action]")]
-        public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId)
-        {
-            var (occurrences, knownWords) = await (
-                _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId),
-                _wordInfo.GetWordRanks(await _ankiWords.GetAllKnownWords())
-            );
+        public async Task<WordOccurrences> Occurrences(
+            int wordId,
+            WordOccurrencesSortMode sortMode = WordOccurrencesSortMode.Default
+        ) {
+            switch (sortMode)
+            {
+                case WordOccurrencesSortMode.Default:
+                {
+                    var (occurrences, knownWords) = await (
+                        _dialogCollectionManager.GetOccurrences(
+                            Constants.DefaultAnalyzerMode,
+                            wordId
+                        ),
+                        _wordInfo.GetWordRanks(await _ankiWords.GetAllKnownWords())
+                    );
 
-            var knownWordsMap = knownWords.ToDictionary(
-                word => word.WordId,
-                word => word.GlobalRank
-            );
+                    var knownWordsMap = knownWords.ToDictionary(
+                        word => word.WordId,
+                        word => word.GlobalRank
+                    );
 
-            return new(
-                wordId,
-                occurrences.OrderByDescending(
-                        occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
-                    )
-                    .Select(oc => oc.dialogId)
-            );
+                    return new(
+                        wordId,
+                        occurrences.OrderByDescending(
+                                occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
+                            )
+                            .Select(oc => oc.dialogId)
+                    );
+                }
+                case WordOccurrencesSortMode.Closest:
+                    var specificities = await _dialogCollectionManager.GetOccurrencesSpecificities(
+                        wordId
+                    );
+                    return new(
+                        wordId,
+                        specificities.OrderBy(specificity => specificity.Specificity)
+                            .Select(specificity => specificity.DialogId)
+                    );
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(sortMode), sortMode, null);
+            }
         }
 
         [HttpGet]

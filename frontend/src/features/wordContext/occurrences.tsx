@@ -11,9 +11,7 @@ export const WordOccurrences: FC<{ wordId: number; readOnly?: boolean }> = ({
     wordId,
     readOnly
 }) => {
-    const analyzer = useTypedSelector(selectAnalyzer);
     const occurrences = useWordsOccurrencesQuery({
-        analyzer,
         wordId
     });
 

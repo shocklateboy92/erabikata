@@ -340,6 +340,29 @@ namespace Erabikata.Backend.CollectionManagers
                 .ToListAsync();
         }
 
+        public Task<List<DialogSpecificity>> GetOccurrencesSpecificities(int wordId)
+        {
+            return _mongoCollections[Constants.DefaultAnalyzerMode].Find(
+                    dialog =>
+                        dialog.Lines.Any(
+                            line => line.Words.Any(word => word.InfoIds.Contains(wordId))
+                        )
+                )
+                .Project(
+                    dialog =>
+                        new DialogSpecificity(
+                            dialog.Id.ToString(),
+                            dialog.Lines.SelectMany(
+                                    line =>
+                                        line.Words.Where(word => word.InfoIds.Contains(wordId))
+                                            .Select(word => word.InfoIds)
+                                )
+                                .First().Count
+                        )
+                )
+                .ToListAsync();
+        }
+
         public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
         {
             return _mongoCollections[mode].Find(
@@ -372,6 +395,8 @@ namespace Erabikata.Backend.CollectionManagers
         private record IntermediateDialog(IntermediateLine Lines);
 
         public record DialogWords(string dialogId, IEnumerable<int> wordIds);
+
+        public record DialogSpecificity(string DialogId, int Specificity);
 
         public record WordRank(
             [property: BsonId] string BaseForm,
