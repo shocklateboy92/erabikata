@@ -1,12 +1,13 @@
 import { mdiArrowRight } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { useWordsNotesQuery } from 'backend';
 import { Pill } from 'components/pill';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
 import { Drawer } from 'features/drawer';
 import { Ruby } from 'features/furigana';
-import { selectSelectedWords } from 'features/selectedWord';
+import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
 import { FC } from 'react';
 import './drawer.scss';
 
@@ -19,6 +20,7 @@ export const AnkiDrawer: FC = () => {
 };
 
 const DrawerContent: FC = () => {
+    const dispatch = useAppDispatch();
     const wordId = useTypedSelector((state) => selectSelectedWords(state)[0]);
     const { data, ...response } = useWordsNotesQuery(
         { wordId },
@@ -30,14 +32,16 @@ const DrawerContent: FC = () => {
     }
     return (
         <>
-            {data.map((note, index) => (
-                <div className="anki-note-info" key={index}>
+            {data.map((note) => (
+                <div className="anki-note-info" key={note.id}>
                     <div>
                         <ruby>
                             {note.primaryWord}
                             <rt>{note.primaryWordReading}</rt>
                         </ruby>
-                        <Icon path={mdiArrowRight} />
+                        {note.primaryWord && note.words.length > 0 && (
+                            <Icon path={mdiArrowRight} />
+                        )}
                         {note.words.map((word, index) => (
                             <Ruby
                                 key={index}
@@ -48,6 +52,11 @@ const DrawerContent: FC = () => {
                                         (w) => w === wordId
                                     )
                                 }
+                                onClick={() => {
+                                    dispatch(
+                                        wordSelectionV2(word.definitionIds)
+                                    );
+                                }}
                             >
                                 {word.displayText}
                             </Ruby>
