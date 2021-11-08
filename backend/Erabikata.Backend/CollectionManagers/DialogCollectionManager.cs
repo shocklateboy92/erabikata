@@ -207,39 +207,38 @@ namespace Erabikata.Backend.CollectionManagers
                     .Select(g => g.First());
                 var toInclude = dialogToInclude.Concat(songsToInclude).ToArray();
 
-                foreach (var (mode, collection) in _mongoCollections)
-                {
-                    using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
-                    await analyzer.RequestStream.WriteAllAsync(
-                        toInclude.Select(
-                            responseDialog =>
-                                new AnalyzeDialogRequest
-                                {
-                                    Mode = mode,
-                                    Style = responseDialog.Style,
-                                    Time = responseDialog.Time,
-                                    Lines = { responseDialog.Lines }
-                                }
-                        )
-                    );
-                    var analyzed = await analyzer.ResponseStream.ToListAsync();
-                    await collection.InsertManyAsync(
-                        analyzed.Select(
-                            (response, index) =>
-                                new Dialog(
-                                    ObjectId.Empty,
-                                    episodeId,
-                                    index,
-                                    response.Time,
-                                    $"{showTitle} Episode {info.index}"
-                                ) {
-                                    Lines = response.Lines.Select(ProcessLine),
-                                    ExcludeWhenRanking = songStyles.Contains(response.Style)
-                                }
-                        ),
-                        new InsertManyOptions { IsOrdered = false }
-                    );
-                }
+                var mode = Constants.DefaultAnalyzerMode;
+                var collection = _mongoCollections[mode];
+                using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
+                await analyzer.RequestStream.WriteAllAsync(
+                    toInclude.Select(
+                        responseDialog =>
+                            new AnalyzeDialogRequest
+                            {
+                                Mode = mode,
+                                Style = responseDialog.Style,
+                                Time = responseDialog.Time,
+                                Lines = { responseDialog.Lines }
+                            }
+                    )
+                );
+                var analyzed = await analyzer.ResponseStream.ToListAsync();
+                await collection.InsertManyAsync(
+                    analyzed.Select(
+                        (response, index) =>
+                            new Dialog(
+                                ObjectId.Empty,
+                                episodeId,
+                                index,
+                                response.Time,
+                                $"{showTitle} Episode {info.index}"
+                            ) {
+                                Lines = response.Lines.Select(ProcessLine),
+                                ExcludeWhenRanking = songStyles.Contains(response.Style)
+                            }
+                    ),
+                    new InsertManyOptions { IsOrdered = false }
+                );
             }
             catch (RpcException exception)
             {
