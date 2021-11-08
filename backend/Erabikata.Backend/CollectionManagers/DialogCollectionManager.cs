@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Extensions;
@@ -10,7 +9,6 @@ using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Models.Output;
 using Erabikata.Backend.Processing;
-using Erabikata.Backend.Stolen;
 using Grpc.Core;
 using Grpc.Core.Utils;
 using Microsoft.Extensions.Logging;
@@ -184,21 +182,30 @@ namespace Erabikata.Backend.CollectionManagers
                 await EngSubCollectionManager.WriteFileToParserClient(client, file);
 
                 var dialog = await client.ResponseStream.ToListAsync();
-                var toInclude = dialog.Where(
+                var dialogToInclude = dialog.Where(
+                    responseDialog =>
+                        !responseDialog.IsComment
+                        && (includeStyles.Contains(responseDialog.Style) || file.EndsWith(".srt"))
+                );
+                var songsToInclude = dialog.Where(
                         responseDialog =>
-                            !responseDialog.IsComment
-                            && (
-                                includeStyles.Contains(responseDialog.Style)
-                                || songStyles.Contains(responseDialog.Style)
-                                || file.EndsWith(".srt")
+                            !responseDialog.IsComment && songStyles.Contains(responseDialog.Style)
+                    )
+                    // Ditch the repeated lines caused by funky special effects
+                    .WithoutAdjacentDuplicates(
+                        responseDialog => string.Join(string.Empty, responseDialog.Lines)
+                    )
+                    // Sometimes, there are dialogs on screen, causing the duplicates to
+                    // not be adjacent. De-duping by time instead.
+                    .GroupBy(
+                        responseDialog =>
+                            (
+                                (int)Math.Round(responseDialog.Time),
+                                string.Join(string.Empty, responseDialog.Lines)
                             )
                     )
-                    .OrderBy(d => d.Time)
-                    .WithoutAdjacentDuplicates(
-                        d => string.Concat(d.Lines).Trim(),
-                        d => !songStyles.Contains(d.Style)
-                    )
-                    .ToList();
+                    .Select(g => g.First());
+                var toInclude = dialogToInclude.Concat(songsToInclude).ToArray();
 
                 foreach (var (mode, collection) in _mongoCollections)
                 {

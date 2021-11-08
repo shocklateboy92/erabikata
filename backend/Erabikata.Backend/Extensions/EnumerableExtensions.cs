@@ -17,14 +17,13 @@ namespace Erabikata.Backend.Extensions
 
         public static IEnumerable<T> WithoutAdjacentDuplicates<T, I>(
             this IEnumerable<T> enumerable,
-            Func<T, I> propertySelector,
-            Func<T, bool> skipComparisonCondition
+            Func<T, I> propertySelector
         ) {
             var last = default(I);
             foreach (var item in enumerable)
             {
                 var prop = propertySelector(item);
-                if (skipComparisonCondition(item) || !object.Equals(last, prop))
+                if (!Equals(last, prop))
                 {
                     last = prop;
                     yield return item;
