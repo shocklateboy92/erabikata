@@ -78,9 +78,9 @@ export const StylesPage: FC = () => {
 
     if (!showId) {
         return (
-            <Page title="Style Filter">
-                <FullPageError>Invalid Show Id: {showId}</FullPageError>
-            </Page>
+            <FullPageError title="Style Filter">
+                Invalid Show Id: {showId}
+            </FullPageError>
         );
     }
     if (!response.data) {

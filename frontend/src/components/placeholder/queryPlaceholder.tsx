@@ -1,5 +1,6 @@
 import { FullWidthText } from '../fullWidth';
 import React from 'react';
+import { Column } from 'components/layout';
 
 export const QueryPlaceholder = ({
     result,
@@ -9,7 +10,11 @@ export const QueryPlaceholder = ({
     quiet?: boolean;
 }) => {
     if (result.isLoading) {
-        return quiet ? null : <FullWidthText>Now Loading...</FullWidthText>;
+        return quiet ? null : (
+            <Column>
+                <FullWidthText>Now Loading...</FullWidthText>
+            </Column>
+        );
     }
 
     return <pre>{JSON.stringify(result.error, null, 2)}</pre>;

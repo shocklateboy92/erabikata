@@ -1,5 +1,6 @@
 import { useAppSelector, useTypedSelector } from 'app/hooks';
 import { FullWidthText } from 'components/fullWidth';
+import { Column } from 'components/layout';
 import { Page } from 'components/page';
 import { DialogList } from 'features/dialog/dialogList';
 import { selectIsPlayerSelected, selectSelectedPlayer } from 'features/hass';
@@ -14,9 +15,13 @@ export const NowPlaying: FC = () => {
     if (!isPlayerSelected) {
         return (
             <Page>
-                <FullWidthText>
-                    <Link to="/ui/settings">プレイヤーをセレクトしてね！</Link>
-                </FullWidthText>
+                <Column>
+                    <FullWidthText>
+                        <Link to="/ui/settings">
+                            プレイヤーをセレクトしてね！
+                        </Link>
+                    </FullWidthText>
+                </Column>
             </Page>
         );
     }
@@ -24,7 +29,9 @@ export const NowPlaying: FC = () => {
     if (!media) {
         return (
             <Page>
-                <FullWidthText>今、何も再生されていません。</FullWidthText>
+                <Column>
+                    <FullWidthText>今、何も再生されていません。</FullWidthText>
+                </Column>
             </Page>
         );
     }

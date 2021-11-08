@@ -18,8 +18,9 @@
     }
 
     .primary {
-        align-self: center;
-        max-height: 100%;
+        :global(.column) {
+            min-height: 100%;
+        }
     }
 
     @media (orientation: landscape) {

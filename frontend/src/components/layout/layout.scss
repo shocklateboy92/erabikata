@@ -11,4 +11,10 @@
     &.centerChildren {
         justify-content: space-evenly;
     }
+
+    &.column {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 }
