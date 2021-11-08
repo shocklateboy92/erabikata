@@ -12,7 +12,6 @@ import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder'
 import { Drawer } from '../../features/drawer';
 import { Separator } from '../../components/separator';
 import { EngDialog } from './engDialog';
-import { SelectedWord } from '../selectedWord';
 import { ActionButton } from '../../components/button/actionButton';
 import { mdiToggleSwitchOffOutline, mdiToggleSwitchOutline } from '@mdi/js';
 
@@ -93,7 +92,7 @@ export const StylesPage: FC = () => {
     }
 
     return (
-        <Page title="Style Filter" secondaryChildren={() => <SelectedWord />}>
+        <Page title="Style Filter">
             {response.data.allStyles.map((style, index) => (
                 <Fragment key={style.id}>
                     {index > 0 && <Separator />}

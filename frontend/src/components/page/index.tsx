@@ -6,14 +6,13 @@ import classNames from 'classnames';
 import { fetchWordsWithHiddenFurigana } from 'features/furigana';
 import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
-import { selectionClearRequest } from 'features/selectedWord';
+import { SelectedWord, selectionClearRequest } from 'features/selectedWord';
 import 'features/shortcuts';
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './page.module.scss';
 
 export interface IPageProps {
-    secondaryChildren?: () => ReactNode;
     title?: string;
 }
 
@@ -34,7 +33,6 @@ export const Page: FC<IPageProps> = (props) => {
         shouldClose: boolean;
     }>();
 
-    const secondary = props.secondaryChildren?.();
     useEffect(() => {
         dispatch(fetchWordsWithHiddenFurigana());
     });
@@ -76,7 +74,7 @@ export const Page: FC<IPageProps> = (props) => {
                         }
                     }}
                 >
-                    {secondary}
+                    <SelectedWord />
                 </div>
                 <div className={styles.separator} />
                 <div className={styles.primary}>{props.children}</div>

@@ -2,7 +2,6 @@ import { useWordsSearchQuery } from 'backend';
 import { FC, useEffect } from 'react';
 import { FullWidthText } from '../../components/fullWidth';
 import { Page } from '../../components/page';
-import { SelectedWord } from '../selectedWord';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { Definition } from './component';
 import { useDispatch } from 'react-redux';
@@ -31,10 +30,7 @@ export const WordSearchPage: FC = () => {
     const query = new URLSearchParams(window.location.search).get('query');
 
     return (
-        <Page
-            title={query + ' search results'}
-            secondaryChildren={() => <SelectedWord />}
-        >
+        <Page title={query + ' search results'}>
             <FullWidthText>TODO: Add search bar</FullWidthText>
             {query && <SearchResults query={query} />}
         </Page>

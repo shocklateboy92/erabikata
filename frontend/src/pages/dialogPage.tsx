@@ -3,7 +3,6 @@ import { FullPageError } from 'components/fullPageError';
 import { Page } from 'components/page';
 import { DialogList } from 'features/dialog/dialogList';
 import { selectEpisodeTitle } from 'features/dialog/selectors';
-import { SelectedWord } from 'features/selectedWord';
 import React, { FC } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -21,7 +20,7 @@ export const DialogPage: FC = () => {
         return <FullPageError>Invalid EpisodeId and/or Time</FullPageError>;
     }
     return (
-        <Page title={title} secondaryChildren={() => <SelectedWord />}>
+        <Page title={title}>
             <DialogList
                 episode={episode}
                 time={time}

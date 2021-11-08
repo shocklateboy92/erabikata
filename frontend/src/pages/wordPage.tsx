@@ -1,7 +1,7 @@
 import { useTypedSelector } from 'app/hooks';
 import { FullPageError } from 'components/fullPageError';
 import { Page } from 'components/page';
-import { SelectedWord, wordSelectionV2 } from 'features/selectedWord';
+import { wordSelectionV2 } from 'features/selectedWord';
 import React, { FC } from 'react';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { Redirect, useParams } from 'react-router-dom';
@@ -23,7 +23,7 @@ export const WordPage: FC = () => {
     }
 
     return (
-        <Page title={title} secondaryChildren={() => <SelectedWord />}>
+        <Page title={title}>
             <WordOccurrences wordId={parsedId} />
         </Page>
     );
