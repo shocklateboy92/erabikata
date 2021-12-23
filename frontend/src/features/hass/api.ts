@@ -20,7 +20,7 @@ const createConnection = async (
 ) => {
     const connection = await hass.createConnection({
         auth: await hass.getAuth({
-            hassUrl: 'https://home-assistant.apps.lasath.org',
+            hassUrl: 'https://38hh4o99fm2up9sg9py0pyqklmepmzju.ui.nabu.casa',
             saveTokens: (data) =>
                 window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data)),
             loadTokens: async () => {

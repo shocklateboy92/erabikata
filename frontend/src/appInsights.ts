@@ -13,7 +13,10 @@ const appInsights = new ApplicationInsights({
         },
         disableFetchTracking: false,
         enableCorsCorrelation: true,
-        correlationHeaderExcludedDomains: ['home-assistant.apps.lasath.org']
+        correlationHeaderExcludedDomains: [
+            'home-assistant.apps.lasath.org',
+            '38hh4o99fm2up9sg9py0pyqklmepmzju.ui.nabu.casa'
+        ]
     }
 });
 
