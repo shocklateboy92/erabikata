@@ -5,5 +5,5 @@ EXPOSE 5000
 RUN ["apt-get", "--assume-yes", "update"]
 RUN ["apt-get", "--assume-yes", "install", "ffmpeg"]
 
-COPY bin/Release/net5.0/publish .
+COPY bin/Release/net6.0/publish .
 ENTRYPOINT ["dotnet", "Erabikata.Backend.dll"]
