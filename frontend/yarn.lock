@@ -8058,10 +8058,10 @@ npm-run-path@^4.0.0:
   dependencies:
     path-key "^3.0.0"
 
-nswag@^13.10.1:
-  version "13.13.2"
-  resolved "https://registry.yarnpkg.com/nswag/-/nswag-13.13.2.tgz#2a192514433aa8dd1bba149eef699d4271a796e1"
-  integrity sha512-L3Jraa8Ml7KKSBAcjvdo+suDT2HxgpQ0S3uaK29P3b40n3GPY/c0VrfjsQqDPfb0zjKri0F4xby6/6meUNwPMw==
+nswag@^13.15.5:
+  version "13.15.5"
+  resolved "https://registry.yarnpkg.com/nswag/-/nswag-13.15.5.tgz#c14052c77adda0633907c0613fabb873e4daf5a6"
+  integrity sha512-1FHcyXME7YH9fYMkpr0DbU7tFz2mB+t6/nzFr8LkRonypwBBNaL++NVO1Gsi+r7hpV0b0QQqlP58JWHfRrbExQ==
 
 nth-check@^1.0.2:
   version "1.0.2"

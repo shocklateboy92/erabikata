@@ -6,7 +6,6 @@ using Erabikata.Models.Input;
 using Erabikata.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using TaskTupleAwaiter;
 
 namespace Erabikata.Backend.Controllers
 {
