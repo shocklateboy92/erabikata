@@ -42,7 +42,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "yarn backend-gen && yarn rtk",
-    "backend-gen": "dotnet build ../backend/Erabikata.Backend $DOTNET_ARGS /target:NSwag && nswag run /runtime:Net50",
+    "backend-gen": "dotnet build ../backend/Erabikata.Backend $DOTNET_ARGS /target:NSwag && nswag run /runtime:Net60",
     "rtk": "rtk-query-codegen-openapi --hooks --baseQuery './src/baseQuery.ts' --file src/backend-rtk.generated.ts ../backend/Erabikata.Backend/obj/swagger.json"
   },
   "eslintConfig": {
