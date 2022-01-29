@@ -31,7 +31,8 @@ namespace Erabikata.Backend.CollectionManagers
             AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
             ILogger<AnkiWordCollectionManager> logger,
             WordInfoCollectionManager wordInfoCollectionManager
-        ) {
+        )
+        {
             _ankiSyncClient = ankiSyncClient;
             _analyzerServiceClient = analyzerServiceClient;
             _logger = logger;
@@ -47,7 +48,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<int>> GetAllKnownWords()
         {
-            return _mongoCollection.AsQueryable()
+            return _mongoCollection
+                .AsQueryable()
                 .SelectMany(n => n.WordIds)
                 .Distinct()
                 .ToListAsync();
@@ -71,7 +73,8 @@ namespace Erabikata.Backend.CollectionManagers
                         _wordInfoCollectionManager.BuildWordMatcher()
                     );
 
-                    var ankiWords = noteTexts.Select(
+                    var ankiWords = noteTexts
+                        .Select(
                             text =>
                                 new AnkiNote(
                                     text.id,
@@ -165,15 +168,18 @@ namespace Erabikata.Backend.CollectionManagers
             RegexOptions.Compiled
         );
         private static readonly Regex TagsPattern = new Regex(@"<[^>]*>", RegexOptions.Compiled);
+
         private string ProcessText(string text) =>
-            TagsPattern.Replace(ReadingsPattern.Replace(text, string.Empty), string.Empty)
+            TagsPattern
+                .Replace(ReadingsPattern.Replace(text, string.Empty), string.Empty)
                 .Replace(" ", string.Empty);
 
         private async Task<
             IEnumerable<(long id, Dialog.Word[], string primaryWord, string primaryWordReading)>
         > AnalyzeNoteTexts(
             IReadOnlyList<(long id, string text, string primaryWord, string primaryWordReading)> noteTexts
-        ) {
+        )
+        {
             var client = _analyzerServiceClient.AnalyzeBulk();
             await client.RequestStream.WriteAllAsync(
                 noteTexts.Select(
@@ -187,7 +193,8 @@ namespace Erabikata.Backend.CollectionManagers
             );
 
             var responses = await client.ResponseStream.ToListAsync();
-            return responses.Select(
+            return responses
+                .Select(
                     (result, index) =>
                     {
                         _logger.LogDebug(
@@ -198,7 +205,8 @@ namespace Erabikata.Backend.CollectionManagers
                         );
                         return (
                             noteTexts[index].id,
-                            result.Words.Select(analyzed => analyzed.Adapt<Dialog.Word>())
+                            result.Words
+                                .Select(analyzed => analyzed.Adapt<Dialog.Word>())
                                 .ToArray(),
                             noteTexts[index].primaryWord,
                             noteTexts[index].primaryWordReading

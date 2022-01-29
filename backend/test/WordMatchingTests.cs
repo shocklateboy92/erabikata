@@ -14,16 +14,14 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Erabikata.Tests
 {
-    public class WordMatchingTests
-        : IClassFixture<WordMatchingTests.WordInfoFixture>
+    public class WordMatchingTests : IClassFixture<WordMatchingTests.WordInfoFixture>
     {
         private readonly WordInfoFixture _fixture;
         private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
 
         public class WordInfoFixture
         {
-            public WordInfoFixture(
-                WordInfoCollectionManager wordInfoCollectionManager)
+            public WordInfoFixture(WordInfoCollectionManager wordInfoCollectionManager)
             {
                 Matcher = wordInfoCollectionManager.BuildWordMatcher().Result;
             }
@@ -33,7 +31,8 @@ namespace Erabikata.Tests
 
         public WordMatchingTests(
             WordInfoFixture fixture,
-            AnalyzerService.AnalyzerServiceClient analyzerServiceClient)
+            AnalyzerService.AnalyzerServiceClient analyzerServiceClient
+        )
         {
             _fixture = fixture;
             _analyzerServiceClient = analyzerServiceClient;
@@ -44,22 +43,19 @@ namespace Erabikata.Tests
         {
             // https://erabikata3.apps.lasath.org/ui/dialog?episode=2938&time=450.31&word=2842157&word=2028940&word=1399250&word=1402240&word=1584680&word=1912240
             const string sentence = "どうもこうも　妹がいるとそうなるんだよ";
-            var response =
-                await _analyzerServiceClient.AnalyzeTextAsync(
-                    new AnalyzeRequest
-                    {
-                        Mode = Constants.DefaultAnalyzerMode,
-                        Text = sentence
-                    }
-                );
+            var response = await _analyzerServiceClient.AnalyzeTextAsync(
+                new AnalyzeRequest { Mode = Constants.DefaultAnalyzerMode, Text = sentence }
+            );
 
-            var words = response.Words.Select(
-                    word => new Dialog.Word(
-                        word.BaseForm,
-                        word.DictionaryForm,
-                        word.Original,
-                        word.Reading
-                    )
+            var words = response.Words
+                .Select(
+                    word =>
+                        new Dialog.Word(
+                            word.BaseForm,
+                            word.DictionaryForm,
+                            word.Original,
+                            word.Reading
+                        )
                 )
                 .ToArray();
 
@@ -81,22 +77,19 @@ namespace Erabikata.Tests
         [Theory, MemberData(nameof(GetData))]
         public async Task TestWordMatching(string text, int[] expectedWords)
         {
-            var response =
-                await _analyzerServiceClient.AnalyzeTextAsync(
-                    new AnalyzeRequest
-                    {
-                        Mode = Constants.DefaultAnalyzerMode,
-                        Text = text
-                    }
-                );
+            var response = await _analyzerServiceClient.AnalyzeTextAsync(
+                new AnalyzeRequest { Mode = Constants.DefaultAnalyzerMode, Text = text }
+            );
 
-            var words = response.Words.Select(
-                    word => new Dialog.Word(
-                        word.BaseForm,
-                        word.DictionaryForm,
-                        word.Original,
-                        word.Reading
-                    )
+            var words = response.Words
+                .Select(
+                    word =>
+                        new Dialog.Word(
+                            word.BaseForm,
+                            word.DictionaryForm,
+                            word.Original,
+                            word.Reading
+                        )
                 )
                 .ToArray();
 
@@ -105,26 +98,21 @@ namespace Erabikata.Tests
         }
 
         [Theory, MemberData(nameof(GetExclusionData))]
-        public async Task TestWordMatchingExclusions(
-            string text,
-            int[] excludedWords)
+        public async Task TestWordMatchingExclusions(string text, int[] excludedWords)
         {
-            var response =
-                await _analyzerServiceClient.AnalyzeTextAsync(
-                    new AnalyzeRequest
-                    {
-                        Mode = Constants.DefaultAnalyzerMode,
-                        Text = text
-                    }
-                );
+            var response = await _analyzerServiceClient.AnalyzeTextAsync(
+                new AnalyzeRequest { Mode = Constants.DefaultAnalyzerMode, Text = text }
+            );
 
-            var words = response.Words.Select(
-                    word => new Dialog.Word(
-                        word.BaseForm,
-                        word.DictionaryForm,
-                        word.Original,
-                        word.Reading
-                    )
+            var words = response.Words
+                .Select(
+                    word =>
+                        new Dialog.Word(
+                            word.BaseForm,
+                            word.DictionaryForm,
+                            word.Original,
+                            word.Reading
+                        )
                 )
                 .ToArray();
 
@@ -134,20 +122,18 @@ namespace Erabikata.Tests
 
         public static IEnumerable<object[]> GetData() =>
             ReadInputDataFile("wordMatchingInputData.yaml");
+
         public static IEnumerable<object[]> GetExclusionData() =>
             ReadInputDataFile("wordMatchingExclusionInputData.yaml");
 
         public static IEnumerable<object[]> ReadInputDataFile(string fileName)
         {
-            var deserializer = new DeserializerBuilder().WithNamingConvention(
-                    CamelCaseNamingConvention.Instance
-                )
+            var deserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
                 .Build();
 
             var inputFile = File.ReadAllText(fileName);
-            foreach (var input in deserializer.Deserialize<WordMatchingInput[]>(
-                inputFile
-            ))
+            foreach (var input in deserializer.Deserialize<WordMatchingInput[]>(inputFile))
             {
                 yield return new object[] { input.Text!, input.Words };
             }

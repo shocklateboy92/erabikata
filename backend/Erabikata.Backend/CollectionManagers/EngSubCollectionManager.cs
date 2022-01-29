@@ -27,7 +27,8 @@ namespace Erabikata.Backend.CollectionManagers
             IMongoDatabase mongoDatabase,
             AssParserService.AssParserServiceClient assParserServiceClient,
             ILogger<EngSubCollectionManager> logger
-        ) {
+        )
+        {
             _assParserServiceClient = assParserServiceClient;
             _logger = logger;
             _mongoCollection = mongoDatabase.GetCollection<EngSub>(nameof(EngSub));
@@ -98,7 +99,8 @@ namespace Erabikata.Backend.CollectionManagers
         public static async Task WriteFileToParserClient(
             AsyncDuplexStreamingCall<ParseAssRequestChunk, AssParsedResponseDialog> client,
             string filePath
-        ) {
+        )
+        {
             await using var showFileStream = File.OpenRead(filePath);
             using var buffer = MemoryPool<byte>.Shared.Rent(4096);
             int lastReadBytesCount;
@@ -122,9 +124,11 @@ namespace Erabikata.Backend.CollectionManagers
             double time,
             int count,
             IEnumerable<string> styleFilter
-        ) {
+        )
+        {
             var (matchAndBefore, afterMatch) = await (
-                _mongoCollection.Find(
+                _mongoCollection
+                    .Find(
                         sub =>
                             sub.EpisodeId == episodeId
                             && !sub.IsComment
@@ -134,7 +138,8 @@ namespace Erabikata.Backend.CollectionManagers
                     .SortByDescending(sub => sub.Time)
                     .Limit(count + 1)
                     .ToListAsync(),
-                _mongoCollection.Find(
+                _mongoCollection
+                    .Find(
                         sub =>
                             sub.EpisodeId == episodeId
                             && !sub.IsComment
@@ -152,8 +157,10 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task<List<AggregateSortByCountResult<string>>> GetAllStylesOf(
             IEnumerable<int> episodeIds
-        ) {
-            var cursor = _mongoCollection.Aggregate()
+        )
+        {
+            var cursor = _mongoCollection
+                .Aggregate()
                 .Match(sub => episodeIds.Contains(sub.EpisodeId))
                 .SortByCount(sub => sub.Style);
 
@@ -164,10 +171,10 @@ namespace Erabikata.Backend.CollectionManagers
             IEnumerable<int> episodeIds,
             string styleName,
             PagingInfo pagingInfo
-        ) {
-            return _mongoCollection.Find(
-                    sub => episodeIds.Contains(sub.EpisodeId) && sub.Style == styleName
-                )
+        )
+        {
+            return _mongoCollection
+                .Find(sub => episodeIds.Contains(sub.EpisodeId) && sub.Style == styleName)
                 .Skip(pagingInfo.Skip)
                 .Limit(pagingInfo.Max)
                 .ToListAsync();

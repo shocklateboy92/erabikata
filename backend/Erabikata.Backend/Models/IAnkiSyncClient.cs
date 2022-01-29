@@ -29,7 +29,7 @@ namespace Erabikata.Backend.Models
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public record AnkiAction(string Action, object Params, int Version = 6);
 
-    public record SyncAnkiAction() : AnkiAction("sync", new {  });
+    public record SyncAnkiAction() : AnkiAction("sync", new { });
 
     public record AddNoteAnkiAction : AnkiAction
     {
@@ -71,7 +71,8 @@ namespace Erabikata.Backend.Models
         string ModelName,
         IReadOnlyCollection<string> Tags,
         IReadOnlyDictionary<string, AnkiNoteResponse.Field> Fields
-    ) {
+    )
+    {
         public record Field(string Value, int Order);
     };
 

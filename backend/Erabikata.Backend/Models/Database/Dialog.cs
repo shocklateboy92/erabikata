@@ -50,7 +50,8 @@ namespace Erabikata.Backend.Models.Database
             [AdaptMember(nameof(AnalyzedWord.Original))] string OriginalForm,
             string Reading,
             bool IsInParenthesis = false
-        ) {
+        )
+        {
             [DataMember]
             public IEnumerable<string> PartOfSpeech { get; set; } = Array.Empty<string>();
 

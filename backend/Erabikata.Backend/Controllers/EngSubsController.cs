@@ -19,7 +19,8 @@ namespace Erabikata.Backend.Controllers
         public EngSubsController(
             EngSubCollectionManager engSubCollectionManager,
             StyleFilterCollectionManager styleFilterCollection
-        ) {
+        )
+        {
             _engSubCollectionManager = engSubCollectionManager;
             _styleFilterCollection = styleFilterCollection;
         }
@@ -28,7 +29,8 @@ namespace Erabikata.Backend.Controllers
             string episodeId,
             double time,
             int count = 3
-        ) {
+        )
+        {
             if (!int.TryParse(episodeId, out var episode))
             {
                 return BadRequest();
@@ -85,7 +87,8 @@ namespace Erabikata.Backend.Controllers
             int showId,
             string styleName,
             [FromQuery] PagingInfo pagingInfo
-        ) {
+        )
+        {
             var filter = await _styleFilterCollection.GetByShowId(showId);
             if (filter == null)
             {

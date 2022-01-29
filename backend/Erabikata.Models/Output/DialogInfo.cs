@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -33,13 +33,14 @@ namespace Erabikata.Models.Output
                 string displayText,
                 string baseForm,
                 string reading,
-                IEnumerable<int> wordInfoIds)
+                IEnumerable<int> wordInfoIds
+            )
             {
                 DisplayText = displayText;
                 BaseForm = baseForm;
                 Reading = string.Join(
                     string.Empty,
-                    reading.Select(c => c >= 'ァ' && c <= 'ヴ' ? (char) (c - 0x0060) : c)
+                    reading.Select(c => c >= 'ァ' && c <= 'ヴ' ? (char)(c - 0x0060) : c)
                 );
                 DefinitionIds = wordInfoIds.Distinct();
             }

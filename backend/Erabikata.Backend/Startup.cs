@@ -58,7 +58,8 @@ namespace Erabikata.Backend
 
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
-            services.AddControllers()
+            services
+                .AddControllers()
                 .AddNewtonsoftJson(
                     options =>
                     {
@@ -135,7 +136,8 @@ namespace Erabikata.Backend
             AddCollection<WordState>(services, mongoDatabase);
             AddCollection<UserInfo>(services, mongoDatabase);
 
-            services.AddRefitClient<IAnkiSyncClient>()
+            services
+                .AddRefitClient<IAnkiSyncClient>()
                 .ConfigureHttpClient(
                     client =>
                     {
@@ -149,7 +151,8 @@ namespace Erabikata.Backend
         private static void AddCollection<TDataType>(
             IServiceCollection services,
             IMongoDatabase mongoDatabase
-        ) {
+        )
+        {
             services.AddSingleton(mongoDatabase.GetCollection<TDataType>(typeof(TDataType).Name));
         }
 

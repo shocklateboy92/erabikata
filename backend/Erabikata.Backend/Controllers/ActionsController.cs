@@ -28,7 +28,8 @@ namespace Erabikata.Backend.Controllers
             IEnumerable<ICollectionManager> collectionManagers,
             ILogger<ActionsController> logger,
             IEnumerable<ICollectionMiddleware> collectionMiddlewares
-        ) {
+        )
+        {
             _mongo = mongo;
             _logger = logger;
             _collectionMiddlewares = collectionMiddlewares;
@@ -51,7 +52,8 @@ namespace Erabikata.Backend.Controllers
         private Task ExecuteMiddleware(
             Activity previousActivity,
             IEnumerable<ICollectionMiddleware> remaining
-        ) {
+        )
+        {
             var current = remaining.FirstOrDefault();
             if (current != null)
             {
@@ -91,7 +93,8 @@ namespace Erabikata.Backend.Controllers
         [Route("list")]
         public Task<List<ActivityExecution>> List()
         {
-            return _mongo.Find(FilterDefinition<ActivityExecution>.Empty)
+            return _mongo
+                .Find(FilterDefinition<ActivityExecution>.Empty)
                 .SortByDescending(execution => execution.Id)
                 .ToListAsync();
         }

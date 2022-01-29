@@ -23,7 +23,8 @@ namespace Erabikata.Models.Output
         [JsonProperty(Required = Required.Always)]
         public IEnumerable<DialogInfo> Dialog { get; }
 
-        [DataMember] public string? EpisodeTitle { get; set; }
+        [DataMember]
+        public string? EpisodeTitle { get; set; }
     }
 #nullable restore
 }

@@ -14,7 +14,8 @@ namespace Erabikata.Backend.Models.Database
             string[] lines,
             bool isComment,
             string style
-        ) {
+        )
+        {
             Id = id;
             EpisodeId = episodeId;
             Time = time;

@@ -10,4 +10,3 @@ namespace Erabikata.Backend.Models.Output
         DialogInfo.WordRef[] Words
     );
 }
-

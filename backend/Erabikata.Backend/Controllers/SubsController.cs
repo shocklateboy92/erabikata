@@ -20,7 +20,8 @@ namespace Erabikata.Backend.Controllers
         public SubsController(
             DialogCollectionManager dialogCollection,
             PartOfSpeechFilterCollectionManager partOfSpeechFilter
-        ) {
+        )
+        {
             _dialogCollection = dialogCollection;
             _partOfSpeechFilter = partOfSpeechFilter;
         }
@@ -29,7 +30,8 @@ namespace Erabikata.Backend.Controllers
         public async Task<ActionResult<WordOccurrence>> ById(
             [BindRequired] Analyzer analyzer,
             string id
-        ) {
+        )
+        {
             var (dialogs, ignoredPartsOfSpeech) = await (
                 _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] { id }),
                 _partOfSpeechFilter.GetIgnoredPartOfSpeech()
@@ -50,16 +52,18 @@ namespace Erabikata.Backend.Controllers
                 Text = new DialogInfo(
                     dialog.Id.ToString(),
                     dialog.Time,
-                    dialog.Lines.Select(
+                    dialog.Lines
+                        .Select(
                             list =>
-                                list.Words.Select(
+                                list.Words
+                                    .Select(
                                         word =>
                                             new DialogInfo.WordRef(
                                                 word.OriginalForm,
                                                 word.BaseForm,
                                                 word.PartOfSpeech.Any(ignoreReadingMap.Contains)
-                                                    ? string.Empty
-                                                    : word.Reading,
+                                                  ? string.Empty
+                                                  : word.Reading,
                                                 word.InfoIds
                                             )
                                     )

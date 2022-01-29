@@ -12,7 +12,8 @@ namespace Erabikata.Backend.Models.Output
         IEnumerable<WordDefinition.JapaneseWord> Japanese,
         [AdaptMember(nameof(WordInfo.Meanings))] IEnumerable<WordDefinition.EnglishWord> English,
         WordDefinition.PriorityInfo Priorities
-    ) {
+    )
+    {
         [DataMember]
         public long? GlobalRank { get; set; }
 
@@ -27,7 +28,8 @@ namespace Erabikata.Backend.Models.Output
         {
             public void Register(TypeAdapterConfig config)
             {
-                config.ForType<WordInfo, WordDefinition>()
+                config
+                    .ForType<WordInfo, WordDefinition>()
                     .MapToConstructor(true)
                     .Map(
                         definition => definition.Japanese,
@@ -42,7 +44,8 @@ namespace Erabikata.Backend.Models.Output
                             )
                     );
 
-                config.ForType<IReadOnlyCollection<string>, PriorityInfo>()
+                config
+                    .ForType<IReadOnlyCollection<string>, PriorityInfo>()
                     .MapWith(
                         src =>
                             new PriorityInfo(

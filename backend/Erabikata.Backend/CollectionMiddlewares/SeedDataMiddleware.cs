@@ -23,11 +23,13 @@ namespace Erabikata.Backend.CollectionMiddlewares
                 case BeginIngestion:
                     var filesInSeed = _seedDataProvider.GetAllFiles();
                     var showsToIngest = await Task.WhenAll(
-                        filesInSeed.Where(path => path.EndsWith("show-metadata.json"))
+                        filesInSeed
+                            .Where(path => path.EndsWith("show-metadata.json"))
                             .Select(
                                 async showPath =>
                                     new IngestShows.ShowToIngest(
-                                        filesInSeed.Where(
+                                        filesInSeed
+                                            .Where(
                                                 path =>
                                                     path.StartsWith(
                                                         showPath.Replace(

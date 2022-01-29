@@ -26,7 +26,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
-            if (activity is DictionaryUpdate( { } sourceUrl))
+            if (activity is DictionaryUpdate({ } sourceUrl))
             {
                 var currentUrl = await _databaseInfo.GetCurrentDictionary();
                 if (currentUrl != sourceUrl)
@@ -56,7 +56,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public static IEnumerable<WordInfo> ProcessDictionary(XContainer dictionaryIngestion)
         {
-            return dictionaryIngestion.Elements("entry")
+            return dictionaryIngestion
+                .Elements("entry")
                 .AsParallel()
                 .Select(
                     entry =>
@@ -64,14 +65,17 @@ namespace Erabikata.Backend.CollectionMiddlewares
                             int.Parse(entry.Element("ent_seq")!.Value),
                             entry.Elements("k_ele").Select(ele => ele.Element("keb")!.Value),
                             entry.Elements("r_ele").Select(ele => ele.Element("reb")!.Value),
-                            entry.Elements("sense")
+                            entry
+                                .Elements("sense")
                                 .GroupBy(
                                     sense =>
-                                        sense.Elements("pos")
+                                        sense
+                                            .Elements("pos")
                                             .Concat(sense.Elements("misc"))
                                             .Select(element => element.Value)
                                             .Concat(
-                                                sense.Elements("field")
+                                                sense
+                                                    .Elements("field")
                                                     .Select(field => $"{field.Value} term")
                                             )
                                             .ToArray(),
@@ -82,17 +86,20 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                                 sense =>
                                                     string.Join(
                                                         "; ",
-                                                        sense.Elements("gloss")
+                                                        sense
+                                                            .Elements("gloss")
                                                             .Select(gloss => gloss.Value)
                                                     )
                                             )
                                         ),
                                     new EnumerableComparer<string, string[]>()
                                 ),
-                            entry.Elements("k_ele")
+                            entry
+                                .Elements("k_ele")
                                 .SelectMany(kEle => kEle.Elements("ke_pri"))
                                 .Concat(
-                                    entry.Elements("r_ele")
+                                    entry
+                                        .Elements("r_ele")
                                         .SelectMany(rEle => rEle.Elements("re_pri"))
                                 )
                                 .Select(ele => ele.Value)

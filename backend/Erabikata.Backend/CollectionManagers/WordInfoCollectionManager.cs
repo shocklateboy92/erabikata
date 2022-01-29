@@ -24,7 +24,7 @@ namespace Erabikata.Backend.CollectionManagers
         {
             switch (activity)
             {
-                case (DictionaryIngestion( { } dictionary)):
+                case (DictionaryIngestion({ } dictionary)):
                     await _mongoCollection.DeleteManyAsync(FilterDefinition<WordInfo>.Empty);
                     await _mongoCollection.InsertManyAsync(
                         dictionary,
@@ -36,14 +36,16 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<NormalizedWord>> GetAllNormalizedForms()
         {
-            return _mongoCollection.Aggregate()
+            return _mongoCollection
+                .Aggregate()
                 .Project(doc => new NormalizedWord(doc.Id, doc.Normalized))
                 .ToListAsync();
         }
 
         public Task<List<WordReading>> GetAllReadings()
         {
-            return _mongoCollection.Find(FilterDefinition<WordInfo>.Empty)
+            return _mongoCollection
+                .Find(FilterDefinition<WordInfo>.Empty)
                 .Project(word => new WordReading(word.Id, word.Readings))
                 .ToListAsync();
         }
@@ -52,7 +54,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task UpdateWordCounts(IEnumerable<(int wordId, ulong count)> words)
         {
-            var models = words.Select(
+            var models = words
+                .Select(
                     word =>
                         new UpdateOneModel<WordInfo>(
                             new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.wordId),
@@ -70,7 +73,8 @@ namespace Erabikata.Backend.CollectionManagers
         public record NormalizedWord(
             [property: BsonId] int Id,
             IReadOnlyList<IReadOnlyList<string>> Normalized
-        ) {
+        )
+        {
             public uint Count = 0;
         }
 
@@ -86,7 +90,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<WordRank>> GetWordRanks(IEnumerable<int> ids)
         {
-            return _mongoCollection.Aggregate()
+            return _mongoCollection
+                .Aggregate()
                 .Match(word => word.TotalOccurrences > 0)
                 .SortByDescending(word => word.TotalOccurrences)
                 .Group(word => string.Empty, infos => new { WordId = infos.Select(i => i.Id) })
@@ -103,9 +108,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<int>> GetSortedWords(IEnumerable<int> wordsToSkip)
         {
-            return _mongoCollection.Find(
-                    word => word.TotalOccurrences > 0 && !wordsToSkip.Contains(word.Id)
-                )
+            return _mongoCollection
+                .Find(word => word.TotalOccurrences > 0 && !wordsToSkip.Contains(word.Id))
                 .SortByDescending(info => info.TotalOccurrences)
                 .Project(word => word.Id)
                 .ToListAsync();
@@ -116,8 +120,10 @@ namespace Erabikata.Backend.CollectionManagers
             IEnumerable<int> wordsToSkip,
             int pagingInfoMax,
             int pagingInfoSkip
-        ) {
-            return _mongoCollection.Aggregate()
+        )
+        {
+            return _mongoCollection
+                .Aggregate()
                 .Match(
                     word =>
                         word.TotalOccurrences > 0
@@ -135,7 +141,8 @@ namespace Erabikata.Backend.CollectionManagers
         public record WordRank([property: AdaptIgnore] object _id, int WordId, int GlobalRank);
 
         public Task<List<int>> SearchWords(string query) =>
-            _mongoCollection.Find(
+            _mongoCollection
+                .Find(
                     word =>
                         word.Kanji.Any(kanji => kanji.Contains(query))
                         || word.Readings.Any(reading => reading.Contains(query))
@@ -146,7 +153,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task<WordMatcher> BuildWordMatcher()
         {
-            var words = await _mongoCollection.Find(FilterDefinition<WordInfo>.Empty)
+            var words = await _mongoCollection
+                .Find(FilterDefinition<WordInfo>.Empty)
                 .Project(
                     word =>
                         new WordMatcher.Candidate(

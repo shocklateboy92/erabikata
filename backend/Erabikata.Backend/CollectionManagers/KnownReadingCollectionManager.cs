@@ -36,7 +36,8 @@ namespace Erabikata.Backend.CollectionManagers
         }
 
         public Task<List<int>> GetAllKnownReadings() =>
-            _mongoCollection.Find(reading => reading.IsKnown)
+            _mongoCollection
+                .Find(reading => reading.IsKnown)
                 .Project(reading => reading.WordId)
                 .ToListAsync();
     }

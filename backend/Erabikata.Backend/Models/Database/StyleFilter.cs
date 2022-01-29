@@ -10,7 +10,8 @@ namespace Erabikata.Backend.Models.Database
             int showId,
             IEnumerable<string> enabledStyles,
             IEnumerable<int> forEpisodes
-        ) {
+        )
+        {
             ShowId = showId;
             EnabledStyles = enabledStyles;
             ForEpisodes = forEpisodes;

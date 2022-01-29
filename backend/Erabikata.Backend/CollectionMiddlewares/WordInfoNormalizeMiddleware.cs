@@ -21,7 +21,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
         public async Task Execute(Activity activity, Func<Activity, Task> next)
         {
-            if (activity is DictionaryIngestion( { } words))
+            if (activity is DictionaryIngestion({ } words))
             {
                 // mutates inline, because this is already memory intensive
                 await AddNormalizedForms(words);
@@ -75,7 +75,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
             AnalyzeDialogResponse response,
             Func<AnalyzedWord, string> selector
         ) =>
-            response.Lines.Select(line => line.Words.Select(selector).ToArray())
+            response.Lines
+                .Select(line => line.Words.Select(selector).ToArray())
                 .Distinct(new EnumerableComparer<string, string[]>())
                 .ToList();
     }

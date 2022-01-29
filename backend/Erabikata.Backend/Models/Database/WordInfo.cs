@@ -13,7 +13,8 @@ namespace Erabikata.Backend.Models.Database
             IEnumerable<string> readings,
             IEnumerable<Meaning> meanings,
             HashSet<string> priorities
-        ) {
+        )
+        {
             Id = id;
             Kanji = kanji;
             Readings = readings;

@@ -23,7 +23,8 @@ namespace Erabikata.Backend.Controllers
         [Route("todoistToken")]
         public async Task<ActionResult<string?>> GetTodoistToken()
         {
-            using var cursor = await _mongoClient.Find(user => user.Id == User.GetObjectId())
+            using var cursor = await _mongoClient
+                .Find(user => user.Id == User.GetObjectId())
                 .ToCursorAsync();
             var doc = await cursor.FirstOrDefaultAsync();
             return doc?.TodoistToken;

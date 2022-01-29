@@ -21,11 +21,8 @@ namespace Erabikata.Backend.DataProviders
 
         public IReadOnlyCollection<string> GetAllFiles()
         {
-            return Directory.EnumerateFiles(
-                    _settings.Input.RootDirectory,
-                    "*",
-                    SearchOption.AllDirectories
-                )
+            return Directory
+                .EnumerateFiles(_settings.Input.RootDirectory, "*", SearchOption.AllDirectories)
                 .ToList();
         }
 

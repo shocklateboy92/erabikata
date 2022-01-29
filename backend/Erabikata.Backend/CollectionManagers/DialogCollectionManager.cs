@@ -36,7 +36,8 @@ namespace Erabikata.Backend.CollectionManagers
             ILogger<DialogCollectionManager> logger,
             AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
             AssParserService.AssParserServiceClient assParserServiceClient
-        ) {
+        )
+        {
             _logger = logger;
             _analyzerServiceClient = analyzerServiceClient;
             _assParserServiceClient = assParserServiceClient;
@@ -74,7 +75,8 @@ namespace Erabikata.Backend.CollectionManagers
             );
             while (await cursor.MoveNextAsync())
             {
-                var processed = cursor.Current.AsParallel()
+                var processed = cursor.Current
+                    .AsParallel()
                     .Select(
                         dialog =>
                         {
@@ -107,7 +109,8 @@ namespace Erabikata.Backend.CollectionManagers
                         }
                     );
 
-                var replaceOneModels = processed.Select(
+                var replaceOneModels = processed
+                    .Select(
                         dialog =>
                             new ReplaceOneModel<Dialog>(
                                 Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
@@ -124,7 +127,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         private async Task IngestDialog(
             IEnumerable<IngestShows.ShowToIngest> ingestShowsShowsToIngest
-        ) {
+        )
+        {
             foreach (var (files, showInfo) in ingestShowsShowsToIngest)
             {
                 var includeStylesFile = files.FirstOrDefault(
@@ -168,7 +172,8 @@ namespace Erabikata.Backend.CollectionManagers
             IReadOnlySet<string> includeStyles,
             IReadOnlySet<string> songStyles,
             string showTitle
-        ) {
+        )
+        {
             var episodeId = int.Parse(info.key.Split('/').Last());
             if (file == null)
             {
@@ -187,7 +192,8 @@ namespace Erabikata.Backend.CollectionManagers
                         !responseDialog.IsComment
                         && (includeStyles.Contains(responseDialog.Style) || file.EndsWith(".srt"))
                 );
-                var songsToInclude = dialog.Where(
+                var songsToInclude = dialog
+                    .Where(
                         responseDialog =>
                             !responseDialog.IsComment && songStyles.Contains(responseDialog.Style)
                     )
@@ -232,7 +238,8 @@ namespace Erabikata.Backend.CollectionManagers
                                 index,
                                 response.Time,
                                 $"{showTitle} Episode {info.index}"
-                            ) {
+                            )
+                            {
                                 Lines = response.Lines.Select(ProcessLine),
                                 ExcludeWhenRanking = songStyles.Contains(response.Style)
                             }
@@ -273,7 +280,8 @@ namespace Erabikata.Backend.CollectionManagers
                         word.Original.Replace(' ', '　'),
                         word.Reading,
                         bracketCount > 0
-                    ) {
+                    )
+                    {
                         PartOfSpeech = word.PartOfSpeech
                     }
                 );
@@ -286,7 +294,8 @@ namespace Erabikata.Backend.CollectionManagers
             AnalyzerMode mode,
             int episodeId,
             IEnumerable<int> wordIds
-        ) {
+        )
+        {
             var cursor = await _mongoCollections[mode].AggregateAsync(
                 PipelineDefinition<Dialog, UnwoundRank>.Create(
                     new BsonDocument("$match", new BsonDocument("EpisodeId", episodeId)),
@@ -319,8 +328,10 @@ namespace Erabikata.Backend.CollectionManagers
         public Task<AggregateCountResult> GetEpisodeWordCount(
             AnalyzerMode analyzerMode,
             int episodeId
-        ) {
-            return _mongoCollections[analyzerMode].Aggregate()
+        )
+        {
+            return _mongoCollections[analyzerMode]
+                .Aggregate()
                 .Match(dialog => dialog.EpisodeId == episodeId)
                 .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
                 .Group(
@@ -335,7 +346,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<DialogWords>> GetOccurrences(AnalyzerMode mode, int wordId)
         {
-            return _mongoCollections[mode].Find(
+            return _mongoCollections[mode]
+                .Find(
                     dialog =>
                         !dialog.ExcludeWhenRanking
                         && dialog.Lines.Any(
@@ -348,22 +360,23 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
         {
-            return _mongoCollections[mode].Find(
-                    dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id)
-                )
+            return _mongoCollections[mode]
+                .Find(dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id))
                 .ToListAsync();
         }
 
         public Task<string> GetEpisodeTitle(AnalyzerMode mode, int episodeId)
         {
-            return _mongoCollections[mode].Find(dialog => dialog.EpisodeId == episodeId)
+            return _mongoCollections[mode]
+                .Find(dialog => dialog.EpisodeId == episodeId)
                 .Project(dialog => dialog.EpisodeTitle)
                 .FirstOrDefaultAsync();
         }
 
         public Task<List<Episode.Entry>> GetEpisodeDialog(AnalyzerMode mode, int episodeId)
         {
-            return _mongoCollections[mode].Find(dialog => dialog.EpisodeId == episodeId)
+            return _mongoCollections[mode]
+                .Find(dialog => dialog.EpisodeId == episodeId)
                 .Project(dialog => new Episode.Entry(dialog.Time, dialog.Id.ToString()))
                 .SortBy(entry => entry.Time)
                 .ToListAsync();

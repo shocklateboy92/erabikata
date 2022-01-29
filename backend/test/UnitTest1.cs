@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
@@ -33,7 +33,8 @@ namespace Erabikata.Tests
             IMongoCollection<ActivityExecution> mongoCollection,
             IEnumerable<ICollectionManager> collectionManagers,
             IEnumerable<ICollectionMiddleware> middlewares,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory
+        )
         {
             _factory = factory;
             _actionsController = new ActionsController(
@@ -54,7 +55,7 @@ namespace Erabikata.Tests
                 new DictionaryUpdate("https://public.apps.lasath.org/JMdict_e-2021-02-13.gz")
             );
 
-            var words = await _wordInfoCollectionManager.GetWords(new[] {1008050});
+            var words = await _wordInfoCollectionManager.GetWords(new[] { 1008050 });
             words.Single().Kanji.Should().Contain("序でに");
         }
 
@@ -95,7 +96,7 @@ namespace Erabikata.Tests
         [InlineData(1591330, "気づく", 3)]
         public async Task TestProcessWords2(int wordId, string text, uint count)
         {
-            var words = await _wordInfoCollectionManager.GetWords(new[] {wordId});
+            var words = await _wordInfoCollectionManager.GetWords(new[] { wordId });
             var wordInfo = words.Single();
             wordInfo.Kanji.First().Should().Be(text);
             wordInfo.TotalOccurrences.Should().Be(count);

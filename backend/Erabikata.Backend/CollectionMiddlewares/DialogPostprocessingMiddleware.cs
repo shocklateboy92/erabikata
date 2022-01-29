@@ -15,7 +15,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
         public DialogPostprocessingMiddleware(
             WordInfoCollectionManager wordInfo,
             DialogCollectionManager dialog
-        ) {
+        )
+        {
             _wordInfo = wordInfo;
             _dialog = dialog;
         }

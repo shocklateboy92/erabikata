@@ -13,7 +13,8 @@ namespace Erabikata.Backend.Models.Actions
         string PrimaryWordMeaning,
         string Notes,
         string Link
-    ) : Activity {
+    ) : Activity
+    {
         public record ImageRequest(string EpisodeId, double Time, bool IncludeSubs = true);
     }
 }

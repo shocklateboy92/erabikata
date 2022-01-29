@@ -8,7 +8,8 @@ namespace Erabikata.Backend.Models
     {
         public void Register(TypeAdapterConfig config)
         {
-            config.ForType<Dialog.Word, DialogInfo.WordRef>()
+            config
+                .ForType<Dialog.Word, DialogInfo.WordRef>()
                 .MapToConstructor(true)
                 .MapWith(
                     word =>

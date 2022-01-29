@@ -30,14 +30,16 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task<string> GetCurrentCommit()
         {
-            var dbInfo = await _mongoCollection.Find(FilterDefinition<DatabaseInfo>.Empty)
+            var dbInfo = await _mongoCollection
+                .Find(FilterDefinition<DatabaseInfo>.Empty)
                 .FirstOrDefaultAsync();
             return dbInfo?.IngestedCommit ?? string.Empty;
         }
 
         public Task<string?> GetCurrentDictionary()
         {
-            return _mongoCollection.Find(FilterDefinition<DatabaseInfo>.Empty)
+            return _mongoCollection
+                .Find(FilterDefinition<DatabaseInfo>.Empty)
                 .Project(dbInfo => dbInfo.CurrentDictionary)
                 .FirstOrDefaultAsync();
         }

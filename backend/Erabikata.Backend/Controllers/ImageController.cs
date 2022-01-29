@@ -22,7 +22,8 @@ namespace Erabikata.Backend.Controllers
         public ImageController(
             IOptions<VideoInputSettings> settings,
             EpisodeInfoCollectionManager episodeInfoCollectionManager
-        ) {
+        )
+        {
             _episodeInfoCollectionManager = episodeInfoCollectionManager;
             _settings = settings.Value;
         }
@@ -63,7 +64,8 @@ namespace Erabikata.Backend.Controllers
                                     var mediaInfo = await FFmpeg.GetMediaInfo(input);
                                     // Turns out the subtitle filter does not want the stream id,
                                     // but rather the index of the stream w.r.t. sub streams
-                                    var subIndex = mediaInfo.SubtitleStreams.ToList()
+                                    var subIndex = mediaInfo.SubtitleStreams
+                                        .ToList()
                                         .FindIndex(
                                             sub => episodeInfo.SubTracks.Contains(sub.Title)
                                         );

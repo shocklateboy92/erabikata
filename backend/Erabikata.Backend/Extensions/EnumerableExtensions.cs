@@ -18,7 +18,8 @@ namespace Erabikata.Backend.Extensions
         public static IEnumerable<T> WithoutAdjacentDuplicates<T, I>(
             this IEnumerable<T> enumerable,
             Func<T, I> propertySelector
-        ) {
+        )
+        {
             var last = default(I);
             foreach (var item in enumerable)
             {

@@ -15,7 +15,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
         public RevisionControlMiddleware(
             DatabaseInfoManager databaseInfoManager,
             IOptions<SubtitleProcessingSettings> settings
-        ) {
+        )
+        {
             _databaseInfoManager = databaseInfoManager;
             _settings = settings.Value;
         }
@@ -33,7 +34,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                 beginIngestion.StartCommit != beginIngestion.EndCommit
                                 || _settings.AllowIngestionOfSameCommit
                             )
-                    ) {
+                    )
+                    {
                         await next(beginIngestion);
                     }
                     // Drop the activity at this stage

@@ -9,7 +9,8 @@ namespace Erabikata.Models.Input.V2
         public ShowInfo(
             string title,
             string key,
-            IReadOnlyList<IReadOnlyList<EpisodeInfo>> episodes)
+            IReadOnlyList<IReadOnlyList<EpisodeInfo>> episodes
+        )
         {
             Title = title;
             Key = key;

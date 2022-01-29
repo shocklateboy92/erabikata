@@ -29,7 +29,8 @@ namespace Erabikata.Backend.Controllers
             WordInfoCollectionManager wordInfo,
             AnkiWordCollectionManager ankiWords,
             KnownReadingCollectionManager knownReadings
-        ) {
+        )
+        {
             _dialogCollectionManager = dialogCollectionManager;
             _partOfSpeechFilter = partOfSpeechFilter;
             _wordInfo = wordInfo;
@@ -43,7 +44,8 @@ namespace Erabikata.Backend.Controllers
             Analyzer analyzer,
             [FromQuery] PagingInfo pagingInfo,
             bool skipKnown = true
-        ) {
+        )
+        {
             if (analyzer.ToAnalyzerMode() != Constants.DefaultAnalyzerMode)
             {
                 return Array.Empty<WordRankInfo>();
@@ -79,7 +81,8 @@ namespace Erabikata.Backend.Controllers
         [Route("[action]")]
         public async Task<IEnumerable<WordDefinition>> Definition(
             [BindRequired] [FromQuery] int[] wordId
-        ) {
+        )
+        {
             var (infos, ranks, totalCount) = await (
                 _wordInfo.GetWords(wordId),
                 _wordInfo.GetWordRanks(wordId),
@@ -88,7 +91,8 @@ namespace Erabikata.Backend.Controllers
             var definitions = infos.Adapt<List<WordDefinition>>();
             foreach (var definition in definitions)
                 definition.GlobalRank =
-                    ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank * 100
+                    ranks.FirstOrDefault(wr => wr.WordId == definition.Id)?.GlobalRank
+                        * 100
                         / totalCount
                     + 1;
 
@@ -101,7 +105,8 @@ namespace Erabikata.Backend.Controllers
             [BindRequired] Analyzer analyzer,
             [BindRequired] string episodeId,
             [BindRequired] [FromQuery] int[] wordId
-        ) {
+        )
+        {
             if (!int.TryParse(episodeId, out var episode))
             {
                 return BadRequest($"{nameof(episodeId)} must be a number");
@@ -118,7 +123,8 @@ namespace Erabikata.Backend.Controllers
                     id =>
                         new WordRank(
                             id,
-                            ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank * 100
+                            ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank
+                                * 100
                                 / total.Count
                                 + 1
                         )
@@ -132,7 +138,8 @@ namespace Erabikata.Backend.Controllers
         {
             var knownWords = await _ankiWords.GetAllKnownWords();
             var ranks = await _wordInfo.GetSortedWords(knownWords);
-            return ranks.Select((word, index) => new WordRank(word, index * 100 / ranks.Count + 1))
+            return ranks
+                .Select((word, index) => new WordRank(word, index * 100 / ranks.Count + 1))
                 .ToDictionary(w => w.Id.ToString(), w => w.Rank);
         }
 
@@ -141,7 +148,8 @@ namespace Erabikata.Backend.Controllers
         public async Task<object> EpisodeTotal(
             [BindRequired] Analyzer analyzer,
             [BindRequired] int episodeId
-        ) {
+        )
+        {
             var results = await _dialogCollectionManager.GetEpisodeWordCount(
                 analyzer.ToAnalyzerMode(),
                 episodeId
@@ -166,9 +174,8 @@ namespace Erabikata.Backend.Controllers
 
             return new(
                 wordId,
-                occurrences.OrderByDescending(
-                        occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault)
-                    )
+                occurrences
+                    .OrderByDescending(occ => occ.wordIds.Sum(knownWordsMap.GetValueOrDefault))
                     .Select(oc => oc.dialogId)
             );
         }

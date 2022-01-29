@@ -24,16 +24,14 @@ namespace Erabikata.Backend.CollectionManagers
             switch (activity)
             {
                 case IngestShows ingestShows:
-                    var existingShows = await _mongoCollection.Find(
-                            FilterDefinition<StyleFilter>.Empty
-                        )
+                    var existingShows = await _mongoCollection
+                        .Find(FilterDefinition<StyleFilter>.Empty)
                         .Project(filter => filter.ShowId)
                         .ToListAsync();
                     var showIdMap = existingShows.ToHashSet();
                     var toInsert = await Task.WhenAll(
-                        ingestShows.ShowsToIngest.Where(
-                                show => !showIdMap.Contains(show.Info.Key.ParseId())
-                            )
+                        ingestShows.ShowsToIngest
+                            .Where(show => !showIdMap.Contains(show.Info.Key.ParseId()))
                             .Select(
                                 async show =>
                                 {
@@ -84,7 +82,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public Task<IEnumerable<string>> GetActiveStylesFor(int episode)
         {
-            return _mongoCollection.Find(filter => filter.ForEpisodes.Contains(episode))
+            return _mongoCollection
+                .Find(filter => filter.ForEpisodes.Contains(episode))
                 .Project(filter => filter.EnabledStyles)
                 .FirstOrDefaultAsync();
         }
@@ -94,7 +93,8 @@ namespace Erabikata.Backend.CollectionManagers
 
         public async Task<int?> GetShowIdOf(int episodeId)
         {
-            return await _mongoCollection.Find(filter => filter.ForEpisodes.Contains(episodeId))
+            return await _mongoCollection
+                .Find(filter => filter.ForEpisodes.Contains(episodeId))
                 .Project(filter => filter.ShowId)
                 .FirstOrDefaultAsync();
         }

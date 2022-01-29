@@ -4,4 +4,3 @@ namespace Erabikata.Backend.Models.Actions
 
     public record UnLearnReading(int WordId) : Activity;
 }
-

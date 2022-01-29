@@ -6,7 +6,8 @@ namespace Erabikata.Backend.CollectionManagers
     {
         public static IServiceCollection AddCollectionManagers(
             this IServiceCollection serviceCollection
-        ) {
+        )
+        {
             AddCollectionManager<WordStateManager>(serviceCollection);
             AddCollectionManager<DummyCollectionManager>(serviceCollection);
             AddCollectionManager<StyleFilterCollectionManager>(serviceCollection);
