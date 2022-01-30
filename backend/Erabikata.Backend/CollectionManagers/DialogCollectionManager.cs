@@ -229,21 +229,32 @@ namespace Erabikata.Backend.CollectionManagers
                     )
                 );
                 var analyzed = await analyzer.ResponseStream.ToListAsync();
+                var toInsert = analyzed.Select(
+                    (response, index) =>
+                        new Dialog(
+                            ObjectId.Empty,
+                            episodeId,
+                            index,
+                            response.Time,
+                            $"{showTitle} Episode {info.index}"
+                        )
+                        {
+                            Lines = response.Lines.Select(ProcessLine),
+                            ExcludeWhenRanking = songStyles.Contains(response.Style)
+                        }
+                );
+
+                if (!toInsert.Any())
+                {
+                    _logger.LogError(
+                        "'{File}' had no dialog. Are the style filters correct?",
+                        file
+                    );
+                    return;
+                }
+
                 await collection.InsertManyAsync(
-                    analyzed.Select(
-                        (response, index) =>
-                            new Dialog(
-                                ObjectId.Empty,
-                                episodeId,
-                                index,
-                                response.Time,
-                                $"{showTitle} Episode {info.index}"
-                            )
-                            {
-                                Lines = response.Lines.Select(ProcessLine),
-                                ExcludeWhenRanking = songStyles.Contains(response.Style)
-                            }
-                    ),
+                    toInsert,
                     new InsertManyOptions { IsOrdered = false }
                 );
             }
