@@ -8,7 +8,7 @@ import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
 import { SelectedWord, selectionClearRequest } from 'features/selectedWord';
 import 'features/shortcuts';
-import React, { FC, ReactNode, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import styles from './page.module.scss';
 
