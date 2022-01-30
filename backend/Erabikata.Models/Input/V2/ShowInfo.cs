@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Erabikata.Models.Input.V2
 {
@@ -17,13 +16,10 @@ namespace Erabikata.Models.Input.V2
             Episodes = episodes;
         }
 
-        [JsonProperty(Required = Required.Always)]
         public string Title { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public string Key { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public IReadOnlyList<IReadOnlyList<EpisodeInfo>> Episodes { get; set; }
 
         public class EpisodeInfo
@@ -34,10 +30,8 @@ namespace Erabikata.Models.Input.V2
                 File = file;
             }
 
-            [JsonProperty(Required = Required.Always)]
             public string Key { get; set; }
 
-            [JsonProperty(Required = Required.Always)]
             public string File { get; set; }
         }
     }

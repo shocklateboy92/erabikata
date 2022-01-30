@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Erabikata.Models.Output
 {
@@ -14,13 +13,10 @@ namespace Erabikata.Models.Output
             Dialog = dialog;
         }
 
-        [JsonProperty(Required = Required.Always)]
         public string EpisodeId { get; }
 
-        [JsonProperty(Required = Required.Always)]
         public double Time { get; }
 
-        [JsonProperty(Required = Required.Always)]
         public IEnumerable<DialogInfo> Dialog { get; }
 
         [DataMember]

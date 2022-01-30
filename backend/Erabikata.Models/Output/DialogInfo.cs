@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 namespace Erabikata.Models.Output
 {
@@ -15,16 +14,12 @@ namespace Erabikata.Models.Output
             IsSongLyric = isSongLyric;
         }
 
-        [JsonProperty(Required = Required.Always)]
         public string Id { get; set; }
 
-        [JsonProperty(Required = Required.Always)]
         public double StartTime { get; }
 
-        [JsonProperty(Required = Required.Always)]
         public WordRef[][] Words { get; }
 
-        [JsonProperty(Required = Required.Always)]
         public bool IsSongLyric { get; }
 
         public class WordRef
@@ -45,16 +40,12 @@ namespace Erabikata.Models.Output
                 DefinitionIds = wordInfoIds.Distinct();
             }
 
-            [JsonProperty(Required = Required.Always)]
             public string DisplayText { get; }
 
-            [JsonProperty(Required = Required.Always)]
             public string BaseForm { get; }
 
-            [JsonProperty(Required = Required.Always)]
             public string Reading { get; }
 
-            [JsonProperty(Required = Required.Always)]
             public IEnumerable<int> DefinitionIds { get; set; }
         }
     }

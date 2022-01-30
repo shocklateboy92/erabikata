@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
 using Erabikata.Backend.DataProviders;
@@ -13,7 +14,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
-using Newtonsoft.Json;
 using NJsonSchema.Generation;
 using Refit;
 
@@ -60,13 +60,14 @@ namespace Erabikata.Backend
 
             services
                 .AddControllers()
-                .AddNewtonsoftJson(
+                .AddJsonOptions(
                     options =>
                     {
-                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                        options.JsonSerializerOptions.DefaultIgnoreCondition =
+                            JsonIgnoreCondition.WhenWritingNull;
                     }
                 );
-
             services.AddSpaStaticFiles(
                 options =>
                 {
@@ -80,10 +81,9 @@ namespace Erabikata.Backend
                     settings.GenerateKnownTypes = true;
                     settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
                     settings.RequireParametersWithoutDefault = true;
-                    settings.SerializerSettings = new JsonSerializerSettings
-                    {
-                        ContractResolver = new JsonContractResolver(settings)
-                    };
+                    settings.DefaultResponseReferenceTypeNullHandling =
+                        ReferenceTypeNullHandling.NotNull;
+                    settings.SchemaProcessors.Add(new NonNullableAreRequiredSchemaProcessor());
                 }
             );
         }
