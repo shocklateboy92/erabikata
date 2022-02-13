@@ -12,12 +12,21 @@ import argparse
 MEDIA_ROOT = "/mnt/net/media"
 TRACKS_FILE_NAME = "include_tracks.txt"
 
-lang_dir_map = { 'eng': 'english', 'jpn': 'input' }
+lang_dir_map = {"eng": "english", "jpn": "input"}
 
 parser = argparse.ArgumentParser(description="Extract subtitles from show media files")
-parser.add_argument('input_root', type=str, default="../../anime-subs")
-parser.add_argument('--language', '--lang', '-l', default="eng", dest='lang', choices=lang_dir_map.keys())
-parser.add_argument('-i', '--info', action=argparse.BooleanOptionalAction, default=False)
+parser.add_argument("input_root", type=str, default="../../anime-subs")
+parser.add_argument(
+    "--language",
+    "--lang",
+    "-l",
+    default="eng",
+    dest="lang",
+    choices=lang_dir_map.keys(),
+)
+parser.add_argument(
+    "-i", "--info", action=argparse.BooleanOptionalAction, default=False
+)
 args = parser.parse_args()
 
 input_root = args.input_root
@@ -52,9 +61,18 @@ def do_extract(input: str, output: Path):
         subs = [s for s in info["streams"] if s["codec_type"] == "subtitle"]
 
         if args.info:
-            print(f'{input}:')
+            print(f"{input}:")
             for sub in subs:
-                print('\t' + pprint.pformat({k: v for k, v in sub['tags'].items() if k in ['title', 'language']}))
+                print(
+                    "\t"
+                    + pprint.pformat(
+                        {
+                            k: v
+                            for k, v in sub["tags"].items()
+                            if k in ["title", "language"]
+                        }
+                    )
+                )
             return
 
         if len(subs) > 1:

@@ -38,7 +38,9 @@ def do_process(file_path_str: str):
             ]
         ],
     }
-    with file_path.with_name(server_prefix + "show-metadata.json").open("w", encoding="utf8") as f:
+    with file_path.with_name(server_prefix + "show-metadata.json").open(
+        "w", encoding="utf8"
+    ) as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
 
