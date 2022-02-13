@@ -4,16 +4,12 @@ using Erabikata.Models.Input.V2;
 
 namespace Erabikata.Backend.Models.Actions
 {
-    public record IngestShows : Activity
+    public record IngestShows(ICollection<IngestShows.ShowToIngest> ShowsToIngest) : Activity
     {
-        public IngestShows(ICollection<ShowToIngest> showsToIngest)
-        {
-            ShowsToIngest = showsToIngest;
-        }
-
-        [DataMember]
-        public ICollection<ShowToIngest> ShowsToIngest { get; }
-
         public record ShowToIngest(ICollection<string> Files, ShowInfo Info);
     }
+
+    public record AltShow(string Prefix, ShowInfo Info);
+
+    public record IngestAltShows(IReadOnlyCollection<AltShow> AltShows) : Activity;
 }

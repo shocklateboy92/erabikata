@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
@@ -9,7 +10,12 @@ namespace Erabikata.Backend.CollectionMiddlewares
 {
     public class SeedDataMiddleware : ICollectionMiddleware
     {
+        private const string ShowMetadataJsonFileName = "/show-metadata.json";
         private readonly SeedDataProvider _seedDataProvider;
+        private static readonly Regex ServerPrefixRegex = new Regex(
+            "/[^/]+_show-metadata.json",
+            RegexOptions.Compiled
+        );
 
         public SeedDataMiddleware(SeedDataProvider seedDataProvider)
         {
@@ -24,7 +30,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                     var filesInSeed = _seedDataProvider.GetAllFiles();
                     var showsToIngest = await Task.WhenAll(
                         filesInSeed
-                            .Where(path => path.EndsWith("show-metadata.json"))
+                            .Where(path => path.EndsWith(ShowMetadataJsonFileName))
                             .Select(
                                 async showPath =>
                                     new IngestShows.ShowToIngest(
@@ -33,7 +39,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                                 path =>
                                                     path.StartsWith(
                                                         showPath.Replace(
-                                                            "/show-metadata.json",
+                                                            ShowMetadataJsonFileName,
                                                             string.Empty
                                                         )
                                                     )
@@ -46,6 +52,21 @@ namespace Erabikata.Backend.CollectionMiddlewares
 
                     // Dispatch a new action with the fetched data
                     await next(new IngestShows(showsToIngest));
+
+                    var altShowsToIngest = await Task.WhenAll(
+                        filesInSeed
+                            .Where(path => path.EndsWith("_show-metadata.json"))
+                            .Select(
+                                async path =>
+                                    new AltShow(
+                                        ServerPrefixRegex
+                                            .Match(path)
+                                            .Captures.FirstOrDefault()?.Value ?? "",
+                                        await SeedDataProvider.DeserializeFile<ShowInfo>(path)
+                                    )
+                            )
+                    );
+                    await next(new IngestAltShows(altShowsToIngest));
 
                     // Also continue the original action, so the db info manager
                     // updates its state correctly.
