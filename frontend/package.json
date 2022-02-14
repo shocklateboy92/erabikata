@@ -42,7 +42,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "yarn backend-gen && yarn rtk",
-    "backend-gen": "dotnet build ../backend/Erabikata.Backend $DOTNET_ARGS /target:NSwag && nswag run /runtime:Net60",
+    "backend-gen": "ASPNETCORE_ENVIRONMENT=Development nswag aspnetcore2openapi /project:../backend/Erabikata.Backend/Erabikata.Backend.csproj /output:../backend/Erabikata.Backend/obj/swagger.json && nswag run /runtime:Net60",
     "rtk": "rtk-query-codegen-openapi --hooks --baseQuery './src/baseQuery.ts' --file src/backend-rtk.generated.ts ../backend/Erabikata.Backend/obj/swagger.json"
   },
   "eslintConfig": {
@@ -69,7 +69,7 @@
     "@types/react-dom": "^17.0.0",
     "@types/react-redux": "^7.1.16",
     "@types/react-router-dom": "^5.1.7",
-    "nswag": "^13.15.5",
+    "nswag": "^13.15.9",
     "prettier": "^2.2.1",
     "sass": "^1.32.5",
     "typescript": "^4.1.3"

@@ -17,12 +17,13 @@
     <PackageReference Include="Mapster" Version="7.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.20.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.SnapshotCollector" Version="1.4.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="6.0.1" />
     <PackageReference Include="Microsoft.Identity.Web" Version="1.22.2" />
     <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
     <PackageReference Include="morelinq" Version="3.3.2" />
-    <PackageReference Include="NSwag.AspNetCore" Version="13.15.5" />
-    <PackageReference Include="NSwag.MSBuild" Version="13.15.5">
+    <PackageReference Include="NSwag.AspNetCore" Version="13.15.9" />
+    <PackageReference Include="NSwag.MSBuild" Version="13.15.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -47,9 +48,5 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </Content>
   </ItemGroup>
-
-  <Target Name="NSwag" DependsOnTargets="Build">
-    <Exec EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net60) aspnetcore2openapi /assembly:$(TargetDir)$(AssemblyName).dll /output:$(BaseIntermediateOutputPath)swagger.json" />
-  </Target>
 
 </Project>

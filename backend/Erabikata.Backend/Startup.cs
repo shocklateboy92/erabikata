@@ -14,7 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using NJsonSchema.Generation;
+using NSwag;
 using Refit;
 
 namespace Erabikata.Backend
@@ -60,12 +63,11 @@ namespace Erabikata.Backend
 
             services
                 .AddControllers()
-                .AddJsonOptions(
+                .AddNewtonsoftJson(
                     options =>
                     {
-                        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-                        options.JsonSerializerOptions.DefaultIgnoreCondition =
-                            JsonIgnoreCondition.WhenWritingNull;
+                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     }
                 );
             services.AddSpaStaticFiles(
@@ -84,6 +86,12 @@ namespace Erabikata.Backend
                     settings.DefaultResponseReferenceTypeNullHandling =
                         ReferenceTypeNullHandling.NotNull;
                     settings.SchemaProcessors.Add(new NonNullableAreRequiredSchemaProcessor());
+                    settings.PostProcess = document =>
+                    {
+                        document.Servers.Add(
+                            new OpenApiServer {Url = "https://erabikata3.apps.lasath.org"}
+                        );
+                    };
                 }
             );
         }
