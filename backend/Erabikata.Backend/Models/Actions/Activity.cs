@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
-using System.Text.Json.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using NJsonSchema.Converters;
 
 namespace Erabikata.Backend.Models.Actions
@@ -21,7 +21,7 @@ namespace Erabikata.Backend.Models.Actions
         typeof(BeginIngestion),
         typeof(EndIngestion)
     )]
-    [JsonConverter(typeof(Activity.Converter))]
+    [JsonConverter(typeof(JsonInheritanceConverter), DiscriminatorName)]
     [KnownType(typeof(LearnWord))]
     [KnownType(typeof(UnlearnWord))]
     [KnownType(typeof(LearnReading))]
@@ -38,10 +38,5 @@ namespace Erabikata.Backend.Models.Actions
     public record Activity
     {
         private const string DiscriminatorName = "activityType";
-
-        public class Converter : JsonInheritanceConverter
-        {
-            public override string DiscriminatorName => Activity.DiscriminatorName;
-        }
     }
 }
