@@ -13,7 +13,7 @@ namespace Erabikata.Backend.CollectionMiddlewares
         private const string ShowMetadataJsonFileName = "/show-metadata.json";
         private readonly SeedDataProvider _seedDataProvider;
         private static readonly Regex ServerPrefixRegex = new Regex(
-            "/[^/]+_show-metadata.json",
+            "/([^/]+)_show-metadata.json",
             RegexOptions.Compiled
         );
 
@@ -61,7 +61,10 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                     .Select(
                                         async path =>
                                             new AltShow(
-                                                ServerPrefixRegex.Match(path).Captures[1].Value,
+                                                ServerPrefixRegex
+                                                    .Match(path)
+                                                    .Groups.Values.Skip(1)
+                                                    .FirstOrDefault()?.Value ?? string.Empty,
                                                 Info: await SeedDataProvider.DeserializeFile<ShowInfo>(
                                                     path
                                                 ),

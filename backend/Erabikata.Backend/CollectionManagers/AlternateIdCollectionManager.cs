@@ -23,16 +23,15 @@ public class AlternateIdCollectionManager : ICollectionManager
             var alternateIds = ingestAltShows.AltShows
                 .SelectMany(
                     show =>
-                        show.Info.Episodes[0]
-                            .Select(
-                                (ep, index) =>
-                                    new AlternateId(
-                                        ep.Key.ParseId(),
-                                        show.Original.Episodes[0][index].Key.ParseId(),
-                                        show.Prefix,
-                                        AlternateIdType.Episode
-                                    )
-                            )
+                        show.Info.Episodes[0].Select(
+                            (ep, index) =>
+                                new AlternateId(
+                                    ep.Key.ParseId(),
+                                    show.Original.Episodes[0][index].Key.ParseId(),
+                                    show.Prefix,
+                                    AlternateIdType.Episode
+                                )
+                        )
                 )
                 .ToList();
             alternateIds.AddRange(
