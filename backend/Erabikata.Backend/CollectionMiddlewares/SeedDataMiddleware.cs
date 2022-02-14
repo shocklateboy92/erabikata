@@ -54,17 +54,21 @@ namespace Erabikata.Backend.CollectionMiddlewares
                     await next(new IngestShows(showsToIngest));
 
                     var altShowsToIngest = await Task.WhenAll(
-                        filesInSeed
-                            .Where(path => path.EndsWith("_show-metadata.json"))
-                            .Select(
-                                async path =>
-                                    new AltShow(
-                                        ServerPrefixRegex
-                                            .Match(path)
-                                            .Captures.FirstOrDefault()?.Value ?? "",
-                                        await SeedDataProvider.DeserializeFile<ShowInfo>(path)
+                        showsToIngest.SelectMany(
+                            show =>
+                                show.Files
+                                    .Where(path => path.EndsWith("_show-metadata.json"))
+                                    .Select(
+                                        async path =>
+                                            new AltShow(
+                                                ServerPrefixRegex.Match(path).Captures[1].Value,
+                                                Info: await SeedDataProvider.DeserializeFile<ShowInfo>(
+                                                    path
+                                                ),
+                                                Original: show.Info
+                                            )
                                     )
-                            )
+                        )
                     );
                     await next(new IngestAltShows(altShowsToIngest));
 

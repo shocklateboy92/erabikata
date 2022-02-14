@@ -1,3 +1,4 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace Erabikata.Backend.Models.Database;
@@ -10,7 +11,7 @@ public enum AlternateIdType
 
 public record AlternateId(
     [property: BsonId] int Id,
-    int Alternate,
+    int OriginalId,
     string Prefix,
-    AlternateIdType Type
+    [property: BsonRepresentation(BsonType.String)] AlternateIdType Type
 );

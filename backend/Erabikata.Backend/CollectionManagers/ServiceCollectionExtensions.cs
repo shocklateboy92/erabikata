@@ -19,6 +19,7 @@ namespace Erabikata.Backend.CollectionManagers
             AddCollectionManager<EpisodeInfoCollectionManager>(serviceCollection);
             AddCollectionManager<WordInfoCollectionManager>(serviceCollection);
             AddCollectionManager<DatabaseInfoManager>(serviceCollection);
+            AddCollectionManager<AlternateIdCollectionManager>(serviceCollection);
             return serviceCollection;
         }
 

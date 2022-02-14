@@ -9,7 +9,7 @@ namespace Erabikata.Backend.Models.Actions
         public record ShowToIngest(ICollection<string> Files, ShowInfo Info);
     }
 
-    public record AltShow(string Prefix, ShowInfo Info);
+    public record AltShow(string Prefix, ShowInfo Info, ShowInfo Original);
 
     public record IngestAltShows(IReadOnlyCollection<AltShow> AltShows) : Activity;
 }
