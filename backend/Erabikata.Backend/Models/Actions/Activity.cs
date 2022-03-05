@@ -1,6 +1,7 @@
 using System.Runtime.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
+using NJsonSchema.Annotations;
 using NJsonSchema.Converters;
 
 namespace Erabikata.Backend.Models.Actions
@@ -22,6 +23,7 @@ namespace Erabikata.Backend.Models.Actions
         typeof(EndIngestion)
     )]
     [JsonConverter(typeof(JsonInheritanceConverter), DiscriminatorName)]
+    [JsonSchemaProcessor(typeof(ActivityInheritanceSchemaProcessor))]
     [KnownType(typeof(LearnWord))]
     [KnownType(typeof(UnlearnWord))]
     [KnownType(typeof(LearnReading))]

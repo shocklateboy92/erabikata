@@ -38,10 +38,12 @@ export const toggleWordFurigana = createAsyncThunk<
 >('toggleWordFurigana', async (wordId, { getState, dispatch }) => {
     const isHidden = selectIsFuriganaHiddenForWords(getState(), [wordId]);
     await dispatch(
-        apiEndpoints.executeAction.initiate(
+        apiEndpoints.actionsExecute.initiate(
             {
-                activityType: isHidden ? 'UnLearnReading' : 'LearnReading',
-                wordId
+                activity: {
+                    activityType: isHidden ? 'UnLearnReading' : 'LearnReading',
+                    wordId
+                }
             },
             { track: false }
         )

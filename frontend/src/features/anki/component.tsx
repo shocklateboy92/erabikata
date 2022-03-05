@@ -1,7 +1,7 @@
 import { mdiSend, mdiSync } from '@mdi/js';
 import { useAppSelector, useTypedSelector } from 'app/hooks';
 import { useAppDispatch } from 'app/store';
-import { useEngSubsIndexQuery, useExecuteActionMutation } from 'backend';
+import { useEngSubsIndexQuery, useActionsExecuteMutation } from 'backend';
 import { EngSubsIndexApiArg } from 'backend-rtk.generated';
 import { ActionButton } from 'components/button/actionButton';
 import { Row } from 'components/layout';
@@ -179,7 +179,7 @@ const LinkField: FC = () => {
 };
 
 const SyncAnkiButton: FC = () => {
-    const [executeAction, { isLoading }] = useExecuteActionMutation();
+    const [executeAction, { isLoading }] = useActionsExecuteMutation();
     return (
         <ActionButton
             large

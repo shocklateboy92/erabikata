@@ -1,84 +1,58 @@
-import {
-    ActionsExecuteApiResponse,
-    api as generatedApi
-} from './backend-rtk.generated';
-import {
-    DisableStyle,
-    EnableStyle,
-    LearnReading,
-    SendToAnki,
-    SyncAnki,
-    UnLearnReading
-} from './backend.generated';
+import { api as generatedApi } from './backend-rtk.generated';
 
-const api = generatedApi
-    .enhanceEndpoints({
-        addTagTypes: [
-            'WordOccurrences',
-            'Dialog',
-            'EngDialog',
-            'KnownWords',
-            'KnownReadings',
-            'ActiveStyle'
-        ],
-        endpoints: {
-            engSubsActiveStylesFor: {
-                providesTags: ['ActiveStyle']
-            },
-            wordsKnown: {
-                providesTags: ['KnownWords']
-            },
-            wordsNotes: { providesTags: ['KnownWords'] },
-            engSubsIndex: {
-                providesTags: ['EngDialog']
-            },
-            wordsOccurrences: {
-                providesTags: (response) => [
-                    {
-                        type: 'WordOccurrences',
-                        id: response?.wordId
-                    }
-                ]
-            },
-            wordsUnknownRanks: {
-                providesTags: ['KnownWords']
+const api = generatedApi.enhanceEndpoints({
+    addTagTypes: [
+        'WordOccurrences',
+        'Dialog',
+        'EngDialog',
+        'KnownWords',
+        'KnownReadings',
+        'ActiveStyle'
+    ],
+    endpoints: {
+        engSubsActiveStylesFor: {
+            providesTags: ['ActiveStyle']
+        },
+        wordsKnown: {
+            providesTags: ['KnownWords']
+        },
+        wordsNotes: { providesTags: ['KnownWords'] },
+        engSubsIndex: {
+            providesTags: ['EngDialog']
+        },
+        wordsOccurrences: {
+            providesTags: (response) => [
+                {
+                    type: 'WordOccurrences',
+                    id: response?.wordId
+                }
+            ]
+        },
+        wordsUnknownRanks: {
+            providesTags: ['KnownWords']
+        },
+        actionsExecute: {
+            invalidatesTags: (
+                _response,
+                _error,
+                { activity: { activityType } }
+            ) => {
+                switch (activityType) {
+                    case 'EnableStyle':
+                    case 'DisableStyle':
+                        return ['EngDialog', 'ActiveStyle'];
+                    case 'SyncAnki':
+                        return ['KnownWords'];
+                    case 'LearnReading':
+                    case 'UnLearnReading':
+                        return ['KnownReadings'];
+                    default:
+                        return [];
+                }
             }
         }
-    })
-    .injectEndpoints({
-        endpoints: (build) => ({
-            executeAction: build.mutation<
-                ActionsExecuteApiResponse,
-                | EnableStyle
-                | DisableStyle
-                | SendToAnki
-                | SyncAnki
-                | LearnReading
-                | UnLearnReading
-            >({
-                query: (queryArg) => ({
-                    url: `/api/Actions/execute`,
-                    method: 'POST',
-                    body: queryArg
-                }),
-                invalidatesTags: (_response, _error, { activityType }) => {
-                    switch (activityType) {
-                        case 'EnableStyle':
-                        case 'DisableStyle':
-                            return ['EngDialog', 'ActiveStyle'];
-                        case 'SyncAnki':
-                            return ['KnownWords'];
-                        case 'LearnReading':
-                        case 'UnLearnReading':
-                            return ['KnownReadings'];
-                        default:
-                            return [];
-                    }
-                }
-            })
-        })
-    });
-
+    }
+});
 export const {
     useWordsOccurrencesQuery,
     useSubsByIdQuery,
@@ -88,7 +62,6 @@ export const {
     useEngSubsIndexQuery,
     useEngSubsShowIdOfQuery,
     useActionsExecuteMutation,
-    useExecuteActionMutation,
     useWordsUnknownRanksQuery,
     useWordsKnownQuery,
     useWordsNotesQuery,

@@ -2,7 +2,7 @@ import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { AppDispatch } from 'app/store';
 import { apiEndpoints } from 'backend';
-import { SendToAnki, SyncAnki } from 'backend.generated';
+import { ActionsExecuteApiArg, Activity } from 'backend-rtk.generated';
 import { notification } from 'features/notifications';
 import { ankiSendCompletion } from './ankiSlice';
 import {
@@ -15,7 +15,9 @@ import {
     selectWordTagsToSend
 } from './selectors';
 
-export const syncAnkiActivity = (): SyncAnki => ({ activityType: 'SyncAnki' });
+export const syncAnkiActivity = (): ActionsExecuteApiArg => ({
+    activity: { activityType: 'SyncAnki' }
+});
 
 export const sendToAnki: AsyncThunk<
     void,
@@ -40,23 +42,25 @@ export const sendToAnki: AsyncThunk<
     }
     const [{ reading, kanji }] = word.japanese;
 
-    const activity: SendToAnki = {
-        activityType: 'SendToAnki',
-        text: selectSentenceTextToSend(state)!,
-        link: selectSentenceLinkToSend(state)!,
-        image: { ...selectImageTimeToSend(state)!, includeSubs: true },
-        notes: selectWordTagsToSend(state)!,
-        meaning: selectMeaningTextToSend(state)!,
-        primaryWord:
-            kanji ??
-            reading ??
-            throwError(new Error(`Word ${word.id} had no kanji or reading`)),
-        primaryWordMeaning: selectWordMeaningTextToSend(state)!,
-        primaryWordReading: reading ?? ''
-    };
-
     const response = await dispatch(
-        apiEndpoints.executeAction.initiate(activity)
+        apiEndpoints.actionsExecute.initiate({
+            activity: {
+                activityType: 'SendToAnki',
+                text: selectSentenceTextToSend(state)!,
+                link: selectSentenceLinkToSend(state)!,
+                image: { ...selectImageTimeToSend(state)!, includeSubs: true },
+                notes: selectWordTagsToSend(state)!,
+                meaning: selectMeaningTextToSend(state)!,
+                primaryWord:
+                    kanji ??
+                    reading ??
+                    throwError(
+                        new Error(`Word ${word.id} had no kanji or reading`)
+                    ),
+                primaryWordMeaning: selectWordMeaningTextToSend(state)!,
+                primaryWordReading: reading ?? ''
+            }
+        })
     );
     if ('error' in response) {
         dispatch(
@@ -70,7 +74,7 @@ export const sendToAnki: AsyncThunk<
 
     dispatch(ankiSendCompletion());
 
-    await dispatch(apiEndpoints.executeAction.initiate(syncAnkiActivity()));
+    await dispatch(apiEndpoints.actionsExecute.initiate(syncAnkiActivity()));
 
     if (document.hidden) {
         const worker = await navigator.serviceWorker.getRegistration();
