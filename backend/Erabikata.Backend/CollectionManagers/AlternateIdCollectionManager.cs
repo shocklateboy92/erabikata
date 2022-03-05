@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.Extensions;
@@ -49,5 +50,12 @@ public class AlternateIdCollectionManager : ICollectionManager
             await _mongoCollection.DeleteManyAsync(FilterDefinition<AlternateId>.Empty);
             await _mongoCollection.InsertManyAsync(alternateIds);
         }
+    }
+
+    public async Task<IReadOnlyDictionary<string, string>> GetAllEntries()
+    {
+        var results = await _mongoCollection.FindAsync(FilterDefinition<AlternateId>.Empty);
+        var all = await results.ToListAsync();
+        return all.ToDictionary(a => a.Id.ToString(), a => a.OriginalId.ToString());
     }
 }

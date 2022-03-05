@@ -5,6 +5,7 @@ import {
     ThunkDispatch
 } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
+import { apiEndpoints } from 'backend';
 import * as hass from 'home-assistant-js-websocket';
 import {
     hassEntityUpdate,
@@ -31,6 +32,10 @@ const createConnection = async (
             }
         })
     });
+
+    // Not doing fancy checks because `createConnection` will only be
+    // called once (pending weird bugs).
+    dispatch(apiEndpoints.alternateIdsMap.initiate({}));
 
     connection.addEventListener('ready', compose(dispatch, hassSocketReady));
     connection.addEventListener(
