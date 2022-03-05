@@ -8,12 +8,17 @@ import json
 auth_token = Path("../../anime-subs/x-plex-token.txt").read_text().strip()
 
 input_root = argv[1] if len(argv) > 1 else "../../anime-subs"
-files = glob(f"{input_root}/**/show_id.txt", recursive=True)
+server_prefix = argv[2] + "_" if len(argv) > 2 else ""
+files = glob(f"{input_root}/**/{server_prefix}show_id.txt", recursive=True)
 
 print(f"Processing {len(files)} shows")
 
-
-server = PlexServer(baseurl="https://plex.apps.lasath.org", token=auth_token)
+url = (
+    "http://neelix.modem:32400"
+    if server_prefix == "neelix_"
+    else "https://plex.apps.lasath.org"
+)
+server = PlexServer(baseurl=url, token=auth_token)
 anime = server.library.section("Anime")
 
 
@@ -33,7 +38,9 @@ def do_process(file_path_str: str):
             ]
         ],
     }
-    with file_path.with_name("show-metadata.json").open("w", encoding="utf8") as f:
+    with file_path.with_name(server_prefix + "show-metadata.json").open(
+        "w", encoding="utf8"
+    ) as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
 
