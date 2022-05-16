@@ -64,7 +64,8 @@ namespace Erabikata.Backend.CollectionMiddlewares
                                                 ServerPrefixRegex
                                                     .Match(path)
                                                     .Groups.Values.Skip(1)
-                                                    .FirstOrDefault()?.Value ?? string.Empty,
+                                                    .FirstOrDefault()
+                                                    ?.Value ?? string.Empty,
                                                 Info: await SeedDataProvider.DeserializeFile<ShowInfo>(
                                                     path
                                                 ),

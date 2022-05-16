@@ -38,56 +38,60 @@ namespace Erabikata.Backend.Controllers
                 var cachePath =
                     $"{_settings.ImageCacheDir}/{includeSubs}-{episodeId}-{time:00000.00}.png";
 
-                await _tasks.GetOrAdd(
-                    cachePath,
-                    new Lazy<Task>(
-                        async () =>
-                        {
-                            Directory.CreateDirectory(_settings.ImageCacheDir);
-
-                            var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(
-                                input,
-                                cachePath,
-                                TimeSpan.FromSeconds(time)
-                            );
-
-                            if (includeSubs)
+                await _tasks
+                    .GetOrAdd(
+                        cachePath,
+                        new Lazy<Task>(
+                            async () =>
                             {
-                                // ffmpeg interprets ':' as delimiter in 'subtitles=' argument
-                                var subInputFile = input.Replace(":", @"\:");
+                                Directory.CreateDirectory(_settings.ImageCacheDir);
 
-                                // https://stackoverflow.com/a/59576487
-                                conversion.AddParameter("-copyts");
+                                var conversion = await FFmpeg.Conversions.FromSnippet.Snapshot(
+                                    input,
+                                    cachePath,
+                                    TimeSpan.FromSeconds(time)
+                                );
 
-                                if (episodeInfo.SubTracks?.Count > 0)
+                                if (includeSubs)
                                 {
-                                    var mediaInfo = await FFmpeg.GetMediaInfo(input);
-                                    // Turns out the subtitle filter does not want the stream id,
-                                    // but rather the index of the stream w.r.t. sub streams
-                                    var subIndex = mediaInfo.SubtitleStreams
-                                        .ToList()
-                                        .FindIndex(
-                                            sub => episodeInfo.SubTracks.Contains(sub.Title)
-                                        );
-                                    if (subIndex > 0)
+                                    // ffmpeg interprets ':' as delimiter in 'subtitles=' argument
+                                    var subInputFile = input.Replace(":", @"\:");
+
+                                    // https://stackoverflow.com/a/59576487
+                                    conversion.AddParameter("-copyts");
+
+                                    if (episodeInfo.SubTracks?.Count > 0)
                                     {
-                                        // https://ffmpeg.org/ffmpeg-filters.html#subtitles-1
+                                        var mediaInfo = await FFmpeg.GetMediaInfo(input);
+                                        // Turns out the subtitle filter does not want the stream id,
+                                        // but rather the index of the stream w.r.t. sub streams
+                                        var subIndex = mediaInfo.SubtitleStreams
+                                            .ToList()
+                                            .FindIndex(
+                                                sub => episodeInfo.SubTracks.Contains(sub.Title)
+                                            );
+                                        if (subIndex > 0)
+                                        {
+                                            // https://ffmpeg.org/ffmpeg-filters.html#subtitles-1
+                                            conversion.AddParameter(
+                                                $"-vf subtitles=\"'{subInputFile}'\":si={subIndex}"
+                                            );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // https://superuser.com/a/1309658
                                         conversion.AddParameter(
-                                            $"-vf subtitles=\"'{subInputFile}'\":si={subIndex}"
+                                            $"-vf subtitles=\"'{subInputFile}'\""
                                         );
                                     }
                                 }
-                                else
-                                {
-                                    // https://superuser.com/a/1309658
-                                    conversion.AddParameter($"-vf subtitles=\"'{subInputFile}'\"");
-                                }
-                            }
 
-                            await conversion.Start();
-                        }
+                                await conversion.Start();
+                            }
+                        )
                     )
-                ).Value;
+                    .Value;
 
                 return PhysicalFile(cachePath, "image/png");
             }

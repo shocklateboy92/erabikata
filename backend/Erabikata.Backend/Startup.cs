@@ -89,7 +89,7 @@ namespace Erabikata.Backend
                     settings.PostProcess = document =>
                     {
                         document.Servers.Add(
-                            new OpenApiServer {Url = "https://erabikata3.apps.lasath.org"}
+                            new OpenApiServer { Url = "https://erabikata3.apps.lasath.org" }
                         );
                     };
                 }
