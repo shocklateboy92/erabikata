@@ -4,31 +4,30 @@ using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Processing;
 
-namespace Erabikata.Backend.CollectionMiddlewares
+namespace Erabikata.Backend.CollectionMiddlewares;
+
+public class DialogPostprocessingMiddleware : ICollectionMiddleware
 {
-    public class DialogPostprocessingMiddleware : ICollectionMiddleware
+    private readonly DialogCollectionManager _dialog;
+    private readonly WordInfoCollectionManager _wordInfo;
+
+    public DialogPostprocessingMiddleware(
+        WordInfoCollectionManager wordInfo,
+        DialogCollectionManager dialog
+    )
     {
-        private readonly DialogCollectionManager _dialog;
-        private readonly WordInfoCollectionManager _wordInfo;
+        _wordInfo = wordInfo;
+        _dialog = dialog;
+    }
 
-        public DialogPostprocessingMiddleware(
-            WordInfoCollectionManager wordInfo,
-            DialogCollectionManager dialog
-        )
+    public async Task Execute(Activity activity, Func<Activity, Task> next)
+    {
+        await next(activity);
+        if (activity is BeginIngestion or DictionaryUpdate)
         {
-            _wordInfo = wordInfo;
-            _dialog = dialog;
-        }
-
-        public async Task Execute(Activity activity, Func<Activity, Task> next)
-        {
-            await next(activity);
-            if (activity is BeginIngestion or DictionaryUpdate)
-            {
-                var matcher = await _wordInfo.BuildWordMatcher();
-                await _dialog.ProcessWords2(matcher);
-                await _wordInfo.UpdateWordCounts(matcher.GetUpdatedWordCounts());
-            }
+            var matcher = await _wordInfo.BuildWordMatcher();
+            await _dialog.ProcessWords2(matcher);
+            await _wordInfo.UpdateWordCounts(matcher.GetUpdatedWordCounts());
         }
     }
 }

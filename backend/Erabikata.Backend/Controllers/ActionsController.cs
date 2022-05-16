@@ -12,91 +12,90 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Erabikata.Backend.Controllers
+namespace Erabikata.Backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ActionsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ActionsController : ControllerBase
+    private readonly IReadOnlyCollection<ICollectionManager> _collectionManagers;
+    private readonly IEnumerable<ICollectionMiddleware> _collectionMiddlewares;
+    private readonly ILogger<ActionsController> _logger;
+    private readonly IMongoCollection<ActivityExecution> _mongo;
+
+    public ActionsController(
+        IMongoCollection<ActivityExecution> mongo,
+        IEnumerable<ICollectionManager> collectionManagers,
+        ILogger<ActionsController> logger,
+        IEnumerable<ICollectionMiddleware> collectionMiddlewares
+    )
     {
-        private readonly IReadOnlyCollection<ICollectionManager> _collectionManagers;
-        private readonly IEnumerable<ICollectionMiddleware> _collectionMiddlewares;
-        private readonly ILogger<ActionsController> _logger;
-        private readonly IMongoCollection<ActivityExecution> _mongo;
+        _mongo = mongo;
+        _logger = logger;
+        _collectionMiddlewares = collectionMiddlewares;
+        _collectionManagers = collectionManagers.ToList();
+    }
 
-        public ActionsController(
-            IMongoCollection<ActivityExecution> mongo,
-            IEnumerable<ICollectionManager> collectionManagers,
-            ILogger<ActionsController> logger,
-            IEnumerable<ICollectionMiddleware> collectionMiddlewares
-        )
+    [HttpPost]
+    [Route("execute")]
+    public async Task<ActionResult> Execute([FromBody] Activity activity)
+    {
+        var execution = new ActivityExecution(ObjectId.Empty, activity);
+        await _mongo.InsertOneAsync(execution);
+
+        await ExecuteMiddleware(activity, _collectionMiddlewares);
+
+        return Ok(execution.Id);
+    }
+
+    [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+    private Task ExecuteMiddleware(
+        Activity previousActivity,
+        IEnumerable<ICollectionMiddleware> remaining
+    )
+    {
+        var current = remaining.FirstOrDefault();
+        if (current != null)
         {
-            _mongo = mongo;
-            _logger = logger;
-            _collectionMiddlewares = collectionMiddlewares;
-            _collectionManagers = collectionManagers.ToList();
+            _logger.LogInformationString(
+                $"Executing middleware' {current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
+            );
+            var result = current.Execute(
+                previousActivity,
+                modifiedActivity => ExecuteMiddleware(modifiedActivity, remaining.Skip(1))
+            );
+            _logger.LogInformationString(
+                $"Completed middleware '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
+            );
+            return result;
         }
 
-        [HttpPost]
-        [Route("execute")]
-        public async Task<ActionResult> Execute([FromBody] Activity activity)
+        return ExecuteCollectionManagers(previousActivity);
+    }
+
+    private async Task ExecuteCollectionManagers(Activity activity)
+    {
+        foreach (var manager in _collectionManagers)
         {
-            var execution = new ActivityExecution(ObjectId.Empty, activity);
-            await _mongo.InsertOneAsync(execution);
-
-            await ExecuteMiddleware(activity, _collectionMiddlewares);
-
-            return Ok(execution.Id);
+            _logger.LogInformationString(
+                $"Executing collection manager '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
+            );
+            await manager.OnActivityExecuting(activity);
+            _logger.LogInformationString(
+                $"Completed collection manager '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
+            );
         }
 
-        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        private Task ExecuteMiddleware(
-            Activity previousActivity,
-            IEnumerable<ICollectionMiddleware> remaining
-        )
-        {
-            var current = remaining.FirstOrDefault();
-            if (current != null)
-            {
-                _logger.LogInformationString(
-                    $"Executing middleware' {current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
-                );
-                var result = current.Execute(
-                    previousActivity,
-                    modifiedActivity => ExecuteMiddleware(modifiedActivity, remaining.Skip(1))
-                );
-                _logger.LogInformationString(
-                    $"Completed middleware '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
-                );
-                return result;
-            }
+        _logger.LogInformationString($"Completed all collection managers");
+    }
 
-            return ExecuteCollectionManagers(previousActivity);
-        }
-
-        private async Task ExecuteCollectionManagers(Activity activity)
-        {
-            foreach (var manager in _collectionManagers)
-            {
-                _logger.LogInformationString(
-                    $"Executing collection manager '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
-                );
-                await manager.OnActivityExecuting(activity);
-                _logger.LogInformationString(
-                    $"Completed collection manager '{manager.GetType().Name}' for '{activity.GetType().Name}' activity"
-                );
-            }
-
-            _logger.LogInformationString($"Completed all collection managers");
-        }
-
-        [HttpGet]
-        [Route("list")]
-        public Task<List<ActivityExecution>> List()
-        {
-            return _mongo
-                .Find(FilterDefinition<ActivityExecution>.Empty)
-                .SortByDescending(execution => execution.Id)
-                .ToListAsync();
-        }
+    [HttpGet]
+    [Route("list")]
+    public Task<List<ActivityExecution>> List()
+    {
+        return _mongo
+            .Find(FilterDefinition<ActivityExecution>.Empty)
+            .SortByDescending(execution => execution.Id)
+            .ToListAsync();
     }
 }

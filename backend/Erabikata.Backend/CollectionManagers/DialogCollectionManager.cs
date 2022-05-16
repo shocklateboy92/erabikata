@@ -16,400 +16,378 @@ using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
-namespace Erabikata.Backend.CollectionManagers
+namespace Erabikata.Backend.CollectionManagers;
+
+public class DialogCollectionManager : ICollectionManager
 {
-    public class DialogCollectionManager : ICollectionManager
+    private const int TimeDelta = 10;
+    private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
+    private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
+
+    private readonly ILogger<DialogCollectionManager> _logger;
+
+    private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>> _mongoCollections;
+
+    public DialogCollectionManager(
+        IMongoDatabase database,
+        ILogger<DialogCollectionManager> logger,
+        AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
+        AssParserService.AssParserServiceClient assParserServiceClient
+    )
     {
-        private const int TimeDelta = 10;
-        private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
-        private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
-
-        private readonly ILogger<DialogCollectionManager> _logger;
-
-        private readonly IReadOnlyDictionary<
-            AnalyzerMode,
-            IMongoCollection<Dialog>
-        > _mongoCollections;
-
-        public DialogCollectionManager(
-            IMongoDatabase database,
-            ILogger<DialogCollectionManager> logger,
-            AnalyzerService.AnalyzerServiceClient analyzerServiceClient,
-            AssParserService.AssParserServiceClient assParserServiceClient
-        )
+        _logger = logger;
+        _analyzerServiceClient = analyzerServiceClient;
+        _assParserServiceClient = assParserServiceClient;
+        _mongoCollections = new[]
         {
-            _logger = logger;
-            _analyzerServiceClient = analyzerServiceClient;
-            _assParserServiceClient = assParserServiceClient;
-            _mongoCollections = new[]
-            {
-                AnalyzerMode.SudachiA,
-                AnalyzerMode.SudachiB,
-                AnalyzerMode.SudachiC
-            }.ToDictionary(
-                mode => mode,
-                mode => database.GetCollection<Dialog>(nameof(Dialog) + mode)
-            );
+            AnalyzerMode.SudachiA,
+            AnalyzerMode.SudachiB,
+            AnalyzerMode.SudachiC
+        }.ToDictionary(mode => mode, mode => database.GetCollection<Dialog>(nameof(Dialog) + mode));
+    }
+
+    public async Task OnActivityExecuting(Activity activity)
+    {
+        switch (activity)
+        {
+            case IngestShows ingestShows:
+                await Task.WhenAll(
+                    _mongoCollections.Values.Select(
+                        collection => collection.DeleteManyAsync(FilterDefinition<Dialog>.Empty)
+                    )
+                );
+                await IngestDialog(ingestShows.ShowsToIngest);
+                break;
         }
+    }
 
-        public async Task OnActivityExecuting(Activity activity)
+    public async Task ProcessWords2(WordMatcher matcher)
+    {
+        var cursor = await _mongoCollections[Constants.DefaultAnalyzerMode].FindAsync(
+            FilterDefinition<Dialog>.Empty,
+            new FindOptions<Dialog> { BatchSize = 10000 }
+        );
+        while (await cursor.MoveNextAsync())
         {
-            switch (activity)
-            {
-                case IngestShows ingestShows:
-                    await Task.WhenAll(
-                        _mongoCollections.Values.Select(
-                            collection => collection.DeleteManyAsync(FilterDefinition<Dialog>.Empty)
-                        )
-                    );
-                    await IngestDialog(ingestShows.ShowsToIngest);
-                    break;
-            }
-        }
-
-        public async Task ProcessWords2(WordMatcher matcher)
-        {
-            var cursor = await _mongoCollections[Constants.DefaultAnalyzerMode].FindAsync(
-                FilterDefinition<Dialog>.Empty,
-                new FindOptions<Dialog> { BatchSize = 10000 }
-            );
-            while (await cursor.MoveNextAsync())
-            {
-                var processed = cursor.Current
-                    .AsParallel()
-                    .Select(
-                        dialog =>
+            var processed = cursor.Current
+                .AsParallel()
+                .Select(
+                    dialog =>
+                    {
+                        foreach (var (index, line) in dialog.Lines.WithIndicies())
                         {
-                            foreach (var (index, line) in dialog.Lines.WithIndicies())
+                            try
                             {
-                                try
+                                var wordsInLine = matcher.FillMatchesAndGetWords(
+                                    line.Words,
+                                    incrementWordRanks: !dialog.ExcludeWhenRanking
+                                );
+                                foreach (var wordId in wordsInLine)
                                 {
-                                    var wordsInLine = matcher.FillMatchesAndGetWords(
-                                        line.Words,
-                                        incrementWordRanks: !dialog.ExcludeWhenRanking
-                                    );
-                                    foreach (var wordId in wordsInLine)
-                                    {
-                                        dialog.WordsToRank.Add(wordId);
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    _logger.LogError(
-                                        e,
-                                        "Error processing line {LineNumber} '{Line}' of dialog '{Dialog}'",
-                                        index,
-                                        string.Join(", ", line.Words.Select(w => w.OriginalForm)),
-                                        dialog.Id
-                                    );
+                                    dialog.WordsToRank.Add(wordId);
                                 }
                             }
-
-                            return dialog;
+                            catch (Exception e)
+                            {
+                                _logger.LogError(
+                                    e,
+                                    "Error processing line {LineNumber} '{Line}' of dialog '{Dialog}'",
+                                    index,
+                                    string.Join(", ", line.Words.Select(w => w.OriginalForm)),
+                                    dialog.Id
+                                );
+                            }
                         }
-                    );
 
-                var replaceOneModels = processed
-                    .Select(
-                        dialog =>
-                            new ReplaceOneModel<Dialog>(
-                                Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
-                                dialog
-                            )
-                    )
-                    .ToArray();
-                await _mongoCollections[Constants.DefaultAnalyzerMode].BulkWriteAsync(
-                    replaceOneModels,
-                    new BulkWriteOptions { IsOrdered = false }
+                        return dialog;
+                    }
                 );
-            }
+
+            var replaceOneModels = processed
+                .Select(
+                    dialog =>
+                        new ReplaceOneModel<Dialog>(
+                            Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
+                            dialog
+                        )
+                )
+                .ToArray();
+            await _mongoCollections[Constants.DefaultAnalyzerMode].BulkWriteAsync(
+                replaceOneModels,
+                new BulkWriteOptions { IsOrdered = false }
+            );
+        }
+    }
+
+    private async Task IngestDialog(IEnumerable<IngestShows.ShowToIngest> ingestShowsShowsToIngest)
+    {
+        foreach (var (files, showInfo) in ingestShowsShowsToIngest)
+        {
+            var includeStylesFile = files.FirstOrDefault(
+                path => path.EndsWith("input/include_styles.txt")
+            );
+            var includeStyles =
+                includeStylesFile == null
+                    ? new HashSet<string>()
+                    : (await File.ReadAllLinesAsync(includeStylesFile)).ToHashSet();
+            var songStylesFile = files.FirstOrDefault(
+                path => path.EndsWith("input/song_styles.txt")
+            );
+            var songStyles =
+                songStylesFile == null
+                    ? new HashSet<string>()
+                    : (await File.ReadAllLinesAsync(songStylesFile)).ToHashSet();
+
+            await Task.WhenAll(
+                showInfo.Episodes[0].Select(
+                    (info, index) =>
+                    {
+                        var epNum = index + 1;
+                        return IngestEpisode(
+                            files.FirstOrDefault(
+                                path => SeedDataProvider.IsPathForEpisode(path, "input", epNum)
+                            ),
+                            (epNum, info.Key),
+                            includeStyles,
+                            songStyles,
+                            showInfo.Title
+                        );
+                    }
+                )
+            );
+        }
+    }
+
+    private async Task IngestEpisode(
+        string? file,
+        (int index, string key) info,
+        IReadOnlySet<string> includeStyles,
+        IReadOnlySet<string> songStyles,
+        string showTitle
+    )
+    {
+        var episodeId = int.Parse(info.key.Split('/').Last());
+        if (file == null)
+        {
+            _logger.LogError("Unable to find input file for episode '{EpisodeId}'", info);
+            return;
         }
 
-        private async Task IngestDialog(
-            IEnumerable<IngestShows.ShowToIngest> ingestShowsShowsToIngest
-        )
+        try
         {
-            foreach (var (files, showInfo) in ingestShowsShowsToIngest)
-            {
-                var includeStylesFile = files.FirstOrDefault(
-                    path => path.EndsWith("input/include_styles.txt")
-                );
-                var includeStyles =
-                    includeStylesFile == null
-                        ? new HashSet<string>()
-                        : (await File.ReadAllLinesAsync(includeStylesFile)).ToHashSet();
-                var songStylesFile = files.FirstOrDefault(
-                    path => path.EndsWith("input/song_styles.txt")
-                );
-                var songStyles =
-                    songStylesFile == null
-                        ? new HashSet<string>()
-                        : (await File.ReadAllLinesAsync(songStylesFile)).ToHashSet();
+            using var client = _assParserServiceClient.ParseAss();
+            await EngSubCollectionManager.WriteFileToParserClient(client, file);
 
-                await Task.WhenAll(
-                    showInfo.Episodes[0].Select(
-                        (info, index) =>
+            var dialog = await client.ResponseStream.ToListAsync();
+            var dialogToInclude = dialog.Where(
+                responseDialog =>
+                    !responseDialog.IsComment
+                    && (includeStyles.Contains(responseDialog.Style) || file.EndsWith(".srt"))
+            );
+            var songsToInclude = dialog
+                .Where(
+                    responseDialog =>
+                        !responseDialog.IsComment && songStyles.Contains(responseDialog.Style)
+                )
+                // Ditch the repeated lines caused by funky special effects
+                .WithoutAdjacentDuplicates(
+                    responseDialog => string.Join(string.Empty, responseDialog.Lines)
+                )
+                // Sometimes, there are dialogs on screen, causing the duplicates to
+                // not be adjacent. De-duping by time instead.
+                .GroupBy(
+                    responseDialog =>
+                        (
+                            (int)Math.Round(responseDialog.Time),
+                            string.Join(string.Empty, responseDialog.Lines)
+                        )
+                )
+                .Select(g => g.First());
+            var toInclude = dialogToInclude.Concat(songsToInclude).ToArray();
+
+            var mode = Constants.DefaultAnalyzerMode;
+            var collection = _mongoCollections[mode];
+            using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
+            await analyzer.RequestStream.WriteAllAsync(
+                toInclude.Select(
+                    responseDialog =>
+                        new AnalyzeDialogRequest
                         {
-                            var epNum = index + 1;
-                            return IngestEpisode(
-                                files.FirstOrDefault(
-                                    path => SeedDataProvider.IsPathForEpisode(path, "input", epNum)
-                                ),
-                                (epNum, info.Key),
-                                includeStyles,
-                                songStyles,
-                                showInfo.Title
-                            );
+                            Mode = mode,
+                            Style = responseDialog.Style,
+                            Time = responseDialog.Time,
+                            Lines = { responseDialog.Lines }
                         }
-                    )
-                );
-            }
-        }
+                )
+            );
+            var analyzed = await analyzer.ResponseStream.ToListAsync();
+            var toInsert = analyzed
+                .Select(
+                    (response, index) =>
+                        new Dialog(
+                            ObjectId.Empty,
+                            episodeId,
+                            index,
+                            response.Time,
+                            $"{showTitle} Episode {info.index}"
+                        )
+                        {
+                            Lines = response.Lines.Select(ProcessLine),
+                            ExcludeWhenRanking = songStyles.Contains(response.Style)
+                        }
+                )
+                .ToArray();
 
-        private async Task IngestEpisode(
-            string? file,
-            (int index, string key) info,
-            IReadOnlySet<string> includeStyles,
-            IReadOnlySet<string> songStyles,
-            string showTitle
-        )
-        {
-            var episodeId = int.Parse(info.key.Split('/').Last());
-            if (file == null)
+            if (!toInsert.Any())
             {
-                _logger.LogError("Unable to find input file for episode '{EpisodeId}'", info);
+                _logger.LogError("'{File}' had no dialog. Are the style filters correct?", file);
                 return;
             }
 
-            try
-            {
-                using var client = _assParserServiceClient.ParseAss();
-                await EngSubCollectionManager.WriteFileToParserClient(client, file);
+            await collection.InsertManyAsync(toInsert, new InsertManyOptions { IsOrdered = false });
+        }
+        catch (RpcException exception)
+        {
+            _logger.LogError(exception, "Unable to parse file '{File}': ", file);
+        }
+    }
 
-                var dialog = await client.ResponseStream.ToListAsync();
-                var dialogToInclude = dialog.Where(
-                    responseDialog =>
-                        !responseDialog.IsComment
-                        && (includeStyles.Contains(responseDialog.Style) || file.EndsWith(".srt"))
-                );
-                var songsToInclude = dialog
-                    .Where(
-                        responseDialog =>
-                            !responseDialog.IsComment && songStyles.Contains(responseDialog.Style)
-                    )
-                    // Ditch the repeated lines caused by funky special effects
-                    .WithoutAdjacentDuplicates(
-                        responseDialog => string.Join(string.Empty, responseDialog.Lines)
-                    )
-                    // Sometimes, there are dialogs on screen, causing the duplicates to
-                    // not be adjacent. De-duping by time instead.
-                    .GroupBy(
-                        responseDialog =>
-                            (
-                                (int)Math.Round(responseDialog.Time),
-                                string.Join(string.Empty, responseDialog.Lines)
-                            )
-                    )
-                    .Select(g => g.First());
-                var toInclude = dialogToInclude.Concat(songsToInclude).ToArray();
-
-                var mode = Constants.DefaultAnalyzerMode;
-                var collection = _mongoCollections[mode];
-                using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
-                await analyzer.RequestStream.WriteAllAsync(
-                    toInclude.Select(
-                        responseDialog =>
-                            new AnalyzeDialogRequest
-                            {
-                                Mode = mode,
-                                Style = responseDialog.Style,
-                                Time = responseDialog.Time,
-                                Lines = { responseDialog.Lines }
-                            }
-                    )
-                );
-                var analyzed = await analyzer.ResponseStream.ToListAsync();
-                var toInsert = analyzed
-                    .Select(
-                        (response, index) =>
-                            new Dialog(
-                                ObjectId.Empty,
-                                episodeId,
-                                index,
-                                response.Time,
-                                $"{showTitle} Episode {info.index}"
-                            )
-                            {
-                                Lines = response.Lines.Select(ProcessLine),
-                                ExcludeWhenRanking = songStyles.Contains(response.Style)
-                            }
-                    )
-                    .ToArray();
-
-                if (!toInsert.Any())
+    private static Dialog.Line ProcessLine(AnalyzeDialogResponse.Types.Line line)
+    {
+        var results = new List<Dialog.Word>(line.Words.Count);
+        foreach (var word in line.Words)
+        {
+            var bracketCount = 0;
+            foreach (var c in word.Original)
+                switch (c)
                 {
-                    _logger.LogError(
-                        "'{File}' had no dialog. Are the style filters correct?",
-                        file
-                    );
-                    return;
+                    case '(':
+                    case '（':
+                        bracketCount++;
+                        break;
+                    case ')':
+                    case '）':
+                        bracketCount--;
+                        break;
                 }
 
-                await collection.InsertManyAsync(
-                    toInsert,
-                    new InsertManyOptions { IsOrdered = false }
-                );
-            }
-            catch (RpcException exception)
-            {
-                _logger.LogError(exception, "Unable to parse file '{File}': ", file);
-            }
-        }
-
-        private static Dialog.Line ProcessLine(AnalyzeDialogResponse.Types.Line line)
-        {
-            var results = new List<Dialog.Word>(line.Words.Count);
-            foreach (var word in line.Words)
-            {
-                var bracketCount = 0;
-                foreach (var c in word.Original)
-                    switch (c)
-                    {
-                        case '(':
-                        case '（':
-                            bracketCount++;
-                            break;
-                        case ')':
-                        case '）':
-                            bracketCount--;
-                            break;
-                    }
-
-                results.Add(
-                    new Dialog.Word(
-                        word.BaseForm,
-                        word.DictionaryForm,
-                        // replace the normalized spaces with the funky Japanese spaces
-                        word.Original.Replace(' ', '　'),
-                        word.Reading,
-                        bracketCount > 0
-                    )
-                    {
-                        PartOfSpeech = word.PartOfSpeech
-                    }
-                );
-            }
-
-            return new Dialog.Line(results);
-        }
-
-        public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
-            AnalyzerMode mode,
-            int episodeId,
-            IEnumerable<int> wordIds
-        )
-        {
-            var cursor = await _mongoCollections[mode].AggregateAsync(
-                PipelineDefinition<Dialog, UnwoundRank>.Create(
-                    new BsonDocument("$match", new BsonDocument("EpisodeId", episodeId)),
-                    new BsonDocument("$unwind", "$WordsToRank"),
-                    new BsonDocument("$sortByCount", "$WordsToRank"),
-                    new BsonDocument(
-                        "$group",
-                        new BsonDocument
-                        {
-                            { "_id", BsonNull.Value },
-                            { "counts", new BsonDocument("$push", "$$ROOT") }
-                        }
-                    ),
-                    new BsonDocument(
-                        "$unwind",
-                        new BsonDocument { { "path", "$counts" }, { "includeArrayIndex", "rank" } }
-                    ),
-                    new BsonDocument(
-                        "$match",
-                        new BsonDocument(
-                            "counts._id",
-                            new BsonDocument("$in", new BsonArray(wordIds))
-                        )
-                    )
+            results.Add(
+                new Dialog.Word(
+                    word.BaseForm,
+                    word.DictionaryForm,
+                    // replace the normalized spaces with the funky Japanese spaces
+                    word.Original.Replace(' ', '　'),
+                    word.Reading,
+                    bracketCount > 0
                 )
+                {
+                    PartOfSpeech = word.PartOfSpeech
+                }
             );
-            return await cursor.ToListAsync();
         }
 
-        public Task<AggregateCountResult> GetEpisodeWordCount(
-            AnalyzerMode analyzerMode,
-            int episodeId
-        )
-        {
-            return _mongoCollections[analyzerMode]
-                .Aggregate()
-                .Match(dialog => dialog.EpisodeId == episodeId)
-                .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
-                .Group(
-                    doc => string.Empty,
-                    grouping =>
-                        new { uniqueWordIds = grouping.Select(i => i.WordsToRank).Distinct() }
-                )
-                .Unwind(group => group.uniqueWordIds)
-                .Count()
-                .FirstAsync();
-        }
-
-        public Task<List<DialogWords>> GetOccurrences(AnalyzerMode mode, int wordId)
-        {
-            return _mongoCollections[mode]
-                .Find(
-                    dialog =>
-                        !dialog.ExcludeWhenRanking
-                        && dialog.Lines.Any(
-                            line => line.Words.Any(word => word.InfoIds.Contains(wordId))
-                        )
-                )
-                .Project(dialog => new DialogWords(dialog.Id.ToString(), dialog.WordsToRank))
-                .ToListAsync();
-        }
-
-        public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
-        {
-            return _mongoCollections[mode]
-                .Find(dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id))
-                .ToListAsync();
-        }
-
-        public Task<string> GetEpisodeTitle(AnalyzerMode mode, int episodeId)
-        {
-            return _mongoCollections[mode]
-                .Find(dialog => dialog.EpisodeId == episodeId)
-                .Project(dialog => dialog.EpisodeTitle)
-                .FirstOrDefaultAsync();
-        }
-
-        public Task<List<Episode.Entry>> GetEpisodeDialog(AnalyzerMode mode, int episodeId)
-        {
-            return _mongoCollections[mode]
-                .Find(dialog => dialog.EpisodeId == episodeId)
-                .Project(dialog => new Episode.Entry(dialog.Time, dialog.Id.ToString()))
-                .SortBy(entry => entry.Time)
-                .ToListAsync();
-        }
-
-        public record UnwoundRank(object? _id, int rank, UnwoundWordCount counts);
-
-        public record UnwoundWordCount(int _id, int count);
-
-        private record IntermediateLine(Dialog.Word Words);
-
-        private record IntermediateDialog(IntermediateLine Lines);
-
-        public record DialogWords(string dialogId, IEnumerable<int> wordIds);
-
-        public record WordRank(
-            [property: BsonId] string BaseForm,
-            [property: BsonElement("count")] long Count
-        );
-
-        private record UnwoundDialog(int WordsToRank);
+        return new Dialog.Line(results);
     }
+
+    public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
+        AnalyzerMode mode,
+        int episodeId,
+        IEnumerable<int> wordIds
+    )
+    {
+        var cursor = await _mongoCollections[mode].AggregateAsync(
+            PipelineDefinition<Dialog, UnwoundRank>.Create(
+                new BsonDocument("$match", new BsonDocument("EpisodeId", episodeId)),
+                new BsonDocument("$unwind", "$WordsToRank"),
+                new BsonDocument("$sortByCount", "$WordsToRank"),
+                new BsonDocument(
+                    "$group",
+                    new BsonDocument
+                    {
+                        { "_id", BsonNull.Value },
+                        { "counts", new BsonDocument("$push", "$$ROOT") }
+                    }
+                ),
+                new BsonDocument(
+                    "$unwind",
+                    new BsonDocument { { "path", "$counts" }, { "includeArrayIndex", "rank" } }
+                ),
+                new BsonDocument(
+                    "$match",
+                    new BsonDocument("counts._id", new BsonDocument("$in", new BsonArray(wordIds)))
+                )
+            )
+        );
+        return await cursor.ToListAsync();
+    }
+
+    public Task<AggregateCountResult> GetEpisodeWordCount(AnalyzerMode analyzerMode, int episodeId)
+    {
+        return _mongoCollections[analyzerMode]
+            .Aggregate()
+            .Match(dialog => dialog.EpisodeId == episodeId)
+            .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
+            .Group(
+                doc => string.Empty,
+                grouping => new { uniqueWordIds = grouping.Select(i => i.WordsToRank).Distinct() }
+            )
+            .Unwind(group => group.uniqueWordIds)
+            .Count()
+            .FirstAsync();
+    }
+
+    public Task<List<DialogWords>> GetOccurrences(AnalyzerMode mode, int wordId)
+    {
+        return _mongoCollections[mode]
+            .Find(
+                dialog =>
+                    !dialog.ExcludeWhenRanking
+                    && dialog.Lines.Any(
+                        line => line.Words.Any(word => word.InfoIds.Contains(wordId))
+                    )
+            )
+            .Project(dialog => new DialogWords(dialog.Id.ToString(), dialog.WordsToRank))
+            .ToListAsync();
+    }
+
+    public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
+    {
+        return _mongoCollections[mode]
+            .Find(dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id))
+            .ToListAsync();
+    }
+
+    public Task<string> GetEpisodeTitle(AnalyzerMode mode, int episodeId)
+    {
+        return _mongoCollections[mode]
+            .Find(dialog => dialog.EpisodeId == episodeId)
+            .Project(dialog => dialog.EpisodeTitle)
+            .FirstOrDefaultAsync();
+    }
+
+    public Task<List<Episode.Entry>> GetEpisodeDialog(AnalyzerMode mode, int episodeId)
+    {
+        return _mongoCollections[mode]
+            .Find(dialog => dialog.EpisodeId == episodeId)
+            .Project(dialog => new Episode.Entry(dialog.Time, dialog.Id.ToString()))
+            .SortBy(entry => entry.Time)
+            .ToListAsync();
+    }
+
+    public record UnwoundRank(object? _id, int rank, UnwoundWordCount counts);
+
+    public record UnwoundWordCount(int _id, int count);
+
+    private record IntermediateLine(Dialog.Word Words);
+
+    private record IntermediateDialog(IntermediateLine Lines);
+
+    public record DialogWords(string dialogId, IEnumerable<int> wordIds);
+
+    public record WordRank(
+        [property: BsonId] string BaseForm,
+        [property: BsonElement("count")] long Count
+    );
+
+    private record UnwoundDialog(int WordsToRank);
 }

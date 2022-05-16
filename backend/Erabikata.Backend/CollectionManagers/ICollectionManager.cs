@@ -1,10 +1,9 @@
 using System.Threading.Tasks;
 using Erabikata.Backend.Models.Actions;
 
-namespace Erabikata.Backend.CollectionManagers
+namespace Erabikata.Backend.CollectionManagers;
+
+public interface ICollectionManager
 {
-    public interface ICollectionManager
-    {
-        Task OnActivityExecuting(Activity activity);
-    }
+    Task OnActivityExecuting(Activity activity);
 }

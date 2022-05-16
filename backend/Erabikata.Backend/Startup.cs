@@ -20,194 +20,191 @@ using NJsonSchema.Generation;
 using NSwag;
 using Refit;
 
-namespace Erabikata.Backend
+namespace Erabikata.Backend;
+
+public class Startup
 {
-    public class Startup
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        Configuration = configuration;
+    }
 
-        private IConfiguration Configuration { get; }
+    private IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddApplicationInsightsTelemetry();
-            services.AddSnapshotCollector();
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddApplicationInsightsTelemetry();
+        services.AddSnapshotCollector();
 
-            services.Configure<SubtitleProcessingSettings>(
-                Configuration.GetSection("SubtitleProcessing")
-            );
-            services.Configure<VideoInputSettings>(Configuration.GetSection("VideoInput"));
+        services.Configure<SubtitleProcessingSettings>(
+            Configuration.GetSection("SubtitleProcessing")
+        );
+        services.Configure<VideoInputSettings>(Configuration.GetSection("VideoInput"));
 
-            ConfigureDatabase(services);
+        ConfigureDatabase(services);
 
-            services.AddCollectionManagers();
-            services.AddCollectionMiddlewares();
+        services.AddCollectionManagers();
+        services.AddCollectionMiddlewares();
 
-            services.AddSingleton<SeedDataProvider>();
+        services.AddSingleton<SeedDataProvider>();
 
-            services.AddCors(
+        services.AddCors(
+            options =>
+                options.AddDefaultPolicy(
+                    builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
+                )
+        );
+
+        AddGrpcClient<AnalyzerService.AnalyzerServiceClient>(services);
+        AddGrpcClient<AssParserService.AssParserServiceClient>(services);
+
+        services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
+
+        services
+            .AddControllers()
+            .AddNewtonsoftJson(
                 options =>
-                    options.AddDefaultPolicy(
-                        builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
-                    )
+                {
+                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
+                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                }
             );
+        services.AddSpaStaticFiles(
+            options =>
+            {
+                options.RootPath = "wwwroot";
+            }
+        );
 
-            AddGrpcClient<AnalyzerService.AnalyzerServiceClient>(services);
-            AddGrpcClient<AssParserService.AssParserServiceClient>(services);
+        services.AddOpenApiDocument(
+            settings =>
+            {
+                settings.GenerateKnownTypes = true;
+                settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
+                settings.RequireParametersWithoutDefault = true;
+                settings.DefaultResponseReferenceTypeNullHandling =
+                    ReferenceTypeNullHandling.NotNull;
+                settings.SchemaProcessors.Add(new NonNullableAreRequiredSchemaProcessor());
+                settings.PostProcess = document =>
+                {
+                    document.Servers.Add(
+                        new OpenApiServer { Url = "https://erabikata3.apps.lasath.org" }
+                    );
+                };
+            }
+        );
+    }
 
-            services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
-
-            services
-                .AddControllers()
-                .AddNewtonsoftJson(
-                    options =>
-                    {
-                        options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                    }
+    private IHttpClientBuilder AddGrpcClient<TServicer>(IServiceCollection services)
+        where TServicer : class
+    {
+        return services.AddGrpcClient<TServicer>(
+            options =>
+            {
+                options.Address = new Uri(
+                    Configuration.GetSection("ServiceClients:Analyzer:BaseUrl").Value
                 );
-            services.AddSpaStaticFiles(
-                options =>
-                {
-                    options.RootPath = "wwwroot";
-                }
-            );
+            }
+        );
+    }
 
-            services.AddOpenApiDocument(
-                settings =>
-                {
-                    settings.GenerateKnownTypes = true;
-                    settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
-                    settings.RequireParametersWithoutDefault = true;
-                    settings.DefaultResponseReferenceTypeNullHandling =
-                        ReferenceTypeNullHandling.NotNull;
-                    settings.SchemaProcessors.Add(new NonNullableAreRequiredSchemaProcessor());
-                    settings.PostProcess = document =>
-                    {
-                        document.Servers.Add(
-                            new OpenApiServer { Url = "https://erabikata3.apps.lasath.org" }
-                        );
-                    };
-                }
+    private void ConfigureDatabase(IServiceCollection services)
+    {
+        var connectionString = Configuration.GetSection("Db:ConnectionString").Get<string>();
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException(
+                "Db:ConnectionString not specified. Unable to startup."
             );
         }
 
-        private IHttpClientBuilder AddGrpcClient<TServicer>(IServiceCollection services)
-            where TServicer : class
-        {
-            return services.AddGrpcClient<TServicer>(
-                options =>
+        var url = new MongoUrl(connectionString);
+        var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
+
+        // var dbLogger = services.BuildServiceProvider()
+        //     .GetRequiredService<ILogger<MongoClient>>();
+        // clientSettings.ClusterConfigurator = cb =>
+        // {
+        //     cb.Subscribe<CommandStartedEvent>(
+        //         e =>
+        //         {
+        //             dbLogger.LogInformation(
+        //                 "{CommandName} - {Command}",
+        //                 e.CommandName,
+        //                 e.Command.ToJson(new JsonWriterSettings {Indent = true})
+        //             );
+        //         }
+        //     );
+        // };
+
+        var mongoDatabase = new MongoClient(clientSettings).GetDatabase(url.DatabaseName);
+        services.AddSingleton(mongoDatabase);
+        AddCollection<ActivityExecution>(services, mongoDatabase);
+        AddCollection<WordState>(services, mongoDatabase);
+        AddCollection<UserInfo>(services, mongoDatabase);
+
+        services
+            .AddRefitClient<IAnkiSyncClient>()
+            .ConfigureHttpClient(
+                client =>
                 {
-                    options.Address = new Uri(
-                        Configuration.GetSection("ServiceClients:Analyzer:BaseUrl").Value
+                    client.BaseAddress = new Uri(
+                        Configuration.GetSection("ServiceClients:Anki:BaseUrl").Value
                     );
                 }
             );
+    }
+
+    private static void AddCollection<TDataType>(
+        IServiceCollection services,
+        IMongoDatabase mongoDatabase
+    )
+    {
+        services.AddSingleton(mongoDatabase.GetCollection<TDataType>(typeof(TDataType).Name));
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        if (env.IsDevelopment())
+        {
+            app.UseDeveloperExceptionPage();
         }
 
-        private void ConfigureDatabase(IServiceCollection services)
-        {
-            var connectionString = Configuration.GetSection("Db:ConnectionString").Get<string>();
-            if (string.IsNullOrEmpty(connectionString))
+        app.UseRouting();
+
+        app.UseCors();
+
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        app.UseOpenApi();
+        app.UseReDoc();
+
+        app.UseEndpoints(
+            endpoints =>
             {
-                throw new InvalidOperationException(
-                    "Db:ConnectionString not specified. Unable to startup."
-                );
+                endpoints.MapControllers();
             }
+        );
 
-            var url = new MongoUrl(connectionString);
-            var clientSettings = MongoClientSettings.FromConnectionString(connectionString);
-
-            // var dbLogger = services.BuildServiceProvider()
-            //     .GetRequiredService<ILogger<MongoClient>>();
-            // clientSettings.ClusterConfigurator = cb =>
-            // {
-            //     cb.Subscribe<CommandStartedEvent>(
-            //         e =>
-            //         {
-            //             dbLogger.LogInformation(
-            //                 "{CommandName} - {Command}",
-            //                 e.CommandName,
-            //                 e.Command.ToJson(new JsonWriterSettings {Indent = true})
-            //             );
-            //         }
-            //     );
-            // };
-
-            var mongoDatabase = new MongoClient(clientSettings).GetDatabase(url.DatabaseName);
-            services.AddSingleton(mongoDatabase);
-            AddCollection<ActivityExecution>(services, mongoDatabase);
-            AddCollection<WordState>(services, mongoDatabase);
-            AddCollection<UserInfo>(services, mongoDatabase);
-
-            services
-                .AddRefitClient<IAnkiSyncClient>()
-                .ConfigureHttpClient(
-                    client =>
+        app.UseStaticFiles();
+        app.UseWhen(
+            context =>
+                !context.Request.Path.Value?.StartsWith("/api", StringComparison.OrdinalIgnoreCase)
+                ?? false,
+            appBuilder =>
+                appBuilder.UseSpa(
+                    builder =>
                     {
-                        client.BaseAddress = new Uri(
-                            Configuration.GetSection("ServiceClients:Anki:BaseUrl").Value
-                        );
-                    }
-                );
-        }
-
-        private static void AddCollection<TDataType>(
-            IServiceCollection services,
-            IMongoDatabase mongoDatabase
-        )
-        {
-            services.AddSingleton(mongoDatabase.GetCollection<TDataType>(typeof(TDataType).Name));
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseRouting();
-
-            app.UseCors();
-
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseOpenApi();
-            app.UseReDoc();
-
-            app.UseEndpoints(
-                endpoints =>
-                {
-                    endpoints.MapControllers();
-                }
-            );
-
-            app.UseStaticFiles();
-            app.UseWhen(
-                context =>
-                    !context.Request.Path.Value?.StartsWith(
-                        "/api",
-                        StringComparison.OrdinalIgnoreCase
-                    ) ?? false,
-                appBuilder =>
-                    appBuilder.UseSpa(
-                        builder =>
+                        builder.Options.DefaultPage = "/index.html";
+                        if (env.IsDevelopment())
                         {
-                            builder.Options.DefaultPage = "/index.html";
-                            if (env.IsDevelopment())
-                            {
-                                builder.UseProxyToSpaDevelopmentServer("http://localhost:3000");
-                            }
+                            builder.UseProxyToSpaDevelopmentServer("http://localhost:3000");
                         }
-                    )
-            );
-        }
+                    }
+                )
+        );
     }
 }

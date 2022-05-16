@@ -1,18 +1,17 @@
 using NJsonSchema.Generation;
 
-namespace Erabikata.Backend
+namespace Erabikata.Backend;
+
+public class NonNullableAreRequiredSchemaProcessor : ISchemaProcessor
 {
-    public class NonNullableAreRequiredSchemaProcessor : ISchemaProcessor
+    public void Process(SchemaProcessorContext context)
     {
-        public void Process(SchemaProcessorContext context)
+        var schema = context.Schema;
+        foreach (var (key, prop) in schema.ActualProperties)
         {
-            var schema = context.Schema;
-            foreach (var (key, prop) in schema.ActualProperties)
+            if (prop.IsNullableRaw != true)
             {
-                if (prop.IsNullableRaw != true)
-                {
-                    schema.RequiredProperties.Add(key);
-                }
+                schema.RequiredProperties.Add(key);
             }
         }
     }

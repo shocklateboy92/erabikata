@@ -5,35 +5,34 @@ using Erabikata.Backend.Models.Output;
 using Erabikata.Models.Input;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Erabikata.Backend.Controllers
+namespace Erabikata.Backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class EpisodeController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EpisodeController : ControllerBase
+    private readonly DialogCollectionManager _dialog;
+
+    public EpisodeController(DialogCollectionManager dialog)
     {
-        private readonly DialogCollectionManager _dialog;
+        _dialog = dialog;
+    }
 
-        public EpisodeController(DialogCollectionManager dialog)
+    [HttpGet]
+    [Route("{episodeId}")]
+    public async Task<ActionResult<Episode>> Index(Analyzer analyzer, string episodeId)
+    {
+        if (!int.TryParse(episodeId, out var parsedId))
         {
-            _dialog = dialog;
+            return BadRequest($"'{episodeId}' is not a valid episode Id");
         }
 
-        [HttpGet]
-        [Route("{episodeId}")]
-        public async Task<ActionResult<Episode>> Index(Analyzer analyzer, string episodeId)
-        {
-            if (!int.TryParse(episodeId, out var parsedId))
-            {
-                return BadRequest($"'{episodeId}' is not a valid episode Id");
-            }
+        var analyzerMode = analyzer.ToAnalyzerMode();
 
-            var analyzerMode = analyzer.ToAnalyzerMode();
-
-            return new Episode(
-                episodeId,
-                await _dialog.GetEpisodeTitle(analyzerMode, parsedId),
-                await _dialog.GetEpisodeDialog(analyzerMode, parsedId)
-            );
-        }
+        return new Episode(
+            episodeId,
+            await _dialog.GetEpisodeTitle(analyzerMode, parsedId),
+            await _dialog.GetEpisodeDialog(analyzerMode, parsedId)
+        );
     }
 }

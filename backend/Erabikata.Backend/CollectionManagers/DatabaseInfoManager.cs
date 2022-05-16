@@ -3,45 +3,44 @@ using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using MongoDB.Driver;
 
-namespace Erabikata.Backend.CollectionManagers
+namespace Erabikata.Backend.CollectionManagers;
+
+public class DatabaseInfoManager : ICollectionManager
 {
-    public class DatabaseInfoManager : ICollectionManager
+    private readonly IMongoCollection<DatabaseInfo> _mongoCollection;
+
+    public DatabaseInfoManager(IMongoDatabase mongoDatabase)
     {
-        private readonly IMongoCollection<DatabaseInfo> _mongoCollection;
+        _mongoCollection = mongoDatabase.GetCollection<DatabaseInfo>(nameof(DatabaseInfo));
+    }
 
-        public DatabaseInfoManager(IMongoDatabase mongoDatabase)
+    public async Task OnActivityExecuting(Activity activity)
+    {
+        switch (activity)
         {
-            _mongoCollection = mongoDatabase.GetCollection<DatabaseInfo>(nameof(DatabaseInfo));
+            case BeginIngestion beginIngestion:
+                await _mongoCollection.ReplaceOneAsync(
+                    FilterDefinition<DatabaseInfo>.Empty,
+                    new DatabaseInfo(beginIngestion.EndCommit),
+                    new ReplaceOptions { IsUpsert = true }
+                );
+                break;
         }
+    }
 
-        public async Task OnActivityExecuting(Activity activity)
-        {
-            switch (activity)
-            {
-                case BeginIngestion beginIngestion:
-                    await _mongoCollection.ReplaceOneAsync(
-                        FilterDefinition<DatabaseInfo>.Empty,
-                        new DatabaseInfo(beginIngestion.EndCommit),
-                        new ReplaceOptions { IsUpsert = true }
-                    );
-                    break;
-            }
-        }
+    public async Task<string> GetCurrentCommit()
+    {
+        var dbInfo = await _mongoCollection
+            .Find(FilterDefinition<DatabaseInfo>.Empty)
+            .FirstOrDefaultAsync();
+        return dbInfo?.IngestedCommit ?? string.Empty;
+    }
 
-        public async Task<string> GetCurrentCommit()
-        {
-            var dbInfo = await _mongoCollection
-                .Find(FilterDefinition<DatabaseInfo>.Empty)
-                .FirstOrDefaultAsync();
-            return dbInfo?.IngestedCommit ?? string.Empty;
-        }
-
-        public Task<string?> GetCurrentDictionary()
-        {
-            return _mongoCollection
-                .Find(FilterDefinition<DatabaseInfo>.Empty)
-                .Project(dbInfo => dbInfo.CurrentDictionary)
-                .FirstOrDefaultAsync();
-        }
+    public Task<string?> GetCurrentDictionary()
+    {
+        return _mongoCollection
+            .Find(FilterDefinition<DatabaseInfo>.Empty)
+            .Project(dbInfo => dbInfo.CurrentDictionary)
+            .FirstOrDefaultAsync();
     }
 }

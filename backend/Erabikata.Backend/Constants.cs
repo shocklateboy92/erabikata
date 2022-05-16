@@ -1,7 +1,6 @@
-namespace Erabikata.Backend
+namespace Erabikata.Backend;
+
+public static class Constants
 {
-    public static class Constants
-    {
-        public static readonly AnalyzerMode DefaultAnalyzerMode = AnalyzerMode.SudachiA;
-    }
+    public static readonly AnalyzerMode DefaultAnalyzerMode = AnalyzerMode.SudachiA;
 }

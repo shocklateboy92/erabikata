@@ -1,4 +1,3 @@
-namespace Erabikata.Backend.Models.Actions
-{
-    public record IncludeReadingsOf(string PartOfSpeech) : Activity;
-}
+namespace Erabikata.Backend.Models.Actions;
+
+public record IncludeReadingsOf(string PartOfSpeech) : Activity;

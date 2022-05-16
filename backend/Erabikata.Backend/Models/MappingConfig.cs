@@ -2,24 +2,23 @@ using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Output;
 using Mapster;
 
-namespace Erabikata.Backend.Models
+namespace Erabikata.Backend.Models;
+
+public class ModelsMappingConfigRegister : IRegister
 {
-    public class ModelsMappingConfigRegister : IRegister
+    public void Register(TypeAdapterConfig config)
     {
-        public void Register(TypeAdapterConfig config)
-        {
-            config
-                .ForType<Dialog.Word, DialogInfo.WordRef>()
-                .MapToConstructor(true)
-                .MapWith(
-                    word =>
-                        new DialogInfo.WordRef(
-                            word.OriginalForm,
-                            word.BaseForm,
-                            word.Reading,
-                            word.InfoIds
-                        )
-                );
-        }
+        config
+            .ForType<Dialog.Word, DialogInfo.WordRef>()
+            .MapToConstructor(true)
+            .MapWith(
+                word =>
+                    new DialogInfo.WordRef(
+                        word.OriginalForm,
+                        word.BaseForm,
+                        word.Reading,
+                        word.InfoIds
+                    )
+            );
     }
 }

@@ -1,21 +1,20 @@
 using System.Runtime.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Erabikata.Backend.Models.Database
+namespace Erabikata.Backend.Models.Database;
+
+[DataContract]
+public record WordState
 {
-    [DataContract]
-    public record WordState
+    public WordState(string baseForm)
     {
-        public WordState(string baseForm)
-        {
-            BaseForm = baseForm;
-        }
-
-        [DataMember]
-        [BsonId]
-        public string BaseForm { get; set; }
-
-        [DataMember]
-        public bool IsKnown { get; set; }
+        BaseForm = baseForm;
     }
+
+    [DataMember]
+    [BsonId]
+    public string BaseForm { get; set; }
+
+    [DataMember]
+    public bool IsKnown { get; set; }
 }

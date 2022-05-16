@@ -5,25 +5,24 @@ using Erabikata.Backend.Models.Database;
 using Mapster;
 using MongoDB.Driver;
 
-namespace Erabikata.Backend.Models.Output
+namespace Erabikata.Backend.Models.Output;
+
+public record EngSubsResponse
 {
-    public record EngSubsResponse
-    {
-        [DataMember]
-        public IEnumerable<Sentence> Dialog { get; init; } = Array.Empty<Sentence>();
+    [DataMember]
+    public IEnumerable<Sentence> Dialog { get; init; } = Array.Empty<Sentence>();
 
-        public record Sentence(
-            string Id,
-            double Time,
-            string EpisodeId,
-            [AdaptMember(nameof(EngSub.Lines))] IReadOnlyList<string> Text,
-            string? EpisodeTitle
-        );
-    }
-
-    public record StylesOfResponse(
-        int ShowId,
-        IEnumerable<AggregateSortByCountResult<string>> AllStyles,
-        IEnumerable<string> EnabledStyles
+    public record Sentence(
+        string Id,
+        double Time,
+        string EpisodeId,
+        [AdaptMember(nameof(EngSub.Lines))] IReadOnlyList<string> Text,
+        string? EpisodeTitle
     );
 }
+
+public record StylesOfResponse(
+    int ShowId,
+    IEnumerable<AggregateSortByCountResult<string>> AllStyles,
+    IEnumerable<string> EnabledStyles
+);

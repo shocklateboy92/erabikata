@@ -7,103 +7,96 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 
-namespace Erabikata.Backend.Controllers
+namespace Erabikata.Backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class EngSubsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EngSubsController : ControllerBase
+    private readonly EngSubCollectionManager _engSubCollectionManager;
+    private readonly StyleFilterCollectionManager _styleFilterCollection;
+
+    public EngSubsController(
+        EngSubCollectionManager engSubCollectionManager,
+        StyleFilterCollectionManager styleFilterCollection
+    )
     {
-        private readonly EngSubCollectionManager _engSubCollectionManager;
-        private readonly StyleFilterCollectionManager _styleFilterCollection;
+        _engSubCollectionManager = engSubCollectionManager;
+        _styleFilterCollection = styleFilterCollection;
+    }
 
-        public EngSubsController(
-            EngSubCollectionManager engSubCollectionManager,
-            StyleFilterCollectionManager styleFilterCollection
-        )
+    public async Task<ActionResult<EngSubsResponse>> Index(
+        string episodeId,
+        double time,
+        int count = 3
+    )
+    {
+        if (!int.TryParse(episodeId, out var episode))
         {
-            _engSubCollectionManager = engSubCollectionManager;
-            _styleFilterCollection = styleFilterCollection;
+            return BadRequest();
         }
 
-        public async Task<ActionResult<EngSubsResponse>> Index(
-            string episodeId,
-            double time,
-            int count = 3
-        )
+        var styles = await _styleFilterCollection.GetActiveStylesFor(episode);
+        var subs = await _engSubCollectionManager.GetNearestSubs(episode, time, count, styles);
+        return new EngSubsResponse { Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>() };
+    }
+
+    [Route("[action]/{showId}")]
+    public async Task<StylesOfResponse> StylesOf(int showId)
+    {
+        var showInfo = await _styleFilterCollection.GetByShowId(showId);
+        if (showInfo == null)
         {
-            if (!int.TryParse(episodeId, out var episode))
-            {
-                return BadRequest();
-            }
-
-            var styles = await _styleFilterCollection.GetActiveStylesFor(episode);
-            var subs = await _engSubCollectionManager.GetNearestSubs(episode, time, count, styles);
-            return new EngSubsResponse
-            {
-                Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
-            };
-        }
-
-        [Route("[action]/{showId}")]
-        public async Task<StylesOfResponse> StylesOf(int showId)
-        {
-            var showInfo = await _styleFilterCollection.GetByShowId(showId);
-            if (showInfo == null)
-            {
-                return new StylesOfResponse(
-                    showId,
-                    Array.Empty<AggregateSortByCountResult<string>>(),
-                    Array.Empty<string>()
-                );
-            }
-
             return new StylesOfResponse(
                 showId,
-                await _engSubCollectionManager.GetAllStylesOf(showInfo.ForEpisodes),
-                showInfo.EnabledStyles
+                Array.Empty<AggregateSortByCountResult<string>>(),
+                Array.Empty<string>()
             );
         }
 
-        [Route("[action]/{showId}")]
-        public async Task<IEnumerable<string>> ActiveStylesFor(int showId)
+        return new StylesOfResponse(
+            showId,
+            await _engSubCollectionManager.GetAllStylesOf(showInfo.ForEpisodes),
+            showInfo.EnabledStyles
+        );
+    }
+
+    [Route("[action]/{showId}")]
+    public async Task<IEnumerable<string>> ActiveStylesFor(int showId)
+    {
+        var show = await _styleFilterCollection.GetByShowId(showId);
+        return show?.EnabledStyles ?? Array.Empty<string>();
+    }
+
+    [Route("[action]/{episodeId}")]
+    public async Task<ActionResult<int?>> ShowIdOf(string episodeId)
+    {
+        if (!int.TryParse(episodeId, out var parsedEpisodeId))
         {
-            var show = await _styleFilterCollection.GetByShowId(showId);
-            return show?.EnabledStyles ?? Array.Empty<string>();
+            return BadRequest();
         }
 
-        [Route("[action]/{episodeId}")]
-        public async Task<ActionResult<int?>> ShowIdOf(string episodeId)
-        {
-            if (!int.TryParse(episodeId, out var parsedEpisodeId))
-            {
-                return BadRequest();
-            }
+        return await _styleFilterCollection.GetShowIdOf(parsedEpisodeId);
+    }
 
-            return await _styleFilterCollection.GetShowIdOf(parsedEpisodeId);
+    [Route("[action]")]
+    public async Task<EngSubsResponse> ByStyleName(
+        int showId,
+        string styleName,
+        [FromQuery] PagingInfo pagingInfo
+    )
+    {
+        var filter = await _styleFilterCollection.GetByShowId(showId);
+        if (filter == null)
+        {
+            return new EngSubsResponse();
         }
 
-        [Route("[action]")]
-        public async Task<EngSubsResponse> ByStyleName(
-            int showId,
-            string styleName,
-            [FromQuery] PagingInfo pagingInfo
-        )
-        {
-            var filter = await _styleFilterCollection.GetByShowId(showId);
-            if (filter == null)
-            {
-                return new EngSubsResponse();
-            }
-
-            var subs = await _engSubCollectionManager.GetByStyleName(
-                filter.ForEpisodes,
-                styleName,
-                pagingInfo
-            );
-            return new EngSubsResponse
-            {
-                Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>()
-            };
-        }
+        var subs = await _engSubCollectionManager.GetByStyleName(
+            filter.ForEpisodes,
+            styleName,
+            pagingInfo
+        );
+        return new EngSubsResponse { Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>() };
     }
 }

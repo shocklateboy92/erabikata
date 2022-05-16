@@ -3,28 +3,27 @@ using System.Threading.Tasks;
 using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Actions;
 
-namespace Erabikata.Backend.CollectionMiddlewares
+namespace Erabikata.Backend.CollectionMiddlewares;
+
+public class AnkiConnectMiddleware : ICollectionMiddleware
 {
-    public class AnkiConnectMiddleware : ICollectionMiddleware
+    private readonly IAnkiSyncClient _ankiSyncClient;
+
+    public AnkiConnectMiddleware(IAnkiSyncClient ankiSyncClient)
     {
-        private readonly IAnkiSyncClient _ankiSyncClient;
+        _ankiSyncClient = ankiSyncClient;
+    }
 
-        public AnkiConnectMiddleware(IAnkiSyncClient ankiSyncClient)
+    public async Task Execute(Activity activity, Func<Activity, Task> next)
+    {
+        switch (activity)
         {
-            _ankiSyncClient = ankiSyncClient;
+            case SendToAnki sendToAnki:
+                var response = await _ankiSyncClient.Execute(new AddNoteAnkiAction(sendToAnki));
+                response.Unwrap();
+                break;
         }
 
-        public async Task Execute(Activity activity, Func<Activity, Task> next)
-        {
-            switch (activity)
-            {
-                case SendToAnki sendToAnki:
-                    var response = await _ankiSyncClient.Execute(new AddNoteAnkiAction(sendToAnki));
-                    response.Unwrap();
-                    break;
-            }
-
-            await next(activity);
-        }
+        await next(activity);
     }
 }

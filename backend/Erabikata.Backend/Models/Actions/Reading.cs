@@ -1,6 +1,5 @@
-namespace Erabikata.Backend.Models.Actions
-{
-    public record LearnReading(int WordId) : Activity;
+namespace Erabikata.Backend.Models.Actions;
 
-    public record UnLearnReading(int WordId) : Activity;
-}
+public record LearnReading(int WordId) : Activity;
+
+public record UnLearnReading(int WordId) : Activity;

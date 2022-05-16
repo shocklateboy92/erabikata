@@ -1,9 +1,8 @@
 using System;
 
-namespace Erabikata.Backend.CollectionManagers
+namespace Erabikata.Backend.CollectionManagers;
+
+internal class AnkiConnectException : Exception
 {
-    internal class AnkiConnectException : Exception
-    {
-        public AnkiConnectException(string error) : base(error) { }
-    }
+    public AnkiConnectException(string error) : base(error) { }
 }
