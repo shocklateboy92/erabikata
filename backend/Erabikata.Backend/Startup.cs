@@ -6,7 +6,6 @@ using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Models.Configuration;
-using Microsoft.ApplicationInsights.SnapshotCollector;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -14,8 +13,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using MongoDB.Driver;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using NJsonSchema.Generation;
 using NSwag;
 using Refit;
@@ -63,11 +60,13 @@ public class Startup
 
         services
             .AddControllers()
-            .AddNewtonsoftJson(
+            .AddJsonOptions(
                 options =>
                 {
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter());
-                    options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                    var settings = options.JsonSerializerOptions;
+                    settings.Converters.Add(new JsonStringEnumConverter());
+                    settings.Converters.Add(new ActivityJsonConverter());
+                    settings.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                 }
             );
         services.AddSpaStaticFiles(
