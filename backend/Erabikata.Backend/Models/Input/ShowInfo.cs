@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Erabikata.Models.Input.V2
+namespace Erabikata.Backend.Models.Input
 {
 #nullable enable
     public class ShowInfo

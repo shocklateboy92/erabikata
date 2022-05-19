@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Erabikata.Backend.DataProviders;
 using Erabikata.Backend.Models.Actions;
-using Erabikata.Models.Input.V2;
+using Erabikata.Backend.Models.Input;
 
 namespace Erabikata.Backend.CollectionMiddlewares;
 

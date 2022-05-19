@@ -2,8 +2,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
-using Erabikata.Models.Input;
-using Erabikata.Models.Output;
+using Erabikata.Backend.Models.Input;
+using Erabikata.Backend.Models.Output;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
@@ -43,34 +43,29 @@ public class SubsController : ControllerBase
 
         var ignoreReadingMap = ignoredPartsOfSpeech.ToHashSet();
 
-        return new WordOccurrence
-        {
-            EpisodeId = dialog.EpisodeId.ToString(),
-            EpisodeName = dialog.EpisodeTitle,
-            Time = dialog.Time,
-            Text = new DialogInfo(
+        return new WordOccurrence(
+            EpisodeId: dialog.EpisodeId.ToString(),
+            EpisodeName: dialog.EpisodeTitle,
+            Time: dialog.Time,
+            Text: new DialogInfo(
                 dialog.Id.ToString(),
                 dialog.Time,
-                dialog.Lines
-                    .Select(
-                        list =>
-                            list.Words
-                                .Select(
-                                    word =>
-                                        new DialogInfo.WordRef(
-                                            word.OriginalForm,
-                                            word.BaseForm,
-                                            word.PartOfSpeech.Any(ignoreReadingMap.Contains)
-                                              ? string.Empty
-                                              : word.Reading,
-                                            word.InfoIds
-                                        )
+                dialog.Lines.Select(
+                        list => list.Words.Select(
+                                word => new DialogInfo.WordRef(
+                                    word.OriginalForm,
+                                    word.BaseForm,
+                                    word.PartOfSpeech.Any(ignoreReadingMap.Contains)
+                                        ? string.Empty
+                                        : word.Reading,
+                                    word.InfoIds
                                 )
-                                .ToArray()
+                            )
+                            .ToArray()
                     )
                     .ToArray(),
                 isSongLyric: dialog.ExcludeWhenRanking
             )
-        };
+        );
     }
 }

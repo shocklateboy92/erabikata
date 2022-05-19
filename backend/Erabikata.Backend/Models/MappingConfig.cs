@@ -1,5 +1,5 @@
 using Erabikata.Backend.Models.Database;
-using Erabikata.Models.Output;
+using Erabikata.Backend.Models.Output;
 using Mapster;
 
 namespace Erabikata.Backend.Models;

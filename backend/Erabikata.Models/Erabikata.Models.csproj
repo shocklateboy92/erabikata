@@ -5,6 +5,8 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Input\V2" />
+      <Folder Include="Output" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 using System;
-using Erabikata.Models.Input;
+using Erabikata.Backend.Models.Input;
 
 namespace Erabikata.Backend.Extensions;
 

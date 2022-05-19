@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 
-namespace Erabikata.Models.Output
+namespace Erabikata.Backend.Models.Output
 {
 #nullable enable
     public class DialogInfo

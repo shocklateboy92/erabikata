@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Output;
-using Erabikata.Models.Input;
+using Erabikata.Backend.Models.Input;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Erabikata.Models.Output
+namespace Erabikata.Backend.Models.Output
 {
 #nullable enable
     public class NowPlayingInfo

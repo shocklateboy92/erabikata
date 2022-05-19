@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Erabikata.Models.Input.V2;
+using Erabikata.Backend.Models.Input;
 
 namespace Erabikata.Backend.Models.Actions;
 
