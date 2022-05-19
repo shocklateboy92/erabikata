@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
-using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Input;
 using Erabikata.Backend.Models.Output;
 using Microsoft.AspNetCore.Mvc;
@@ -26,13 +25,10 @@ public class SubsController : ControllerBase
     }
 
     [Route("[action]/{id}")]
-    public async Task<ActionResult<WordOccurrence>> ById(
-        [BindRequired] Analyzer analyzer,
-        string id
-    )
+    public async Task<ActionResult<WordOccurrence>> ById(string id)
     {
         var (dialogs, ignoredPartsOfSpeech) = await (
-            _dialogCollection.GetByIds(analyzer.ToAnalyzerMode(), new[] { id }),
+            _dialogCollection.GetByIds(new[] { id }),
             _partOfSpeechFilter.GetIgnoredPartOfSpeech()
         );
         var dialog = dialogs.FirstOrDefault();
@@ -50,18 +46,22 @@ public class SubsController : ControllerBase
             Text: new DialogInfo(
                 dialog.Id.ToString(),
                 dialog.Time,
-                dialog.Lines.Select(
-                        list => list.Words.Select(
-                                word => new DialogInfo.WordRef(
-                                    word.OriginalForm,
-                                    word.BaseForm,
-                                    word.PartOfSpeech.Any(ignoreReadingMap.Contains)
-                                        ? string.Empty
-                                        : word.Reading,
-                                    word.InfoIds
+                dialog.Lines
+                    .Select(
+                        list =>
+                            list.Words
+                                .Select(
+                                    word =>
+                                        new DialogInfo.WordRef(
+                                            word.OriginalForm,
+                                            word.BaseForm,
+                                            word.PartOfSpeech.Any(ignoreReadingMap.Contains)
+                                              ? string.Empty
+                                              : word.Reading,
+                                            word.InfoIds
+                                        )
                                 )
-                            )
-                            .ToArray()
+                                .ToArray()
                     )
                     .ToArray(),
                 isSongLyric: dialog.ExcludeWhenRanking

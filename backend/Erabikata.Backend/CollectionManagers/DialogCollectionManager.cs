@@ -25,8 +25,7 @@ public class DialogCollectionManager : ICollectionManager
     private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
 
     private readonly ILogger<DialogCollectionManager> _logger;
-
-    private readonly IReadOnlyDictionary<AnalyzerMode, IMongoCollection<Dialog>> _mongoCollections;
+    private readonly IMongoCollection<Dialog> _mongoCollection;
 
     public DialogCollectionManager(
         IMongoDatabase database,
@@ -38,12 +37,7 @@ public class DialogCollectionManager : ICollectionManager
         _logger = logger;
         _analyzerServiceClient = analyzerServiceClient;
         _assParserServiceClient = assParserServiceClient;
-        _mongoCollections = new[]
-        {
-            AnalyzerMode.SudachiA,
-            AnalyzerMode.SudachiB,
-            AnalyzerMode.SudachiC
-        }.ToDictionary(mode => mode, mode => database.GetCollection<Dialog>(nameof(Dialog) + mode));
+        _mongoCollection = database.GetCollection<Dialog>(nameof(Dialog) + AnalyzerMode.SudachiA);
     }
 
     public async Task OnActivityExecuting(Activity activity)
@@ -51,11 +45,7 @@ public class DialogCollectionManager : ICollectionManager
         switch (activity)
         {
             case IngestShows ingestShows:
-                await Task.WhenAll(
-                    _mongoCollections.Values.Select(
-                        collection => collection.DeleteManyAsync(FilterDefinition<Dialog>.Empty)
-                    )
-                );
+                await _mongoCollection.DeleteManyAsync(FilterDefinition<Dialog>.Empty);
                 await IngestDialog(ingestShows.ShowsToIngest);
                 break;
         }
@@ -63,7 +53,7 @@ public class DialogCollectionManager : ICollectionManager
 
     public async Task ProcessWords2(WordMatcher matcher)
     {
-        var cursor = await _mongoCollections[Constants.DefaultAnalyzerMode].FindAsync(
+        var cursor = await _mongoCollection.FindAsync(
             FilterDefinition<Dialog>.Empty,
             new FindOptions<Dialog> { BatchSize = 10000 }
         );
@@ -112,7 +102,7 @@ public class DialogCollectionManager : ICollectionManager
                         )
                 )
                 .ToArray();
-            await _mongoCollections[Constants.DefaultAnalyzerMode].BulkWriteAsync(
+            await _mongoCollection.BulkWriteAsync(
                 replaceOneModels,
                 new BulkWriteOptions { IsOrdered = false }
             );
@@ -205,15 +195,14 @@ public class DialogCollectionManager : ICollectionManager
                 .Select(g => g.First());
             var toInclude = dialogToInclude.Concat(songsToInclude).ToArray();
 
-            var mode = Constants.DefaultAnalyzerMode;
-            var collection = _mongoCollections[mode];
+            var collection = _mongoCollection;
             using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
             await analyzer.RequestStream.WriteAllAsync(
                 toInclude.Select(
                     responseDialog =>
                         new AnalyzeDialogRequest
                         {
-                            Mode = mode,
+                            Mode = Constants.DefaultAnalyzerMode,
                             Style = responseDialog.Style,
                             Time = responseDialog.Time,
                             Lines = { responseDialog.Lines }
@@ -290,12 +279,11 @@ public class DialogCollectionManager : ICollectionManager
     }
 
     public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
-        AnalyzerMode mode,
         int episodeId,
         IEnumerable<int> wordIds
     )
     {
-        var cursor = await _mongoCollections[mode].AggregateAsync(
+        var cursor = await _mongoCollection.AggregateAsync(
             PipelineDefinition<Dialog, UnwoundRank>.Create(
                 new BsonDocument("$match", new BsonDocument("EpisodeId", episodeId)),
                 new BsonDocument("$unwind", "$WordsToRank"),
@@ -321,9 +309,9 @@ public class DialogCollectionManager : ICollectionManager
         return await cursor.ToListAsync();
     }
 
-    public Task<AggregateCountResult> GetEpisodeWordCount(AnalyzerMode analyzerMode, int episodeId)
+    public Task<AggregateCountResult> GetEpisodeWordCount(int episodeId)
     {
-        return _mongoCollections[analyzerMode]
+        return _mongoCollection
             .Aggregate()
             .Match(dialog => dialog.EpisodeId == episodeId)
             .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
@@ -336,9 +324,9 @@ public class DialogCollectionManager : ICollectionManager
             .FirstAsync();
     }
 
-    public Task<List<DialogWords>> GetOccurrences(AnalyzerMode mode, int wordId)
+    public Task<List<DialogWords>> GetOccurrences(int wordId)
     {
-        return _mongoCollections[mode]
+        return _mongoCollection
             .Find(
                 dialog =>
                     !dialog.ExcludeWhenRanking
@@ -350,24 +338,24 @@ public class DialogCollectionManager : ICollectionManager
             .ToListAsync();
     }
 
-    public Task<List<Dialog>> GetByIds(AnalyzerMode mode, IEnumerable<string> dialogId)
+    public Task<List<Dialog>> GetByIds(IEnumerable<string> dialogId)
     {
-        return _mongoCollections[mode]
+        return _mongoCollection
             .Find(dialog => dialogId.Select(ObjectId.Parse).Contains(dialog.Id))
             .ToListAsync();
     }
 
-    public Task<string> GetEpisodeTitle(AnalyzerMode mode, int episodeId)
+    public Task<string> GetEpisodeTitle(int episodeId)
     {
-        return _mongoCollections[mode]
+        return _mongoCollection
             .Find(dialog => dialog.EpisodeId == episodeId)
             .Project(dialog => dialog.EpisodeTitle)
             .FirstOrDefaultAsync();
     }
 
-    public Task<List<Episode.Entry>> GetEpisodeDialog(AnalyzerMode mode, int episodeId)
+    public Task<List<Episode.Entry>> GetEpisodeDialog(int episodeId)
     {
-        return _mongoCollections[mode]
+        return _mongoCollection
             .Find(dialog => dialog.EpisodeId == episodeId)
             .Project(dialog => new Episode.Entry(dialog.Time, dialog.Id.ToString()))
             .SortBy(entry => entry.Time)

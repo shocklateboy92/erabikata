@@ -40,16 +40,10 @@ public class WordsController : ControllerBase
     [HttpGet]
     [Route("[action]")]
     public async Task<IEnumerable<WordRankInfo>> Ranked2(
-        Analyzer analyzer,
         [FromQuery] PagingInfo pagingInfo,
         bool skipKnown = true
     )
     {
-        if (analyzer.ToAnalyzerMode() != Constants.DefaultAnalyzerMode)
-        {
-            return Array.Empty<WordRankInfo>();
-        }
-
         var wordsToSkip = skipKnown ? await _ankiWords.GetAllKnownWords() : new();
         var ranks = await _wordInfo.GetSortedWordCounts(
             ArraySegment<string>.Empty,
@@ -101,7 +95,6 @@ public class WordsController : ControllerBase
     [HttpGet]
     [Route("[action]")]
     public async Task<ActionResult<IEnumerable<WordRank>>> EpisodeRank(
-        [BindRequired] Analyzer analyzer,
         [BindRequired] string episodeId,
         [BindRequired] [FromQuery] int[] wordId
     )
@@ -111,10 +104,9 @@ public class WordsController : ControllerBase
             return BadRequest($"{nameof(episodeId)} must be a number");
         }
 
-        var analyzerMode = analyzer.ToAnalyzerMode();
         var (ranks, total) = await (
-            _dialogCollectionManager.GetWordRanks(analyzerMode, episode, wordId),
-            _dialogCollectionManager.GetEpisodeWordCount(analyzerMode, episode)
+            _dialogCollectionManager.GetWordRanks(episode, wordId),
+            _dialogCollectionManager.GetEpisodeWordCount(episode)
         );
 
         return Ok(
@@ -144,25 +136,19 @@ public class WordsController : ControllerBase
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<object> EpisodeTotal(
-        [BindRequired] Analyzer analyzer,
-        [BindRequired] int episodeId
-    )
+    public async Task<object> EpisodeTotal([BindRequired] int episodeId)
     {
-        var results = await _dialogCollectionManager.GetEpisodeWordCount(
-            analyzer.ToAnalyzerMode(),
-            episodeId
-        );
+        var results = await _dialogCollectionManager.GetEpisodeWordCount(episodeId);
 
         return results;
     }
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<WordOccurrences> Occurrences(Analyzer analyzer, int wordId)
+    public async Task<WordOccurrences> Occurrences(int wordId)
     {
         var (occurrences, knownWords) = await (
-            _dialogCollectionManager.GetOccurrences(analyzer.ToAnalyzerMode(), wordId),
+            _dialogCollectionManager.GetOccurrences(wordId),
             _wordInfo.GetWordRanks(await _ankiWords.GetAllKnownWords())
         );
 

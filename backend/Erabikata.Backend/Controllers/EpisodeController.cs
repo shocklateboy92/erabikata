@@ -20,19 +20,17 @@ public class EpisodeController : ControllerBase
 
     [HttpGet]
     [Route("{episodeId}")]
-    public async Task<ActionResult<Episode>> Index(Analyzer analyzer, string episodeId)
+    public async Task<ActionResult<Episode>> Index(string episodeId)
     {
         if (!int.TryParse(episodeId, out var parsedId))
         {
             return BadRequest($"'{episodeId}' is not a valid episode Id");
         }
 
-        var analyzerMode = analyzer.ToAnalyzerMode();
-
         return new Episode(
             episodeId,
-            await _dialog.GetEpisodeTitle(analyzerMode, parsedId),
-            await _dialog.GetEpisodeDialog(analyzerMode, parsedId)
+            await _dialog.GetEpisodeTitle(parsedId),
+            await _dialog.GetEpisodeDialog(parsedId)
         );
     }
 }
