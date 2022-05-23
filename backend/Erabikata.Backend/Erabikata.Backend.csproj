@@ -32,10 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Erabikata.Models\Erabikata.Models.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Protobuf Include="../../protos/analyzer.proto" Link="Protos/analyzer.proto" />
     <Protobuf Include="../../protos/parser.proto" Link="Protos/parser.proto" />
   </ItemGroup>

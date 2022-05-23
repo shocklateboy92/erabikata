@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Erabikata.Models.Configuration;
+using Erabikata.Backend.Models.Configuration;
 using Microsoft.Extensions.Options;
 
 namespace Erabikata.Backend.DataProviders;

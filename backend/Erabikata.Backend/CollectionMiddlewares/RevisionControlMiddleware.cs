@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.Models.Actions;
-using Erabikata.Models.Configuration;
+using Erabikata.Backend.Models.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
