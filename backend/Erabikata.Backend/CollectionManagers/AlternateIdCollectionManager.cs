@@ -34,21 +34,24 @@ public class AlternateIdCollectionManager : ICollectionManager
                                 )
                         )
                 )
-                .ToList();
-            alternateIds.AddRange(
-                ingestAltShows.AltShows.Select(
-                    show =>
-                        new AlternateId(
-                            show.Info.Key.ParseId(),
-                            show.Original.Key.ParseId(),
-                            show.Prefix,
-                            AlternateIdType.Show
-                        )
+                .Concat(
+                    ingestAltShows.AltShows.Select(
+                        show =>
+                            new AlternateId(
+                                show.Info.Key.ParseId(),
+                                show.Original.Key.ParseId(),
+                                show.Prefix,
+                                AlternateIdType.Show
+                            )
+                    )
                 )
-            );
+                .ToArray();
 
             await _mongoCollection.DeleteManyAsync(FilterDefinition<AlternateId>.Empty);
-            await _mongoCollection.InsertManyAsync(alternateIds);
+            if (alternateIds.Any())
+            {
+                await _mongoCollection.InsertManyAsync(alternateIds);
+            }
         }
     }
 
