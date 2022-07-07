@@ -14,19 +14,19 @@ namespace Erabikata.Tests;
 
 public class AnkiTests
 {
-    private readonly AnkiWordCollectionManager ankiWordCollectionManager;
+    private readonly AnkiWordCollectionManager _ankiWordCollectionManager;
 
     public AnkiTests(AnkiWordCollectionManager ankiWordCollectionManager)
     {
-        this.ankiWordCollectionManager = ankiWordCollectionManager;
+        _ankiWordCollectionManager = ankiWordCollectionManager;
     }
 
     [Fact]
     public async Task TestAnkiSync()
     {
-        await ankiWordCollectionManager.OnActivityExecuting(new SyncAnki());
+        await _ankiWordCollectionManager.OnActivityExecuting(new SyncAnki());
 
-        var isWordInAnki = await ankiWordCollectionManager.IsWordInAnki(1351760);
+        var isWordInAnki = await _ankiWordCollectionManager.IsWordInAnki(1351760);
         isWordInAnki.Should().Be(true);
     }
 
