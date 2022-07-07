@@ -8,7 +8,6 @@ public static class ServiceCollectionExtensions
         this IServiceCollection serviceCollection
     )
     {
-        AddCollectionManager<WordStateManager>(serviceCollection);
         AddCollectionManager<DummyCollectionManager>(serviceCollection);
         AddCollectionManager<StyleFilterCollectionManager>(serviceCollection);
         AddCollectionManager<AnkiWordCollectionManager>(serviceCollection);
