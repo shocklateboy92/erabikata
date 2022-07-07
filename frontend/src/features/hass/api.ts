@@ -115,7 +115,10 @@ export const playFrom = createAsyncThunk(
 );
 
 // As of 2021-09-04, the plex integration seems to control apollo
-const withPlayerOverrides = (entity_id: string | null) => entity_id;
+const withPlayerOverrides = (entity_id: string | null) =>
+    entity_id === 'media_player.plex_plex_for_android_tv_shield_android_tv'
+        ? 'media_player.apollo'
+        : entity_id;
 
 interface IHassContext {
     connection?: hass.Connection;
