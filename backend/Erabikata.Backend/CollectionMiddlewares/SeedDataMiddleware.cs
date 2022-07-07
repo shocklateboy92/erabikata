@@ -12,7 +12,7 @@ public class SeedDataMiddleware : ICollectionMiddleware
 {
     private const string ShowMetadataJsonFileName = "/show-metadata.json";
     private readonly SeedDataProvider _seedDataProvider;
-    private static readonly Regex ServerPrefixRegex = new Regex(
+    private static readonly Regex ServerPrefixRegex = new(
         "/([^/]+)_show-metadata.json",
         RegexOptions.Compiled
     );

@@ -40,6 +40,4 @@ public class SeedDataProvider
     {
         return path.EndsWith($"{type}/{epNum:00}.ass") || path.EndsWith($"{type}/{epNum:00}.srt");
     }
-
-    public record ShowContentFile(int Id, string Path);
 }
