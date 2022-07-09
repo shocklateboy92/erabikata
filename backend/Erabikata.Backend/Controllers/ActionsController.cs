@@ -62,7 +62,13 @@ public class ActionsController : ControllerBase
             );
             var result = current.Execute(
                 previousActivity,
-                modifiedActivity => ExecuteMiddleware(modifiedActivity, remaining.Skip(1))
+                async modifiedActivity =>
+                {
+                    await ExecuteMiddleware(modifiedActivity, remaining.Skip(1));
+                    _logger.LogInformationString(
+                        $"Resuming middleware '{current.GetType().Name}' for '{previousActivity.GetType().Name}'"
+                    );
+                }
             );
             _logger.LogInformationString(
                 $"Completed middleware '{current.GetType().Name}' for '{previousActivity.GetType().Name}' activity"
