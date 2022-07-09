@@ -47,7 +47,7 @@ public class WordInfo
     public IReadOnlyCollection<string> Priorities { get; set; }
 
     [DataMember]
-    public uint TotalOccurrences { get; set; }
+    public ulong TotalOccurrences { get; set; }
 
     public record Meaning(IReadOnlyCollection<string> Tags, IEnumerable<string> Senses);
 }

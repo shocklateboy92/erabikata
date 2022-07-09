@@ -34,6 +34,8 @@ public class DictionaryProviderMiddleware : ICollectionMiddleware
                 var dict = await FetchDictionary(sourceUrl);
                 await next(new DictionaryIngestion(ProcessDictionary(dict).ToArray()));
             }
+
+            await _databaseInfo.SetCurrentDictionary(sourceUrl);
         }
 
         await next(activity);

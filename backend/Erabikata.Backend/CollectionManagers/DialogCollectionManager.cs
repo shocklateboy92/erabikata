@@ -57,56 +57,56 @@ public class DialogCollectionManager : ICollectionManager
             FilterDefinition<Dialog>.Empty,
             new FindOptions<Dialog> { BatchSize = 10000 }
         );
-        while (await cursor.MoveNextAsync())
-        {
-            var processed = cursor.Current
-                .AsParallel()
-                .Select(
-                    dialog =>
+
+        var results = await cursor.ToListAsync();
+        var processed = results
+            .AsParallel()
+            .WithDegreeOfParallelism(100)
+            .Select(
+                dialog =>
+                {
+                    foreach (var (index, line) in dialog.Lines.WithIndicies())
                     {
-                        foreach (var (index, line) in dialog.Lines.WithIndicies())
+                        try
                         {
-                            try
+                            var wordsInLine = matcher.FillMatchesAndGetWords(
+                                line.Words,
+                                incrementWordRanks: !dialog.ExcludeWhenRanking
+                            );
+                            foreach (var wordId in wordsInLine)
                             {
-                                var wordsInLine = matcher.FillMatchesAndGetWords(
-                                    line.Words,
-                                    incrementWordRanks: !dialog.ExcludeWhenRanking
-                                );
-                                foreach (var wordId in wordsInLine)
-                                {
-                                    dialog.WordsToRank.Add(wordId);
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogError(
-                                    e,
-                                    "Error processing line {LineNumber} '{Line}' of dialog '{Dialog}'",
-                                    index,
-                                    string.Join(", ", line.Words.Select(w => w.OriginalForm)),
-                                    dialog.Id
-                                );
+                                dialog.WordsToRank.Add(wordId);
                             }
                         }
-
-                        return dialog;
+                        catch (Exception e)
+                        {
+                            _logger.LogError(
+                                e,
+                                "Error processing line {LineNumber} '{Line}' of dialog '{Dialog}'",
+                                index,
+                                string.Join(", ", line.Words.Select(w => w.OriginalForm)),
+                                dialog.Id
+                            );
+                        }
                     }
-                );
 
-            var replaceOneModels = processed
-                .Select(
-                    dialog =>
-                        new ReplaceOneModel<Dialog>(
-                            Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
-                            dialog
-                        )
-                )
-                .ToArray();
-            await _mongoCollection.BulkWriteAsync(
-                replaceOneModels,
-                new BulkWriteOptions { IsOrdered = false }
+                    return dialog;
+                }
             );
-        }
+
+        var replaceOneModels = processed
+            .Select(
+                dialog =>
+                    new ReplaceOneModel<Dialog>(
+                        Builders<Dialog>.Filter.Eq(d => d.Id, dialog.Id),
+                        dialog
+                    )
+            )
+            .ToArray();
+        await _mongoCollection.BulkWriteAsync(
+            replaceOneModels,
+            new BulkWriteOptions { IsOrdered = false }
+        );
     }
 
     private async Task IngestDialog(IEnumerable<IngestShows.ShowToIngest> ingestShowsShowsToIngest)

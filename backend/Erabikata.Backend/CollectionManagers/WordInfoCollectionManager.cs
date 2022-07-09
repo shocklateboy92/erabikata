@@ -52,19 +52,21 @@ public class WordInfoCollectionManager : ICollectionManager
 
     public record WordReading([property: BsonId] int Id, IEnumerable<string> Readings);
 
-    public Task UpdateWordCounts(IEnumerable<(int wordId, ulong count)> words)
+    public async Task UpdateWordCounts(IEnumerable<(int wordId, ulong count)> words)
     {
-        var models = words
-            .Select(
-                word =>
-                    new UpdateOneModel<WordInfo>(
-                        new ExpressionFilterDefinition<WordInfo>(w => w.Id == word.wordId),
-                        Builders<WordInfo>.Update.Set(w => w.TotalOccurrences, word.count)
-                    )
-            )
-            .ToArray();
+        var wordsMap = words.ToDictionary(kv => kv.wordId, kv => kv.count);
+        var wordInfos = await _mongoCollection.Find(FilterDefinition<WordInfo>.Empty).ToListAsync();
 
-        return _mongoCollection.BulkWriteAsync(models, new BulkWriteOptions { IsOrdered = false });
+        wordInfos.AsParallel()
+            .ForAll(
+                info =>
+                {
+                    info.TotalOccurrences = wordsMap[info.Id];
+                }
+            );
+
+        await _mongoCollection.DeleteManyAsync(FilterDefinition<WordInfo>.Empty);
+        await _mongoCollection.InsertManyAsync(wordInfos, new InsertManyOptions { IsOrdered = false });
     }
 
     public record NormalizedWord(

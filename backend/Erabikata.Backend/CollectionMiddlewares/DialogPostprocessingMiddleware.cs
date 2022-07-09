@@ -23,7 +23,7 @@ public class DialogPostprocessingMiddleware : ICollectionMiddleware
     public async Task Execute(Activity activity, Func<Activity, Task> next)
     {
         await next(activity);
-        if (activity is BeginIngestion or DictionaryUpdate)
+        if (activity is BeginIngestion)
         {
             var matcher = await _wordInfo.BuildWordMatcher();
             await _dialog.ProcessWords2(matcher);

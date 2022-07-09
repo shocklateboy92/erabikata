@@ -43,4 +43,15 @@ public class DatabaseInfoManager : ICollectionManager
             .Project(dbInfo => dbInfo.CurrentDictionary)
             .FirstOrDefaultAsync();
     }
+
+    public Task<UpdateResult> SetCurrentDictionary(string sourceUrl)
+    {
+        return _mongoCollection.UpdateOneAsync(
+            FilterDefinition<DatabaseInfo>.Empty,
+            new UpdateDefinitionBuilder<DatabaseInfo>().Set(
+                info => info.CurrentDictionary,
+                sourceUrl
+            )
+        );
+    }
 }
