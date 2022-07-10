@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
 using Erabikata.Backend.Controllers;
-using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Erabikata.Tests.Generated;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -13,6 +13,8 @@ using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Xunit;
 using Xunit.Priority;
+using BeginIngestion = Erabikata.Backend.Models.Actions.BeginIngestion;
+using DictionaryUpdate = Erabikata.Backend.Models.Actions.DictionaryUpdate;
 
 namespace Erabikata.Tests;
 
@@ -65,7 +67,6 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         await _databaseInfoManager.OnActivityExecuting(new BeginIngestion(string.Empty, "prev"));
         var response = await _actionsController.Execute(new BeginIngestion("prev", "yolo"));
         response.Should().BeOfType<OkObjectResult>();
-        var client = _factory.CreateDefaultClient();
 
         var endCommit = await _databaseInfoManager.GetCurrentCommit();
         endCommit.Should().Be("yolo");
@@ -98,5 +99,18 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         var wordInfo = words.Single();
         wordInfo.Kanji.First().Should().Be(text);
         wordInfo.TotalOccurrences.Should().Be(count);
+    }
+
+    [Fact]
+    public async Task TestAlternateIds()
+    {
+        var client = new AlternateIdsClient(_factory.CreateClient());
+        var map = await client.MapAsync();
+        foreach (var (key, value) in map)
+        {
+            var keyInt = int.Parse(key);
+            var valueInt = int.Parse(value);
+            (valueInt - keyInt).Should().Be(500);
+        }
     }
 }

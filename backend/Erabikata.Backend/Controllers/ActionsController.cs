@@ -45,7 +45,7 @@ public class ActionsController : ControllerBase
 
         await ExecuteMiddleware(activity, _collectionMiddlewares);
 
-        return Ok(execution.Id);
+        return Ok(execution.Id.ToString());
     }
 
     [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
@@ -93,15 +93,5 @@ public class ActionsController : ControllerBase
         }
 
         _logger.LogInformationString($"Completed all collection managers");
-    }
-
-    [HttpGet]
-    [Route("list")]
-    public Task<List<ActivityExecution>> List()
-    {
-        return _mongo
-            .Find(FilterDefinition<ActivityExecution>.Empty)
-            .SortByDescending(execution => execution.Id)
-            .ToListAsync();
     }
 }
