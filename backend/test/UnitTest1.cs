@@ -9,6 +9,7 @@ using Erabikata.Tests.Generated;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
 using Xunit;
@@ -38,7 +39,13 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         ILoggerFactory loggerFactory
     )
     {
-        _factory = factory;
+        _factory = factory.WithWebHostBuilder(
+            builder =>
+                builder.ConfigureAppConfiguration(
+                    (context, configurationBuilder) =>
+                        configurationBuilder.AddYamlFile("testSettings.yaml")
+                )
+        );
         _actionsController = new ActionsController(
             mongoCollection,
             collectionManagers,
@@ -72,7 +79,7 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         endCommit.Should().Be("yolo");
     }
 
-    [Fact, Priority(19)]
+    [Fact(Skip = "Manual test"), Priority(19)]
     public async Task ReprocessDialogMatches()
     {
         var middleware = new DialogPostprocessingMiddleware(
@@ -112,5 +119,56 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
             var valueInt = int.Parse(value);
             (valueInt - keyInt).Should().Be(500);
         }
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestEngSubs()
+    {
+        var client = new EngSubsClient(_factory.CreateClient());
+
+        const int showId = 2934;
+        var styles = await client.StylesOfAsync(showId);
+        styles.ShowId.Should().Be(showId);
+        styles.EnabledStyles
+            .Should()
+            .BeEquivalentTo("Default", "DefaultLow", "Italics", "On Top", "OS");
+        styles.AllStyles
+            .Should()
+            .BeEquivalentTo(
+                new AggregateSortByCountResultOfString[]
+                {
+                    new(666, "Default"),
+                    new(5, "On Top"),
+                    new(1, "OS")
+                }
+            );
+
+        var active = await client.ActiveStylesForAsync(showId);
+        active.Should().BeEquivalentTo(styles.EnabledStyles);
+
+        var osDialog = await client.ByStyleNameAsync(showId, "OS", max: 20, skip: 0);
+        const string episodeId = "2936";
+        const double time = 1448.0;
+        osDialog.Dialog
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    new Sentence(
+                        episodeId: episodeId,
+                        episodeTitle: null,
+                        id: string.Empty,
+                        text: new[] { "That Key", "Was Never Handled", "Until Today." },
+                        time: time
+                    )
+                },
+                options => options.Excluding(sentence => sentence.Id)
+            );
+
+        var showIdResult = await client.ShowIdOfAsync(episodeId);
+        showIdResult.Should().Be(showId);
+
+        var dialog = await client.IndexAsync(episodeId, time, 3);
+        dialog.Dialog[3].Should().BeEquivalentTo(osDialog.Dialog[0]);
     }
 }
