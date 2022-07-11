@@ -16,8 +16,7 @@ namespace Erabikata.Backend.Models.Actions;
     typeof(DisableStyle),
     typeof(SyncAnki),
     typeof(SendToAnki),
-    typeof(BeginIngestion),
-    typeof(EndIngestion)
+    typeof(BeginIngestion)
 )]
 [JsonConverter(typeof(JsonInheritanceConverter), DiscriminatorName)]
 [KnownType(typeof(LearnReading))]
@@ -30,7 +29,6 @@ namespace Erabikata.Backend.Models.Actions;
 [KnownType(typeof(SyncAnki))]
 [KnownType(typeof(SendToAnki))]
 [KnownType(typeof(BeginIngestion))]
-[KnownType(typeof(EndIngestion))]
 public record Activity
 {
     private const string DiscriminatorName = "activityType";
