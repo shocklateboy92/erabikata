@@ -207,7 +207,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
 
         var testResults = await client.SearchAsync("お茶");
         testResults.Should().Contain(TestWordId);
-        
+
         var definitions = await client.DefinitionAsync(new[] { TestWordId });
         definitions
             .Should()
@@ -261,5 +261,27 @@ public class UnitTest1 : IClassFixture<BackendFactory>
             .Select(occurrence => (occurrence.EpisodeId, occurrence.Time))
             .Should()
             .BeEquivalentTo(new[] { ("1717", 1565.647), ("1717", 1748.288), ("1717", 1563.103) });
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestRankedWords()
+    {
+        var client = new WordsClient(_factory.CreateClient());
+        var ranks = await client.Ranked2Async(skipKnown: false, max: 5, skip: 0);
+        ranks
+            .Should()
+            .BeEquivalentTo(
+                new WordRankInfo[]
+                {
+                    new(count: 488L, id: 2086960, rank: 0, text: "って"),
+                    new(count: 429L, id: 2270030, rank: 1, text: "乃"),
+                    new(count: 424L, id: 2702090, rank: 2, text: "ては"),
+                    new(count: 419L, id: 2089020, rank: 3, text: "だ"),
+                    new(count: 419L, id: 2029110, rank: 4, text: "な")
+                }
+            );
+
+        var episodeRank = await client.EpisodeRankAsync(TestEpisodeId, new[] { 2270030 });
+        episodeRank.Should().BeEquivalentTo(new WordRank[] { new(id: 2270030, rank: 1), });
     }
 }
