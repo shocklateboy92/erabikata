@@ -1,22 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
-using Erabikata.Backend.CollectionMiddlewares;
-using Erabikata.Backend.Controllers;
-using Erabikata.Backend.Models.Database;
 using Erabikata.Tests.Generated;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using MongoDB.Driver;
 using Xunit;
 using Xunit.Priority;
-using BeginIngestion = Erabikata.Backend.Models.Actions.BeginIngestion;
-using DictionaryUpdate = Erabikata.Backend.Models.Actions.DictionaryUpdate;
 
 namespace Erabikata.Tests;
 
@@ -28,38 +18,26 @@ public class UnitTest1 : IClassFixture<BackendFactory>
     private const int TestKnownWordId = 1414500;
     private readonly WebApplicationFactory<Backend.Startup> _factory;
     private readonly DatabaseInfoManager _databaseInfoManager;
-    private readonly DialogCollectionManager _dialogCollectionManager;
     private readonly WordInfoCollectionManager _wordInfoCollectionManager;
-    private readonly ActionsController _actionsController;
 
     public UnitTest1(
         BackendFactory factory,
         DatabaseInfoManager databaseInfoManager,
-        DialogCollectionManager dialogCollectionManager,
-        WordInfoCollectionManager wordInfoCollectionManager,
-        IMongoCollection<ActivityExecution> mongoCollection,
-        IEnumerable<ICollectionManager> collectionManagers,
-        IEnumerable<ICollectionMiddleware> middlewares,
-        ILoggerFactory loggerFactory
+        WordInfoCollectionManager wordInfoCollectionManager
     )
     {
         _factory = factory;
-        _actionsController = new ActionsController(
-            mongoCollection,
-            collectionManagers,
-            loggerFactory.CreateLogger<ActionsController>(),
-            middlewares
-        );
         _databaseInfoManager = databaseInfoManager;
-        _dialogCollectionManager = dialogCollectionManager;
         _wordInfoCollectionManager = wordInfoCollectionManager;
     }
 
     [Fact, Priority(1)]
     public async Task IngestDictionary()
     {
-        await _actionsController.Execute(
-            new DictionaryUpdate("https://public.apps.lasath.org/JMdict_e-2021-02-13.gz")
+        var client = new ActionsClient(_factory.CreateClient());
+        
+        await client.ExecuteAsync(
+            new Generated.DictionaryUpdate("https://public.apps.lasath.org/JMdict_e-2021-02-13.gz")
         );
 
         var words = await _wordInfoCollectionManager.GetWords(new[] { 1008050 });
@@ -69,9 +47,8 @@ public class UnitTest1 : IClassFixture<BackendFactory>
     [Fact, Priority(2)]
     public async Task IngestSubs()
     {
-        await _databaseInfoManager.OnActivityExecuting(new BeginIngestion(string.Empty, "prev"));
-        var response = await _actionsController.Execute(new BeginIngestion("prev", "yolo"));
-        response.Should().BeOfType<OkObjectResult>();
+        var client = new ActionsClient(_factory.CreateClient());
+        await client.ExecuteAsync(new Generated.BeginIngestion("yolo"));
 
         var endCommit = await _databaseInfoManager.GetCurrentCommit();
         endCommit.Should().Be("yolo");
@@ -141,18 +118,6 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         await actionsClient.ExecuteAsync(new LearnReading(knownWordId));
         known = await client.WithReadingsKnownAsync();
         known.Should().Contain(knownWordId);
-    }
-    [Fact(Skip = "Manual test"), Priority(19)]
-    public async Task ReprocessDialogMatches()
-    {
-        var middleware = new DialogPostprocessingMiddleware(
-            _wordInfoCollectionManager,
-            _dialogCollectionManager
-        );
-        await middleware.Execute(
-            new BeginIngestion(string.Empty, string.Empty),
-            activity => Task.CompletedTask
-        );
     }
 
     [Theory, Priority(20)]
