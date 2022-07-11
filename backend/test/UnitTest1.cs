@@ -123,11 +123,13 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         var client = new EngSubsClient(_factory.CreateClient());
 
         const int showId = 2934;
+        const string styleToToggle = "Italics";
+        
         var styles = await client.StylesOfAsync(showId);
         styles.ShowId.Should().Be(showId);
         styles.EnabledStyles
             .Should()
-            .BeEquivalentTo("Default", "DefaultLow", "Italics", "On Top", "OS");
+            .BeEquivalentTo("Default", "DefaultLow", styleToToggle, "On Top", "OS");
         styles.AllStyles
             .Should()
             .BeEquivalentTo(
@@ -165,6 +167,15 @@ public class UnitTest1 : IClassFixture<BackendFactory>
 
         var dialog = await client.IndexAsync(TestEpisodeId, time, 3);
         dialog.Dialog[3].Should().BeEquivalentTo(osDialog.Dialog[0]);
+
+        var actionsClient = new ActionsClient(_factory.CreateClient());
+        await actionsClient.ExecuteAsync(new EnableStyle(showId, styleToToggle));
+        active = await client.ActiveStylesForAsync(showId);
+        active.Should().Contain(styleToToggle);
+        
+        await actionsClient.ExecuteAsync(new DisableStyle(showId, styleToToggle));
+        active = await client.ActiveStylesForAsync(showId);
+        active.Should().NotContain(styleToToggle);
     }
 
     [Fact, Priority(20)]
