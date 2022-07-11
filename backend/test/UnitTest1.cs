@@ -362,4 +362,22 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         var episodeRank = await client.EpisodeRankAsync(TestEpisodeId, new[] { 2270030 });
         episodeRank.Should().BeEquivalentTo(new WordRank[] { new(id: 2270030, rank: 1), });
     }
+
+    [Fact, Priority(20)]
+    public async Task TestPartOfSpeech()
+    {
+        var episodeClient = new EpisodeClient(_factory.CreateClient());
+        var subsClient = new SubsClient(_factory.CreateClient());
+        var actionsClient = new ActionsClient(_factory.CreateClient());
+        
+        var episode = await episodeClient.IndexAsync(TestEpisodeId);
+
+        await actionsClient.ExecuteAsync(new IncludeReadingsOf("空白"));
+        var dialog = await subsClient.ByIdAsync(episode.Entries[315].DialogId);
+        dialog.Text.Words[0].First(word => word.DisplayText == "　").Reading.Should().Be("きごう");
+
+        await actionsClient.ExecuteAsync(new IgnoreReadingsOf("空白"));
+        dialog = await subsClient.ByIdAsync(episode.Entries[315].DialogId);
+        dialog.Text.Words[0].First(word => word.DisplayText == "　").Reading.Should().BeEmpty();
+    }
 }
