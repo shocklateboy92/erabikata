@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
@@ -24,6 +25,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
 {
     private const string TestEpisodeId = "2936";
     private const int TestWordId = 1002430;
+    private const int TestKnownWordId = 1414500;
     private readonly WebApplicationFactory<Backend.Startup> _factory;
     private readonly DatabaseInfoManager _databaseInfoManager;
     private readonly DialogCollectionManager _dialogCollectionManager;
@@ -75,6 +77,71 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         endCommit.Should().Be("yolo");
     }
 
+
+    [Fact, Priority(4)]
+    public async Task TestNotes()
+    {
+        var actionsClient = new ActionsClient(_factory.CreateClient());
+        await actionsClient.ExecuteAsync(new Generated.SyncAnki());
+        
+        var client = new WordsClient(_factory.CreateClient());
+        var notes = await client.NotesAsync(TestKnownWordId);
+        notes
+            .Should()
+            .BeEquivalentTo(
+                new NoteInfo[]
+                {
+                    new(
+                        1646562351243,
+                        "大胆",
+                        "だいたん",
+                        new[]
+                        {
+                            TestKnownWordId,
+                            1009470,
+                            1928670,
+                            2029110,
+                            2089020,
+                            2578080,
+                            2702090,
+                            1185930,
+                            2028930,
+                            1582920
+                        },
+                        words: ArraySegment<WordRef>.Empty
+                    )
+                },
+                options => options.Excluding(info => info.Words)
+            );
+
+        string.Join(string.Empty, notes[0].Words.Select(word => word.DisplayText))
+            .Should()
+            .Be("この大胆な下着が？");
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestKnownWords()
+    {
+        var client = new WordsClient(_factory.CreateClient());
+        var known = await client.KnownAsync();
+        known[TestKnownWordId.ToString()].Should().BeTrue();
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestKnownReadings()
+    {
+        const int knownWordId = 1311110; // 私
+        var client = new WordsClient(_factory.CreateClient());
+        var actionsClient = new ActionsClient(_factory.CreateClient());
+        await actionsClient.ExecuteAsync(new UnLearnReading(knownWordId));
+        
+        var known = await client.WithReadingsKnownAsync();
+        known.Should().NotContain(knownWordId);
+        
+        await actionsClient.ExecuteAsync(new LearnReading(knownWordId));
+        known = await client.WithReadingsKnownAsync();
+        known.Should().Contain(knownWordId);
+    }
     [Fact(Skip = "Manual test"), Priority(19)]
     public async Task ReprocessDialogMatches()
     {
