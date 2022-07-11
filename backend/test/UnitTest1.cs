@@ -37,7 +37,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         var client = new ActionsClient(_factory.CreateClient());
         
         await client.ExecuteAsync(
-            new Generated.DictionaryUpdate("https://public.apps.lasath.org/JMdict_e-2021-02-13.gz")
+            new DictionaryUpdate("https://public.apps.lasath.org/JMdict_e-2021-02-13.gz")
         );
 
         var words = await _wordInfoCollectionManager.GetWords(new[] { 1008050 });
@@ -48,7 +48,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
     public async Task IngestSubs()
     {
         var client = new ActionsClient(_factory.CreateClient());
-        await client.ExecuteAsync(new Generated.BeginIngestion("yolo"));
+        await client.ExecuteAsync(new BeginIngestion("yolo"));
 
         var endCommit = await _databaseInfoManager.GetCurrentCommit();
         endCommit.Should().Be("yolo");
@@ -59,7 +59,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
     public async Task TestNotes()
     {
         var actionsClient = new ActionsClient(_factory.CreateClient());
-        await actionsClient.ExecuteAsync(new Generated.SyncAnki());
+        await actionsClient.ExecuteAsync(new SyncAnki());
         
         var client = new WordsClient(_factory.CreateClient());
         var notes = await client.NotesAsync(TestKnownWordId);
