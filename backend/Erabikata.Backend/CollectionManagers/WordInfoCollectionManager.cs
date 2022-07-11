@@ -6,7 +6,6 @@ using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
 using Erabikata.Backend.Processing;
 using Mapster;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
 namespace Erabikata.Backend.CollectionManagers;
@@ -34,24 +33,6 @@ public class WordInfoCollectionManager : ICollectionManager
         }
     }
 
-    public Task<List<NormalizedWord>> GetAllNormalizedForms()
-    {
-        return _mongoCollection
-            .Aggregate()
-            .Project(doc => new NormalizedWord(doc.Id, doc.Normalized))
-            .ToListAsync();
-    }
-
-    public Task<List<WordReading>> GetAllReadings()
-    {
-        return _mongoCollection
-            .Find(FilterDefinition<WordInfo>.Empty)
-            .Project(word => new WordReading(word.Id, word.Readings))
-            .ToListAsync();
-    }
-
-    public record WordReading([property: BsonId] int Id, IEnumerable<string> Readings);
-
     public async Task UpdateWordCounts(IEnumerable<(int wordId, ulong count)> words)
     {
         var wordsMap = words.ToDictionary(kv => kv.wordId, kv => kv.count);
@@ -67,14 +48,6 @@ public class WordInfoCollectionManager : ICollectionManager
 
         await _mongoCollection.DeleteManyAsync(FilterDefinition<WordInfo>.Empty);
         await _mongoCollection.InsertManyAsync(wordInfos, new InsertManyOptions { IsOrdered = false });
-    }
-
-    public record NormalizedWord(
-        [property: BsonId] int Id,
-        IReadOnlyList<IReadOnlyList<string>> Normalized
-    )
-    {
-        public uint Count = 0;
     }
 
     public Task<long> GetTotalWordCount()
