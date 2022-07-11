@@ -140,7 +140,6 @@ public class Startup
         var mongoDatabase = new MongoClient(clientSettings).GetDatabase(url.DatabaseName);
         services.AddSingleton(mongoDatabase);
         AddCollection<ActivityExecution>(services, mongoDatabase);
-        AddCollection<UserInfo>(services, mongoDatabase);
 
         services
             .AddRefitClient<IAnkiSyncClient>()
