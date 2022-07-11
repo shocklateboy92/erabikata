@@ -39,12 +39,6 @@ public class AnkiWordCollectionManager : ICollectionManager
         _wordInfoCollectionManager = wordInfoCollectionManager;
     }
 
-    public async Task<bool> IsWordInAnki(int wordId)
-    {
-        return await _mongoCollection.CountDocumentsAsync(word => word.WordIds.Contains(wordId))
-            > 0;
-    }
-
     public Task<List<int>> GetAllKnownWords()
     {
         return _mongoCollection.AsQueryable().SelectMany(n => n.WordIds).Distinct().ToListAsync();

@@ -13,7 +13,6 @@ using Grpc.Core;
 using Grpc.Core.Utils;
 using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 
 namespace Erabikata.Backend.CollectionManagers;
@@ -366,16 +365,7 @@ public class DialogCollectionManager : ICollectionManager
 
     public record UnwoundWordCount(int _id, int count);
 
-    private record IntermediateLine(Dialog.Word Words);
-
-    private record IntermediateDialog(IntermediateLine Lines);
-
     public record DialogWords(string dialogId, IEnumerable<int> wordIds);
-
-    public record WordRank(
-        [property: BsonId] string BaseForm,
-        [property: BsonElement("count")] long Count
-    );
 
     private record UnwoundDialog(int WordsToRank);
 }
