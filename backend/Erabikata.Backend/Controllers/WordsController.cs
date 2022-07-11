@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Erabikata.Backend.CollectionManagers;
-using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models.Output;
-using Erabikata.Backend.Models.Input;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -17,21 +15,18 @@ namespace Erabikata.Backend.Controllers;
 public class WordsController : ControllerBase
 {
     private readonly DialogCollectionManager _dialogCollectionManager;
-    private readonly PartOfSpeechFilterCollectionManager _partOfSpeechFilter;
     private readonly WordInfoCollectionManager _wordInfo;
     private readonly AnkiWordCollectionManager _ankiWords;
     private readonly KnownReadingCollectionManager _knownReadings;
 
     public WordsController(
         DialogCollectionManager dialogCollectionManager,
-        PartOfSpeechFilterCollectionManager partOfSpeechFilter,
         WordInfoCollectionManager wordInfo,
         AnkiWordCollectionManager ankiWords,
         KnownReadingCollectionManager knownReadings
     )
     {
         _dialogCollectionManager = dialogCollectionManager;
-        _partOfSpeechFilter = partOfSpeechFilter;
         _wordInfo = wordInfo;
         _ankiWords = ankiWords;
         _knownReadings = knownReadings;

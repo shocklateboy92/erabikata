@@ -20,8 +20,10 @@ using DictionaryUpdate = Erabikata.Backend.Models.Actions.DictionaryUpdate;
 namespace Erabikata.Tests;
 
 [TestCaseOrderer(PriorityOrderer.Name, PriorityOrderer.Assembly)]
-public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
+public class UnitTest1 : IClassFixture<BackendFactory>
 {
+    private const string TestEpisodeId = "2936";
+    private const int TestWordId = 1002430;
     private readonly WebApplicationFactory<Backend.Startup> _factory;
     private readonly DatabaseInfoManager _databaseInfoManager;
     private readonly DialogCollectionManager _dialogCollectionManager;
@@ -29,7 +31,7 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
     private readonly ActionsController _actionsController;
 
     public UnitTest1(
-        WebApplicationFactory<Backend.Startup> factory,
+        BackendFactory factory,
         DatabaseInfoManager databaseInfoManager,
         DialogCollectionManager dialogCollectionManager,
         WordInfoCollectionManager wordInfoCollectionManager,
@@ -39,13 +41,7 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         ILoggerFactory loggerFactory
     )
     {
-        _factory = factory.WithWebHostBuilder(
-            builder =>
-                builder.ConfigureAppConfiguration(
-                    (context, configurationBuilder) =>
-                        configurationBuilder.AddYamlFile("testSettings.yaml")
-                )
-        );
+        _factory = factory;
         _actionsController = new ActionsController(
             mongoCollection,
             collectionManagers,
@@ -108,7 +104,7 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         wordInfo.TotalOccurrences.Should().Be(count);
     }
 
-    [Fact]
+    [Fact, Priority(20)]
     public async Task TestAlternateIds()
     {
         var client = new AlternateIdsClient(_factory.CreateClient());
@@ -117,7 +113,7 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         {
             var keyInt = int.Parse(key);
             var valueInt = int.Parse(value);
-            (valueInt - keyInt).Should().Be(500);
+            (keyInt - valueInt).Should().Be(500);
         }
     }
 
@@ -147,7 +143,6 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
         active.Should().BeEquivalentTo(styles.EnabledStyles);
 
         var osDialog = await client.ByStyleNameAsync(showId, "OS", max: 20, skip: 0);
-        const string episodeId = "2936";
         const double time = 1448.0;
         osDialog.Dialog
             .Should()
@@ -155,7 +150,7 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
                 new[]
                 {
                     new Sentence(
-                        episodeId: episodeId,
+                        episodeId: TestEpisodeId,
                         episodeTitle: null,
                         id: string.Empty,
                         text: new[] { "That Key", "Was Never Handled", "Until Today." },
@@ -165,10 +160,106 @@ public class UnitTest1 : IClassFixture<WebApplicationFactory<Backend.Startup>>
                 options => options.Excluding(sentence => sentence.Id)
             );
 
-        var showIdResult = await client.ShowIdOfAsync(episodeId);
+        var showIdResult = await client.ShowIdOfAsync(TestEpisodeId);
         showIdResult.Should().Be(showId);
 
-        var dialog = await client.IndexAsync(episodeId, time, 3);
+        var dialog = await client.IndexAsync(TestEpisodeId, time, 3);
         dialog.Dialog[3].Should().BeEquivalentTo(osDialog.Dialog[0]);
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestEpisodeSubs()
+    {
+        // since Id's change each run, subs and episode controllers
+        // have to be tested together to be meaningful.
+        var episodeClient = new EpisodeClient(_factory.CreateClient());
+        var subsClient = new SubsClient(_factory.CreateClient());
+
+        var episode = await episodeClient.IndexAsync(TestEpisodeId);
+        episode.Id.Should().Be(TestEpisodeId);
+        episode.Title.Should().Be("やはり俺の青春ラブコメはまちがっている. 完 Episode 1");
+        const int testIndex1 = 1;
+        episode.Entries[testIndex1].Time.Should().Be(9.6);
+
+        var dialog1 = await subsClient.ByIdAsync(episode.Entries[testIndex1].DialogId);
+        dialog1.Time.Should().Be(episode.Entries[testIndex1].Time);
+        dialog1.EpisodeId.Should().Be(TestEpisodeId);
+        dialog1.EpisodeName.Should().Be("やはり俺の青春ラブコメはまちがっている. 完 Episode 1");
+        dialog1.Text.IsSongLyric.Should().BeFalse();
+
+        // Only testing display/original form because word parsing is covered by other tests
+        string.Join(string.Empty, dialog1.Text.Words[0].Select(word => word.DisplayText))
+            .Should()
+            .Be("あなたの依頼が残ってる");
+
+        const int testIndex2 = 315;
+        episode.Entries[testIndex2].Time.Should().Be(1187.06);
+        var dialog2 = await subsClient.ByIdAsync(episode.Entries[testIndex2].DialogId);
+        string.Join(string.Empty, dialog2.Text.Words[0].Select(word => word.DisplayText))
+            .Should()
+            .Be("けど　家事が好きなのはホントだよ");
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestWords()
+    {
+        var client = new WordsClient(_factory.CreateClient());
+
+        var testResults = await client.SearchAsync("お茶");
+        testResults.Should().Contain(TestWordId);
+        
+        var definitions = await client.DefinitionAsync(new[] { TestWordId });
+        definitions
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    new WordDefinition(
+                        globalRank: 34L,
+                        id: TestWordId,
+                        priorities: new PriorityInfo(
+                            freq: false,
+                            gai: false,
+                            ichi: true,
+                            news: true,
+                            spec: false
+                        ),
+                        english: new EnglishWord[]
+                        {
+                            new(
+                                senses: new[] { "tea (usu. green)" },
+                                tags: new[]
+                                {
+                                    "noun (common) (futsuumeishi)",
+                                    "polite (teineigo) language"
+                                }
+                            ),
+                            new(
+                                senses: new[] { "tea break (at work)", "tea ceremony" },
+                                tags: new[] { "noun (common) (futsuumeishi)" }
+                            )
+                        },
+                        japanese: new JapaneseWord[]
+                        {
+                            new(kanji: "お茶", reading: "おちゃ"),
+                            new(kanji: "御茶", reading: null)
+                        }
+                    )
+                }
+            );
+
+        var occurrences = await client.OccurrencesAsync(TestWordId);
+        occurrences.WordId.Should().Be(TestWordId);
+        occurrences.DialogIds.Should().HaveCount(3);
+
+        // Since the ids are transient, we need to hydrate them
+        var subsClient = new SubsClient(_factory.CreateClient());
+        var dialog = await Task.WhenAll(
+            occurrences.DialogIds.Select(id => subsClient.ByIdAsync(id))
+        );
+        dialog
+            .Select(occurrence => (occurrence.EpisodeId, occurrence.Time))
+            .Should()
+            .BeEquivalentTo(new[] { ("1717", 1565.647), ("1717", 1748.288), ("1717", 1563.103) });
     }
 }
