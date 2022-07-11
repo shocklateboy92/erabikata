@@ -131,15 +131,6 @@ public class WordsController : ControllerBase
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<object> EpisodeTotal([BindRequired] int episodeId)
-    {
-        var results = await _dialogCollectionManager.GetEpisodeWordCount(episodeId);
-
-        return results;
-    }
-
-    [HttpGet]
-    [Route("[action]")]
     public async Task<WordOccurrences> Occurrences(int wordId)
     {
         var (occurrences, knownWords) = await (
