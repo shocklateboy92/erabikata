@@ -236,13 +236,13 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         dialog.Dialog[3].Should().BeEquivalentTo(osDialog.Dialog[0]);
 
         var actionsClient = new ActionsClient(_factory.CreateClient());
-        await actionsClient.ExecuteAsync(new EnableStyle(showId, styleToToggle));
-        active = await client.ActiveStylesForAsync(showId);
-        active.Should().Contain(styleToToggle);
-        
         await actionsClient.ExecuteAsync(new DisableStyle(showId, styleToToggle));
         active = await client.ActiveStylesForAsync(showId);
         active.Should().NotContain(styleToToggle);
+        
+        await actionsClient.ExecuteAsync(new EnableStyle(showId, styleToToggle));
+        active = await client.ActiveStylesForAsync(showId);
+        active.Should().Contain(styleToToggle);
     }
 
     [Fact, Priority(20)]
