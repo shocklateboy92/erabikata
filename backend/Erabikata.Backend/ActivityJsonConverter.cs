@@ -50,7 +50,7 @@ public class ActivityJsonConverter : JsonConverter<Activity>
         );
         if (activityType?.IsAssignableTo(typeof(Activity)) == true)
         {
-            return (Activity?)JsonSerializer.Deserialize(ref originalReader, activityType);
+            return (Activity?)JsonSerializer.Deserialize(ref originalReader, activityType, options);
         }
 
         throw new JsonException($"Unknown activity of type '{activityTypeName}'");
