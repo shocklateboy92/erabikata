@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,6 +14,9 @@ namespace Erabikata.Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[ExcludeFromCodeCoverage(
+    Justification = "Going to be moved to separate service in sustained engineering mode."
+)]
 public class ImageController : ControllerBase
 {
     private readonly EpisodeInfoCollectionManager _episodeInfoCollectionManager;
