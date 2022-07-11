@@ -10,7 +10,6 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection.AddHttpClient<DictionaryProviderMiddleware>();
         return serviceCollection
-            .AddSingleton<ICollectionMiddleware, RevisionControlMiddleware>()
             .AddSingleton<ICollectionMiddleware, DictionaryProviderMiddleware>()
             .AddSingleton<ICollectionMiddleware, WordInfoNormalizeMiddleware>()
             .AddSingleton<ICollectionMiddleware, DialogPostprocessingMiddleware>()

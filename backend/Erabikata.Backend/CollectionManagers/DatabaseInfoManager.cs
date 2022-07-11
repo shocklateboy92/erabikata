@@ -19,10 +19,12 @@ public class DatabaseInfoManager : ICollectionManager
         switch (activity)
         {
             case BeginIngestion beginIngestion:
-                await _mongoCollection.ReplaceOneAsync(
+                await _mongoCollection.UpdateOneAsync(
                     FilterDefinition<DatabaseInfo>.Empty,
-                    new DatabaseInfo(beginIngestion.EndCommit),
-                    new ReplaceOptions { IsUpsert = true }
+                    new UpdateDefinitionBuilder<DatabaseInfo>().Set(
+                        info => info.IngestedCommit,
+                        beginIngestion.EndCommit
+                    )
                 );
                 break;
         }
