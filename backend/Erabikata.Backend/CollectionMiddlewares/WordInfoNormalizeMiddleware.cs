@@ -55,6 +55,8 @@ public class WordInfoNormalizeMiddleware : ICollectionMiddleware
                             index++;
                         }
 
+                        await client.RequestStream.CompleteAsync();
+
                         await foreach (var response in client.ResponseStream.ReadAllAsync())
                         {
                             batchWords[(int)response.Time].Normalized = ExtractForm(

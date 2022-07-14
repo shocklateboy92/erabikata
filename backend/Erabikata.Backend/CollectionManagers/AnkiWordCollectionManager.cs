@@ -175,6 +175,8 @@ public class AnkiWordCollectionManager : ICollectionManager
             );
         }
 
+        await client.RequestStream.CompleteAsync();
+
         var responses = await client.ResponseStream.ReadAllAsync().ToListAsync();
         return responses
             .Select(
