@@ -7,6 +7,7 @@ using Erabikata.Backend.Extensions;
 using Erabikata.Backend.Models;
 using Erabikata.Backend.Models.Actions;
 using Erabikata.Backend.Models.Database;
+using Grpc.Core;
 using Grpc.Core.Utils;
 using Mapster;
 using Microsoft.Extensions.Logging;
@@ -167,14 +168,14 @@ public class AnkiWordCollectionManager : ICollectionManager
     )
     {
         var client = _analyzerServiceClient.AnalyzeBulk();
-        await client.RequestStream.WriteAllAsync(
-            noteTexts.Select(
-                note =>
-                    new AnalyzeRequest { Mode = Constants.DefaultAnalyzerMode, Text = note.text }
-            )
-        );
+        foreach (var note in noteTexts)
+        {
+            await client.RequestStream.WriteAsync(
+                new AnalyzeRequest { Mode = Constants.DefaultAnalyzerMode, Text = note.text }
+            );
+        }
 
-        var responses = await client.ResponseStream.ToListAsync();
+        var responses = await client.ResponseStream.ReadAllAsync().ToListAsync();
         return responses
             .Select(
                 (result, index) =>

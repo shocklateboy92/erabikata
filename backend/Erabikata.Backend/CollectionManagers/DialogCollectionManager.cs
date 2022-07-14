@@ -167,7 +167,7 @@ public class DialogCollectionManager : ICollectionManager
             using var client = _assParserServiceClient.ParseAss();
             await EngSubCollectionManager.WriteFileToParserClient(client, file);
 
-            var dialog = await client.ResponseStream.ToListAsync();
+            var dialog = await client.ResponseStream.ReadAllAsync().ToArrayAsync();
             var dialogToInclude = dialog.Where(
                 responseDialog =>
                     !responseDialog.IsComment
@@ -194,22 +194,23 @@ public class DialogCollectionManager : ICollectionManager
                 .Select(g => g.First());
             var toInclude = dialogToInclude.Concat(songsToInclude).ToArray();
 
-            var collection = _mongoCollection;
             using var analyzer = _analyzerServiceClient.AnalyzeDialogBulk();
-            await analyzer.RequestStream.WriteAllAsync(
-                toInclude.Select(
-                    responseDialog =>
-                        new AnalyzeDialogRequest
-                        {
-                            Mode = Constants.DefaultAnalyzerMode,
-                            Style = responseDialog.Style,
-                            Time = responseDialog.Time,
-                            Lines = { responseDialog.Lines }
-                        }
-                )
-            );
-            var analyzed = await analyzer.ResponseStream.ToListAsync();
-            var toInsert = analyzed
+            foreach (var responseDialog in toInclude)
+            {
+                await analyzer.RequestStream.WriteAsync(
+                    new AnalyzeDialogRequest
+                    {
+                        Mode = Constants.DefaultAnalyzerMode,
+                        Style = responseDialog.Style,
+                        Time = responseDialog.Time,
+                        Lines = { responseDialog.Lines }
+                    }
+                );
+            }
+            await analyzer.RequestStream.CompleteAsync();
+
+            var analyzed = analyzer.ResponseStream.ReadAllAsync();
+            var toInsert = await analyzed
                 .Select(
                     (response, index) =>
                         new Dialog(
@@ -224,7 +225,7 @@ public class DialogCollectionManager : ICollectionManager
                             ExcludeWhenRanking = songStyles.Contains(response.Style)
                         }
                 )
-                .ToArray();
+                .ToArrayAsync();
 
             if (!toInsert.Any())
             {
@@ -232,7 +233,7 @@ public class DialogCollectionManager : ICollectionManager
                 return;
             }
 
-            await collection.InsertManyAsync(toInsert, new InsertManyOptions { IsOrdered = false });
+            await _mongoCollection.InsertManyAsync(toInsert, new InsertManyOptions { IsOrdered = false });
         }
         catch (RpcException exception)
         {

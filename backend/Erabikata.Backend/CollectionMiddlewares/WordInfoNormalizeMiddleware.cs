@@ -39,18 +39,21 @@ public class WordInfoNormalizeMiddleware : ICollectionMiddleware
                     {
                         var batchWords = batchWordsInput.ToList();
                         using var client = _analyzer.AnalyzeDialogBulk();
-                        await client.RequestStream.WriteAllAsync(
-                            batchWords.Select(
-                                (info, index) =>
-                                    new AnalyzeDialogRequest
-                                    {
-                                        Lines = { info.Kanji.Any() ? info.Kanji : info.Readings },
-                                        Mode = Constants.DefaultAnalyzerMode,
-                                        Style = "none",
-                                        Time = index
-                                    }
-                            )
-                        );
+                        var index = 0;
+                        foreach (var info in batchWords)
+                        {
+                            await client.RequestStream.WriteAsync(
+                                new AnalyzeDialogRequest
+                                {
+                                    Lines = { info.Kanji.Any() ? info.Kanji : info.Readings },
+                                    Mode = Constants.DefaultAnalyzerMode,
+                                    Style = "none",
+                                    Time = index
+                                }
+                            );
+
+                            index++;
+                        }
 
                         await foreach (var response in client.ResponseStream.ReadAllAsync())
                         {

@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Google.Protobuf" Version="3.19.4" />
-    <PackageReference Include="Grpc" Version="2.43.0" />
-    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.42.0" />
-    <PackageReference Include="Grpc.Tools" Version="2.43.0">
+    <PackageReference Include="Google.Protobuf" Version="3.21.2" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.47.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.47.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.47.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -27,6 +27,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Refit.HttpClientFactory" Version="6.2.16" />
+    <PackageReference Include="System.Linq.Async" Version="6.0.1" />
     <PackageReference Include="TaskTupleAwaiter" Version="2.0.0" />
     <PackageReference Include="Xabe.FFmpeg" Version="5.1.0" />
   </ItemGroup>

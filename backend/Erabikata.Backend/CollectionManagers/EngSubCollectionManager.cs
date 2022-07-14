@@ -78,7 +78,7 @@ public class EngSubCollectionManager : ICollectionManager
         var client = _assParserServiceClient.ParseAss();
         await WriteFileToParserClient(client, filePath);
 
-        var subtitleEvents = await client.ResponseStream.ToListAsync();
+        var subtitleEvents = await client.ResponseStream.ReadAllAsync().ToListAsync();
         await _mongoCollection.InsertManyAsync(
             subtitleEvents.Select(
                 dialog =>
