@@ -24,7 +24,8 @@ public class DatabaseInfoManager : ICollectionManager
                     new UpdateDefinitionBuilder<DatabaseInfo>().Set(
                         info => info.IngestedCommit,
                         beginIngestion.EndCommit
-                    )
+                    ),
+                    new UpdateOptions { IsUpsert = true }
                 );
                 break;
         }
