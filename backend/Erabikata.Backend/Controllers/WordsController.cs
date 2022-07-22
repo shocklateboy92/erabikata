@@ -111,7 +111,7 @@ public class WordsController : ControllerBase
                         id,
                         ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank
                             * 100
-                            / total.Count
+                            / total?.Count
                             + 1
                     )
             )

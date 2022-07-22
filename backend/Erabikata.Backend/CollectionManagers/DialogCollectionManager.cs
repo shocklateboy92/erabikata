@@ -321,7 +321,7 @@ public class DialogCollectionManager : ICollectionManager
             )
             .Unwind(group => group.uniqueWordIds)
             .Count()
-            .FirstAsync();
+            .FirstOrDefaultAsync();
     }
 
     public Task<List<DialogWords>> GetOccurrences(int wordId)
