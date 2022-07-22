@@ -8,24 +8,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.4.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.1" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+        <PackageReference Include="FluentAssertions" Version="6.7.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.7" />
+        <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.7" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
         <PackageReference Include="Moq" Version="4.18.1" />
-        <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.1.0" />
+        <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.2.0" />
         <PackageReference Include="NSwag.MsBuild" Version="13.15.10">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="xunit" Version="2.4.1" />
-        <PackageReference Include="Xunit.DependencyInjection" Version="8.3.0" />
+        <PackageReference Include="Xunit.DependencyInjection" Version="8.5.0" />
         <PackageReference Include="Xunit.Priority" Version="1.1.6" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="coverlet.collector" Version="3.1.0">
+        <PackageReference Include="coverlet.collector" Version="3.1.2">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
@@ -47,22 +47,14 @@
 <!--        <NSwagWorkingDirectory>..\..\src\$(OutputPath)</NSwagWorkingDirectory>-->
 <!--    </PropertyGroup>-->
 
-    <Target
-            Name="NSwag"
-            Inputs="%(NSwagInput.Identity)"
-            Outputs="$(IntermediateOutputPath)%(NSwagInput.Identity).generated.cs"
-            BeforeTargets="PrepareForBuild">
-        <Exec
-                ContinueOnError="false"
-                Outputs="$(IntermediateOutputPath)%(NSwagInput.Identity).generated.cs"
-                EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development"
-                Command="$(NSwagExe_Net60) run %(NSwagInput.Identity) /variables:Configuration=$(Configuration),OutputPath=$(IntermediateOutputPath)%(NSwagInput.Identity),WorkingDirectory=$(NSwagWorkingDirectory)">
+    <Target Name="NSwag" Inputs="%(NSwagInput.Identity)" Outputs="$(IntermediateOutputPath)%(NSwagInput.Identity).generated.cs" BeforeTargets="PrepareForBuild">
+        <Exec ContinueOnError="false" Outputs="$(IntermediateOutputPath)%(NSwagInput.Identity).generated.cs" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net60) run %(NSwagInput.Identity) /variables:Configuration=$(Configuration),OutputPath=$(IntermediateOutputPath)%(NSwagInput.Identity),WorkingDirectory=$(NSwagWorkingDirectory)">
 
             <Output ItemName="Generated" TaskParameter="Outputs" />
         </Exec>
 
         <ItemGroup>
-            <Compile Include="@(Generated)" Exclude="@(Compile)"/>
+            <Compile Include="@(Generated)" Exclude="@(Compile)" />
             <FileWrites Include="@(Generated)" Exclude="@(FileWrites)" />
         </ItemGroup>
     </Target>
