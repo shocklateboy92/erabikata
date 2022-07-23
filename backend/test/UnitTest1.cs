@@ -323,9 +323,6 @@ public class UnitTest1 : IClassFixture<BackendFactory>
                     new(count: 419L, id: 2029110, rank: 4, text: "な")
                 }
             );
-
-        var episodeRank = await client.EpisodeRankAsync(TestEpisodeId, new[] { 2270030 });
-        episodeRank.Should().BeEquivalentTo(new WordRank[] { new(id: 2270030, rank: 1), });
     }
 
     [Fact, Priority(20)]

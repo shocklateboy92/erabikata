@@ -89,37 +89,6 @@ public class WordsController : ControllerBase
 
     [HttpGet]
     [Route("[action]")]
-    public async Task<ActionResult<IEnumerable<WordRank>>> EpisodeRank(
-        [BindRequired] string episodeId,
-        [BindRequired] [FromQuery] int[] wordId
-    )
-    {
-        if (!int.TryParse(episodeId, out var episode))
-        {
-            return BadRequest($"{nameof(episodeId)} must be a number");
-        }
-
-        var (ranks, total) = await (
-            _dialogCollectionManager.GetWordRanks(episode, wordId),
-            _dialogCollectionManager.GetEpisodeWordCount(episode)
-        );
-
-        return Ok(
-            wordId.Select(
-                id =>
-                    new WordRank(
-                        id,
-                        ranks.FirstOrDefault(rank => rank.counts._id == id)?.rank
-                            * 100
-                            / total?.Count
-                            + 1
-                    )
-            )
-        );
-    }
-
-    [HttpGet]
-    [Route("[action]")]
     public async Task<IDictionary<string, long?>> UnknownRanks()
     {
         var knownWords = await _ankiWords.GetAllKnownWords();

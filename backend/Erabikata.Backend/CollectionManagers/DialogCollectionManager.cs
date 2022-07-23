@@ -19,7 +19,6 @@ namespace Erabikata.Backend.CollectionManagers;
 
 public class DialogCollectionManager : ICollectionManager
 {
-    private const int TimeDelta = 10;
     private readonly AnalyzerService.AnalyzerServiceClient _analyzerServiceClient;
     private readonly AssParserService.AssParserServiceClient _assParserServiceClient;
 
@@ -278,52 +277,6 @@ public class DialogCollectionManager : ICollectionManager
         return new Dialog.Line(results);
     }
 
-    public async Task<IReadOnlyList<UnwoundRank>> GetWordRanks(
-        int episodeId,
-        IEnumerable<int> wordIds
-    )
-    {
-        var cursor = await _mongoCollection.AggregateAsync(
-            PipelineDefinition<Dialog, UnwoundRank>.Create(
-                new BsonDocument("$match", new BsonDocument("EpisodeId", episodeId)),
-                new BsonDocument("$unwind", "$WordsToRank"),
-                new BsonDocument("$sortByCount", "$WordsToRank"),
-                new BsonDocument(
-                    "$group",
-                    new BsonDocument
-                    {
-                        { "_id", BsonNull.Value },
-                        { "counts", new BsonDocument("$push", "$$ROOT") }
-                    }
-                ),
-                new BsonDocument(
-                    "$unwind",
-                    new BsonDocument { { "path", "$counts" }, { "includeArrayIndex", "rank" } }
-                ),
-                new BsonDocument(
-                    "$match",
-                    new BsonDocument("counts._id", new BsonDocument("$in", new BsonArray(wordIds)))
-                )
-            )
-        );
-        return await cursor.ToListAsync();
-    }
-
-    public Task<AggregateCountResult> GetEpisodeWordCount(int episodeId)
-    {
-        return _mongoCollection
-            .Aggregate()
-            .Match(dialog => dialog.EpisodeId == episodeId)
-            .Unwind<Dialog, UnwoundDialog>(dialog => dialog.WordsToRank)
-            .Group(
-                doc => string.Empty,
-                grouping => new { uniqueWordIds = grouping.Select(i => i.WordsToRank).Distinct() }
-            )
-            .Unwind(group => group.uniqueWordIds)
-            .Count()
-            .FirstOrDefaultAsync();
-    }
-
     public Task<List<DialogWords>> GetOccurrences(int wordId)
     {
         return _mongoCollection
@@ -362,11 +315,5 @@ public class DialogCollectionManager : ICollectionManager
             .ToListAsync();
     }
 
-    public record UnwoundRank(object? _id, int rank, UnwoundWordCount counts);
-
-    public record UnwoundWordCount(int _id, int count);
-
     public record DialogWords(string dialogId, IEnumerable<int> wordIds);
-
-    private record UnwoundDialog(int WordsToRank);
 }

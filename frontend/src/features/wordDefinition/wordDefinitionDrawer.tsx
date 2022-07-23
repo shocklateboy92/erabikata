@@ -9,11 +9,7 @@ import { Drawer } from '../../features/drawer';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
 import { Definition } from './component';
 import { ExternalDictionaryLink } from './externalDictionaryLink';
-import {
-    fetchDefinitionsIfNeeded,
-    fetchEpisodeRanksIfNeeded,
-    readingsOnlyModeToggle
-} from './slice';
+import { fetchDefinitionsIfNeeded, readingsOnlyModeToggle } from './slice';
 
 export const WordDefinitionDrawer: FC<{
     exact?: boolean;
@@ -26,9 +22,7 @@ export const WordDefinitionDrawer: FC<{
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(fetchDefinitionsIfNeeded(wordIds));
-        selectedEpisode &&
-            dispatch(fetchEpisodeRanksIfNeeded([selectedEpisode, wordIds]));
-    }, [wordIds, selectedEpisode, dispatch]);
+    }, [wordIds, dispatch]);
 
     const definition = exact ? wordIds.slice(0, 1) : wordIds.slice(1);
     return (
