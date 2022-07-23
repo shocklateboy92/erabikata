@@ -1,83 +1,54 @@
-import {
-    ActionsExecuteApiResponse,
-    api as generatedApi
-} from './backend-rtk.generated';
-import {
-    DisableStyle,
-    EnableStyle,
-    LearnReading,
-    SendToAnki,
-    SyncAnki,
-    UnLearnReading
-} from './backend.generated';
+import { enhancedApi } from './backend.generated';
 
-const api = generatedApi
-    .enhanceEndpoints({
-        addTagTypes: [
-            'WordOccurrences',
-            'Dialog',
-            'EngDialog',
-            'KnownWords',
-            'KnownReadings',
-            'ActiveStyle'
-        ],
-        endpoints: {
-            engSubsActiveStylesFor: {
-                providesTags: ['ActiveStyle']
-            },
-            wordsKnown: {
-                providesTags: ['KnownWords']
-            },
-            wordsNotes: { providesTags: ['KnownWords'] },
-            engSubsIndex: {
-                providesTags: ['EngDialog']
-            },
-            wordsOccurrences: {
-                providesTags: (response) => [
-                    {
-                        type: 'WordOccurrences',
-                        id: response?.wordId
-                    }
-                ]
-            },
-            wordsUnknownRanks: {
-                providesTags: ['KnownWords']
+const api = enhancedApi.enhanceEndpoints({
+    addTagTypes: [
+        'WordOccurrences',
+        'Dialog',
+        'EngDialog',
+        'KnownWords',
+        'KnownReadings',
+        'ActiveStyle'
+    ],
+    endpoints: {
+        engSubsActiveStylesFor: {
+            providesTags: ['ActiveStyle']
+        },
+        wordsKnown: {
+            providesTags: ['KnownWords']
+        },
+        wordsNotes: { providesTags: ['KnownWords'] },
+        engSubsIndex: {
+            providesTags: ['EngDialog']
+        },
+        wordsOccurrences: {
+            providesTags: (response) => [
+                {
+                    type: 'WordOccurrences',
+                    id: response?.wordId
+                }
+            ]
+        },
+        wordsUnknownRanks: {
+            providesTags: ['KnownWords']
+        },
+        actionsExecute: {
+            invalidatesTags: (_response, _error, { activity }) => {
+                switch (activity.activityType) {
+                    case 'EnableStyle':
+                    case 'DisableStyle':
+                        return ['EngDialog', 'ActiveStyle'];
+                    case 'SyncAnki':
+                        return ['KnownWords'];
+                    case 'LearnReading':
+                    case 'UnLearnReading':
+                        return ['KnownReadings'];
+                    default:
+                        return [];
+                }
             }
         }
-    })
-    .injectEndpoints({
-        endpoints: (build) => ({
-            executeAction: build.mutation<
-                ActionsExecuteApiResponse,
-                | EnableStyle
-                | DisableStyle
-                | SendToAnki
-                | SyncAnki
-                | LearnReading
-                | UnLearnReading
-            >({
-                query: (queryArg) => ({
-                    url: `/api/Actions/execute`,
-                    method: 'POST',
-                    body: queryArg
-                }),
-                invalidatesTags: (_response, _error, { activityType }) => {
-                    switch (activityType) {
-                        case 'EnableStyle':
-                        case 'DisableStyle':
-                            return ['EngDialog', 'ActiveStyle'];
-                        case 'SyncAnki':
-                            return ['KnownWords'];
-                        case 'LearnReading':
-                        case 'UnLearnReading':
-                            return ['KnownReadings'];
-                        default:
-                            return [];
-                    }
-                }
-            })
-        })
-    });
+    }
+});
 
 export const {
     useWordsOccurrencesQuery,
