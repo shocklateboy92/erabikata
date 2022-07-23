@@ -25,6 +25,7 @@ public class EngSubsController : ControllerBase
         _styleFilterCollection = styleFilterCollection;
     }
 
+    [HttpGet]
     public async Task<ActionResult<EngSubsResponse>> Index(
         string episodeId,
         double time,
@@ -41,7 +42,7 @@ public class EngSubsController : ControllerBase
         return new EngSubsResponse { Dialog = subs.Adapt<IEnumerable<EngSubsResponse.Sentence>>() };
     }
 
-    [Route("[action]/{showId}")]
+    [HttpGet("[action]/{showId}")]
     public async Task<StylesOfResponse> StylesOf(int showId)
     {
         var showInfo = await _styleFilterCollection.GetByShowId(showId);
@@ -61,14 +62,14 @@ public class EngSubsController : ControllerBase
         );
     }
 
-    [Route("[action]/{showId}")]
+    [HttpGet("[action]/{showId}")]
     public async Task<IEnumerable<string>> ActiveStylesFor(int showId)
     {
         var show = await _styleFilterCollection.GetByShowId(showId);
         return show?.EnabledStyles ?? Array.Empty<string>();
     }
 
-    [Route("[action]/{episodeId}")]
+    [HttpGet("[action]/{episodeId}")]
     public async Task<ActionResult<int?>> ShowIdOf(string episodeId)
     {
         if (!int.TryParse(episodeId, out var parsedEpisodeId))
@@ -79,7 +80,7 @@ public class EngSubsController : ControllerBase
         return await _styleFilterCollection.GetShowIdOf(parsedEpisodeId);
     }
 
-    [Route("[action]")]
+    [HttpGet("[action]")]
     public async Task<EngSubsResponse> ByStyleName(
         int showId,
         string styleName,

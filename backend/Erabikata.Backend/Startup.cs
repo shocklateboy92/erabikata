@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.Json.Serialization;
 using Erabikata.Backend.CollectionManagers;
 using Erabikata.Backend.CollectionMiddlewares;
@@ -12,10 +13,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
-using NJsonSchema.Generation;
-using NSwag;
 using Refit;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Erabikata.Backend;
 
@@ -76,21 +77,13 @@ public class Startup
             }
         );
 
-        services.AddOpenApiDocument(
-            settings =>
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(
+            options =>
             {
-                settings.GenerateKnownTypes = true;
-                settings.DefaultReferenceTypeNullHandling = ReferenceTypeNullHandling.NotNull;
-                settings.RequireParametersWithoutDefault = true;
-                settings.DefaultResponseReferenceTypeNullHandling =
-                    ReferenceTypeNullHandling.NotNull;
-                settings.SchemaProcessors.Add(new NonNullableAreRequiredSchemaProcessor());
-                settings.PostProcess = document =>
-                {
-                    document.Servers.Add(
-                        new OpenApiServer { Url = "https://erabikata3.apps.lasath.org" }
-                    );
-                };
+                options.SupportNonNullableReferenceTypes();
+                options.UseOneOfForPolymorphism();
+                options.SchemaFilter<RequiredNotNullableSchemaFilter>();
             }
         );
     }
@@ -176,8 +169,8 @@ public class Startup
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseOpenApi();
-        app.UseReDoc();
+        app.UseSwagger();
+        app.UseSwaggerUI();
 
         app.UseEndpoints(
             endpoints =>
@@ -203,5 +196,32 @@ public class Startup
                     }
                 )
         );
+    }
+}
+
+/// <summary>
+/// Most TypeScript code generators for OpenApi generate properties as optional
+/// unless they're marked as `required` in the model. Because C# has no concept
+/// of optional properties, all Non-Nullable properties should be `required`.
+///
+/// This is a schema filter that marks does exactly that.
+/// </summary>
+public class RequiredNotNullableSchemaFilter : ISchemaFilter
+{
+    public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+    {
+        if (schema.Properties == null)
+        {
+            return;
+        }
+
+        var notNullableProperties = schema.Properties
+            .Where(x => !x.Value.Nullable && !schema.Required.Contains(x.Key))
+            .ToList();
+
+        foreach (var property in notNullableProperties)
+        {
+            schema.Required.Add(property.Key);
+        }
     }
 }

@@ -32,7 +32,7 @@ public class ImageController : ControllerBase
         _settings = settings.Value;
     }
 
-    [Route("{episodeId}/{time}")]
+    [HttpGet("{episodeId}/{time}")]
     public async Task<ActionResult> Index(int episodeId, double time, bool includeSubs = true)
     {
         var episodeInfo = await _episodeInfoCollectionManager.GetEpisodeInfo(episodeId);

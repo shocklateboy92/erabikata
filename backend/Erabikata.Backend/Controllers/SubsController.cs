@@ -24,7 +24,7 @@ public class SubsController : ControllerBase
         _partOfSpeechFilter = partOfSpeechFilter;
     }
 
-    [Route("[action]/{id}")]
+    [HttpGet("[action]/{id}")]
     public async Task<ActionResult<WordOccurrence>> ById(string id)
     {
         var (dialogs, ignoredPartsOfSpeech) = await (
