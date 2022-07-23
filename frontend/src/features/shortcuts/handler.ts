@@ -223,7 +223,7 @@ const handlers: {
         action: (dispatch, getState) => {
             const state = getState();
             const dialog = selectNearestSelectedDialog(state);
-            const { data: known } = apiEndpoints.wordsKnown.select({})(state);
+            const { data: known } = apiEndpoints.wordsKnown.select()(state);
             const firstUnkown = dialog?.words
                 .flat()
                 .find((word) =>

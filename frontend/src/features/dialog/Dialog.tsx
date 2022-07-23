@@ -33,24 +33,21 @@ export const Dialog: FC<{
     const isActive = useTypedSelector((state) =>
         selectIsCurrentlySelected(state, data?.episodeId, data?.time)
     );
-    const knownWords = useWordsKnownQuery(
-        {},
-        {
-            selectFromResult: (result) =>
-                data
-                    ? Object.fromEntries(
-                          data.text.words.flatMap((l) =>
-                              l.flatMap((w) =>
-                                  w.definitionIds.map((d) => [
-                                      d,
-                                      !!result.data?.[d.toString()]
-                                  ])
-                              )
+    const knownWords = useWordsKnownQuery(undefined, {
+        selectFromResult: (result) =>
+            data
+                ? Object.fromEntries(
+                      data.text.words.flatMap((l) =>
+                          l.flatMap((w) =>
+                              w.definitionIds.map((d) => [
+                                  d,
+                                  !!result.data?.[d.toString()]
+                              ])
                           )
                       )
-                    : {}
-        }
-    );
+                  )
+                : {}
+    });
 
     useEffect(() => {
         if (!data) {

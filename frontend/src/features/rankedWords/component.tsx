@@ -12,14 +12,11 @@ import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder'
 import { WordRankInfo } from '../../backend-rtk.generated';
 
 const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
-    const { isKnown } = useWordsKnownQuery(
-        {},
-        {
-            selectFromResult: (result) => ({
-                isKnown: result.data?.[id]
-            })
-        }
-    );
+    const { isKnown } = useWordsKnownQuery(undefined, {
+        selectFromResult: (result) => ({
+            isKnown: result.data?.[id]
+        })
+    });
     const isActive = useTypedSelector((state) =>
         selectSelectedWords(state).includes(id)
     );

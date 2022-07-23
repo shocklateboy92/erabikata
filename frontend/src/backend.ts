@@ -1,6 +1,6 @@
 import {
     ActionsExecuteApiResponse,
-    api as generatedApi
+    enhancedApi
 } from './backend-rtk.generated';
 import {
     DisableStyle,
@@ -11,7 +11,7 @@ import {
     UnLearnReading
 } from './backend.generated';
 
-const api = generatedApi
+const api = enhancedApi
     .enhanceEndpoints({
         addTagTypes: [
             'WordOccurrences',

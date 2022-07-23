@@ -51,7 +51,9 @@ export const toggleWordFurigana = createAsyncThunk<
 });
 
 export const fetchWordsWithHiddenFurigana = () =>
-    apiEndpoints.wordsWithReadingsKnown.initiate({}, { subscribe: false });
+    apiEndpoints.wordsWithReadingsKnown.initiate(undefined, {
+        subscribe: false
+    });
 
 export const selectIsFuriganaEnabled = (state: RootState) =>
     state.furigana.enabled;

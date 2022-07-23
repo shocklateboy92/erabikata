@@ -1,4 +1,4 @@
-import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { AppDispatch } from 'app/store';
 import { apiEndpoints } from 'backend';
@@ -17,11 +17,11 @@ import {
 
 export const syncAnkiActivity = (): SyncAnki => ({ activityType: 'SyncAnki' });
 
-export const sendToAnki: AsyncThunk<
+export const sendToAnki = createAsyncThunk<
     void,
     void,
     { state: RootState; dispatch: AppDispatch }
-> = createAsyncThunk('sendToAnki', async (_, { getState, dispatch }) => {
+>('sendToAnki', async (_, { getState, dispatch }) => {
     if (Notification.permission !== 'granted') {
         // Have to do this early so it's still "in response to a user action"
         Notification.requestPermission();

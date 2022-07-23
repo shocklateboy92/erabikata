@@ -27,23 +27,17 @@ export const Definition: FC<{
         (state) => state.wordDefinitions.readingsOnly
     );
 
-    const { isKnown } = useWordsKnownQuery(
-        {},
-        {
-            selectFromResult: (result) => ({
-                isKnown: result.data?.[wordId]
-            })
-        }
-    );
+    const { isKnown } = useWordsKnownQuery(undefined, {
+        selectFromResult: (result) => ({
+            isKnown: result.data?.[wordId]
+        })
+    });
 
-    const { unknownRank } = useWordsUnknownRanksQuery(
-        {},
-        {
-            selectFromResult: (result) => ({
-                unknownRank: result.data?.[wordId]
-            })
-        }
-    );
+    const { unknownRank } = useWordsUnknownRanksQuery(undefined, {
+        selectFromResult: (result) => ({
+            unknownRank: result.data?.[wordId]
+        })
+    });
 
     if (!definition) {
         return null;
