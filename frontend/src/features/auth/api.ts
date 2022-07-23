@@ -2,8 +2,8 @@ import { PublicClientApplication } from '@azure/msal-browser';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import store from 'app/store';
-import { Analyzer, IApiClientConfig } from 'backend.generated';
-import { selectAnalyzer, selectBaseUrl } from 'features/backendSelection';
+import { IApiClientConfig } from 'backend.generated';
+import { selectBaseUrl } from 'features/backendSelection';
 import { notification } from 'features/notifications';
 import {
     authenticationError,
@@ -43,8 +43,7 @@ export function createApiCallThunk<
     name: string,
     payloadCreator: (
         client: ClientType,
-        args: ArgumentType,
-        analyzer: Analyzer
+        args: ArgumentType
     ) => Promise<ReturnType>,
     options?: {
         condition: (
@@ -71,16 +70,14 @@ export function createApiCallThunk<
                     thunk.dispatch(
                         notification({
                             title: 'Sign in again',
-                            text:
-                                'Something went wrong trying to access a protected resource. Signing in again might fix the problem.'
+                            text: 'Something went wrong trying to access a protected resource. Signing in again might fix the problem.'
                         })
                     );
                 }
             }
             return payloadCreator(
                 new constructor(config, selectBaseUrl(state)),
-                arg,
-                selectAnalyzer(state)
+                arg
             );
         },
         options

@@ -8,7 +8,6 @@ import React, { FC } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
-import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { WordRankInfo } from '../../backend-rtk.generated';
 
@@ -62,8 +61,7 @@ export const RankedWords: FC = () => {
     const pageNum = isNaN(pageParam) ? 0 : pageParam;
     const skip = pageNum * max;
 
-    const analyzer = useTypedSelector(selectAnalyzer);
-    const response = useWordsRanked2Query({ analyzer, skip, max });
+    const response = useWordsRanked2Query({ skip, max });
     if (!response.data) {
         return <QueryPlaceholder result={response} />;
     }

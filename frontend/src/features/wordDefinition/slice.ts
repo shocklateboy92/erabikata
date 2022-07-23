@@ -25,7 +25,7 @@ export const fetchEpisodeRanksIfNeeded: AsyncThunk<
 > = createApiCallThunk(
     WordsClient,
     'fetchEpisodeRanks',
-    (client, args, analyzer) => client.episodeRank(analyzer, ...args),
+    (client, args) => client.episodeRank(...args),
     {
         condition: ([episodeId, wordIds], { getState }) => {
             const episode = getState().wordDefinitions.episodeRanks[episodeId];
@@ -57,16 +57,13 @@ const slice = createSlice({
     },
     extraReducers: (builder) =>
         builder
-            .addCase(
-                thunk.fulfilled,
-                (state, { payload}) => ({
-                    ...state,
-                    byId: {
-                        ...state.byId,
-                        ...Object.fromEntries(payload.map((e) => [e.id, e]))
-                    }
-                })
-            )
+            .addCase(thunk.fulfilled, (state, { payload }) => ({
+                ...state,
+                byId: {
+                    ...state.byId,
+                    ...Object.fromEntries(payload.map((e) => [e.id, e]))
+                }
+            }))
             .addCase(
                 fetchEpisodeRanksIfNeeded.fulfilled,
                 (

@@ -16,7 +16,6 @@ import React, { FC, Fragment, useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { selectAnalyzer } from '../backendSelection';
 import './dialog.scss';
 
 const ICON_SIZE = '2em';
@@ -29,9 +28,8 @@ export const Dialog: FC<{
     forWord?: number;
 }> = ({ forWord, dialogId, compact, showTitle, autoSelect, scrollTo }) => {
     const dispatch = useDispatch();
-    const analyzer = useTypedSelector(selectAnalyzer);
     const ref = useRef<HTMLDivElement>(null);
-    const { data, ...result } = useSubsByIdQuery({ id: dialogId, analyzer });
+    const { data, ...result } = useSubsByIdQuery({ id: dialogId });
     const isActive = useTypedSelector((state) =>
         selectIsCurrentlySelected(state, data?.episodeId, data?.time)
     );
