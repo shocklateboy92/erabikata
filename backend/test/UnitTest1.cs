@@ -5,6 +5,7 @@ using Erabikata.Backend.CollectionManagers;
 using Erabikata.Tests.Generated;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Priority;
 
@@ -35,7 +36,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
     public async Task IngestDictionary()
     {
         var client = new ActionsClient(_factory.CreateClient());
-        
+
         await client.ExecuteAsync(
             new DictionaryUpdate("https://public.apps.lasath.org/JMdict_e-2021-02-13.gz")
         );
@@ -54,13 +55,12 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         endCommit.Should().Be("yolo");
     }
 
-
     [Fact, Priority(4)]
     public async Task TestNotes()
     {
         var actionsClient = new ActionsClient(_factory.CreateClient());
         await actionsClient.ExecuteAsync(new SyncAnki());
-        
+
         var client = new WordsClient(_factory.CreateClient());
         var notes = await client.NotesAsync(TestKnownWordId);
         notes
@@ -111,10 +111,10 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         var client = new WordsClient(_factory.CreateClient());
         var actionsClient = new ActionsClient(_factory.CreateClient());
         await actionsClient.ExecuteAsync(new UnLearnReading(knownWordId));
-        
+
         var known = await client.WithReadingsKnownAsync();
         known.Should().NotContain(knownWordId);
-        
+
         await actionsClient.ExecuteAsync(new LearnReading(knownWordId));
         known = await client.WithReadingsKnownAsync();
         known.Should().Contain(knownWordId);
@@ -156,7 +156,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
 
         const int showId = 2934;
         const string styleToToggle = "Italics";
-        
+
         var styles = await client.StylesOfAsync(showId);
         styles.ShowId.Should().Be(showId);
         styles.EnabledStyles
@@ -204,7 +204,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         await actionsClient.ExecuteAsync(new DisableStyle(showId, styleToToggle));
         active = await client.ActiveStylesForAsync(showId);
         active.Should().NotContain(styleToToggle);
-        
+
         await actionsClient.ExecuteAsync(new EnableStyle(showId, styleToToggle));
         active = await client.ActiveStylesForAsync(showId);
         active.Should().Contain(styleToToggle);
@@ -334,7 +334,7 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         var episodeClient = new EpisodeClient(_factory.CreateClient());
         var subsClient = new SubsClient(_factory.CreateClient());
         var actionsClient = new ActionsClient(_factory.CreateClient());
-        
+
         var episode = await episodeClient.IndexAsync(TestEpisodeId);
 
         await actionsClient.ExecuteAsync(new IncludeReadingsOf("空白"));
@@ -344,5 +344,41 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         await actionsClient.ExecuteAsync(new IgnoreReadingsOf("空白"));
         dialog = await subsClient.ByIdAsync(episode.Entries[315].DialogId);
         dialog.Text.Words[0].First(word => word.DisplayText == "　").Reading.Should().BeEmpty();
+    }
+
+    [Fact, Priority(20)]
+    public async Task TestParenthesisCounting()
+    {
+        const string episodeId = "1717";
+        var episodeClient = new EpisodeClient(_factory.CreateClient());
+
+        var episode = await episodeClient.IndexAsync(episodeId);
+        var dialogId = episode.Entries.First(entry => entry.Time.Equals(1777.442)).DialogId;
+
+        var collectionManager = _factory.Services.GetRequiredService<DialogCollectionManager>();
+        var dialog = await collectionManager.GetByIds(new[] { dialogId });
+
+        var lines = dialog.First().Lines.ToArray();
+        lines
+            .Select(line => line.Words.Select(word => (word.OriginalForm, word.IsInParenthesis)))
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    new[]
+                    {
+                        ("‎（", true),
+                        ("春花", true),
+                        ("）", false),
+                        ("こん", false),
+                        ("だけ", false),
+                        ("な", false),
+                        ("の", false),
+                        ("に", false),
+                        ("ね", false)
+                    },
+                    new[] { ("（", true), ("香織", true), ("）", false), ("確か", false), ("に", false) }
+                }
+            );
     }
 }

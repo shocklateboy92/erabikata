@@ -244,9 +244,9 @@ public class DialogCollectionManager : ICollectionManager
     private static Dialog.Line ProcessLine(AnalyzeDialogResponse.Types.Line line)
     {
         var results = new List<Dialog.Word>(line.Words.Count);
+        var bracketCount = 0;
         foreach (var word in line.Words)
         {
-            var bracketCount = 0;
             foreach (var c in word.Original)
                 switch (c)
                 {
