@@ -2,7 +2,7 @@ import { AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { AppDispatch } from 'app/store';
 import { apiEndpoints } from 'backend';
-import { SendToAnki, SyncAnki } from 'backend.generated';
+import { Activity } from 'backend.generated';
 import { notification } from 'features/notifications';
 import { ankiSendCompletion } from './ankiSlice';
 import {
@@ -15,13 +15,13 @@ import {
     selectWordTagsToSend
 } from './selectors';
 
-export const syncAnkiActivity = (): SyncAnki => ({ activityType: 'SyncAnki' });
+export const syncAnkiActivity = (): Activity => ({ activityType: 'SyncAnki' });
 
-export const sendToAnki: AsyncThunk<
+export const sendToAnki = createAsyncThunk<
     void,
     void,
     { state: RootState; dispatch: AppDispatch }
-> = createAsyncThunk('sendToAnki', async (_, { getState, dispatch }) => {
+>('sendToAnki', async (_, { getState, dispatch }) => {
     if (Notification.permission !== 'granted') {
         // Have to do this early so it's still "in response to a user action"
         Notification.requestPermission();
@@ -40,7 +40,7 @@ export const sendToAnki: AsyncThunk<
     }
     const [{ reading, kanji }] = word.japanese;
 
-    const activity: SendToAnki = {
+    const activity: Activity = {
         activityType: 'SendToAnki',
         text: selectSentenceTextToSend(state)!,
         link: selectSentenceLinkToSend(state)!,
@@ -56,7 +56,7 @@ export const sendToAnki: AsyncThunk<
     };
 
     const response = await dispatch(
-        apiEndpoints.executeAction.initiate(activity)
+        apiEndpoints.actionsExecute.initiate({ activity })
     );
     if ('error' in response) {
         dispatch(
@@ -70,7 +70,9 @@ export const sendToAnki: AsyncThunk<
 
     dispatch(ankiSendCompletion());
 
-    await dispatch(apiEndpoints.executeAction.initiate(syncAnkiActivity()));
+    await dispatch(
+        apiEndpoints.actionsExecute.initiate({ activity: syncAnkiActivity() })
+    );
 
     if (document.hidden) {
         const worker = await navigator.serviceWorker.getRegistration();

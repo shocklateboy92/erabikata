@@ -1,8 +1,8 @@
 import { mdiSend, mdiSync } from '@mdi/js';
 import { useAppSelector, useTypedSelector } from 'app/hooks';
 import { useAppDispatch } from 'app/store';
-import { useEngSubsIndexQuery, useExecuteActionMutation } from 'backend';
-import { EngSubsIndexApiArg } from 'backend-rtk.generated';
+import { useEngSubsIndexQuery, useActionsExecuteMutation } from 'backend';
+import { EngSubsIndexApiArg } from 'backend.generated';
 import { ActionButton } from 'components/button/actionButton';
 import { Row } from 'components/layout';
 import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
@@ -179,14 +179,14 @@ const LinkField: FC = () => {
 };
 
 const SyncAnkiButton: FC = () => {
-    const [executeAction, { isLoading }] = useExecuteActionMutation();
+    const [executeAction, { isLoading }] = useActionsExecuteMutation();
     return (
         <ActionButton
             large
             isLoading={isLoading}
             icon={mdiSync}
             onClick={() => {
-                executeAction(syncAnkiActivity());
+                executeAction({ activity: syncAnkiActivity() });
             }}
         >
             Sync Anki

@@ -1,7 +1,6 @@
 import { RootState } from 'app/rootReducer';
 import { apiEndpoints } from '../../backend';
-import { selectAnalyzer } from '../backendSelection';
-import { Entry } from '../../backend-rtk.generated';
+import { Entry } from 'backend.generated';
 import { notUndefined } from '../../typeUtils';
 import { IEpisodeTime } from 'features/anki/ankiSlice';
 
@@ -18,10 +17,8 @@ export const selectSelectedEpisodeContent = (state: RootState) => {
     if (!episode) {
         return;
     }
-    const analyzer = selectAnalyzer(state);
-    return apiEndpoints.episodeIndex.select({ analyzer, episodeId: episode })(
-        state
-    ).data?.entries;
+    return apiEndpoints.episodeIndex.select({ episodeId: episode })(state).data
+        ?.entries;
 };
 
 export const selectSelectedWord = (state: RootState) => state.selectedWord;
@@ -51,9 +48,7 @@ export const selectSelectedWordOccurrences = (state: RootState) => {
     if (!wordId) {
         return;
     }
-    const analyzer = selectAnalyzer(state);
     const dialogIds = apiEndpoints.wordsOccurrences.select({
-        analyzer,
         wordId
     })(state).data?.dialogIds;
     if (!dialogIds?.length) {
@@ -61,7 +56,7 @@ export const selectSelectedWordOccurrences = (state: RootState) => {
     }
 
     return dialogIds
-        .map((id) => apiEndpoints.subsById.select({ analyzer, id })(state).data)
+        .map((id) => apiEndpoints.subsById.select({ id })(state).data)
         .filter(notUndefined);
 };
 
@@ -78,9 +73,7 @@ export const selectNearestDialogContent = (
     state: RootState,
     { episodeId, time }: IEpisodeTime
 ) => {
-    const analyzer = selectAnalyzer(state);
     const { data } = apiEndpoints.episodeIndex.select({
-        analyzer,
         episodeId: episodeId
     })(state);
     if (!data) {
@@ -88,8 +81,7 @@ export const selectNearestDialogContent = (
     }
 
     const [{ dialogId }] = findNearbyDialog(data.entries, time, 1);
-    return apiEndpoints.subsById.select({ analyzer, id: dialogId })(state).data
-        ?.text;
+    return apiEndpoints.subsById.select({ id: dialogId })(state).data?.text;
 };
 
 export function findNearbyDialog(

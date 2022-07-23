@@ -59,7 +59,6 @@ export const {
     useEngSubsIndexQuery,
     useEngSubsShowIdOfQuery,
     useActionsExecuteMutation,
-    useExecuteActionMutation,
     useWordsUnknownRanksQuery,
     useWordsKnownQuery,
     useWordsNotesQuery,

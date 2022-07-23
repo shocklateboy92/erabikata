@@ -1,5 +1,4 @@
 import { RootState } from 'app/rootReducer';
-import { selectAnalyzer } from 'features/backendSelection';
 import { apiEndpoints } from '../../backend';
 
 export const selectEpisodeTitle = (
@@ -9,9 +8,7 @@ export const selectEpisodeTitle = (
     if (!episodeId) {
         return;
     }
-    const analyzer = selectAnalyzer(state);
-    return apiEndpoints.episodeIndex.select({ analyzer, episodeId })(state).data
-        ?.title;
+    return apiEndpoints.episodeIndex.select({ episodeId })(state).data?.title;
 };
 
 export const selectNearbyValues = (

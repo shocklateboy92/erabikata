@@ -1,6 +1,4 @@
-import { useTypedSelector } from 'app/hooks';
 import { useEpisodeIndexQuery } from 'backend';
-import { selectAnalyzer } from 'features/backendSelection';
 import { findNearbyDialog } from 'features/selectedWord';
 
 export const useNearbyDialogQuery = (
@@ -8,8 +6,7 @@ export const useNearbyDialogQuery = (
     time: number,
     count: number
 ) => {
-    const analyzer = useTypedSelector(selectAnalyzer);
-    const response = useEpisodeIndexQuery({ analyzer, episodeId });
+    const response = useEpisodeIndexQuery({ episodeId });
 
     const dialog = !!response.data
         ? findNearbyDialog(response.data.entries, time, count)

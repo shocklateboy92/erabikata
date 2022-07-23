@@ -2,7 +2,7 @@ import {
     useEngSubsActiveStylesForQuery,
     useEngSubsByStyleNameQuery,
     useEngSubsStylesOfQuery,
-    useExecuteActionMutation
+    useActionsExecuteMutation
 } from 'backend';
 import { FC, Fragment } from 'react';
 import { Page } from '../../components/page';
@@ -51,7 +51,7 @@ const ToggleStyleAction: FC<{ showId: number; styleName: string }> = ({
         }
     );
 
-    const [executeAction, { isLoading }] = useExecuteActionMutation();
+    const [executeAction, { isLoading }] = useActionsExecuteMutation();
 
     if (enabled === undefined || isLoading) {
         return null;
@@ -62,9 +62,11 @@ const ToggleStyleAction: FC<{ showId: number; styleName: string }> = ({
             icon={enabled ? mdiToggleSwitchOutline : mdiToggleSwitchOffOutline}
             onClick={() =>
                 executeAction({
-                    activityType: enabled ? 'DisableStyle' : 'EnableStyle',
-                    showId,
-                    styleName
+                    activity: {
+                        activityType: enabled ? 'DisableStyle' : 'EnableStyle',
+                        showId,
+                        styleName
+                    }
                 })
             }
         />

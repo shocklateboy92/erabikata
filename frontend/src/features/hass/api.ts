@@ -35,7 +35,7 @@ const createConnection = async (
 
     // Not doing fancy checks because `createConnection` will only be
     // called once (pending weird bugs).
-    dispatch(apiEndpoints.alternateIdsMap.initiate({}));
+    dispatch(apiEndpoints.alternateIdsMap.initiate());
 
     connection.addEventListener('ready', compose(dispatch, hassSocketReady));
     connection.addEventListener(

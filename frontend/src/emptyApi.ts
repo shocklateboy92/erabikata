@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { getInitialBaseUrl } from 'features/backendSelection';
 
 export const api = createApi({

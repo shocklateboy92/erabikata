@@ -15,7 +15,7 @@ const selectSelectedPlayerInternal = (
 
 export const selectSelectedPlayer = createSelector(
     selectSelectedPlayerInternal,
-    apiEndpoints.alternateIdsMap.select({}),
+    apiEndpoints.alternateIdsMap.select(),
     (playerInfo, overridesMap) => {
         if (!playerInfo?.media) {
             return playerInfo;

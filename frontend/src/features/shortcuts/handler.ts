@@ -28,7 +28,7 @@ import { selectSelectedEnglishDialog } from '../engDialog';
 
 const copyAction =
     (
-        selector: (state: RootState) => string | undefined,
+        selector: (state: RootState) => string | undefined | null,
         name: string
     ): AppThunk =>
     (dispatch, getState) => {
@@ -223,7 +223,7 @@ const handlers: {
         action: (dispatch, getState) => {
             const state = getState();
             const dialog = selectNearestSelectedDialog(state);
-            const { data: known } = apiEndpoints.wordsKnown.select({})(state);
+            const { data: known } = apiEndpoints.wordsKnown.select()(state);
             const firstUnkown = dialog?.words
                 .flat()
                 .find((word) =>

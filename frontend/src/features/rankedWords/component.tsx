@@ -4,23 +4,19 @@ import { useTypedSelector } from 'app/hooks';
 import { useWordsKnownQuery, useWordsRanked2Query } from 'backend';
 import classNames from 'classnames';
 import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
-import React, { FC } from 'react';
+import React, { FC, ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
-import { selectAnalyzer } from '../backendSelection';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { WordRankInfo } from '../../backend-rtk.generated';
+import { WordRankInfo } from 'backend.generated';
 
 const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
-    const { isKnown } = useWordsKnownQuery(
-        {},
-        {
-            selectFromResult: (result) => ({
-                isKnown: result.data?.[id]
-            })
-        }
-    );
+    const { isKnown } = useWordsKnownQuery(undefined, {
+        selectFromResult: (result) => ({
+            isKnown: result.data?.[id]
+        })
+    });
     const isActive = useTypedSelector((state) =>
         selectSelectedWords(state).includes(id)
     );
@@ -46,7 +42,10 @@ const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
     );
 };
 
-const ChangePageLink: FC<{ pageNum: number }> = ({ pageNum, children }) => (
+const ChangePageLink: FC<{
+    pageNum: number;
+    children: React.ComponentProps<Link>['children'];
+}> = ({ pageNum, children }) => (
     <div className={styles.pageLink}>
         <Link to={`/ui/rankedWords/${pageNum}`}>{children}</Link>
     </div>
@@ -62,8 +61,7 @@ export const RankedWords: FC = () => {
     const pageNum = isNaN(pageParam) ? 0 : pageParam;
     const skip = pageNum * max;
 
-    const analyzer = useTypedSelector(selectAnalyzer);
-    const response = useWordsRanked2Query({ analyzer, skip, max });
+    const response = useWordsRanked2Query({ skip, max });
     if (!response.data) {
         return <QueryPlaceholder result={response} />;
     }
