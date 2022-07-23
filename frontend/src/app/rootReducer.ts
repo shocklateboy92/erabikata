@@ -8,7 +8,6 @@ import { hassReducer } from 'features/hass';
 import { notificationReducer } from 'features/notifications';
 import { selectedWordReducer } from 'features/selectedWord/slice';
 import { spinnerTopReducer } from 'features/spinnerTop';
-import { todoistReducer } from 'features/todoist/slice';
 import { wakeLockReducer } from 'features/wakeLock';
 import { wordDefinitionReducer } from 'features/wordDefinition';
 import { apiReducer } from '../backend';
@@ -19,7 +18,6 @@ const rootReducer = combineReducers({
     wordDefinitions: wordDefinitionReducer,
     furigana: furiganaReducer,
     backend: backendReducer,
-    todoist: todoistReducer,
     wakeLock: wakeLockReducer,
     auth: authReducer,
     notifications: notificationReducer,
