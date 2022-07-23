@@ -100,6 +100,10 @@ function binarySearch(
     lo = 0,
     hi = arr.length - 1
 ): number {
+    if (arr.length < 2) {
+        return 0;
+    }
+
     if (target < arr[lo].time) {
         return 0;
     }
