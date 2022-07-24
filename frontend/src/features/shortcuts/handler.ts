@@ -1,5 +1,5 @@
 import { RootState } from 'app/rootReducer';
-import store, { AppThunk } from 'app/store';
+import store, { AppDispatch } from 'app/store';
 import history from 'appHistory';
 import { apiEndpoints } from 'backend';
 import { selectSentenceTextToSend } from 'features/anki/selectors';
@@ -25,6 +25,8 @@ import {
 } from 'features/wordDefinition';
 import { generateDialogLink } from 'routing/linkGen';
 import { selectSelectedEnglishDialog } from '../engDialog';
+
+type AppThunk = (dispatch: AppDispatch, getState: () => RootState) => void;
 
 const copyAction =
     (
