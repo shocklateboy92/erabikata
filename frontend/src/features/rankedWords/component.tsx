@@ -9,7 +9,7 @@ import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { WordRankInfo } from '../../backend-rtk.generated';
+import { WordRankInfo } from 'backend.generated';
 
 const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
     const { isKnown } = useWordsKnownQuery(undefined, {

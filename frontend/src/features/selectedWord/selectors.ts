@@ -1,6 +1,6 @@
 import { RootState } from 'app/rootReducer';
 import { apiEndpoints } from '../../backend';
-import { Entry } from '../../backend-rtk.generated';
+import { Entry } from 'backend.generated';
 import { notUndefined } from '../../typeUtils';
 import { IEpisodeTime } from 'features/anki/ankiSlice';
 

@@ -42,7 +42,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "postinstall": "yarn backend-gen && yarn rtk",
-    "backend-gen": "ASPNETCORE_ENVIRONMENT=Development nswag aspnetcore2openapi /project:../backend/Erabikata.Backend/Erabikata.Backend.csproj /output:../backend/Erabikata.Backend/obj/swagger.json && nswag run /runtime:Net60",
+    "backend-gen": "ASPNETCORE_ENVIRONMENT=Development nswag aspnetcore2openapi /project:../backend/Erabikata.Backend/Erabikata.Backend.csproj /output:../backend/Erabikata.Backend/obj/swagger.json",
     "rtk": "rtk-query-codegen-openapi ./openapi-config.ts"
   },
   "eslintConfig": {

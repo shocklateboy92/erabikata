@@ -28,7 +28,7 @@ import { selectSelectedEnglishDialog } from '../engDialog';
 
 const copyAction =
     (
-        selector: (state: RootState) => string | undefined,
+        selector: (state: RootState) => string | undefined | null,
         name: string
     ): AppThunk =>
     (dispatch, getState) => {

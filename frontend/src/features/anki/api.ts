@@ -2,7 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
 import { AppDispatch } from 'app/store';
 import { apiEndpoints } from 'backend';
-import { SendToAnki, SyncAnki } from 'backend.generated';
+import { Activity } from 'backend.generated';
 import { notification } from 'features/notifications';
 import { ankiSendCompletion } from './ankiSlice';
 import {
@@ -15,7 +15,7 @@ import {
     selectWordTagsToSend
 } from './selectors';
 
-export const syncAnkiActivity = (): SyncAnki => ({ activityType: 'SyncAnki' });
+export const syncAnkiActivity = (): Activity => ({ activityType: 'SyncAnki' });
 
 export const sendToAnki = createAsyncThunk<
     void,
@@ -40,7 +40,7 @@ export const sendToAnki = createAsyncThunk<
     }
     const [{ reading, kanji }] = word.japanese;
 
-    const activity: SendToAnki = {
+    const activity: Activity = {
         activityType: 'SendToAnki',
         text: selectSentenceTextToSend(state)!,
         link: selectSentenceLinkToSend(state)!,

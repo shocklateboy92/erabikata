@@ -1,14 +1,7 @@
 import {
     ActionsExecuteApiResponse,
+    Activity,
     enhancedApi
-} from './backend-rtk.generated';
-import {
-    DisableStyle,
-    EnableStyle,
-    LearnReading,
-    SendToAnki,
-    SyncAnki,
-    UnLearnReading
 } from './backend.generated';
 
 const api = enhancedApi
@@ -47,15 +40,7 @@ const api = enhancedApi
     })
     .injectEndpoints({
         endpoints: (build) => ({
-            executeAction: build.mutation<
-                ActionsExecuteApiResponse,
-                | EnableStyle
-                | DisableStyle
-                | SendToAnki
-                | SyncAnki
-                | LearnReading
-                | UnLearnReading
-            >({
+            executeAction: build.mutation<ActionsExecuteApiResponse, Activity>({
                 query: (queryArg) => ({
                     url: `/api/Actions/execute`,
                     method: 'POST',

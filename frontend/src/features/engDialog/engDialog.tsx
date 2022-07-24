@@ -7,7 +7,7 @@ import {
 } from 'features/selectedWord';
 import React, { FC, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
-import { Sentence } from '../../backend-rtk.generated';
+import { Sentence } from 'backend.generated';
 
 export const EngDialog: FC<{ content: Sentence; compact?: boolean }> = ({
     content: { episodeId, text, time },
