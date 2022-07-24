@@ -1,12 +1,12 @@
 import { useTypedSelector } from 'app/hooks';
-import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from 'app/store';
+import { FC } from 'react';
 import { enabledToggle } from './slice';
 
 const ELEMENT_ID = 'option-wakeLock-enabled';
 
 export const WakeLockOption: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const enabled = useTypedSelector((state) => state.wakeLock.enabled);
     return (
         <>

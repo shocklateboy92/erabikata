@@ -1,13 +1,13 @@
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import classNames from 'classnames';
 import { selectIsCurrentPlayerActive, togglePlayback } from 'features/hass';
-import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC } from 'react';
 import logo from './logo.svg';
 import styles from './spinnerTop.module.scss';
 
 export const SpinnerTop: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const shouldSpin = useTypedSelector(
         (state) => Object.keys(state.spinnerTop.requests).length > 0
     );

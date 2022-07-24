@@ -1,6 +1,7 @@
 import { mdiImport, mdiMusicNote, mdiRadioboxMarked, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { useSubsByIdQuery, useWordsKnownQuery } from 'backend';
 import { Row } from 'components/layout';
 import { formatTime } from 'components/time';
@@ -13,7 +14,6 @@ import {
     selectSelectedWord
 } from 'features/selectedWord';
 import React, { FC, Fragment, useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import './dialog.scss';
@@ -27,7 +27,7 @@ export const Dialog: FC<{
     scrollTo?: boolean;
     forWord?: number;
 }> = ({ forWord, dialogId, compact, showTitle, autoSelect, scrollTo }) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const ref = useRef<HTMLDivElement>(null);
     const { data, ...result } = useSubsByIdQuery({ id: dialogId });
     const isActive = useTypedSelector((state) =>

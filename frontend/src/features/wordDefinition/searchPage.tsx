@@ -1,16 +1,16 @@
+import { useAppDispatch } from 'app/store';
 import { useWordsSearchQuery } from 'backend';
 import { FC, useEffect } from 'react';
 import { FullWidthText } from '../../components/fullWidth';
 import { Page } from '../../components/page';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { Definition } from './component';
-import { useDispatch } from 'react-redux';
 import { fetchDefinitionsIfNeeded } from './slice';
 
 const SearchResults: FC<{ query: string }> = ({ query }) => {
     const response = useWordsSearchQuery({ query });
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     useEffect(() => {
         if (response.data) {
             dispatch(fetchDefinitionsIfNeeded({ wordId: response.data }));

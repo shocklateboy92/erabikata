@@ -1,9 +1,9 @@
 import { mdiFuriganaHorizontal, mdiPageNextOutline, mdiSend } from '@mdi/js';
 import Icon from '@mdi/react';
+import { useAppDispatch } from 'app/store';
 import { toggleWordFurigana } from 'features/furigana';
 import { AnkiPageLink } from 'features/routing/links';
-import React, { FC, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC, useEffect } from 'react';
 import { useTypedSelector } from '../../app/hooks';
 import { Drawer } from '../../features/drawer';
 import { selectSelectedEpisodeId, selectSelectedWords } from '../selectedWord';
@@ -19,7 +19,7 @@ export const WordDefinitionDrawer: FC<{
     const selectedEpisode = useTypedSelector(selectSelectedEpisodeId);
     const wordIds = useTypedSelector(selectSelectedWords);
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     useEffect(() => {
         dispatch(fetchDefinitionsIfNeeded({ wordId: wordIds }));
     }, [wordIds, dispatch]);

@@ -1,13 +1,13 @@
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
+import { Sentence } from 'backend.generated';
 import classNames from 'classnames';
 import { formatTime } from 'components/time';
 import {
     dialogSelection,
     selectIsCurrentlySelected
 } from 'features/selectedWord';
-import React, { FC, Fragment } from 'react';
-import { useDispatch } from 'react-redux';
-import { Sentence } from 'backend.generated';
+import { FC, Fragment } from 'react';
 
 export const EngDialog: FC<{ content: Sentence; compact?: boolean }> = ({
     content: { episodeId, text, time },
@@ -16,7 +16,7 @@ export const EngDialog: FC<{ content: Sentence; compact?: boolean }> = ({
     const highlightColor = useTypedSelector((state) =>
         selectIsCurrentlySelected(state, episodeId, time)
     );
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     return (
         <p

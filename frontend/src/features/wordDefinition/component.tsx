@@ -1,13 +1,13 @@
 import { useTypedSelector } from 'app/hooks';
-import { isKana, selectIsFuriganaHiddenForWords } from 'features/furigana';
-import React, { FC } from 'react';
-import styles from './wordDefinition.module.scss';
-import { Pill } from '../../components/pill';
-import { Link } from 'react-router-dom';
+import { useAppDispatch } from 'app/store';
 import { useWordsKnownQuery, useWordsUnknownRanksQuery } from 'backend';
-import { selectWordDefinition } from './selectors';
-import { useDispatch } from 'react-redux';
+import { isKana, selectIsFuriganaHiddenForWords } from 'features/furigana';
 import { wordPromotion } from 'features/selectedWord';
+import { FC } from 'react';
+import { Link } from 'react-router-dom';
+import { Pill } from '../../components/pill';
+import { selectWordDefinition } from './selectors';
+import styles from './wordDefinition.module.scss';
 
 const PRIMARY_ELEMENT_ID = 'primary-word-definition-view';
 
@@ -16,7 +16,7 @@ export const Definition: FC<{
     episodeId?: string;
     isPrimary?: boolean;
 }> = ({ wordId, episodeId, isPrimary }) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const definition = useTypedSelector((state) =>
         selectWordDefinition(state, wordId)
     );

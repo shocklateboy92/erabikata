@@ -11,8 +11,7 @@ import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
 import { selectSelectedEpisodeTime } from 'features/selectedWord';
-import React, { FC, Fragment, ReactNode, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC, Fragment, ReactNode, useState } from 'react';
 import { ankiTimeLockRequest, wordMeaningCheckToggle } from './ankiSlice';
 import { sendToAnki, syncAnkiActivity } from './api';
 import { ActionFieldView, FieldView } from './fieldView';
@@ -86,7 +85,7 @@ const MeaningField: FC<EngSubsIndexApiArg> = (args) => {
 };
 
 const WordField: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const uncheckedSenses = useTypedSelector(
         (state) => state.anki.word?.definitions
     );
@@ -218,7 +217,7 @@ const TimeLockableField: FC<{
     title: string;
     children: ReactNode;
 }> = ({ field, ...props }) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const isActive = useTypedSelector((state) => !!state.anki[field]);
     const time = useTypedSelector(
         (state) => state.anki[field] ?? selectSelectedEpisodeTime(state)

@@ -1,15 +1,15 @@
 import { mdiChevronLeft, mdiChevronRight, mdiShare } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { useWordsKnownQuery, useWordsRanked2Query } from 'backend';
+import { WordRankInfo } from 'backend.generated';
 import classNames from 'classnames';
 import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
-import React, { FC, PropsWithChildren } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC, PropsWithChildren } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import styles from './rankedWords.module.scss';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
-import { WordRankInfo } from 'backend.generated';
+import styles from './rankedWords.module.scss';
 
 const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
     const { isKnown } = useWordsKnownQuery(undefined, {
@@ -20,7 +20,7 @@ const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
     const isActive = useTypedSelector((state) =>
         selectSelectedWords(state).includes(id)
     );
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     return (
         <div
             className={classNames(styles.word, {

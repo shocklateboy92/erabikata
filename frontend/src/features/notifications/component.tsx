@@ -1,15 +1,13 @@
 import { mdiClose } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useTypedSelector } from 'app/hooks';
-import store from 'app/store';
-import React, { useEffect } from 'react';
-import { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import store, { useAppDispatch } from 'app/store';
+import { FC, useEffect } from 'react';
 import styles from './notifications.module.scss';
 import { notification, notificationDeactivation } from './slice';
 
 const Notification: FC<{ id: number }> = ({ id }) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const content = useTypedSelector(
         (state) => state.notifications.content[id!]
     );
@@ -73,8 +71,7 @@ window.addEventListener('keypress', (e) => {
         store.dispatch(
             notification({
                 title: 'Test notification ' + num++,
-                text:
-                    'The body of the notification. HOpefully this will be longer'
+                text: 'The body of the notification. HOpefully this will be longer'
             })
         );
     }

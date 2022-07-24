@@ -1,12 +1,12 @@
 import { mdiFuriganaHorizontal } from '@mdi/js';
 import { useAppSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { HeaderButton } from 'features/header';
-import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC } from 'react';
 import { selectIsFuriganaEnabled, toggleFurigana } from './slice';
 
 export const FuriganaOption: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const selected = useAppSelector(selectIsFuriganaEnabled);
 
     return (
