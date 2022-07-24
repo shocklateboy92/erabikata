@@ -1,12 +1,12 @@
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { FullPageError } from 'components/fullPageError';
 import { Page } from 'components/page';
 import { wordSelectionV2 } from 'features/selectedWord';
-import React, { FC } from 'react';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
-import { useNavigate, useParams } from 'react-router-dom';
+import { FC } from 'react';
+import { Navigate, useParams } from 'react-router-dom';
 import { WordOccurrences } from '../features/wordContext/occurrences';
-import { useAppDispatch } from 'app/store';
 
 export const WordPage: FC = () => {
     const { wordId } = useParams();
@@ -31,7 +31,6 @@ export const SearchWordPage: FC = () => {
     const params = new URLSearchParams(window.location.search);
     const word = params.get('word');
     const dispatch = useAppDispatch();
-    const navigate = useNavigate();
 
     if (word) {
         const wordId =
@@ -40,10 +39,11 @@ export const SearchWordPage: FC = () => {
 
         if (wordId) {
             dispatch(wordSelectionV2([wordId]));
-            navigate(`/ui/word/${wordId}?word=${wordId}`);
+            return (
+                <Navigate replace to={`/ui/word/${wordId}?word=${wordId}`} />
+            );
         }
     }
 
-    navigate(`/ui/word/search?query=${word}`);
-    return <></>;
+    return <Navigate replace to={`/ui/word/search?query=${word}`} />;
 };

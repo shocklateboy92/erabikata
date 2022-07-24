@@ -15,7 +15,7 @@ export const AppSwitch: FC = () => (
             <Route path="word">
                 <Route path="search" element={<WordSearchPage />} />
                 <Route path=":wordId" element={<WordPage />} />
-                <Route element={<SearchWordPage />} />
+                <Route path="" element={<SearchWordPage />} />
             </Route>
             <Route path="dialog" element={<DialogPage />} />
             <Route path="rankedWords/:pageNum?" element={<RankedWordsPage />} />
@@ -23,9 +23,10 @@ export const AppSwitch: FC = () => (
             <Route path="nowPlaying" element={<NowPlaying />} />
             <Route path="engSubs/stylesOf/:showId" element={<StylesPage />} />
             <Route path="anki" element={<AnkiPage />} />
-            <Route path="*" element={<Navigate replace to="nowPlaying" />} />
+            <Route path="" element={<Navigate replace to="nowPlaying" />} />
         </Route>
         <Route
+            path="*"
             element={
                 <Navigate
                     replace
