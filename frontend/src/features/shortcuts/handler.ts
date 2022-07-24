@@ -23,7 +23,7 @@ import {
     selectDefinitionsById,
     selectSelectedWordDefinitions
 } from 'features/wordDefinition';
-import { generateDialogLink } from 'routing/linkGen';
+import { generateDialogLink } from 'features/routing/linkGen';
 import { selectSelectedEnglishDialog } from '../engDialog';
 
 type AppThunk = (dispatch: AppDispatch, getState: () => RootState) => void;

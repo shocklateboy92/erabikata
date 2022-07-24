@@ -7,7 +7,7 @@ import {
     selectSelectedWords
 } from 'features/selectedWord';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
-import { generateDialogLink } from 'routing/linkGen';
+import { generateDialogLink } from 'features/routing/linkGen';
 
 export const selectSentenceTimeToSend = (state: RootState) =>
     state.anki.sentence ?? selectSelectedEpisodeTime(state);
