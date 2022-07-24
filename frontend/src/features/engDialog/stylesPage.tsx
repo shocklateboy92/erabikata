@@ -72,8 +72,8 @@ const ToggleStyleAction: FC<{ showId: number; styleName: string }> = ({
 };
 
 export const StylesPage: FC = () => {
-    const params = useParams<{ showId: string }>();
-    const showId = parseInt(params.showId);
+    const params = useParams();
+    const showId = parseInt(params.showId!);
     const response = useEngSubsStylesOfQuery({ showId }, { skip: !showId });
 
     if (!showId) {

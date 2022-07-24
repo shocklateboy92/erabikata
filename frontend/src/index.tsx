@@ -1,24 +1,24 @@
+import { AppInsightsContext } from '@microsoft/applicationinsights-react-js';
+import appHistory from 'appHistory';
+import { reactPlugin } from 'appInsights';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import { Provider } from 'react-redux';
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
 import './App.css';
 import './app.scss';
-import * as serviceWorker from './serviceWorkerRegistration';
-import { Provider } from 'react-redux';
 import store from './app/store';
-import { Router } from 'react-router-dom';
 import { AppSwitch } from './features/routing/switch';
-import history from './appHistory';
-import { AppInsightsContext } from '@microsoft/applicationinsights-react-js';
-import { reactPlugin } from 'appInsights';
+import './index.css';
+import * as serviceWorker from './serviceWorkerRegistration';
 
 ReactDOM.render(
     <React.StrictMode>
         <Provider store={store}>
             <AppInsightsContext.Provider value={reactPlugin}>
-                <Router history={history}>
+                <HistoryRouter history={appHistory}>
                     <AppSwitch />
-                </Router>
+                </HistoryRouter>
             </AppInsightsContext.Provider>
         </Provider>
     </React.StrictMode>,

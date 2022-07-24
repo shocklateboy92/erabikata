@@ -54,7 +54,7 @@ const ChangePageIcon: FC<{ path: string }> = ({ path }) => (
 
 const max = 100;
 export const RankedWords: FC = () => {
-    const pageParam = parseInt(useParams<{ pageNum: string }>().pageNum);
+    const pageParam = parseInt(useParams().pageNum!);
     const pageNum = isNaN(pageParam) ? 0 : pageParam;
     const skip = pageNum * max;
 

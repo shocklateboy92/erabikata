@@ -4,16 +4,14 @@ import { Page } from 'components/page';
 import { wordSelectionV2 } from 'features/selectedWord';
 import React, { FC } from 'react';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
-import { Redirect, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { WordOccurrences } from '../features/wordContext/occurrences';
 import { useAppDispatch } from 'app/store';
 
 export const WordPage: FC = () => {
-    const { wordId } = useParams<{
-        wordId: string;
-    }>();
+    const { wordId } = useParams();
 
-    const parsedId = parseInt(wordId);
+    const parsedId = parseInt(wordId!);
     const title = useTypedSelector(
         (state) =>
             selectWordDefinition(state, parsedId)?.japanese[0].kanji ?? wordId
@@ -33,6 +31,7 @@ export const SearchWordPage: FC = () => {
     const params = new URLSearchParams(window.location.search);
     const word = params.get('word');
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     if (word) {
         const wordId =
@@ -41,9 +40,10 @@ export const SearchWordPage: FC = () => {
 
         if (wordId) {
             dispatch(wordSelectionV2([wordId]));
-            return <Redirect to={`/ui/word/${wordId}?word=${wordId}`} />;
+            navigate(`/ui/word/${wordId}?word=${wordId}`);
         }
     }
 
-    return <Redirect to={`/ui/word/search?query=${word}`} />;
+    navigate(`/ui/word/search?query=${word}`);
+    return <></>;
 };
