@@ -1,8 +1,8 @@
 import { mdiShare, mdiShareVariant } from '@mdi/js';
 import Icon from '@mdi/react';
+import { useAppDispatch } from 'app/store';
 import { selectEpisodeTitle } from 'features/dialog/selectors';
-import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC } from 'react';
 import { Link } from 'react-router-dom';
 import { useTypedSelector } from '../../app/hooks';
 import { InlineButton } from '../../components/button';
@@ -13,7 +13,7 @@ import { shareSelectedWordDialog } from '../selectedWord/api';
 import { DialogList } from './dialogList';
 
 export const DialogDrawer: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const {
         wordIds,
         sentenceTimestamp: time,

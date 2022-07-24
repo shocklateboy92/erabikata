@@ -6,14 +6,14 @@ import {
 import { Separator } from 'components/separator';
 import { FuriganaOption } from 'features/furigana/option';
 import { SpinnerTop } from 'features/spinnerTop/component';
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { FC } from 'react';
 import { NavLink } from 'react-router-dom';
 import { HeaderItem } from '.';
 import styles from './header.module.scss';
 import { CloseButton } from './ts';
 
-export const AppHeader: FC = ({ children }) => (
+export const AppHeader: FC<PropsWithChildren<{}>> = ({ children }) => (
     <header className={styles.container}>
         <SpinnerTop />
         <Separator navBar />

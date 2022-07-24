@@ -1,9 +1,10 @@
 import Icon from '@mdi/react';
-import React, { FC } from 'react';
+import React, { FC, ReactNode } from 'react';
 import styles from './header.module.scss';
 
 interface IHeaderItem {
     icon: string;
+    children: ReactNode;
 }
 
 export const HeaderItem: FC<IHeaderItem> = ({ icon, children }) => (

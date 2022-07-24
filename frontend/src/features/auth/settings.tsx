@@ -1,13 +1,13 @@
 import { mdiAccount } from '@mdi/js';
 import { useTypedSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { ActionButton } from 'components/button/actionButton';
-import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC } from 'react';
 import { signIn } from './api';
 import { selectIsUserSignedIn } from './slice';
 
 export const AuthSettings: FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const signedIn = useTypedSelector(selectIsUserSignedIn);
 
     return signedIn ? (

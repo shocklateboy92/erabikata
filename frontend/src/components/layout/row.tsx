@@ -1,8 +1,8 @@
 import classNames from 'classnames';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import './layout.scss';
 
-export const Row: FC<{ centerChildren?: boolean }> = ({
+export const Row: FC<PropsWithChildren<{ centerChildren?: boolean }>> = ({
     centerChildren,
     children
 }) => (

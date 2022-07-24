@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import styles from './fullWidth.module.scss';
 
-export const FullWidthText: FC = ({ children }) => (
+export const FullWidthText: FC<PropsWithChildren<{}>> = ({ children }) => (
     <div className={styles.container}>{children}</div>
 );

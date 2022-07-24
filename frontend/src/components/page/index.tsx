@@ -2,22 +2,23 @@ import {
     useAppInsightsContext,
     useTrackMetric
 } from '@microsoft/applicationinsights-react-js';
+import { useAppDispatch } from 'app/store';
 import classNames from 'classnames';
 import { fetchWordsWithHiddenFurigana } from 'features/furigana';
 import { AppHeader } from 'features/header';
 import { NotifcationsView } from 'features/notifications';
 import { SelectedWord, selectionClearRequest } from 'features/selectedWord';
 import 'features/shortcuts';
-import React, { FC, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import styles from './page.module.scss';
 
 export interface IPageProps {
     title?: string;
+    children: ReactNode;
 }
 
 export const Page: FC<IPageProps> = (props) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const appInsights = useAppInsightsContext();
     useTrackMetric(appInsights, 'Page');
 

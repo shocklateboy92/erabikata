@@ -1,9 +1,9 @@
 import { mdiPlayNetwork } from '@mdi/js';
 import Icon from '@mdi/react';
 import { useAppSelector } from 'app/hooks';
+import { useAppDispatch } from 'app/store';
 import { selectIsPlayingInSelectedPlayer } from 'features/hass';
-import React, { FC } from 'react';
-import { useDispatch } from 'react-redux';
+import { FC } from 'react';
 import { playFrom } from './api';
 
 export const HassPlayButton: FC<{
@@ -11,7 +11,7 @@ export const HassPlayButton: FC<{
     dialogId?: number;
     iconSize?: string;
 }> = (props) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const shouldShow =
         useAppSelector((state) =>
             selectIsPlayingInSelectedPlayer(state, props.episodeId)

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
 import { FC } from 'react';
 import styles from './spinner.module.scss';
 
@@ -19,6 +19,6 @@ export const Spinner: FC = () => (
     </div>
 );
 
-export const SpinnerContainer: FC = ({ children }) => (
+export const SpinnerContainer: FC<PropsWithChildren<{}>> = ({ children }) => (
     <div className={styles.container}>{children}</div>
 );

@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { FC } from 'react';
+import React, { FC, ReactNode } from 'react';
 import styles from './button.module.scss';
 
 export interface IButtonProps {
@@ -10,6 +10,7 @@ export interface IButtonProps {
     large?: boolean;
     standalone?: boolean;
     hideOnMobile?: boolean;
+    children?: ReactNode;
 }
 export const InlineButton: FC<IButtonProps> = (props) => {
     return (

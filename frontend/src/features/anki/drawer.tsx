@@ -8,10 +8,10 @@ import { QueryPlaceholder } from 'components/placeholder/queryPlaceholder';
 import { Drawer } from 'features/drawer';
 import { Ruby } from 'features/furigana';
 import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 import './drawer.scss';
 
-export const AnkiDrawer: FC = () => {
+export const AnkiDrawer: FC<PropsWithChildren<{}>> = () => {
     return (
         <Drawer summary="Anki Notes">
             <DrawerContent />

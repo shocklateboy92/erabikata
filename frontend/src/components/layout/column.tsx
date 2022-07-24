@@ -1,5 +1,5 @@
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 
-export const Column: FC = ({ children }) => (
+export const Column: FC<PropsWithChildren<{}>> = ({ children }) => (
     <div className="layout column">{children}</div>
 );

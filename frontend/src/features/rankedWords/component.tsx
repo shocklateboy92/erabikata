@@ -4,7 +4,7 @@ import { useTypedSelector } from 'app/hooks';
 import { useWordsKnownQuery, useWordsRanked2Query } from 'backend';
 import classNames from 'classnames';
 import { selectSelectedWords, wordSelectionV2 } from 'features/selectedWord';
-import React, { FC } from 'react';
+import React, { FC, PropsWithChildren } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, useParams } from 'react-router-dom';
 import styles from './rankedWords.module.scss';
@@ -42,7 +42,10 @@ const SelectableDiv: FC<WordRankInfo> = ({ text, count, id, rank }) => {
     );
 };
 
-const ChangePageLink: FC<{ pageNum: number }> = ({ pageNum, children }) => (
+const ChangePageLink: FC<PropsWithChildren<{ pageNum: number }>> = ({
+    pageNum,
+    children
+}) => (
     <div className={styles.pageLink}>
         <Link to={`/ui/rankedWords/${pageNum}`}>{children}</Link>
     </div>

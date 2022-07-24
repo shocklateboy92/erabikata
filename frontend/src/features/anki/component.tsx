@@ -11,7 +11,7 @@ import { Dialog } from 'features/dialog/Dialog';
 import { EngDialog } from 'features/engDialog/engDialog';
 import { ImageContext } from 'features/imageContext/component';
 import { selectSelectedEpisodeTime } from 'features/selectedWord';
-import React, { FC, Fragment, useState } from 'react';
+import React, { FC, Fragment, ReactNode, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { ankiTimeLockRequest, wordMeaningCheckToggle } from './ankiSlice';
 import { sendToAnki, syncAnkiActivity } from './api';
@@ -216,6 +216,7 @@ const SendToAnkiButton: FC = () => {
 const TimeLockableField: FC<{
     field: 'image' | 'meaning' | 'sentence';
     title: string;
+    children: ReactNode;
 }> = ({ field, ...props }) => {
     const dispatch = useDispatch();
     const isActive = useTypedSelector((state) => !!state.anki[field]);
@@ -233,6 +234,6 @@ const TimeLockableField: FC<{
                 dispatch(ankiTimeLockRequest({ field, time }));
             }}
             {...props}
-        ></FieldView>
+        />
     );
 };

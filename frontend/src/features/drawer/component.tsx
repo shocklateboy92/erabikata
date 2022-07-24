@@ -13,6 +13,7 @@ interface IDrawerProps {
     startOpen?: boolean;
     onToggle?: () => void;
     extraActions?: (iconSize: string) => ReactNode;
+    children?: ReactNode;
 }
 
 export const Drawer: FC<IDrawerProps> = ({

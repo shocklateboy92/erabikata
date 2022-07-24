@@ -3,7 +3,7 @@ import Icon from '@mdi/react';
 import classNames from 'classnames';
 import { InlineButton } from 'components/button';
 import { Dialog } from 'features/dialog/Dialog';
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
 import { useNearbyDialogQuery } from './api';
 import './dialog.scss';
@@ -75,6 +75,7 @@ export const DialogList: FC<IDialogListProps> = ({
 interface IScrollButtonProps {
     isLoading: boolean;
     onClick: () => void;
+    children?: ReactNode;
 }
 
 const BeginScrollButton: FC<IScrollButtonProps> = ({

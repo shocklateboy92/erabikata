@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React, { FC } from 'react';
+import React, { FC, ReactNode } from 'react';
 import { HeaderItem } from './headerItem';
 
 export interface IToolButtonProps {
@@ -7,6 +7,7 @@ export interface IToolButtonProps {
     active?: boolean;
     hideOnMobile?: boolean;
     onClick: React.ComponentProps<'button'>['onClick'];
+    children?: ReactNode;
 }
 
 export const HeaderButton: FC<IToolButtonProps> = ({
