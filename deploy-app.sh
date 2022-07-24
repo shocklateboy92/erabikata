@@ -2,7 +2,7 @@
 
 set -xe
 
-image_name=registry.apps.lasath.org/erabikata3
+image_name=registry.apps.lasath.org/erabikata4
 backend_dir=backend/Erabikata.Backend
 backend_build_dir="$backend_dir/bin/Release"
 www_dir="$backend_build_dir/net6.0/publish/wwwroot"

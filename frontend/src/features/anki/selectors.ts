@@ -73,7 +73,7 @@ export const selectSentenceLinkToSend = (state: RootState) => {
     }
 
     return (
-        'https://erabikata3.apps.lasath.org' +
+        'https://erabikata4.apps.lasath.org' +
         generateDialogLink(
             sentenceTime.episodeId,
             sentenceTime.time,
