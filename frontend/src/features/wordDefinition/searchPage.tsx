@@ -1,6 +1,7 @@
 import { useAppDispatch } from 'app/store';
 import { useWordsSearchQuery } from 'backend';
 import { FC, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { FullWidthText } from '../../components/fullWidth';
 import { Page } from '../../components/page';
 import { QueryPlaceholder } from '../../components/placeholder/queryPlaceholder';
@@ -29,7 +30,7 @@ const SearchResults: FC<{ query: string }> = ({ query }) => {
     );
 };
 export const WordSearchPage: FC = () => {
-    const query = new URLSearchParams(window.location.search).get('query');
+    const query = useSearchParams()[0].get('query');
 
     return (
         <Page title={query + ' search results'}>

@@ -5,7 +5,7 @@ import { Page } from 'components/page';
 import { wordSelectionV2 } from 'features/selectedWord';
 import { selectWordDefinition } from 'features/wordDefinition/selectors';
 import { FC } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { WordOccurrences } from '../features/wordContext/occurrences';
 
 export const WordPage: FC = () => {
@@ -28,8 +28,7 @@ export const WordPage: FC = () => {
 };
 
 export const SearchWordPage: FC = () => {
-    const params = new URLSearchParams(window.location.search);
-    const word = params.get('word');
+    const word = useSearchParams()[0].get('word');
     const dispatch = useAppDispatch();
 
     if (word) {

@@ -1,3 +1,4 @@
-import { createBrowserHistory } from 'history';
+import { createBrowserHistory, createMemoryHistory } from 'history';
+import { isTest } from 'testSelectors';
 
-export default createBrowserHistory();
+export default isTest ? createMemoryHistory() : createBrowserHistory();
