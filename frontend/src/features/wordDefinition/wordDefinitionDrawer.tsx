@@ -21,7 +21,7 @@ export const WordDefinitionDrawer: FC<{
 
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(fetchDefinitionsIfNeeded(wordIds));
+        dispatch(fetchDefinitionsIfNeeded({ wordId: wordIds }));
     }, [wordIds, dispatch]);
 
     const definition = exact ? wordIds.slice(0, 1) : wordIds.slice(1);

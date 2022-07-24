@@ -12,7 +12,9 @@ const SearchResults: FC<{ query: string }> = ({ query }) => {
 
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(fetchDefinitionsIfNeeded(response.data ?? []));
+        if (response.data) {
+            dispatch(fetchDefinitionsIfNeeded({ wordId: response.data }));
+        }
     });
 
     if (!response.data) {
