@@ -1,7 +1,8 @@
 import { AnkiPage } from 'features/anki/ankiPage';
 import { WordSearchPage } from 'features/wordDefinition';
+import { NotFoundPage } from 'pages/notFoundPage';
 import { FC } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { DialogPage } from '../../pages/dialogPage';
 import { InfoPage } from '../../pages/infoPage';
 import { RankedWordsPage } from '../../pages/rankedWordsPage';
@@ -27,19 +28,16 @@ export const AppSwitch: FC = () => (
             <Route path="engSubs/stylesOf/:showId" element={<StylesPage />} />
             <Route path="anki" element={<AnkiPage />} />
             <Route path="" element={<Navigate replace to="nowPlaying" />} />
+            <Route path="*" element={<NotFoundPage />} />
         </Route>
-        <Route
-            path="*"
-            element={
-                <Navigate
-                    replace
-                    to={
-                        '/ui' +
-                        window.location.pathname +
-                        window.location.search
-                    }
-                />
-            }
-        />
+        <Route path="*" element={<UiRedirect />} />
     </Routes>
 );
+
+const UiRedirect: FC = () => {
+    const location = useLocation();
+
+    return (
+        <Navigate replace to={'/ui' + location.pathname + location.search} />
+    );
+};
