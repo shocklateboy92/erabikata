@@ -18,7 +18,10 @@ export const AppSwitch: FC = () => (
                 <Route path="" element={<SearchWordPage />} />
             </Route>
             <Route path="dialog" element={<DialogPage />} />
-            <Route path="rankedWords/:pageNum?" element={<RankedWordsPage />} />
+            <Route path="rankedWords">
+                <Route path=":pageNum" element={<RankedWordsPage />} />
+                <Route path="" element={<RankedWordsPage />} />
+            </Route>
             <Route path="settings" element={<InfoPage />} />
             <Route path="nowPlaying" element={<NowPlaying />} />
             <Route path="engSubs/stylesOf/:showId" element={<StylesPage />} />

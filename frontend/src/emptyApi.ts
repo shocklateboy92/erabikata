@@ -10,7 +10,7 @@ export const api = createApi({
             Object.entries(params).forEach(([param, value]) => {
                 if (Array.isArray(value)) {
                     value.forEach((v) => serializer.append(param, v));
-                } else {
+                } else if (value !== undefined) {
                     serializer.append(param, value);
                 }
             });
