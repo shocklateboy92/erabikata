@@ -24,7 +24,7 @@ const SearchResults: FC<{ query: string }> = ({ query }) => {
     return (
         <>
             {response.data.map((wordId) => (
-                <Definition wordId={wordId} />
+                <Definition key={wordId} wordId={wordId} />
             ))}
         </>
     );
