@@ -57,13 +57,14 @@ public class AnkiWordCollectionManager : ICollectionManager
             case SyncAnki:
                 await _ankiSyncClient.Execute(new SyncAnkiAction());
 
-                var (noteTexts, takobotoWords, matcher) = await (
+                var (noteTexts, (takobotoWords, takobotoNoteTexts), matcher) = await (
                     GetAndAnalyzeNoteTexts(),
                     GetTakobotoWords(),
                     _wordInfoCollectionManager.BuildWordMatcher()
                 );
 
                 var ankiWords = noteTexts
+                    .Concat(takobotoNoteTexts)
                     .Select(
                         text =>
                             new AnkiNote(
@@ -93,28 +94,54 @@ public class AnkiWordCollectionManager : ICollectionManager
         RegexOptions.Compiled
     );
 
-    private async Task<IEnumerable<AnkiNote>> GetTakobotoWords()
+    private async Task<(IEnumerable<AnkiNote>, IEnumerable<(long id, Dialog.Word[] words, string primaryWord, string primaryWordReading)>)> GetTakobotoWords()
     {
-        var notes = await FindAndGetNoteInfo("note:jp.takoboto");
-        return notes.Select(
-            note =>
-                new AnkiNote(
-                    note.NoteId,
-                    new[]
-                    {
-                        int.Parse(
-                            TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[1].Value
+        var timeSpan = DateTime.Now - new DateTime(2021, 12, 4);
+        var days = (int)timeSpan.TotalDays;
+        var (notes, recentNotes) = await (
+            FindAndGetNoteInfo("note:jp.takoboto"),
+            FindNotes($"note:jp.takoboto -tag:unknown\\_words rated:{days}")
+        );
+        var fullKnownWords = recentNotes.ToHashSet();
+        return (
+            notes
+                .Where(n => !fullKnownWords.Contains(n.NoteId))
+                .Select(
+                    note =>
+                        new AnkiNote(
+                            note.NoteId,
+                            new[]
+                            {
+                                int.Parse(
+                                    TakobotoLinkPattern.Match(note.Fields["Link"].Value).Groups[
+                                        1
+                                    ].Value
+                                )
+                            },
+                            note.Fields["Japanese"].Value,
+                            note.Fields["Reading"].Value,
+                            Array.Empty<Dialog.Word>()
                         )
-                    },
-                    note.Fields["Japanese"].Value,
-                    note.Fields["Reading"].Value,
-                    Array.Empty<Dialog.Word>()
-                )
+                ),
+            await AnalyzeNoteTexts(
+                notes
+                    .Where(n => fullKnownWords.Contains(n.NoteId))
+                    .Select(
+                        note =>
+                            (
+                                note.NoteId,
+                                ProcessText(note.Fields["Sentence"].Value),
+                                note.Fields["Japanese"].Value,
+                                note.Fields["Reading"].Value
+                            )
+                    )
+                    .ToArray()
+            )
         );
     }
 
     private async Task<
-        IEnumerable<(long id, Dialog.Word[], string primaryWord, string primaryWordReading)>
+        IEnumerable<(long id, Dialog.Word[] words, string primaryWord, string primaryWordReading)>
     > GetAndAnalyzeNoteTexts()
     {
         var noteInfos = await FindAndGetNoteInfo("\"note:Jap Sentences 2\"");
@@ -142,15 +169,20 @@ public class AnkiWordCollectionManager : ICollectionManager
 
     private async Task<AnkiNoteResponse[]> FindAndGetNoteInfo(string query)
     {
-        var notes = (
-            await _ankiSyncClient.FindNotes(new AnkiAction("findNotes", new { query }))
-        ).Unwrap();
+        var notes = await FindNotes(query);
 
         _logger.LogInformationString($"Got {notes.Length} notes for query");
         var noteInfos = (
             await _ankiSyncClient.NotesInfo(new AnkiAction("notesInfo", new { notes }))
         ).Unwrap();
         return noteInfos;
+    }
+
+    private async Task<long[]> FindNotes(string query)
+    {
+        return (
+            await _ankiSyncClient.FindNotes(new AnkiAction("findNotes", new { query }))
+        ).Unwrap();
     }
 
     private static readonly Regex ReadingsPattern = new Regex(@"\[[^]]*\]", RegexOptions.Compiled);

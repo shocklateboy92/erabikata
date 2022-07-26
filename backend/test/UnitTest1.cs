@@ -94,6 +94,52 @@ public class UnitTest1 : IClassFixture<BackendFactory>
         string.Join(string.Empty, notes[0].Words.Select(word => word.DisplayText))
             .Should()
             .Be("この大胆な下着が？");
+
+        // Matches a word that is in an Takoboto sentence but (hopefully) not
+        // in its own (or Sentence 2) note.
+        const int testWordInSentence = 1414380;
+        notes = await client.NotesAsync(testWordInSentence);
+        notes
+            .Should()
+            .BeEquivalentTo(
+                new NoteInfo[]
+                {
+                    new(
+                        1602722454061,
+                        "暖炉",
+                        "だんろ",
+                        new[]
+                        {
+                            2216120,
+                            2028920,
+                            2069620,
+                            1200120,
+                            1009470,
+                            1928670,
+                            2029110,
+                            2089020,
+                            2578080,
+                            2702090,
+                            1419900,
+                            1008420,
+                            1628500,
+                            2271410,
+                            2029080,
+                            2841117,
+                            1004780,
+                            1628530,
+                            2093510,
+                            2270030,
+                            2516590,
+                            2765700,
+                            2176280,
+                            testWordInSentence
+                        },
+                        words: ArraySegment<WordRef>.Empty
+                    )
+                },
+                options => options.Excluding(info => info.Words)
+            );
     }
 
     [Fact, Priority(20)]
