@@ -2,6 +2,7 @@ import {
     AnyAction,
     compose,
     createAsyncThunk,
+    Dictionary,
     ThunkDispatch
 } from '@reduxjs/toolkit';
 import { RootState } from 'app/rootReducer';
@@ -114,11 +115,15 @@ export const playFrom = createAsyncThunk(
     }
 );
 
-// As of 2021-09-04, the plex integration seems to control apollo
+const PLAYER_OVERRIDES: Dictionary<string> = {
+    'media_player.plex_plex_for_android_tv_shield_android_tv':
+        'media_player.apollo',
+    'media_player.plex_plex_for_android_tv_shield_android_tv_2':
+        'media_player.apollo2'
+};
+
 const withPlayerOverrides = (entity_id: string | null) =>
-    entity_id === 'media_player.plex_plex_for_android_tv_shield_android_tv'
-        ? 'media_player.apollo'
-        : entity_id;
+    PLAYER_OVERRIDES[entity_id!] ?? entity_id;
 
 interface IHassContext {
     connection?: hass.Connection;
