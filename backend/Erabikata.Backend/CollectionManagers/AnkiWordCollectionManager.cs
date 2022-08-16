@@ -57,9 +57,9 @@ public class AnkiWordCollectionManager : ICollectionManager
             case SyncAnki:
                 await _ankiSyncClient.Execute(new SyncAnkiAction());
 
-                var (noteTexts, (takobotoWords, takobotoNoteTexts), matcher) = await (
+                var (takobotoWords, takobotoNoteTexts) = await GetTakobotoWords();
+                var (noteTexts, matcher) = await (
                     GetAndAnalyzeNoteTexts(),
-                    GetTakobotoWords(),
                     _wordInfoCollectionManager.BuildWordMatcher()
                 );
 
@@ -98,10 +98,8 @@ public class AnkiWordCollectionManager : ICollectionManager
     {
         var timeSpan = DateTime.Now - new DateTime(2021, 12, 4);
         var days = (int)timeSpan.TotalDays;
-        var (notes, recentNotes) = await (
-            FindAndGetNoteInfo("note:jp.takoboto"),
-            FindNotes($"note:jp.takoboto -tag:unknown\\_words rated:{days}")
-        );
+        var notes = await FindAndGetNoteInfo("note:jp.takoboto");
+        var recentNotes = await FindNotes($"note:jp.takoboto -tag:unknown\\_words rated:{days}");
         var fullKnownWords = recentNotes.ToHashSet();
         return (
             notes
@@ -188,7 +186,7 @@ public class AnkiWordCollectionManager : ICollectionManager
     private static readonly Regex ReadingsPattern = new Regex(@"\[[^]]*\]", RegexOptions.Compiled);
     private static readonly Regex TagsPattern = new Regex(@"<[^>]*>", RegexOptions.Compiled);
 
-    private string ProcessText(string text) =>
+    private static string ProcessText(string text) =>
         TagsPattern
             .Replace(ReadingsPattern.Replace(text, string.Empty), string.Empty)
             .Replace(" ", string.Empty);
